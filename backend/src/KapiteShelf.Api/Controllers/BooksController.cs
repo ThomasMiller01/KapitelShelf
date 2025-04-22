@@ -1,9 +1,7 @@
 ﻿using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using NLog;
 
 namespace KapitelShelf.Api.Controllers;
 
@@ -11,12 +9,13 @@ namespace KapitelShelf.Api.Controllers;
 [Route("books")]
 public class BooksController : ControllerBase
 {
-    private readonly Logger logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<BooksController> logger;
 
     private readonly BooksLogic logic;
 
-    public BooksController(BooksLogic logic)
+    public BooksController(ILogger<BooksController> logger, BooksLogic logic)
     {
+        this.logger = logger;
         this.logic = logic;
     }
 
@@ -30,28 +29,7 @@ public class BooksController : ControllerBase
         }
         catch (Exception ex)
         {
-            this.logger.Error(ex);
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
-
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<IList<BookDTO>>> GetBookById(Guid bookId)
-    {
-        try
-        {
-            var book = await this.logic.GetBookByIdAsync(bookId);
-
-            if (book is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(book);
-        }
-        catch (Exception ex)
-        {
-            this.logger.Error(ex);
+            this.logger.LogError(ex, "Error fetching books");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
@@ -61,7 +39,7 @@ public class BooksController : ControllerBase
     {
         try
         {
-            var book = await this.logic.CreateBook(bookDto);
+            var book = await this.logic.CreateBookAsync(bookDto);
 
             return CreatedAtAction(nameof(CreateBook), book);
         }
@@ -77,7 +55,67 @@ public class BooksController : ControllerBase
         }
         catch (Exception ex)
         {
-            this.logger.Error(ex);
+            this.logger.LogError(ex, "Error creating book with title: {title}", bookDto.Title);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    [HttpGet("{bookId:guid}")]
+    public async Task<ActionResult<IList<BookDTO>>> GetBookById(Guid bookId)
+    {
+        try
+        {
+            var book = await this.logic.GetBookByIdAsync(bookId);
+            if (book is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(book);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching book with Id: {bookId}", bookId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    [HttpPut("{bookId:guid}")]
+    public async Task<IActionResult> UpdateBook(Guid bookId, BookDTO bookDto)
+    {
+        try
+        {
+            var book = await this.logic.UpdateBookAsync(bookId, bookDto);
+            if (book is null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error updating book with Id: {bookId}", bookId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    [HttpDelete("{bookId:guid}")]
+    public async Task<IActionResult> DeleteBook(Guid bookId)
+    {
+        try
+        {
+            var book = await this.logic.DeleteBookAsync(bookId);
+            if (book is null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting book with Id: {bookId}", bookId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

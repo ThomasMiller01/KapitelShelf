@@ -1,13 +1,8 @@
+using KapitelShelf.Api.Logic;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
-using NLog;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// setup logging
-LogManager
-    .Setup()
-    .LoadConfigurationFromFile("Properties/nlog.config");
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -22,6 +17,9 @@ builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options =>
 
 // automapper
 builder.Services.AddAutoMapper(typeof(Program));
+
+// logic
+builder.Services.AddSingleton<BooksLogic>();
 
 var app = builder.Build();
 

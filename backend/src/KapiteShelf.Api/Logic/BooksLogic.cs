@@ -42,7 +42,7 @@ public class BooksLogic
         }
     }
 
-    public async Task<BookDTO> CreateBook(BookDTO bookDto)
+    public async Task<BookDTO> CreateBookAsync(BookDTO bookDto)
     {
         using (var context = await this.dbContextFactory.CreateDbContextAsync())
         {
@@ -55,7 +55,52 @@ public class BooksLogic
             var book = this.mapper.Map<BookModel>(bookDto);
             book.Id = Guid.NewGuid();
 
+            foreach (var category in book.Categories)
+            {
+                category.CategoryId = book.Id;
+            }
+
+            foreach (var tag in book.Tags)
+            {
+                tag.BookId = book.Id;
+            }
+
             context.Books.Add(book);
+            await context.SaveChangesAsync();
+
+            return this.mapper.Map<BookDTO>(book);
+        }
+    }
+
+    public async Task<BookDTO?> UpdateBookAsync(Guid bookId, BookDTO bookDto)
+    {
+        using (var context = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            var book = await context.Books.FindAsync(bookId);
+            if (book is null)
+            {
+                return null;
+            }
+
+            // .Map() applies the changes to book
+            this.mapper.Map(bookDto, book);
+            await context.SaveChangesAsync();
+
+            return this.mapper.Map<BookDTO>(book);
+        }
+    }
+
+    public async Task<BookDTO?> DeleteBookAsync(Guid bookId)
+    {
+        using (var context = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            var book = await context.Books.FindAsync(bookId);
+            if (book is null)
+            {
+                return null;
+            }
+
+            context.Books.Remove(book);
             await context.SaveChangesAsync();
 
             return this.mapper.Map<BookDTO>(book);
