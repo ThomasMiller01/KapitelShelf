@@ -1,12 +1,11 @@
-﻿namespace KapitelShelf.Data.Models
+﻿namespace KapitelShelf.Data.Models;
+
+public class AuthorModel
 {
-    public class AuthorModel
-    {
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        public string FirstName { get; set; } = null!;
-        public string LastName { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
 
-        public ICollection<BookModel> Books { get; set; } = new List<BookModel>(); 
-    }
+    public ICollection<BookModel> Books { get; set; } = new List<BookModel>(); 
 }

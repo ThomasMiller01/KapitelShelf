@@ -1,12 +1,11 @@
-﻿namespace KapitelShelf.Data.Models
+﻿namespace KapitelShelf.Data.Models;
+
+public enum LocationTypeEnum
 {
-    public enum LocationTypeEnum
-    {
-        Physical,
-        KapitelShelf,
-        Kindle,
-        Skoobe,
-        Onleihe,
-        Library
-    }
+    Physical,
+    KapitelShelf,
+    Kindle,
+    Skoobe,
+    Onleihe,
+    Library
 }
