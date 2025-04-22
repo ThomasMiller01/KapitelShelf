@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "KapitelShelf.Data.Migrations": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
