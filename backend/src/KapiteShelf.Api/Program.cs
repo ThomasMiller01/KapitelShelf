@@ -1,17 +1,26 @@
-using NLog;
+using KapitelShelf.Api.Logic;
+using KapitelShelf.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// setup logging
-LogManager
-    .Setup()
-    .LoadConfigurationFromFile("Properties/nlog.config");
 
 // Add services to the container.
 builder.Services.AddControllers();
 
+// swagger
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
+
+// database
+builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options =>
+    options.UseNpgsql("Host=localhost;Database=kapitelshelf;Username=kapitelshelf;Password=kapitelshelf"));
+
+// automapper
+builder.Services.AddAutoMapper(typeof(Program));
+
+// logic
+builder.Services.AddSingleton<BooksLogic>();
+builder.Services.AddSingleton<DemoDataLogic>();
 
 var app = builder.Build();
 
