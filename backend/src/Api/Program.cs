@@ -1,4 +1,11 @@
+using NLog;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// setup logging
+LogManager
+    .Setup()
+    .LoadConfigurationFromFile("Properties/nlog.config");
 
 // Add services to the container.
 builder.Services.AddControllers();
