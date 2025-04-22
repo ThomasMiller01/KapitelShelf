@@ -6,7 +6,7 @@ namespace KapitelShelf.Data;
 public class KapitelShelfDBContext : DbContext
 {
     public DbSet<BookModel> Books => Set<BookModel>();
-    public DbSet<FileInfoModel> BookFileInfos => Set<FileInfoModel>();
+    public DbSet<FileInfoModel> FileInfos => Set<FileInfoModel>();
     public DbSet<SeriesModel> Series => Set<SeriesModel>();
     public DbSet<AuthorModel> Authors => Set<AuthorModel>();
     public DbSet<LocationModel> Locations => Set<LocationModel>();
