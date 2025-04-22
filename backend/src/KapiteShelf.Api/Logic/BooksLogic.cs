@@ -25,6 +25,17 @@ public class BooksLogic
         {
             return await context.Books
                 .AsNoTracking()
+
+                .Include(x => x.Series)
+                .Include(x => x.Author)
+                .Include(x => x.Categories)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.Tags)
+                    .ThenInclude(x => x.Tag)
+                .Include(x => x.Cover)
+                .Include(x => x.Location)
+                    .ThenInclude(x => x.FileInfo)
+
                 .Select(x => this.mapper.Map<BookDTO>(x))
                 .ToListAsync();
         }
@@ -36,6 +47,17 @@ public class BooksLogic
         {
             return await context.Books
                 .AsNoTracking()
+
+                .Include(x => x.Series)
+                .Include(x => x.Author)
+                .Include(x => x.Categories)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.Tags)
+                    .ThenInclude(x => x.Tag)
+                .Include(x => x.Cover)
+                .Include(x => x.Location)
+                    .ThenInclude(x => x.FileInfo)
+
                 .Where(x => x.Id == bookId)
                 .Select(x => this.mapper.Map<BookDTO>(x))
                 .FirstOrDefaultAsync();
