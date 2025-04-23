@@ -9,7 +9,10 @@ const AppRoutes = (): ReactElement | null =>
     {
       path: "/",
       element: <MainLayout />,
-      children: [{ index: true, element: <HomePage /> }],
+      children: [
+        { index: true, element: <HomePage /> },
+        { path: "/books", element: <HomePage /> },
+      ],
     },
   ]);
 

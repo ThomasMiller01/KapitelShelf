@@ -1,14 +1,17 @@
-import MailIcon from "@mui/icons-material/Mail";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
+import HomeIcon from "@mui/icons-material/Home";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import {
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Stack,
 } from "@mui/material";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
+import { NavLink } from "react-router-dom";
 
+import { useVersion } from "../hooks/useVersion";
 import { ResponsiveDrawer } from "./base/ResponsiveDrawer";
 
 interface SidebarProps {
@@ -21,25 +24,97 @@ export const Sidebar = ({
   open,
   onClose,
   mobile,
-}: SidebarProps): ReactElement => (
-  <ResponsiveDrawer
-    open={open}
-    mobile={mobile}
-    onClose={onClose}
-    name="KapitelShelf"
-    logo="/kapitelshelf.png"
-  >
-    <List>
-      {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-        <ListItem key={text} disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItemButton>
-        </ListItem>
-      ))}
-    </List>
-  </ResponsiveDrawer>
+}: SidebarProps): ReactElement => {
+  const { APP_VERSION, BACKEND_VERSION } = useVersion();
+
+  return (
+    <ResponsiveDrawer
+      open={open}
+      mobile={mobile}
+      onClose={onClose}
+      name="KapitelShelf"
+      logo="/kapitelshelf.png"
+    >
+      <Stack justifyContent="space-between" height="100%">
+        <List>
+          <SidebarLinkItem name="Home" icon={<HomeIcon />} link="/" />
+          <SidebarLinkItem
+            name="Books"
+            icon={<LibraryBooksIcon />}
+            link="/books"
+          />
+        </List>
+        <List>
+          <SidebarTextItem name={`Frontend v${APP_VERSION}`} small />
+          <SidebarTextItem name={`Backend v${BACKEND_VERSION}`} small />
+        </List>
+      </Stack>
+    </ResponsiveDrawer>
+  );
+};
+
+interface SidebarItemProps {
+  name: string;
+  icon?: ReactNode;
+}
+
+interface InternalSidebarItemProps {
+  small?: boolean;
+  children: ReactNode;
+}
+
+const SidebarItem = ({
+  small = false,
+  children,
+}: InternalSidebarItemProps): ReactElement => (
+  <ListItem disablePadding dense={small}>
+    {children}
+  </ListItem>
+);
+
+interface SidebarLinkItemProps extends SidebarItemProps {
+  link: string;
+}
+
+const SidebarLinkItem = ({
+  name,
+  icon,
+  link,
+}: SidebarLinkItemProps): ReactElement => (
+  <SidebarItem>
+    <ListItemButton
+      component={NavLink}
+      to={link}
+      sx={{
+        "&.active": {
+          backgroundColor: "action.selected", // or a custom color
+        },
+      }}
+    >
+      <ListItemIcon>{icon}</ListItemIcon>
+      <ListItemText primary={name} />
+    </ListItemButton>
+  </SidebarItem>
+);
+
+interface SidebarTextItemProps extends SidebarItemProps {
+  small?: boolean;
+}
+
+const SidebarTextItem = ({
+  name,
+  icon,
+  small = false,
+}: SidebarTextItemProps): ReactElement => (
+  <SidebarItem small={small}>
+    <ListItemText
+      sx={{
+        padding: small ? "0px 16px" : "8px 16px",
+        margin: small ? "0" : "4px",
+      }}
+    >
+      {icon && <ListItemIcon>{icon}</ListItemIcon>}
+      <ListItemText primary={name} />
+    </ListItemText>
+  </SidebarItem>
 );
