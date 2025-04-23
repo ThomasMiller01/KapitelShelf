@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KapitelShelf.Data.Migrations.Migrations
 {
     [DbContext(typeof(KapitelShelfDBContext))]
-    [Migration("20250423183231_Initial")]
+    [Migration("20250423183600_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
