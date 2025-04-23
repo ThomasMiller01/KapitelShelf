@@ -1,6 +1,8 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
+
+import KapitelShelfLogo from "/kapitelshelf.png";
 
 import { useToggleTheme } from "../contexts/ThemeContext";
 
@@ -19,9 +21,16 @@ const HomePage = (): ReactElement => {
       }}
     >
       <Container maxWidth="md" sx={{ textAlign: "center" }}>
-        <Typography variant="h2" gutterBottom>
-          📚 KapitelShelf
-        </Typography>
+        <Stack direction="row" justifyContent="center">
+          <img
+            src={KapitelShelfLogo}
+            alt="KapitelShelf logo"
+            style={{ width: "90px", height: "60px" }}
+          />
+          <Typography variant="h2" gutterBottom>
+            KapitelShelf
+          </Typography>
+        </Stack>
         <Typography variant="h6" color="text.secondary">
           Welcome to your personal library. Manage your books, track your
           reading, and explore your collection.
