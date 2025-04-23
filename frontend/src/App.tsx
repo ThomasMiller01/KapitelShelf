@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { BrowserRouter } from "react-router-dom";
 
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import AppRoutes from "./routes/routes";
 
 function App(): ReactElement {

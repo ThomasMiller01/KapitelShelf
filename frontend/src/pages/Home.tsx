@@ -2,7 +2,7 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useToggleTheme } from "../context/ThemeContext";
+import { useToggleTheme } from "../contexts/ThemeContext";
 
 const HomePage = (): ReactElement => {
   const navigate = useNavigate();

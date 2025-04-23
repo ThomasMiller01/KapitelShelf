@@ -3,6 +3,7 @@
 ```bash
 /src
 ├── /assets           # static assets like images, icons, logos
+├── /contexts         # context providers
 ├── /components       # reusable UI components (buttons, layout blocks, etc.)
 ├── /features         # domain-based folders (Books, Tags, Users, etc.)
 │   ├── /books
