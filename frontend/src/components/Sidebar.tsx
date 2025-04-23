@@ -37,11 +37,17 @@ export const Sidebar = ({
     >
       <Stack justifyContent="space-between" height="100%">
         <List>
-          <SidebarLinkItem name="Home" icon={<HomeIcon />} link="/" />
+          <SidebarLinkItem
+            name="Home"
+            icon={<HomeIcon />}
+            link="/"
+            onClose={mobile ? onClose : undefined}
+          />
           <SidebarLinkItem
             name="Books"
             icon={<LibraryBooksIcon />}
             link="/books"
+            onClose={mobile ? onClose : undefined}
           />
         </List>
         <List>
@@ -74,17 +80,20 @@ const SidebarItem = ({
 
 interface SidebarLinkItemProps extends SidebarItemProps {
   link: string;
+  onClose?: () => void;
 }
 
 const SidebarLinkItem = ({
   name,
   icon,
   link,
+  onClose = undefined,
 }: SidebarLinkItemProps): ReactElement => (
   <SidebarItem>
     <ListItemButton
       component={NavLink}
       to={link}
+      onClick={onClose}
       sx={{
         "&.active": {
           backgroundColor: "action.selected", // or a custom color

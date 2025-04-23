@@ -1,3 +1,5 @@
+import "./Fonts";
+
 import type { Theme } from "@mui/material/styles";
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 

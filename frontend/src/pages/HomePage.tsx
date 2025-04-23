@@ -1,10 +1,24 @@
-import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Stack,
+  styled,
+  Typography,
+} from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import KapitelShelfLogo from "/kapitelshelf.png";
 
 import { useToggleTheme } from "../contexts/ThemeContext";
+
+const ProductNameText = styled(Typography)({
+  fontFamily: "Playwrite AU SA",
+  fontWeight: "200",
+  lineHeight: "2",
+  fontFeatureSettings: '"calt"',
+});
 
 const HomePage = (): ReactElement => {
   const navigate = useNavigate();
@@ -18,13 +32,18 @@ const HomePage = (): ReactElement => {
       }}
     >
       <Container sx={{ textAlign: "center" }}>
-        <Stack direction="row" justifyContent="center">
+        <Stack
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
+        >
           <img
             src={KapitelShelfLogo}
             alt="KapitelShelf logo"
-            style={{ width: "90px", height: "60px" }}
+            style={{ width: "100px", height: "70px" }}
           />
-          <Typography variant="h2">KapitelShelf</Typography>
+          <ProductNameText variant="h2">KapitelShelf</ProductNameText>
         </Stack>
         <Typography variant="h6" color="text.secondary">
           Welcome to your personal library. Manage your books, track your

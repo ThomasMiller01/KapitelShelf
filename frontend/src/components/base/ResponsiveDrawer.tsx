@@ -15,6 +15,13 @@ import type { ReactElement, ReactNode } from "react";
 
 export const DRAWER_WIDTH = 280;
 
+const ProductNameText = styled(Typography)({
+  fontFamily: "Playwrite AU SA",
+  fontWeight: "200",
+  lineHeight: "2",
+  fontFeatureSettings: '"calt"',
+});
+
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -67,16 +74,16 @@ export const ResponsiveDrawer = ({
             src={logo}
             alt="My Image"
             sx={{
-              width: 35,
-              height: 25,
+              width: 40,
+              height: 30,
               objectFit: "cover",
             }}
           />
         )}
         {name && (
-          <Typography variant="h6" noWrap component="div">
+          <ProductNameText variant="h6" noWrap sx={{ width: "100%" }}>
             {name}
-          </Typography>
+          </ProductNameText>
         )}
       </Stack>
       {!mobile && (
@@ -107,7 +114,7 @@ export const ResponsiveDrawerAppBar = ({
   <AppBar
     position="fixed"
     sx={{
-      zIndex: (theme) => theme.zIndex.drawer + 1, // keep AppBar above Sidebar (removes elevation of Sidebar next to AppBar)
+      zIndex: (theme) => theme.zIndex.drawer + (mobile ? 0 : 1), // keep AppBar above Sidebar (removes elevation of Sidebar next to AppBar)
       width: open && !mobile ? `calc(100% - ${DRAWER_WIDTH}px)` : "100%",
       ml: open && !mobile ? `${DRAWER_WIDTH}px` : 0,
       bgcolor: "background.paper",
