@@ -1,14 +1,11 @@
-import { Box, Container } from "@mui/material";
+import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 
+import BooksList from "../features/BookList";
+
 const BooksPage = (): ReactElement => (
-  <Box
-    sx={{
-      mt: "12%",
-      display: "flex",
-    }}
-  >
-    <Container sx={{ textAlign: "center" }}>TODO</Container>
+  <Box>
+    <BooksList />
   </Box>
 );
 
