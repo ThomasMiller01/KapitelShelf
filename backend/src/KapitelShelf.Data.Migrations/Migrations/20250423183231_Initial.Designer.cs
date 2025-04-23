@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KapitelShelf.Data.Migrations.Migrations
 {
     [DbContext(typeof(KapitelShelfDBContext))]
-    [Migration("20250422191001_Initial")]
+    [Migration("20250423183231_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -86,6 +86,9 @@ namespace KapitelShelf.Data.Migrations.Migrations
 
                     b.Property<Guid?>("SeriesId")
                         .HasColumnType("uuid");
+
+                    b.Property<int?>("SeriesNumber")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -212,7 +215,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadata", b =>
+            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadataModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -342,7 +345,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("FileInfo");
                 });
 
-            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadata", b =>
+            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadataModel", b =>
                 {
                     b.HasOne("KapitelShelf.Data.Models.BookModel", "Book")
                         .WithMany()

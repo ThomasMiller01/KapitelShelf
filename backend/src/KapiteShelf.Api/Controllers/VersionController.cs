@@ -1,19 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// <copyright file="VersionController.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
+
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
 
+/// <summary>
+/// Initializes a new instance of the <see cref="VersionController"/> class.
+/// </summary>
+/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("version")]
-public class VersionController : ControllerBase
+public class VersionController(ILogger<BooksController> logger) : ControllerBase
 {
-    private readonly ILogger<BooksController> logger;
+    private readonly ILogger<BooksController> logger = logger;
 
-    public VersionController(ILogger<BooksController> logger)
-    {
-        this.logger = logger;
-    }
-
+    /// <summary>
+    /// Gets the backend version.
+    /// </summary>
+    /// <returns>The backend version.</returns>
     [HttpGet]
     public ActionResult<string> GetVersion()
     {

@@ -1,144 +1,175 @@
-﻿using AutoMapper;
+﻿// <copyright file="BooksLogic.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
+
+using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace KapitelShelf.Api.Logic;
 
-public class BooksLogic
+/// <summary>
+/// Initializes a new instance of the <see cref="BooksLogic"/> class.
+/// </summary>
+/// <param name="dbContextFactory">The dbContext factory.</param>
+/// <param name="mapper">The auto mapper.</param>
+public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper)
 {
-    private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
-    private readonly IMapper mapper;
+    private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    public BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper)
-    {
-        this.dbContextFactory = dbContextFactory;
-        this.mapper = mapper;
-    }
+    private readonly IMapper mapper = mapper;
 
+    /// <summary>
+    /// Get all books.
+    /// </summary>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
     public async Task<IList<BookDTO>> GetBooksAsync()
     {
-        using (var context = await this.dbContextFactory.CreateDbContextAsync())
-        {
-            return await context.Books
-                .AsNoTracking()
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-                .Include(x => x.Series)
-                .Include(x => x.Author)
-                .Include(x => x.Categories)
-                    .ThenInclude(x => x.Category)
-                .Include(x => x.Tags)
-                    .ThenInclude(x => x.Tag)
-                .Include(x => x.Cover)
-                .Include(x => x.Location)
-                    .ThenInclude(x => x.FileInfo)
+        return await context.Books
+            .AsNoTracking()
 
-                .Select(x => this.mapper.Map<BookDTO>(x))
-                .ToListAsync();
-        }
+            .Include(x => x.Series)
+            .Include(x => x.Author)
+            .Include(x => x.Categories)
+                .ThenInclude(x => x.Category)
+            .Include(x => x.Tags)
+                .ThenInclude(x => x.Tag)
+            .Include(x => x.Cover)
+            .Include(x => x.Location)
+#nullable disable
+                .ThenInclude(x => x.FileInfo)
+#nullable restore
+
+            .Select(x => this.mapper.Map<BookDTO>(x))
+            .ToListAsync();
     }
 
+    /// <summary>
+    /// Get a book by its id.
+    /// </summary>
+    /// <param name="bookId">The id of the book to get.</param>
+    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
     public async Task<BookDTO?> GetBookByIdAsync(Guid bookId)
     {
-        using (var context = await this.dbContextFactory.CreateDbContextAsync())
-        {
-            return await context.Books
-                .AsNoTracking()
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-                .Include(x => x.Series)
-                .Include(x => x.Author)
-                .Include(x => x.Categories)
-                    .ThenInclude(x => x.Category)
-                .Include(x => x.Tags)
-                    .ThenInclude(x => x.Tag)
-                .Include(x => x.Cover)
-                .Include(x => x.Location)
-                    .ThenInclude(x => x.FileInfo)
+        return await context.Books
+            .AsNoTracking()
 
-                .Where(x => x.Id == bookId)
-                .Select(x => this.mapper.Map<BookDTO>(x))
-                .FirstOrDefaultAsync();
-        }
+            .Include(x => x.Series)
+            .Include(x => x.Author)
+            .Include(x => x.Categories)
+                .ThenInclude(x => x.Category)
+            .Include(x => x.Tags)
+                .ThenInclude(x => x.Tag)
+            .Include(x => x.Cover)
+            .Include(x => x.Location)
+#nullable disable
+                .ThenInclude(x => x.FileInfo)
+#nullable restore
+
+            .Where(x => x.Id == bookId)
+            .Select(x => this.mapper.Map<BookDTO>(x))
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<BookDTO> CreateBookAsync(BookDTO bookDto)
+    /// <summary>
+    /// Create a new book.
+    /// </summary>
+    /// <param name="bookDto">The new book dto.</param>
+    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<BookDTO?> CreateBookAsync(BookDTO bookDto)
     {
-        using (var context = await this.dbContextFactory.CreateDbContextAsync())
+        if (bookDto is null)
         {
-            var duplicates = await this.GetDuplicates(bookDto);
-            if (duplicates.Any())
-            {
-                throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
-            }
-
-            var book = this.mapper.Map<BookModel>(bookDto);
-            book.Id = Guid.NewGuid();
-
-            foreach (var category in book.Categories)
-            {
-                category.CategoryId = book.Id;
-            }
-
-            foreach (var tag in book.Tags)
-            {
-                tag.BookId = book.Id;
-            }
-
-            context.Books.Add(book);
-            await context.SaveChangesAsync();
-
-            return this.mapper.Map<BookDTO>(book);
+            return null;
         }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var duplicates = await this.GetDuplicates(bookDto);
+        if (duplicates.Any())
+        {
+            throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
+        }
+
+        var book = this.mapper.Map<BookModel>(bookDto);
+        book.Id = Guid.NewGuid();
+
+        foreach (var category in book.Categories)
+        {
+            category.CategoryId = book.Id;
+        }
+
+        foreach (var tag in book.Tags)
+        {
+            tag.BookId = book.Id;
+        }
+
+        context.Books.Add(book);
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<BookDTO>(book);
     }
 
+    /// <summary>
+    /// Update a book.
+    /// </summary>
+    /// <param name="bookId">The id of the book to update.</param>
+    /// <param name="bookDto">The updated book dto.</param>
+    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
     public async Task<BookDTO?> UpdateBookAsync(Guid bookId, BookDTO bookDto)
     {
-        using (var context = await this.dbContextFactory.CreateDbContextAsync())
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var book = await context.Books.FindAsync(bookId);
+        if (book is null)
         {
-            var book = await context.Books.FindAsync(bookId);
-            if (book is null)
-            {
-                return null;
-            }
-
-            // .Map() applies the changes to book
-            this.mapper.Map(bookDto, book);
-            await context.SaveChangesAsync();
-
-            return this.mapper.Map<BookDTO>(book);
+            return null;
         }
+
+        // .Map() applies the changes to book
+        this.mapper.Map(bookDto, book);
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<BookDTO>(book);
     }
 
+    /// <summary>
+    /// Delete a book.
+    /// </summary>
+    /// <param name="bookId">The id of the book to delete.</param>
+    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
     public async Task<BookDTO?> DeleteBookAsync(Guid bookId)
     {
-        using (var context = await this.dbContextFactory.CreateDbContextAsync())
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var book = await context.Books.FindAsync(bookId);
+        if (book is null)
         {
-            var book = await context.Books.FindAsync(bookId);
-            if (book is null)
-            {
-                return null;
-            }
-
-            context.Books.Remove(book);
-            await context.SaveChangesAsync();
-
-            return this.mapper.Map<BookDTO>(book);
+            return null;
         }
+
+        context.Books.Remove(book);
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<BookDTO>(book);
     }
 
     private async Task<IList<BookModel>> GetDuplicates(BookDTO bookDto)
     {
-        using (var context = await this.dbContextFactory.CreateDbContextAsync())
-        {
-            var bookDtoSHA = bookDto.Location?.FileInfo?.Sha256;
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-            return await context.Books
-            .AsNoTracking()
-                .Where(x => x.Title == bookDto.Title)
-                .ToListAsync();
-        }
+        var bookDtoSHA = bookDto.Location?.FileInfo?.Sha256;
+
+        return await context.Books
+        .AsNoTracking()
+            .Where(x => x.Title == bookDto.Title)
+            .ToListAsync();
     }
 }

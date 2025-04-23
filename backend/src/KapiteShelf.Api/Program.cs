@@ -1,3 +1,7 @@
+// <copyright file="Program.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
+
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;

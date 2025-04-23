@@ -6,7 +6,7 @@
       "documentExposedElements": true,
       "documentInternalElements": false,
       "documentPrivateElements": false,
-      "xmlHeader": false
+      "xmlHeader": true
     },
     "orderingRules": {
       "usingDirectivesPlacement": "outsideNamespace",
