@@ -1,0 +1,63 @@
+# Top of your project
+root = true
+
+# Apply to all C# files
+[*.cs]
+
+###############
+# Code Quality
+###############
+
+dotnet_analyzer_diagnostic.severity = warning
+dotnet_diagnostic.CA1822.severity = warning      # Mark members as static
+dotnet_diagnostic.CA1062.severity = warning      # Validate arguments are not null
+dotnet_diagnostic.CA1303.severity = suggestion   # Localize literals
+dotnet_diagnostic.CA1805.severity = suggestion   # Avoid unnecessary default value
+
+###############
+# Style Rules
+###############
+
+# var usage
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = false:suggestion
+csharp_style_var_elsewhere = false:warning
+
+# braces
+csharp_prefer_braces = true:warning
+
+# expression-bodied members
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+
+# using directive placement
+dotnet_sort_system_directives_first = true
+file_header_template = unset
+
+# prefer 'this.'
+dotnet_diagnostic.IDE0003.severity = suggestion
+
+# namespace style
+dotnet_diagnostic.IDE0160.severity = none # allow both block- and file-scoped namespaces
+
+#################
+# Formatting
+#################
+
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = crlf
+
+##################
+# Code cleanup (VS)
+##################
+
+# Unused usings
+dotnet_separate_import_directive_groups = true
+dotnet_sort_system_directives_first = true
+dotnet_remove_unnecessary_imports = true
+
+# Sort imports
+dotnet_sort_imports = true
