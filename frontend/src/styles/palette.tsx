@@ -1,22 +1,22 @@
 import type { PaletteOptions } from "@mui/material";
 
 export const palette: PaletteOptions = {
-  mode: "light",
+  mode: "dark",
   primary: {
-    main: "#1976d2",
+    main: "#F7E8C9",
   },
   secondary: {
-    main: "#9c27b0",
-  },
-  error: {
-    main: "#d32f2f",
+    main: "#B59E7D",
   },
   background: {
-    default: "#f5f5f5",
-    paper: "#ffffff",
+    default: "#121212",
+    paper: "#1E1E1E",
   },
   text: {
-    primary: "#212121",
-    secondary: "#757575",
+    primary: "#F7F7F7",
+    secondary: "#BBBBBB",
+  },
+  error: {
+    main: "#CF6679",
   },
 };
