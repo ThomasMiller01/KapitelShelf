@@ -15,6 +15,12 @@
 └── /styles           # custom MUI theme, palette
 ```
 
+# Generate Swagger Client
+
+```bash
+npm run gen:swagger
+```
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

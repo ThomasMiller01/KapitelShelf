@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Reflection;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,12 @@ builder.Services.AddControllers();
 
 // swagger
 builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Include XML comments in Swagger
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
 
 // database
 builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options =>
