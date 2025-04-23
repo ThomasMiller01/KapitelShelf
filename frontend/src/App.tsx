@@ -1,14 +1,12 @@
-import { CssBaseline, ThemeProvider } from "@mui/material";
 import type { ReactElement } from "react";
 import { BrowserRouter } from "react-router-dom";
 
+import { ThemeProvider } from "./context/ThemeContext";
 import AppRoutes from "./routes/routes";
-import GetTheme from "./styles/theme";
 
 function App(): ReactElement {
   return (
-    <ThemeProvider theme={GetTheme()}>
-      <CssBaseline />
+    <ThemeProvider>
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>

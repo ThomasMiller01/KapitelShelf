@@ -2,8 +2,11 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useToggleTheme } from "../context/ThemeContext";
+
 const HomePage = (): ReactElement => {
   const navigate = useNavigate();
+  const toggleTheme = useToggleTheme();
 
   return (
     <Box
@@ -30,6 +33,11 @@ const HomePage = (): ReactElement => {
             onClick={() => navigate("/books")}
           >
             View My Books
+          </Button>
+        </Box>
+        <Box mt={4}>
+          <Button variant="contained" size="large" onClick={toggleTheme}>
+            Toggle Theme
           </Button>
         </Box>
       </Container>

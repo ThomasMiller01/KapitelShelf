@@ -1,24 +1,15 @@
 import type { Theme } from "@mui/material/styles";
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
-import { palette } from "./palette";
+import { PaletteDark, PaletteLight } from "./Palette";
 
-const GetTheme = (): Theme => {
+export const getTheme = (mode: "light" | "dark"): Theme => {
   let theme = createTheme({
-    palette,
+    palette: mode === "dark" ? PaletteDark : PaletteLight,
     shape: {
       borderRadius: 8,
-    },
-    components: {
-      MuiButton: {
-        defaultProps: {
-          disableElevation: true,
-        },
-      },
     },
   });
   theme = responsiveFontSizes(theme);
   return theme;
 };
-
-export default GetTheme;
