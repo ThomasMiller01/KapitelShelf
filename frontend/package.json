@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "gen:swagger": "npm run gen:swaggerjson && npm run gen:swaggerclient",
     "gen:swaggerjson": "cd ../backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
-    "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ../backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./src/lib/api --additional-properties=supportsES6=true,typescriptThreePlus=true"
+    "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ../backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./src/lib/api/KapitelShelf.Api --additional-properties=supportsES6=true,typescriptThreePlus=true"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -19,6 +19,7 @@
     "@fontsource/roboto": "^5.2.5",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
+    "@tanstack/react-query": "^5.74.4",
     "axios": "^1.8.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

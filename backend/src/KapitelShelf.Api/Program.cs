@@ -21,6 +21,21 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
+// cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name: "CorsPolicy",
+        policy =>
+        {
+            policy.WithOrigins(
+                    "http://localhost:5261", // swagger
+                    "http://localhost:5173") // frontend
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 // database
 builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options =>
     options.UseNpgsql("Host=localhost;Database=kapitelshelf;Username=kapitelshelf;Password=kapitelshelf"));
@@ -41,6 +56,8 @@ if (app.Environment.IsDevelopment())
 
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors("CorsPolicy");
 }
 
 app.UseHttpsRedirection();
