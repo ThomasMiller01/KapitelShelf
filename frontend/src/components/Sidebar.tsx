@@ -1,5 +1,8 @@
+import CloudQueueIcon from "@mui/icons-material/CloudQueue";
+import DevicesIcon from "@mui/icons-material/Devices";
 import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import type { SxProps, Theme } from "@mui/material";
 import {
   List,
   ListItem,
@@ -51,8 +54,16 @@ export const Sidebar = ({
           />
         </List>
         <List>
-          <SidebarTextItem name={`Frontend v${APP_VERSION}`} small />
-          <SidebarTextItem name={`Backend v${BACKEND_VERSION}`} small />
+          <SidebarTextItem
+            name={`Frontend v${APP_VERSION}`}
+            icon={<DevicesIcon />}
+            small
+          />
+          <SidebarTextItem
+            name={`Backend v${BACKEND_VERSION}`}
+            icon={<CloudQueueIcon />}
+            small
+          />
         </List>
       </Stack>
     </ResponsiveDrawer>
@@ -67,13 +78,15 @@ interface SidebarItemProps {
 interface InternalSidebarItemProps {
   small?: boolean;
   children: ReactNode;
+  sx?: SxProps<Theme>;
 }
 
 const SidebarItem = ({
   small = false,
   children,
+  sx,
 }: InternalSidebarItemProps): ReactElement => (
-  <ListItem disablePadding dense={small}>
+  <ListItem dense={small} sx={{ padding: "4px 10px", ...sx }}>
     {children}
   </ListItem>
 );
@@ -95,6 +108,7 @@ const SidebarLinkItem = ({
       to={link}
       onClick={onClose}
       sx={{
+        borderRadius: "20px",
         "&.active": {
           backgroundColor: "action.selected", // or a custom color
         },
@@ -115,15 +129,18 @@ const SidebarTextItem = ({
   icon,
   small = false,
 }: SidebarTextItemProps): ReactElement => (
-  <SidebarItem small={small}>
-    <ListItemText
-      sx={{
-        padding: small ? "0px 16px" : "8px 16px",
-        margin: small ? "0" : "4px",
-      }}
-    >
-      {icon && <ListItemIcon>{icon}</ListItemIcon>}
-      <ListItemText primary={name} />
-    </ListItemText>
+  <SidebarItem
+    small={small}
+    sx={{
+      padding: small ? "0px 16px" : "8px 16px",
+      margin: small ? "0" : "4px",
+    }}
+  >
+    {icon && (
+      <ListItemIcon sx={{ minWidth: "40px", "& svg": { fontSize: "1.4rem" } }}>
+        {icon}
+      </ListItemIcon>
+    )}
+    <ListItemText primary={name} />
   </SidebarItem>
 );

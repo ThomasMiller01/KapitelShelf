@@ -11,8 +11,6 @@ import { useNavigate } from "react-router-dom";
 
 import KapitelShelfLogo from "/kapitelshelf.png";
 
-import { useToggleTheme } from "../contexts/ThemeContext";
-
 const ProductNameText = styled(Typography)({
   fontFamily: "Playwrite AU SA",
   fontWeight: "200",
@@ -22,7 +20,6 @@ const ProductNameText = styled(Typography)({
 
 const HomePage = (): ReactElement => {
   const navigate = useNavigate();
-  const toggleTheme = useToggleTheme();
 
   return (
     <Box
@@ -56,11 +53,6 @@ const HomePage = (): ReactElement => {
             onClick={() => navigate("/books")}
           >
             View My Books
-          </Button>
-        </Box>
-        <Box mt={4}>
-          <Button variant="contained" size="large" onClick={toggleTheme}>
-            Toggle Theme
           </Button>
         </Box>
       </Container>

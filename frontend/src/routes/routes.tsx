@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
+import BooksPage from "../pages/BooksPage";
 import HomePage from "../pages/HomePage";
 
 const AppRoutes = (): ReactElement | null =>
@@ -11,7 +12,7 @@ const AppRoutes = (): ReactElement | null =>
       element: <MainLayout />,
       children: [
         { index: true, element: <HomePage /> },
-        { path: "/books", element: <HomePage /> },
+        { path: "/books", element: <BooksPage /> },
       ],
     },
   ]);
