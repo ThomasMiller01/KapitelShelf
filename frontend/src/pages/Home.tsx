@@ -14,8 +14,6 @@ const HomePage = (): ReactElement => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "background.default",
-        color: "text.primary",
         display: "flex",
         alignItems: "center",
       }}
@@ -27,9 +25,7 @@ const HomePage = (): ReactElement => {
             alt="KapitelShelf logo"
             style={{ width: "90px", height: "60px" }}
           />
-          <Typography variant="h2" gutterBottom>
-            KapitelShelf
-          </Typography>
+          <Typography variant="h2">KapitelShelf</Typography>
         </Stack>
         <Typography variant="h6" color="text.secondary">
           Welcome to your personal library. Manage your books, track your
