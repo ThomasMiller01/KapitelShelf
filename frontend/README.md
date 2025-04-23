@@ -12,7 +12,6 @@
 ├── /lib              # utils, API clients, mappers
 ├── /pages            # route-level pages (BooksPage, HomePage, etc.)
 ├── /routes           # React Router config
-├── /types            # TypeScript types/interfaces
 └── /styles           # custom MUI theme, palette
 ```
 

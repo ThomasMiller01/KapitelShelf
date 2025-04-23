@@ -13,12 +13,11 @@ const HomePage = (): ReactElement => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        mt: "12%",
         display: "flex",
-        alignItems: "center",
       }}
     >
-      <Container maxWidth="md" sx={{ textAlign: "center" }}>
+      <Container sx={{ textAlign: "center" }}>
         <Stack direction="row" justifyContent="center">
           <img
             src={KapitelShelfLogo}
