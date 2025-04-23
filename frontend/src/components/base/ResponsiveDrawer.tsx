@@ -28,7 +28,8 @@ export interface ResponsiveDrawerProps {
   onClose: () => void;
   mobile: boolean;
   children: ReactNode;
-  name: string;
+  name?: string;
+  logo?: string;
 }
 
 export const ResponsiveDrawer = ({
@@ -36,7 +37,8 @@ export const ResponsiveDrawer = ({
   onClose,
   mobile,
   children,
-  name = "",
+  name,
+  logo,
 }: ResponsiveDrawerProps): ReactElement => (
   <Drawer
     variant={mobile ? "temporary" : "persistent"}
@@ -59,19 +61,23 @@ export const ResponsiveDrawer = ({
   >
     <DrawerHeader sx={{ justifyContent: "space-between" }}>
       <Stack direction="row" spacing={1} alignItems="center">
-        <Box
-          component="img"
-          src="/kapitelshelf.png"
-          alt="My Image"
-          sx={{
-            width: 35,
-            height: 25,
-            objectFit: "cover",
-          }}
-        />
-        <Typography variant="h6" noWrap component="div">
-          KapitelShelf
-        </Typography>
+        {logo && (
+          <Box
+            component="img"
+            src={logo}
+            alt="My Image"
+            sx={{
+              width: 35,
+              height: 25,
+              objectFit: "cover",
+            }}
+          />
+        )}
+        {name && (
+          <Typography variant="h6" noWrap component="div">
+            {name}
+          </Typography>
+        )}
       </Stack>
       {!mobile && (
         <IconButton onClick={onClose}>
@@ -105,6 +111,7 @@ export const ResponsiveDrawerAppBar = ({
       width: open && !mobile ? `calc(100% - ${DRAWER_WIDTH}px)` : "100%",
       ml: open && !mobile ? `${DRAWER_WIDTH}px` : 0,
       bgcolor: "background.paper",
+      paddingRight: "0 !important",
       transition: (theme) =>
         theme.transitions.create(["margin", "width"], {
           easing: theme.transitions.easing.sharp,

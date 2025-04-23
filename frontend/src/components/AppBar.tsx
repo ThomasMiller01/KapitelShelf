@@ -1,4 +1,4 @@
-import { Avatar, Box, Stack } from "@mui/material";
+import { Avatar, Box, Stack, TextField } from "@mui/material";
 import type { ReactElement } from "react";
 
 import { ThemeToggle } from "../contexts/ThemeContext";
@@ -24,8 +24,13 @@ export const AppBar = ({
         alignItems: "center",
       }}
     >
-      SEARCH
-      <Stack direction="row" spacing={3} alignItems="center">
+      <TextField label="Search" variant="outlined" size="small" fullWidth />
+      <Stack
+        direction="row"
+        spacing={{ xs: 2, md: 3 }}
+        alignItems="center"
+        ml="30px"
+      >
         <ThemeToggle />
         <Avatar
           alt="User Avatar"

@@ -22,7 +22,13 @@ export const Sidebar = ({
   onClose,
   mobile,
 }: SidebarProps): ReactElement => (
-  <ResponsiveDrawer open={open} mobile={mobile} onClose={onClose}>
+  <ResponsiveDrawer
+    open={open}
+    mobile={mobile}
+    onClose={onClose}
+    name="KapitelShelf"
+    logo="/kapitelshelf.png"
+  >
     <List>
       {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
         <ListItem key={text} disablePadding>
