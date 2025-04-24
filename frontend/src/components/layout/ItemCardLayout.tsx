@@ -3,6 +3,7 @@ import {
   Avatar,
   Box,
   Card,
+  CardActionArea,
   CardContent,
   CardMedia,
   styled,
@@ -12,6 +13,7 @@ import {
 } from "@mui/material";
 import type { ReactNode } from "react";
 import { type ReactElement, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface MetadataItemProps extends TypographyProps {
   isMobile?: boolean;
@@ -27,6 +29,7 @@ export const MetadataItem = styled(Typography, {
 
 interface ItemCardLayoutProps {
   title: string | null | undefined;
+  link?: string | null | undefined;
   image?: string | null | undefined;
   fallbackImage?: string | null | undefined;
   badge?: string | null | undefined;
@@ -35,65 +38,73 @@ interface ItemCardLayoutProps {
 
 const ItemCardLayout = ({
   title,
+  link,
   image,
   fallbackImage,
   badge,
   metadata = [],
 }: ItemCardLayoutProps): ReactElement => {
+  const navigate = useNavigate();
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
 
   return (
-    <Card sx={{ height: "100%", position: "relative" }}>
-      {image && (
-        <CardMedia
-          component="img"
-          height={isMobile ? "200" : "250"}
-          image={imageSrc ?? undefined}
-          onError={() => setImageSrc(fallbackImage)}
-          alt={title || "Item image"}
-        />
-      )}
-      {badge && (
-        <Box position="absolute" top="2px" right="5px">
-          <Avatar
+    <Card
+      sx={{ height: "100%", position: "relative" }}
+      onClick={() => link && navigate(link)}
+    >
+      <Box component={link ? CardActionArea : "div"}>
+        {image && (
+          <CardMedia
+            component="img"
+            height={isMobile ? "200" : "250"}
+            image={imageSrc ?? undefined}
+            onError={() => setImageSrc(fallbackImage)}
+            alt={title || "Item image"}
+          />
+        )}
+        {badge && (
+          <Box position="absolute" top="2px" right="5px">
+            <Avatar
+              sx={{
+                width: 30,
+                height: 30,
+                backgroundColor: "rgba(0, 0, 0, 0.3)",
+                opacity: "0.8",
+                fontSize: "0.8rem",
+                fontWeight: 400,
+                lineHeight: "2",
+                fontFeatureSettings: '"calt"',
+                fontFamily: "Playwrite AU SA",
+              }}
+            >
+              {badge}
+            </Avatar>
+          </Box>
+        )}
+        <CardContent sx={{ padding: "12px !important" }}>
+          <Typography
+            variant="h6"
             sx={{
-              width: 30,
-              height: 30,
-              backgroundColor: "rgba(0, 0, 0, 0.3)",
-              opacity: "0.8",
-              fontSize: "0.8rem",
-              fontWeight: 400,
-              lineHeight: "2",
-              fontFeatureSettings: '"calt"',
-              fontFamily: "Playwrite AU SA",
+              fontSize: isMobile ? "0.8rem !important" : "1rem !important",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              lineHeight: 1.2,
+              minHeight: "2.4em",
+              wordBreak: "break-all",
             }}
           >
-            {badge}
-          </Avatar>
-        </Box>
-      )}
-      <CardContent sx={{ padding: "12px !important" }}>
-        <Typography
-          variant="h6"
-          sx={{
-            fontSize: isMobile ? "0.8rem !important" : "1rem !important",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            lineHeight: 1.2,
-            minHeight: "2.4em",
-            wordBreak: "break-all",
-          }}
-        >
-          {title}
-        </Typography>
-        {metadata}
-      </CardContent>
+            {title}
+          </Typography>
+          {metadata}
+        </CardContent>
+      </Box>
     </Card>
   );
 };
