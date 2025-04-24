@@ -1,3 +1,5 @@
+import "./Fonts";
+
 import type { Theme } from "@mui/material/styles";
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
@@ -8,6 +10,15 @@ export const getTheme = (mode: "light" | "dark"): Theme => {
     palette: mode === "dark" ? PaletteDark : PaletteLight,
     shape: {
       borderRadius: 8,
+    },
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 900,
+        lg: 1200,
+        xl: 1536,
+      },
     },
   });
   theme = responsiveFontSizes(theme);

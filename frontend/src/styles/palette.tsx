@@ -13,7 +13,7 @@ export const PaletteDark: PaletteOptions = {
     paper: "#1E1E1E",
   },
   text: {
-    primary: "#F7F7F7",
+    primary: "#F7E8C9",
     secondary: "#BBBBBB",
   },
   error: {
@@ -31,7 +31,7 @@ export const PaletteLight: PaletteOptions = {
   },
   background: {
     default: "#FAFAFA",
-    paper: "#FFFFFF",
+    paper: "#fcf2e1",
   },
   text: {
     primary: "#1E1E1E",

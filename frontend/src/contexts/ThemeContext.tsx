@@ -1,6 +1,12 @@
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import type { Theme } from "@mui/material";
-import { CssBaseline, ThemeProvider as MUIThemeProvider } from "@mui/material";
-import type { FC, ReactNode } from "react";
+import {
+  CssBaseline,
+  IconButton,
+  ThemeProvider as MUIThemeProvider,
+} from "@mui/material";
+import type { FC, ReactElement, ReactNode } from "react";
 import { createContext, useContext, useMemo, useState } from "react";
 
 import { getTheme } from "../styles/Theme";
@@ -32,5 +38,16 @@ export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
         </MUIThemeProvider>
       </ThemeToggleContext.Provider>
     </ThemeModeContext.Provider>
+  );
+};
+
+export const ThemeToggle = (): ReactElement => {
+  const mode = useThemeMode();
+  const toggle = useToggleTheme();
+
+  return (
+    <IconButton onClick={toggle}>
+      {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+    </IconButton>
   );
 };

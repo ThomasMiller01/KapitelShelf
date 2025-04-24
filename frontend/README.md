@@ -12,8 +12,13 @@
 ├── /lib              # utils, API clients, mappers
 ├── /pages            # route-level pages (BooksPage, HomePage, etc.)
 ├── /routes           # React Router config
-├── /types            # TypeScript types/interfaces
 └── /styles           # custom MUI theme, palette
+```
+
+# Generate Swagger Client
+
+```bash
+npm run gen:swagger
 ```
 
 # React + TypeScript + Vite

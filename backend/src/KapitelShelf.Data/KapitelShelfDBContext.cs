@@ -1,26 +1,80 @@
-﻿using KapitelShelf.Data.Models;
+﻿// <copyright file="KapitelShelfDBContext.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
+
+using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Data;
 
-public class KapitelShelfDBContext : DbContext
+/// <summary>
+/// The KapiteShelf db context.
+/// </summary>
+/// <param name="options">The db context options.</param>
+public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> options) : DbContext(options)
 {
+    /// <summary>
+    /// Gets the books table.
+    /// </summary>
     public DbSet<BookModel> Books => Set<BookModel>();
+
+    /// <summary>
+    /// Gets the fileinfos table.
+    /// </summary>
     public DbSet<FileInfoModel> FileInfos => Set<FileInfoModel>();
+
+    /// <summary>
+    /// Gets the series table.
+    /// </summary>
     public DbSet<SeriesModel> Series => Set<SeriesModel>();
+
+    /// <summary>
+    /// Gets the authors table.
+    /// </summary>
     public DbSet<AuthorModel> Authors => Set<AuthorModel>();
+
+    /// <summary>
+    /// Gets the locations table.
+    /// </summary>
     public DbSet<LocationModel> Locations => Set<LocationModel>();
+
+    /// <summary>
+    /// Gets the tags table.
+    /// </summary>
     public DbSet<TagModel> Tags => Set<TagModel>();
+
+    /// <summary>
+    /// Gets the booktags table.
+    /// </summary>
     public DbSet<BookTagModel> BookTags => Set<BookTagModel>();
+
+    /// <summary>
+    /// Gets the categories table.
+    /// </summary>
     public DbSet<CategoryModel> Categories => Set<CategoryModel>();
+
+    /// <summary>
+    /// Gets the bookcategories table.
+    /// </summary>
     public DbSet<BookCategoryModel> BookCategories => Set<BookCategoryModel>();
+
+    /// <summary>
+    /// Gets the users table.
+    /// </summary>
     public DbSet<UserModel> Users => Set<UserModel>();
-    public DbSet<UserBookMetadata> UserBookMetadata => Set<UserBookMetadata>();
 
-    public KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> options) : base(options) { }
+    /// <summary>
+    /// Gets the user book metadata table.
+    /// </summary>
+    public DbSet<UserBookMetadataModel> UserBookMetadata => Set<UserBookMetadataModel>();
 
+    /// <summary>
+    /// On model creating.
+    /// </summary>
+    /// <param name="modelBuilder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+#pragma warning disable CA1062 // Validate arguments of public methods
         // Books
         modelBuilder.Entity<BookModel>()
             .HasOne(b => b.Author)
@@ -67,16 +121,17 @@ public class KapitelShelfDBContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         // Users
-        modelBuilder.Entity<UserBookMetadata>()
+        modelBuilder.Entity<UserBookMetadataModel>()
             .HasOne(ub => ub.Book)
             .WithMany()
             .HasForeignKey(ub => ub.BookId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<UserBookMetadata>()
+        modelBuilder.Entity<UserBookMetadataModel>()
             .HasOne(ub => ub.User)
             .WithMany()
             .HasForeignKey(ub => ub.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+#pragma warning restore CA1062 // Validate arguments of public methods
     }
 }

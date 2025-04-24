@@ -84,6 +84,9 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Property<Guid?>("SeriesId")
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("SeriesNumber")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -209,7 +212,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadata", b =>
+            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadataModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -339,7 +342,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("FileInfo");
                 });
 
-            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadata", b =>
+            modelBuilder.Entity("KapitelShelf.Data.Models.UserBookMetadataModel", b =>
                 {
                     b.HasOne("KapitelShelf.Data.Models.BookModel", "Book")
                         .WithMany()

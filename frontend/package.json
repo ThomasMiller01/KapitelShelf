@@ -4,17 +4,23 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "gen:swagger": "npm run gen:swaggerjson && npm run gen:swaggerclient",
+    "gen:swaggerjson": "cd ../backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
+    "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ../backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./src/lib/api/KapitelShelf.Api --additional-properties=supportsES6=true,typescriptThreePlus=true"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@fontsource/playwrite-au-sa": "^5.2.6",
     "@fontsource/roboto": "^5.2.5",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
+    "@tanstack/react-query": "^5.74.4",
+    "axios": "^1.8.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.1"

@@ -1,10 +1,26 @@
-﻿namespace KapitelShelf.Data.Models;
+﻿// <copyright file="CategoryModel.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
 
+namespace KapitelShelf.Data.Models;
+
+/// <summary>
+/// The category model.
+/// </summary>
 public class CategoryModel
 {
+    /// <summary>
+    /// Gets or sets the category id.
+    /// </summary>
     public Guid Id { get; set; }
 
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
     public string Name { get; set; } = null!;
 
-    public ICollection<BookCategoryModel> Books { get; set; } = new List<BookCategoryModel>();
+    /// <summary>
+    /// Gets or sets the books.
+    /// </summary>
+    public ICollection<BookCategoryModel> Books { get; set; } = [];
 }

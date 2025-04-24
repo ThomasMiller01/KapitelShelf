@@ -1,0 +1,88 @@
+# Top of your project
+root = true
+
+# Apply to all C# files
+[*.cs]
+
+###############
+# Code Quality
+###############
+
+dotnet_analyzer_diagnostic.severity = warning
+dotnet_diagnostic.CA1822.severity = warning      # Mark members as static
+dotnet_diagnostic.CA1062.severity = warning      # Validate arguments are not null
+dotnet_diagnostic.CA1303.severity = suggestion   # Localize literals
+dotnet_diagnostic.CA1805.severity = suggestion   # Avoid unnecessary default value
+dotnet_diagnostic.IDE0046.severity = none        # ignore simplified if-statements (this one is kinda stupid ...)
+
+###############
+# Style Rules
+###############
+
+# var usage
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = false:suggestion
+csharp_style_var_elsewhere = false:warning
+
+# braces
+csharp_prefer_braces = true:warning
+
+# expression-bodied members
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+
+# using directive placement
+dotnet_sort_system_directives_first = true
+file_header_template = unset
+
+# ignore 'this.' (ControllerBase Ok(), etc.)
+dotnet_diagnostic.IDE0003.severity = none
+dotnet_diagnostic.IDE0009.severity = none
+dotnet_diagnostic.SA1101.severity = none
+
+# namespace style
+dotnet_diagnostic.IDE0160.severity = none # allow both block- and file-scoped namespaces
+
+# suppress because of conflict between (SA1009, SA1024) and IDE0055
+dotnet_diagnostic.SA1009.severity = none
+dotnet_diagnostic.SA1024.severity = none
+
+# supress because of conflict between (SA1010, SA1003) and IDE0055
+dotnet_diagnostic.SA1010.severity = none
+dotnet_diagnostic.SA1003.severity = none
+
+# ignore to allow var instead of explicit types
+dotnet_diagnostic.IDE0008.severity = none
+
+# ignore expression value not used
+dotnet_diagnostic.IDE0058.severity = none
+
+# logging
+dotnet_diagnostic.CA1848.severity = none
+
+# ignore static order
+dotnet_diagnostic.SA1204.severity = none
+
+dotnet_diagnostic.IDE0305.severity = none
+dotnet_diagnostic.SA1516.severity = none
+#################
+# Formatting
+#################
+
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = crlf
+
+##################
+# Code cleanup (VS)
+##################
+
+# Unused usings
+dotnet_separate_import_directive_groups = false
+dotnet_sort_system_directives_first = true
+dotnet_remove_unnecessary_imports = true
+
+# Sort imports
+dotnet_sort_imports = true
