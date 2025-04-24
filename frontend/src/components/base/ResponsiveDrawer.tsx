@@ -75,7 +75,6 @@ export const ResponsiveDrawer = ({
             alt="My Image"
             sx={{
               width: 40,
-              height: 30,
               objectFit: "cover",
             }}
           />
