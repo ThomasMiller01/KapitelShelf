@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 
 import KapitelShelfLogo from "/kapitelshelf.png";
 
+import { useMobile } from "../hooks/isMobile";
+
 const ProductNameText = styled(Typography)({
   fontFamily: "Playwrite AU SA",
   fontWeight: "200",
@@ -20,6 +22,7 @@ const ProductNameText = styled(Typography)({
 
 const HomePage = (): ReactElement => {
   const navigate = useNavigate();
+  const { isMobile } = useMobile();
 
   return (
     <Box
@@ -38,11 +41,11 @@ const HomePage = (): ReactElement => {
           <img
             src={KapitelShelfLogo}
             alt="KapitelShelf logo"
-            style={{ width: "100px", height: "70px" }}
+            style={{ width: isMobile ? "70px" : "100px" }}
           />
           <ProductNameText variant="h2">KapitelShelf</ProductNameText>
         </Stack>
-        <Typography variant="h6" color="text.secondary">
+        <Typography variant="h6" color="text.secondary" mt="15px">
           Welcome to your personal library. Manage your books, track your
           reading, and explore your collection.
         </Typography>

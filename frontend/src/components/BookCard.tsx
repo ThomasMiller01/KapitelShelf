@@ -1,7 +1,8 @@
-import { Stack, useMediaQuery, useTheme } from "@mui/material";
+import { Stack } from "@mui/material";
 import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
+import { useMobile } from "../hooks/isMobile";
 import { LocationTypeToString } from "../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
@@ -17,8 +18,7 @@ const BookCard = ({
   showAuthor = false,
   showMetadata = true,
 }: BookCardProps): ReactElement => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { isMobile } = useMobile();
 
   return (
     <ItemCardLayout

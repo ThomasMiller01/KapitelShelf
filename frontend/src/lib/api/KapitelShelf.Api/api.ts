@@ -128,6 +128,25 @@ export interface BookDTO {
     'location'?: LocationDTO;
 }
 /**
+ * The paginated result.
+ * @export
+ * @interface BookDTOPagedResult
+ */
+export interface BookDTOPagedResult {
+    /**
+     * Gets or sets the items.
+     * @type {Array<BookDTO>}
+     * @memberof BookDTOPagedResult
+     */
+    'items'?: Array<BookDTO> | null;
+    /**
+     * Gets or sets the total number of items.
+     * @type {number}
+     * @memberof BookDTOPagedResult
+     */
+    'totalCount'?: number;
+}
+/**
  * The category dto.
  * @export
  * @interface CategoryDTO
@@ -834,6 +853,84 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
     return {
         /**
          * 
+         * @summary Get books by the series id.
+         * @param {string} seriesId The series id of the books to get.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdBooksGet: async (seriesId: string, page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'seriesId' is not null or undefined
+            assertParamExists('seriesSeriesIdBooksGet', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}/books`
+                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (pageSize !== undefined) {
+                localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get series by its id.
+         * @param {string} seriesId The id of the series to get.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdGet: async (seriesId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'seriesId' is not null or undefined
+            assertParamExists('seriesSeriesIdGet', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}`
+                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Fetch all series summaries.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -884,6 +981,34 @@ export const SeriesApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Get books by the series id.
+         * @param {string} seriesId The series id of the books to get.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSeriesIdBooksGet(seriesId: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdBooksGet(seriesId, page, pageSize, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdBooksGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get series by its id.
+         * @param {string} seriesId The id of the series to get.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSeriesIdGet(seriesId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeriesDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdGet(seriesId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Fetch all series summaries.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -908,6 +1033,28 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
     return {
         /**
          * 
+         * @summary Get books by the series id.
+         * @param {string} seriesId The series id of the books to get.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdBooksGet(seriesId: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
+            return localVarFp.seriesSeriesIdBooksGet(seriesId, page, pageSize, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get series by its id.
+         * @param {string} seriesId The id of the series to get.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdGet(seriesId: string, options?: RawAxiosRequestConfig): AxiosPromise<SeriesDTO> {
+            return localVarFp.seriesSeriesIdGet(seriesId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Fetch all series summaries.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -927,6 +1074,32 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
  * @extends {BaseAPI}
  */
 export class SeriesApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get books by the series id.
+     * @param {string} seriesId The series id of the books to get.
+     * @param {number} [page] The page number.
+     * @param {number} [pageSize] The page size.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSeriesIdBooksGet(seriesId: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdBooksGet(seriesId, page, pageSize, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get series by its id.
+     * @param {string} seriesId The id of the series to get.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSeriesIdGet(seriesId: string, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdGet(seriesId, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Fetch all series summaries.
