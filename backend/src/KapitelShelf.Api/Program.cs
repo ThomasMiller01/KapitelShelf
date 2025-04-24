@@ -45,6 +45,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 // logic
 builder.Services.AddSingleton<BooksLogic>();
+builder.Services.AddSingleton<SeriesLogic>();
 builder.Services.AddSingleton<DemoDataLogic>();
 
 var app = builder.Build();

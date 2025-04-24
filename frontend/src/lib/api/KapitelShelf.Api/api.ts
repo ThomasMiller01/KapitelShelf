@@ -254,6 +254,31 @@ export interface SeriesDTO {
     'name'?: string | null;
 }
 /**
+ * The series dto.
+ * @export
+ * @interface SeriesSummaryDTO
+ */
+export interface SeriesSummaryDTO {
+    /**
+     * Gets or sets the series id.
+     * @type {string}
+     * @memberof SeriesSummaryDTO
+     */
+    'id'?: string;
+    /**
+     * Gets or sets the name.
+     * @type {string}
+     * @memberof SeriesSummaryDTO
+     */
+    'name'?: string | null;
+    /**
+     * 
+     * @type {BookDTO}
+     * @memberof SeriesSummaryDTO
+     */
+    'lastVolume'?: BookDTO;
+}
+/**
  * The tag dto.
  * @export
  * @interface TagDTO
@@ -753,6 +778,107 @@ export class DemoDataApi extends BaseAPI {
      */
     public demodataGeneratePut(options?: RawAxiosRequestConfig) {
         return DemoDataApiFp(this.configuration).demodataGeneratePut(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * SeriesApi - axios parameter creator
+ * @export
+ */
+export const SeriesApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Fetch all series summaries.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSummaryGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/series/summary`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SeriesApi - functional programming interface
+ * @export
+ */
+export const SeriesApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SeriesApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Fetch all series summaries.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSummaryGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SeriesSummaryDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSummaryGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSummaryGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * SeriesApi - factory interface
+ * @export
+ */
+export const SeriesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SeriesApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Fetch all series summaries.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSummaryGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<SeriesSummaryDTO>> {
+            return localVarFp.seriesSummaryGet(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * SeriesApi - object-oriented interface
+ * @export
+ * @class SeriesApi
+ * @extends {BaseAPI}
+ */
+export class SeriesApi extends BaseAPI {
+    /**
+     * 
+     * @summary Fetch all series summaries.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSummaryGet(options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSummaryGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 
