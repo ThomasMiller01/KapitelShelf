@@ -20,7 +20,7 @@ const SeriesCard = ({ serie }: SeriesCardProps): ReactElement => {
       image={book.cover?.filePath ?? undefined}
       fallbackImage={bookCover}
       metadata={[
-        <MetadataItem>
+        <MetadataItem key="author">
           {book.author?.firstName} {book.author?.lastName}
         </MetadataItem>,
       ]}

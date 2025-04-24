@@ -23,8 +23,10 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     /// <summary>
     /// Get all series.
     /// </summary>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
     /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<IList<SeriesSummaryDTO>> GetSeriesSummaryAsync()
+    public async Task<IList<SeriesSummaryDTO>> GetSeriesSummaryAsync(int page, int pageSize)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -40,6 +42,9 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Include(x => x.Books)
                 .ThenInclude(b => b.Tags)
                     .ThenInclude(x => x.Tag)
+            .OrderByDescending(x => x.UpdatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => this.mapper.Map<SeriesSummaryDTO>(x))
             .ToListAsync();
     }

@@ -20,6 +20,16 @@ public class SeriesModel
     public string Name { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the creation time.
+    /// </summary>
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Gets or sets the update time.
+    /// </summary>
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
     /// Gets or sets the books.
     /// </summary>
     public ICollection<BookModel> Books { get; set; } = [];

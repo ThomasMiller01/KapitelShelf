@@ -24,13 +24,17 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
     /// <summary>
     /// Fetch all series summaries.
     /// </summary>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("summary")]
-    public async Task<ActionResult<IList<SeriesSummaryDTO>>> GetSeriesSummary()
+    public async Task<ActionResult<IList<SeriesSummaryDTO>>> GetSeriesSummary(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 24)
     {
         try
         {
-            var series = await this.logic.GetSeriesSummaryAsync();
+            var series = await this.logic.GetSeriesSummaryAsync(page, pageSize);
             return Ok(series);
         }
         catch (Exception ex)

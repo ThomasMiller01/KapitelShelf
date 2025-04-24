@@ -30,14 +30,19 @@ const BookCard = ({
       }
       metadata={[
         showAuthor ? (
-          <MetadataItem>
+          <MetadataItem key="author">
             {book.author?.firstName} {book.author?.lastName}
           </MetadataItem>
         ) : (
           <></>
         ),
         showMetadata ? (
-          <Stack direction="row" justifyContent="space-between" spacing={0}>
+          <Stack
+            key="location-pagenumber"
+            direction="row"
+            justifyContent="space-between"
+            spacing={0}
+          >
             <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
               {LocationTypeToString(book.location?.type)}
             </MetadataItem>
