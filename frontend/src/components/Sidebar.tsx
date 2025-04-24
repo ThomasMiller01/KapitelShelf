@@ -47,9 +47,9 @@ export const Sidebar = ({
             onClose={mobile ? onClose : undefined}
           />
           <SidebarLinkItem
-            name="Books"
+            name="Library"
             icon={<LibraryBooksIcon />}
-            link="/books"
+            link="/library"
             onClose={mobile ? onClose : undefined}
           />
         </List>

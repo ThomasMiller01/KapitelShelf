@@ -20,5 +20,11 @@ public class SeriesMappingProfile : Profile
     {
         CreateMap<SeriesModel, SeriesDTO>()
             .ReverseMap();
+
+        CreateMap<SeriesModel, SeriesSummaryDTO>()
+            .ForMember(dest => dest.LastVolume, opt =>
+                opt.MapFrom(src => src.Books
+                    .OrderByDescending(b => b.SeriesNumber)
+                    .FirstOrDefault()));
     }
 }
