@@ -22,5 +22,5 @@ public class SeriesSummaryDTO
     /// <summary>
     /// Gets or sets the last volume of this series.
     /// </summary>
-    public BookDTO? LastVolume { get; set; }
+    public BookDTO LastVolume { get; set; } = null!;
 }

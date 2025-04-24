@@ -1,7 +1,7 @@
 /* eslint-disable no-magic-numbers */
 // src/services/api.ts
 import type { LocationTypeDTO } from "./KapitelShelf.Api/api";
-import { BooksApi, VersionApi } from "./KapitelShelf.Api/api";
+import { BooksApi, SeriesApi, VersionApi } from "./KapitelShelf.Api/api";
 import { Configuration } from "./KapitelShelf.Api/configuration";
 
 const config = new Configuration({
@@ -9,6 +9,7 @@ const config = new Configuration({
 });
 
 export const booksApi = new BooksApi(config);
+export const seriesApi = new SeriesApi(config);
 export const versionApi = new VersionApi(config);
 
 export const LocationTypeToString = (

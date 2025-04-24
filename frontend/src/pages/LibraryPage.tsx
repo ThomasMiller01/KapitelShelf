@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 
-import BooksList from "../features/BookList";
+import SeriesList from "../features/SeriesList";
 
 const BooksPage = (): ReactElement => (
   <Box>
-    <BooksList />
+    <SeriesList />
   </Box>
 );
 
