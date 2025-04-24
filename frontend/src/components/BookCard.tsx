@@ -63,16 +63,12 @@ const BookCard = ({
               width: 30,
               height: 30,
               backgroundColor: "rgba(0, 0, 0, 0.3)",
-              // color: "rgba(0, 0, 0, 0.2)",
               opacity: "0.8",
               fontSize: "0.8rem",
               fontFamily: "Playwrite AU SA",
               fontWeight: "400",
               lineHeight: "2",
               fontFeatureSettings: '"calt"',
-              // color: "text.primary",
-              // bgcolor: "background.paper",
-              // color: "secondary.main",
             }}
           >
             {book.seriesNumber}.
