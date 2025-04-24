@@ -3,12 +3,12 @@ import { Stack, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 import { useEffect } from "react";
 
-import { useTrivia } from "../hooks/useBookFacts";
+import { useBookFact } from "../hooks/useBookFacts";
 
-const NEXT_TIMEOUT = 10;
+const NEXT_TIMEOUT = 7;
 
 const BookFactsCard = (): ReactElement => {
-  const { fact, next } = useTrivia();
+  const { fact, next } = useBookFact();
 
   useEffect(() => {
     const nextTimer = setTimeout(() => next(), NEXT_TIMEOUT * 1000);

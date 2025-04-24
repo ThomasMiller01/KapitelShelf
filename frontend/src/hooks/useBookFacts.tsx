@@ -58,19 +58,24 @@ export interface TriviaResult {
   next: () => void;
 }
 
-export const useTrivia = (): TriviaResult => {
-  const [facts, setFacts] = useState(bookFacts);
+export const useBookFact = (): TriviaResult => {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    setFacts([...bookFacts].sort());
+    next();
   }, []);
 
-  const next = (): void =>
-    setIndex((prev) => (facts.length > 0 ? (prev + 1) % bookFacts.length : 0));
+  const next = (): void => {
+    if (bookFacts.length === 0) {
+      return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * bookFacts.length);
+    setIndex(randomIndex);
+  };
 
   return {
-    fact: facts[index],
+    fact: bookFacts[index],
     next,
   };
 };
