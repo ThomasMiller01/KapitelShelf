@@ -303,6 +303,25 @@ export interface SeriesSummaryDTO {
     'lastVolume'?: BookDTO;
 }
 /**
+ * The paginated result.
+ * @export
+ * @interface SeriesSummaryDTOPagedResult
+ */
+export interface SeriesSummaryDTOPagedResult {
+    /**
+     * Gets or sets the items.
+     * @type {Array<SeriesSummaryDTO>}
+     * @memberof SeriesSummaryDTOPagedResult
+     */
+    'items'?: Array<SeriesSummaryDTO> | null;
+    /**
+     * Gets or sets the total number of items.
+     * @type {number}
+     * @memberof SeriesSummaryDTOPagedResult
+     */
+    'totalCount'?: number;
+}
+/**
  * The tag dto.
  * @export
  * @interface TagDTO
@@ -871,7 +890,7 @@ export const SeriesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async seriesSummaryGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SeriesSummaryDTO>>> {
+        async seriesSummaryGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeriesSummaryDTOPagedResult>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSummaryGet(page, pageSize, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSummaryGet']?.[localVarOperationServerIndex]?.url;
@@ -895,7 +914,7 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesSummaryGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<SeriesSummaryDTO>> {
+        seriesSummaryGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<SeriesSummaryDTOPagedResult> {
             return localVarFp.seriesSummaryGet(page, pageSize, options).then((request) => request(axios, basePath));
         },
     };

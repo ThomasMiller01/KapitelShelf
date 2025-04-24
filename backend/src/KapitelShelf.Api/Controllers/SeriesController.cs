@@ -28,7 +28,7 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
     /// <param name="pageSize">The page size.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("summary")]
-    public async Task<ActionResult<IList<SeriesSummaryDTO>>> GetSeriesSummary(
+    public async Task<ActionResult<PagedResult<SeriesSummaryDTO>>> GetSeriesSummary(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 24)
     {

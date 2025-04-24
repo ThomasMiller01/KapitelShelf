@@ -11,12 +11,14 @@ interface LoadingCardProps {
   useLogo?: boolean;
   itemName?: string;
   delayed?: boolean;
+  showRandomFacts?: boolean;
 }
 
 const LoadingCard = ({
   useLogo = false,
   itemName,
   delayed = false,
+  showRandomFacts = false,
 }: LoadingCardProps): ReactElement => {
   const [show, setShow] = useState(false);
 
@@ -52,7 +54,7 @@ const LoadingCard = ({
         Loading {itemName}
         <DotsProgress small />
       </Typography>
-      <BookFactsCard />
+      {showRandomFacts && <BookFactsCard />}
     </Box>
   );
 };
