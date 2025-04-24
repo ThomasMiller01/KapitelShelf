@@ -58,4 +58,19 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             TotalCount = totalCount,
         };
     }
+
+    /// <summary>
+    /// Get a series by id.
+    /// </summary>
+    /// <param name="seriesId">The id of the series to fetch.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<SeriesDTO?> GetSeriesByIdAsync(Guid seriesId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.Series
+            .Where(x => x.Id == seriesId)
+            .Select(x => this.mapper.Map<SeriesDTO>(x))
+            .FirstOrDefaultAsync();
+    }
 }

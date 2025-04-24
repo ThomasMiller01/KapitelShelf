@@ -43,4 +43,29 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
+
+    /// <summary>
+    /// Get series by its id.
+    /// </summary>
+    /// <param name="seriesId">The id of the series to get.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{seriesId}")]
+    public async Task<ActionResult<SeriesDTO>> GetSeriesById(Guid seriesId)
+    {
+        try
+        {
+            var series = await this.logic.GetSeriesByIdAsync(seriesId);
+            if (series is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(series);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching series summaries");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
 }
