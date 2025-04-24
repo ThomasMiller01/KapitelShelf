@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import LoadingCard from "../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../components/base/ItemAppBar";
+import SeriesBooksList from "../features/SeriesBooksList";
 import { seriesApi } from "../lib/api/KapitelShelf.Api";
 
 const SeriesDetailPage = (): ReactElement => {
@@ -39,6 +40,9 @@ const SeriesDetailPage = (): ReactElement => {
   return (
     <Box>
       <ItemAppBar title={series?.name} />
+      <Box padding="24px">
+        <SeriesBooksList seriesId={series?.id ?? ""} />
+      </Box>
     </Box>
   );
 };

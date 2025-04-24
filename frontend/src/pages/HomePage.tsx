@@ -5,6 +5,8 @@ import {
   Stack,
   styled,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +22,8 @@ const ProductNameText = styled(Typography)({
 
 const HomePage = (): ReactElement => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <Box
@@ -38,11 +42,11 @@ const HomePage = (): ReactElement => {
           <img
             src={KapitelShelfLogo}
             alt="KapitelShelf logo"
-            style={{ width: "100px", height: "70px" }}
+            style={{ width: isMobile ? "70px" : "100px" }}
           />
           <ProductNameText variant="h2">KapitelShelf</ProductNameText>
         </Stack>
-        <Typography variant="h6" color="text.secondary">
+        <Typography variant="h6" color="text.secondary" mt="15px">
           Welcome to your personal library. Manage your books, track your
           reading, and explore your collection.
         </Typography>

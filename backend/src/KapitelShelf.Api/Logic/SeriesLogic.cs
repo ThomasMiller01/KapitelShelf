@@ -93,6 +93,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         var items = await query
             .Include(x => x.Author)
             .Include(x => x.Cover)
+            .Include(x => x.Location)
             .Include(x => x.Categories)
                 .ThenInclude(x => x.Category)
             .Include(x => x.Tags)
