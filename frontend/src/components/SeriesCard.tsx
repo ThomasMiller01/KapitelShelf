@@ -16,8 +16,8 @@ const SeriesCard = ({ serie }: SeriesCardProps): ReactElement => {
 
   return (
     <ItemCardLayout
-      title={book.title ?? ""}
-      image={book.cover?.filePath ?? undefined}
+      title={serie.name}
+      image={book.cover?.filePath}
       fallbackImage={bookCover}
       metadata={[
         <MetadataItem key="author">

@@ -26,10 +26,10 @@ export const MetadataItem = styled(Typography, {
 }));
 
 interface ItemCardLayoutProps {
-  title: string;
-  image?: string;
-  fallbackImage?: string;
-  badge?: string;
+  title: string | null | undefined;
+  image?: string | null | undefined;
+  fallbackImage?: string | null | undefined;
+  badge?: string | null | undefined;
   metadata: ReactNode[];
 }
 
@@ -38,7 +38,7 @@ const ItemCardLayout = ({
   image,
   fallbackImage,
   badge,
-  metadata,
+  metadata = [],
 }: ItemCardLayoutProps): ReactElement => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -51,7 +51,7 @@ const ItemCardLayout = ({
         <CardMedia
           component="img"
           height={isMobile ? "200" : "250"}
-          image={imageSrc}
+          image={imageSrc ?? undefined}
           onError={() => setImageSrc(fallbackImage)}
           alt={title || "Item image"}
         />
