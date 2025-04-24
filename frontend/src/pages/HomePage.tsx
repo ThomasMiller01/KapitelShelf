@@ -5,13 +5,13 @@ import {
   Stack,
   styled,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import KapitelShelfLogo from "/kapitelshelf.png";
+
+import { useMobile } from "../hooks/isMobile";
 
 const ProductNameText = styled(Typography)({
   fontFamily: "Playwrite AU SA",
@@ -22,8 +22,7 @@ const ProductNameText = styled(Typography)({
 
 const HomePage = (): ReactElement => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { isMobile } = useMobile();
 
   return (
     <Box

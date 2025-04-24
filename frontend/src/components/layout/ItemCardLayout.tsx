@@ -8,12 +8,12 @@ import {
   CardMedia,
   styled,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import type { ReactNode } from "react";
 import { type ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { useMobile } from "../../hooks/isMobile";
 
 interface MetadataItemProps extends TypographyProps {
   isMobile?: boolean;
@@ -46,8 +46,7 @@ const ItemCardLayout = ({
 }: ItemCardLayoutProps): ReactElement => {
   const navigate = useNavigate();
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { isMobile } = useMobile();
 
   const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
 

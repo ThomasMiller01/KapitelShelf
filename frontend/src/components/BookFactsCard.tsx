@@ -26,7 +26,9 @@ const BookFactsCard = (): ReactElement => {
       sx={{ textAlign: "center", color: "text.secondary" }}
     >
       <TipsAndUpdatesIcon sx={{ fontSize: "1.2rem" }} />{" "}
-      <Typography variant="body2">{fact}</Typography>
+      <Typography variant="body2" sx={{ textAlign: "left" }}>
+        {fact}
+      </Typography>
     </Stack>
   );
 };
