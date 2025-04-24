@@ -7,7 +7,7 @@ import { useTrivia } from "../hooks/useBookFacts";
 
 const NEXT_TIMEOUT = 10;
 
-const TriviaCard = (): ReactElement => {
+const BookFactsCard = (): ReactElement => {
   const { fact, next } = useTrivia();
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const TriviaCard = (): ReactElement => {
       direction="row"
       spacing={1}
       alignItems="start"
-      sx={{ mt: 3, textAlign: "center", color: "text.secondary" }}
+      sx={{ textAlign: "center", color: "text.secondary" }}
     >
       <TipsAndUpdatesIcon sx={{ fontSize: "1.2rem" }} />{" "}
       <Typography variant="body2">{fact}</Typography>
@@ -31,4 +31,4 @@ const TriviaCard = (): ReactElement => {
   );
 };
 
-export default TriviaCard;
+export default BookFactsCard;

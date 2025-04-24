@@ -1,7 +1,9 @@
-import { CircularProgress, Grid, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
+import LoadingCard from "../components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import BookCard from "../components/BookCard";
 import { booksApi } from "../lib/api/KapitelShelf.Api";
 
@@ -10,19 +12,20 @@ const BooksList = (): ReactElement => {
     data: books,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ["books"],
     queryFn: async () => {
-      const { data } = await booksApi.booksGet(); // adjust method name to your API
+      const { data } = await booksApi.booksGet();
       return data;
     },
   });
 
   if (isLoading) {
-    return <CircularProgress />;
+    return <LoadingCard useLogo delayed itemName="Books" />;
   }
   if (isError) {
-    return <Typography>Error loading books</Typography>;
+    return <RequestErrorCard onRetry={refetch} />;
   }
 
   return (
