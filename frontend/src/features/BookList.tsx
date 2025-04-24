@@ -32,7 +32,7 @@ const BooksList = (): ReactElement => {
     <Grid container spacing={2} columns={{ xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }}>
       {books?.map((book) => (
         <Grid key={book.id} size={1}>
-          <BookCard book={book} />
+          <BookCard book={book} showAuthor />
         </Grid>
       ))}
     </Grid>
