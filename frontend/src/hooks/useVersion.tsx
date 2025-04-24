@@ -20,6 +20,6 @@ export const useVersion = (): VersionInfo => {
 
   return {
     APP_VERSION: __APP_VERSION__,
-    BACKEND_VERSION: backendVersion ?? "",
+    BACKEND_VERSION: backendVersion ?? "~",
   };
 };
