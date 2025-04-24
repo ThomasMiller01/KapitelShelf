@@ -50,7 +50,7 @@ const HomePage = (): ReactElement => {
           <Button
             variant="contained"
             size="large"
-            onClick={() => navigate("/books")}
+            onClick={() => navigate("/library")}
           >
             View My Books
           </Button>
