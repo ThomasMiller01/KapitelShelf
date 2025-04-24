@@ -58,7 +58,13 @@ export default tseslint.config(
       "no-magic-numbers": [
         "warn",
         {
-          ignore: [0, 1, -1, 2],
+          ignore: [
+            0,
+            1,
+            -1,
+            2, // check for even/uneven
+            1000, // convert s to ms
+          ],
           ignoreArrayIndexes: true,
           ignoreDefaultValues: true,
           ignoreClassFieldInitialValues: true,
