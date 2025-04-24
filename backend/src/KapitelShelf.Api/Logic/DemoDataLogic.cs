@@ -50,7 +50,7 @@ public class DemoDataLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
 
             .RuleFor(x => x.Series, x => CreateSeriesFaker().Generate())
             .RuleFor(x => x.SeriesId, (f, u) => u.Series!.Id)
-            .RuleFor(x => x.SeriesNumber, x => x.Random.Number(1, 10))
+            .RuleFor(x => x.SeriesNumber, x => x.Random.Number(0, 10))
 
             .RuleFor(x => x.Author, x => CreateAuthorFaker().Generate())
             .RuleFor(x => x.AuthorId, (f, u) => u.Author!.Id)

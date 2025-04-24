@@ -1,5 +1,7 @@
 import type { TypographyProps } from "@mui/material";
 import {
+  Avatar,
+  Box,
   Card,
   CardContent,
   CardMedia,
@@ -44,7 +46,7 @@ const BookCard = ({
   const [imageSrc, setImageSrc] = useState(book.cover?.filePath ?? bookCover);
 
   return (
-    <Card sx={{ height: "100%" }}>
+    <Card sx={{ height: "100%", position: "relative" }}>
       {book.cover && (
         <CardMedia
           component="img"
@@ -53,6 +55,29 @@ const BookCard = ({
           onError={() => setImageSrc(bookCover)}
           alt={book.title || "Book Cover"}
         />
+      )}
+      {book.seriesNumber !== 0 && (
+        <Box position="absolute" top="2px" right="5px">
+          <Avatar
+            sx={{
+              width: 30,
+              height: 30,
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              // color: "rgba(0, 0, 0, 0.2)",
+              opacity: "0.8",
+              fontSize: "0.8rem",
+              fontFamily: "Playwrite AU SA",
+              fontWeight: "400",
+              lineHeight: "2",
+              fontFeatureSettings: '"calt"',
+              // color: "text.primary",
+              // bgcolor: "background.paper",
+              // color: "secondary.main",
+            }}
+          >
+            {book.seriesNumber}.
+          </Avatar>
+        </Box>
       )}
       <CardContent sx={{ padding: "12px !important" }}>
         <Typography
