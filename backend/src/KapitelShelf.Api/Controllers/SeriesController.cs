@@ -64,7 +64,37 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error fetching series summaries");
+            this.logger.LogError(ex, "Error fetching series");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Get books by the series id.
+    /// </summary>
+    /// <param name="seriesId">The series id of the books to get.</param>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{seriesId}/books")]
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetBooksBySeriesId(
+        Guid seriesId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 24)
+    {
+        try
+        {
+            var series = await this.logic.GetBooksBySeriesIdAsync(seriesId, page, pageSize);
+            if (series is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(series);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching series books");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

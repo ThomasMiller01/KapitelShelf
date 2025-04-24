@@ -44,9 +44,11 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Include(x => x.Books)
                 .ThenInclude(b => b.Tags)
                     .ThenInclude(x => x.Tag)
+
             .OrderByDescending(x => x.UpdatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+
             .Select(x => this.mapper.Map<SeriesSummaryDTO>(x))
             .ToListAsync();
 
@@ -72,5 +74,47 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Where(x => x.Id == seriesId)
             .Select(x => this.mapper.Map<SeriesDTO>(x))
             .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Get a series by id.
+    /// </summary>
+    /// <param name="seriesId">The id of the series to fetch.</param>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<PagedResult<BookDTO>> GetBooksBySeriesIdAsync(Guid seriesId, int page, int pageSize)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var query = context.Books
+            .AsNoTracking();
+
+        var items = await query
+            .Include(x => x.Author)
+            .Include(x => x.Cover)
+            .Include(x => x.Categories)
+                .ThenInclude(x => x.Category)
+            .Include(x => x.Tags)
+                .ThenInclude(x => x.Tag)
+
+            .Where(x => x.SeriesId == seriesId)
+
+            .OrderBy(x => x.SeriesNumber)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.Map<BookDTO>(x))
+            .ToListAsync();
+
+        var totalCount = await query
+            .Where(x => x.SeriesId == seriesId)
+            .CountAsync();
+
+        return new PagedResult<BookDTO>
+        {
+            Items = items,
+            TotalCount = totalCount,
+        };
     }
 }
