@@ -1,30 +1,31 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
+# base stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
 
+EXPOSE 5261
+ENV HTTP_PORTS=5261
 
-# This stage is used to build the service project
+# build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
+
 WORKDIR /src
-COPY ["KapiteShelf.Api/KapiteShelf.Api.csproj", "KapiteShelf.Api/"]
-RUN dotnet restore "./KapiteShelf.Api/KapiteShelf.Api.csproj"
-COPY . .
-WORKDIR "/src/KapiteShelf.Api"
-RUN dotnet build "./KapiteShelf.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./KapiteShelf.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+COPY ./KapitelShelf.Api ./KapitelShelf.Api
+COPY ./KapitelShelf.Data ./KapitelShelf.Data
+COPY .editorconfig .editorconfig
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
+WORKDIR /src/KapitelShelf.Api
+
+RUN dotnet restore "./KapitelShelf.Api.csproj" && \
+    dotnet build "./KapitelShelf.Api.csproj" -c Release -o /app/build && \
+    dotnet publish "./KapitelShelf.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# production stage
+FROM base AS production
+
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "KapiteShelf.Api.dll"]
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "KapitelShelf.Api.dll"]

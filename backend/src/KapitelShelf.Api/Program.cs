@@ -57,9 +57,9 @@ if (app.Environment.IsDevelopment())
 
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    app.UseCors("CorsPolicy");
 }
+
+app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 
