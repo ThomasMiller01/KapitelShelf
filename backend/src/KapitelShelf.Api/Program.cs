@@ -4,10 +4,17 @@
 
 using System.Reflection;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// configuration settings
+var settings = builder.Configuration.GetSection("KapitelShelf").Get<KapitelShelfSettings>()!;
+#pragma warning disable IDE0001 // Simplify Names
+builder.Services.AddSingleton<KapitelShelfSettings>(settings);
+#pragma warning restore IDE0001 // Simplify Names
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -38,7 +45,7 @@ builder.Services.AddCors(options =>
 
 // database
 builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options =>
-    options.UseNpgsql("Host=localhost;Database=kapitelshelf;Username=kapitelshelf;Password=kapitelshelf"));
+    options.UseNpgsql($"Host={settings.Database.Host};Database={StaticConstants.DatabaseName};Username={settings.Database.Username};Password={settings.Database.Password}"));
 
 // automapper
 builder.Services.AddAutoMapper(typeof(Program));
