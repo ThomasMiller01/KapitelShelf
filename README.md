@@ -46,16 +46,16 @@ Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.m
 
 ## Support
 
-If you love KapitelShelf, consider giving a ⭐ on GitHub!
+If you like KapitelShelf, consider giving a ⭐ on GitHub!
 
 ## License
 
-KapitelShelf is licensed under the MIT License.
+KapitelShelf is licensed under the MIT License.  
 See [LICENSE](./LICENSE) for more information.
 
 ## Fun Fact:
 
-The name **KapitelShelf** combines the German word **"Kapitel"** (meaning _chapter_) and the English word **"Shelf"**.
+The name **KapitelShelf** combines the German word **"Kapitel"** (meaning _chapter_) and the English word **"Shelf"**.  
 It's a simple nod to organizing your collection of books, one chapter at a time.
 
 > "KapitelShelf - Organizing chaos, one chapter at a time."

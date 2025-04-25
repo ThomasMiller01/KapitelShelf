@@ -44,6 +44,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Include(x => x.Books)
                 .ThenInclude(b => b.Tags)
                     .ThenInclude(x => x.Tag)
+            .AsSingleQuery()
 
             .OrderByDescending(x => x.UpdatedAt)
             .Skip((page - 1) * pageSize)
@@ -113,6 +114,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
                 .ThenInclude(x => x.Category)
             .Include(x => x.Tags)
                 .ThenInclude(x => x.Tag)
+            .AsSingleQuery()
 
             .Where(x => x.SeriesId == seriesId)
 

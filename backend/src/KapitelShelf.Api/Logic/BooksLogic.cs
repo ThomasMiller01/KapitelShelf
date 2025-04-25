@@ -44,6 +44,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 #nullable disable
                 .ThenInclude(x => x.FileInfo)
 #nullable restore
+            .AsSingleQuery()
 
             .Select(x => this.mapper.Map<BookDTO>(x))
             .ToListAsync();
@@ -72,6 +73,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
                 .ThenInclude(x => x.Category)
             .Include(x => x.Tags)
                 .ThenInclude(x => x.Tag)
+            .AsSingleQuery()
 
             .Where(x => x.Id == bookId)
 
