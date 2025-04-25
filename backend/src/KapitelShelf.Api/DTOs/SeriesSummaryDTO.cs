@@ -22,12 +22,12 @@ public class SeriesSummaryDTO
     /// <summary>
     /// Gets or sets the creation time.
     /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the update time.
     /// </summary>
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the last volume of this series.
