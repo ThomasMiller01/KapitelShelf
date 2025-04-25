@@ -98,4 +98,30 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
+
+    /// <summary>
+    /// Get books by the series id.
+    /// </summary>
+    /// <param name="seriesId">The series id of the book to get.</param>
+    /// <param name="bookId">The id of the book to get.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{seriesId}/books/{bookId}")]
+    public async Task<ActionResult<BookDTO>> GetBookById(Guid seriesId, Guid bookId)
+    {
+        try
+        {
+            var book = await this.logic.GetBookByIdAsync(seriesId, bookId);
+            if (book is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(book);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching book");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
 }

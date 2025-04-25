@@ -36,7 +36,7 @@ const SeriesBooksList = ({ seriesId }: SeriesBooksListProps): ReactElement => {
     });
 
   if (isLoading) {
-    return <LoadingCard useLogo delayed itemName="Series" showRandomFacts />;
+    return <LoadingCard useLogo delayed itemName="Books" showRandomFacts />;
   }
 
   if (isError) {

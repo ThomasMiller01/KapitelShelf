@@ -118,4 +118,33 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             TotalCount = totalCount,
         };
     }
+
+    /// <summary>
+    /// Get a book by id.
+    /// </summary>
+    /// <param name="seriesId">The series id of the book to fetch.</param>
+    /// <param name="bookId">The id of the book to fetch.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<BookDTO?> GetBookByIdAsync(Guid seriesId, Guid bookId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+        return await context.Books
+            .Include(x => x.Author)
+            .Include(x => x.Series)
+            .Include(x => x.Cover)
+            .Include(x => x.Location)
+                .ThenInclude(x => x.FileInfo)
+            .Include(x => x.Categories)
+                .ThenInclude(x => x.Category)
+            .Include(x => x.Tags)
+                .ThenInclude(x => x.Tag)
+
+            .Where(x => x.Id == bookId && x.SeriesId == seriesId)
+
+            .Select(x => this.mapper.Map<BookDTO>(x))
+            .FirstOrDefaultAsync();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+    }
 }
