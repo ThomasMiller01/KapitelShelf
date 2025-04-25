@@ -1,13 +1,14 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface ItemAppBarProps {
   title: string | null | undefined;
+  addons?: ReactNode[];
 }
 
-const ItemAppBar = ({ title }: ItemAppBarProps): ReactElement => {
+const ItemAppBar = ({ title, addons = [] }: ItemAppBarProps): ReactElement => {
   const navigate = useNavigate();
 
   return (
@@ -24,10 +25,16 @@ const ItemAppBar = ({ title }: ItemAppBarProps): ReactElement => {
         <Typography
           variant="h6"
           noWrap
-          sx={{ flexGrow: 1, textAlign: "left", marginLeft: "20px" }}
+          sx={{
+            textAlign: "left",
+            marginLeft: "20px",
+            marginRight: "20px",
+            width: "fit-content",
+          }}
         >
           {title}
         </Typography>
+        {addons}
       </Toolbar>
     </AppBar>
   );

@@ -28,4 +28,9 @@ public class SeriesDTO
     /// Gets or sets the update time.
     /// </summary>
     public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets the total number of books.
+    /// </summary>
+    public int TotalBooks { get; set; }
 }

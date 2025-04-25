@@ -168,7 +168,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         var bookDtoSHA = bookDto.Location?.FileInfo?.Sha256;
 
         return await context.Books
-        .AsNoTracking()
+            .AsNoTracking()
             .Where(x => x.Title == bookDto.Title)
             .ToListAsync();
     }

@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Avatar, Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { useParams } from "react-router-dom";
@@ -39,7 +39,26 @@ const SeriesDetailPage = (): ReactElement => {
 
   return (
     <Box>
-      <ItemAppBar title={series?.name} />
+      <ItemAppBar
+        title={series?.name}
+        addons={[
+          <Avatar
+            key="series-count"
+            sx={{
+              width: 36,
+              height: 36,
+              fontSize: "1.2rem",
+              bgcolor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255, 255, 255, 0.15)"
+                  : "rgba(0, 0, 0, 0.1)",
+              color: "text.primary",
+            }}
+          >
+            {series?.totalBooks}
+          </Avatar>,
+        ]}
+      />
       <Box padding="24px">
         <SeriesBooksList seriesId={series?.id ?? ""} />
       </Box>

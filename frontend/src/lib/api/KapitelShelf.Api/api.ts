@@ -276,13 +276,19 @@ export interface SeriesDTO {
      * @type {string}
      * @memberof SeriesDTO
      */
-    'createdAt'?: string;
+    'createdAt'?: string | null;
     /**
      * Gets or sets the update time.
      * @type {string}
      * @memberof SeriesDTO
      */
-    'updatedAt'?: string;
+    'updatedAt'?: string | null;
+    /**
+     * Gets or sets the total number of books.
+     * @type {number}
+     * @memberof SeriesDTO
+     */
+    'totalBooks'?: number;
 }
 /**
  * The series dto.
