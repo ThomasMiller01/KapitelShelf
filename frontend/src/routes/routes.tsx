@@ -15,8 +15,8 @@ const AppRoutes = (): ReactElement | null =>
       children: [
         { index: true, element: <HomePage /> },
         { path: "library", element: <BooksPage /> },
-        { path: "library/:seriesId", element: <SeriesDetailPage /> },
-        { path: "library/:seriesId/:bookId", element: <BookDetailPage /> },
+        { path: "library/series/:seriesId", element: <SeriesDetailPage /> },
+        { path: "library/books/:bookId", element: <BookDetailPage /> },
       ],
     },
   ]);

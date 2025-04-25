@@ -7,11 +7,10 @@ import LoadingCard from "../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../components/base/ItemAppBar";
 import BookDetails from "../features/BookDetails";
-import { seriesApi } from "../lib/api/KapitelShelf.Api";
+import { booksApi } from "../lib/api/KapitelShelf.Api";
 
 const BookDetailPage = (): ReactElement => {
-  const { seriesId, bookId } = useParams<{
-    seriesId: string;
+  const { bookId } = useParams<{
     bookId: string;
   }>();
 
@@ -21,16 +20,13 @@ const BookDetailPage = (): ReactElement => {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["book-by-id"],
+    queryKey: ["book-by-id", bookId],
     queryFn: async () => {
-      if (seriesId === undefined || bookId === undefined) {
+      if (bookId === undefined) {
         return null;
       }
 
-      const { data } = await seriesApi.seriesSeriesIdBooksBookIdGet(
-        seriesId,
-        bookId
-      );
+      const { data } = await booksApi.booksBookIdGet(bookId);
       return data;
     },
   });
@@ -45,7 +41,7 @@ const BookDetailPage = (): ReactElement => {
 
   return (
     <Box>
-      <ItemAppBar title={book?.title} backTooltip="Go to series" />
+      <ItemAppBar title={book?.title} />
       <BookDetails book={book} />
     </Box>
   );

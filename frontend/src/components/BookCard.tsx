@@ -23,7 +23,7 @@ const BookCard = ({
   return (
     <ItemCardLayout
       title={book.title}
-      link={`/library/${book.series?.id}/${book.id}`}
+      link={`/library/books/${book.id}`}
       image={book.cover?.filePath}
       fallbackImage={bookCover}
       badge={

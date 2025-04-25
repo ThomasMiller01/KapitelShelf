@@ -18,7 +18,7 @@ const SeriesDetailPage = (): ReactElement => {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["series-by-id"],
+    queryKey: ["series-details", seriesId],
     queryFn: async () => {
       if (seriesId === undefined) {
         return null;
@@ -41,7 +41,6 @@ const SeriesDetailPage = (): ReactElement => {
     <Box>
       <ItemAppBar
         title={series?.name}
-        backTooltip="Go to library"
         addons={[
           <Avatar
             key="series-count"

@@ -408,8 +408,8 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary Fetch a book by its id.
-         * @param {string} bookId The id of the book to fetch.
+         * @summary Get books by the series id.
+         * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -567,12 +567,12 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Fetch a book by its id.
-         * @param {string} bookId The id of the book to fetch.
+         * @summary Get books by the series id.
+         * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BookDTO>>> {
+        async booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdGet(bookId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdGet']?.[localVarOperationServerIndex]?.url;
@@ -639,12 +639,12 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
-         * @summary Fetch a book by its id.
-         * @param {string} bookId The id of the book to fetch.
+         * @summary Get books by the series id.
+         * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
+        booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
             return localVarFp.booksBookIdGet(bookId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -701,8 +701,8 @@ export class BooksApi extends BaseAPI {
 
     /**
      * 
-     * @summary Fetch a book by its id.
-     * @param {string} bookId The id of the book to fetch.
+     * @summary Get books by the series id.
+     * @param {string} bookId The id of the book to get.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
@@ -860,44 +860,6 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 
          * @summary Get books by the series id.
-         * @param {string} seriesId The series id of the book to get.
-         * @param {string} bookId The id of the book to get.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        seriesSeriesIdBooksBookIdGet: async (seriesId: string, bookId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'seriesId' is not null or undefined
-            assertParamExists('seriesSeriesIdBooksBookIdGet', 'seriesId', seriesId)
-            // verify required parameter 'bookId' is not null or undefined
-            assertParamExists('seriesSeriesIdBooksBookIdGet', 'bookId', bookId)
-            const localVarPath = `/series/{seriesId}/books/{bookId}`
-                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)))
-                .replace(`{${"bookId"}}`, encodeURIComponent(String(bookId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Get books by the series id.
          * @param {string} seriesId The series id of the books to get.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -1026,20 +988,6 @@ export const SeriesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Get books by the series id.
-         * @param {string} seriesId The series id of the book to get.
-         * @param {string} bookId The id of the book to get.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async seriesSeriesIdBooksBookIdGet(seriesId: string, bookId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdBooksBookIdGet(seriesId, bookId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdBooksBookIdGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Get books by the series id.
          * @param {string} seriesId The series id of the books to get.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -1092,17 +1040,6 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
         /**
          * 
          * @summary Get books by the series id.
-         * @param {string} seriesId The series id of the book to get.
-         * @param {string} bookId The id of the book to get.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        seriesSeriesIdBooksBookIdGet(seriesId: string, bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
-            return localVarFp.seriesSeriesIdBooksBookIdGet(seriesId, bookId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Get books by the series id.
          * @param {string} seriesId The series id of the books to get.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -1143,19 +1080,6 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
  * @extends {BaseAPI}
  */
 export class SeriesApi extends BaseAPI {
-    /**
-     * 
-     * @summary Get books by the series id.
-     * @param {string} seriesId The series id of the book to get.
-     * @param {string} bookId The id of the book to get.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SeriesApi
-     */
-    public seriesSeriesIdBooksBookIdGet(seriesId: string, bookId: string, options?: RawAxiosRequestConfig) {
-        return SeriesApiFp(this.configuration).seriesSeriesIdBooksBookIdGet(seriesId, bookId, options).then((request) => request(this.axios, this.basePath));
-    }
-
     /**
      * 
      * @summary Get books by the series id.

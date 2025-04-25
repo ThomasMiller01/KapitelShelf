@@ -1,9 +1,29 @@
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import CategoryIcon from "@mui/icons-material/Category";
+import CollectionsBookmarkIcon from "@mui/icons-material/CollectionsBookmark";
+import DescriptionIcon from "@mui/icons-material/Description";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import PersonIcon from "@mui/icons-material/Person";
 import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
+import type { ReactNode } from "react";
 import { type ReactElement, useState } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+interface MetadataItemProps {
+  icon: ReactNode;
+  children: ReactNode;
+}
+
+const MetadataItem = ({ icon, children }: MetadataItemProps): ReactElement => (
+  <Stack direction="row" spacing={0.8} alignItems="start">
+    {icon && (
+      <Box sx={{ "& > *": { fontSize: "1.2rem !important" } }}>{icon}</Box>
+    )}
+    <Typography variant="body2">{children}</Typography>
+  </Stack>
+);
 
 interface BookDetailsProps {
   book: BookDTO;
@@ -42,41 +62,39 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
           </Typography>
 
           <Stack direction="row" spacing={3} flexWrap="wrap" mb={2}>
-            {book.releaseDate && (
-              <Typography variant="body2">
-                📅 Release: {new Date(book.releaseDate).toLocaleDateString()}
-              </Typography>
-            )}
             {book.pageNumber && (
-              <Typography variant="body2">
-                📄 {book.pageNumber} pages
-              </Typography>
-            )}
-            {book.series?.name && (
-              <Typography variant="body2">
-                📚 Series: {book.series.name} #{book.seriesNumber}
-              </Typography>
+              <MetadataItem icon={<DescriptionIcon />}>
+                {book.pageNumber} pages
+              </MetadataItem>
             )}
             {book.author && (
-              <Typography variant="body2">
-                ✍️ Author: {book.author.firstName} {book.author.lastName}
-              </Typography>
+              <MetadataItem icon={<PersonIcon />}>
+                {book.author.firstName} {book.author.lastName}
+              </MetadataItem>
             )}
+            {book.releaseDate && (
+              <MetadataItem icon={<CalendarMonthIcon />}>
+                {new Date(book.releaseDate).toLocaleDateString()}
+              </MetadataItem>
+            )}
+            <MetadataItem icon={<CollectionsBookmarkIcon />}>
+              {book.series?.name} #{book.seriesNumber}
+            </MetadataItem>
           </Stack>
-
-          <Stack direction="row" spacing={1} mb={1} flexWrap="wrap">
+          <Stack direction="row" spacing={1} mb={1.5} flexWrap="wrap">
+            <CategoryIcon sx={{ mr: "5px !important" }} />
             {book.categories &&
-              book.categories.map((cat) => (
+              book.categories.map((category) => (
                 <Chip
-                  key={cat.id}
-                  label={cat.name}
+                  key={category.id}
+                  label={category.name}
                   color="primary"
                   size="small"
                 />
               ))}
           </Stack>
-
           <Stack direction="row" spacing={1} flexWrap="wrap">
+            <LocalOfferIcon sx={{ mr: "5px !important" }} />
             {book.tags &&
               book.tags.map((tag) => (
                 <Chip

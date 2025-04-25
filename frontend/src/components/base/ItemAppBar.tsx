@@ -47,18 +47,13 @@ const BackButton = ({ backTooltip }: BackButtonProps): ReactElement => {
 
 interface ItemAppBarProps {
   title: string | null | undefined;
-  backTooltip?: string;
   addons?: ReactNode[];
 }
 
-const ItemAppBar = ({
-  title,
-  backTooltip,
-  addons = [],
-}: ItemAppBarProps): ReactElement => (
+const ItemAppBar = ({ title, addons = [] }: ItemAppBarProps): ReactElement => (
   <AppBar position="static" color="default" elevation={1}>
     <Toolbar>
-      <BackButton backTooltip={backTooltip} />
+      <BackButton backTooltip={"Go back"} />
       <Typography
         variant="h6"
         noWrap

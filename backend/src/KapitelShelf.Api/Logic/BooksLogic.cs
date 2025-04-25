@@ -50,10 +50,10 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     }
 
     /// <summary>
-    /// Get a book by its id.
+    /// Get a book by id.
     /// </summary>
-    /// <param name="bookId">The id of the book to get.</param>
-    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
+    /// <param name="bookId">The id of the book to fetch.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
     public async Task<BookDTO?> GetBookByIdAsync(Guid bookId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -61,19 +61,20 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return await context.Books
             .AsNoTracking()
 
-            .Include(x => x.Series)
             .Include(x => x.Author)
+            .Include(x => x.Series)
+            .Include(x => x.Cover)
+            .Include(x => x.Location)
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                .ThenInclude(x => x.FileInfo)
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             .Include(x => x.Categories)
                 .ThenInclude(x => x.Category)
             .Include(x => x.Tags)
                 .ThenInclude(x => x.Tag)
-            .Include(x => x.Cover)
-            .Include(x => x.Location)
-#nullable disable
-                .ThenInclude(x => x.FileInfo)
-#nullable restore
 
             .Where(x => x.Id == bookId)
+
             .Select(x => this.mapper.Map<BookDTO>(x))
             .FirstOrDefaultAsync();
     }

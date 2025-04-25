@@ -18,7 +18,7 @@ interface SeriesBooksListProps {
 const SeriesBooksList = ({ seriesId }: SeriesBooksListProps): ReactElement => {
   const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
     useInfiniteQuery({
-      queryKey: ["series"],
+      queryKey: ["series-books-list", seriesId],
       queryFn: async ({ pageParam = 1 }) => {
         const { data } = await seriesApi.seriesSeriesIdBooksGet(
           seriesId,
