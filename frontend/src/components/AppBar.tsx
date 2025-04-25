@@ -6,16 +6,11 @@ import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
 
 interface TopAppBarProps {
   open: boolean;
-  mobile: boolean;
   toggle: () => void;
 }
 
-export const AppBar = ({
-  open,
-  mobile,
-  toggle,
-}: TopAppBarProps): ReactElement => (
-  <ResponsiveDrawerAppBar open={open} mobile={mobile} toggle={toggle}>
+export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => (
+  <ResponsiveDrawerAppBar open={open} toggle={toggle}>
     <Box
       sx={{
         width: "100%",

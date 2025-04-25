@@ -27,6 +27,10 @@ public class BookMappingProfile : Profile
                 src.Tags
                     .Select(x => x.Tag)
                     .ToList()))
+
+            // map series from the model if set, otherwise just take the seriesId from the model
+            .ForMember(dest => dest.Series, opt => opt.MapFrom(src =>
+                src.Series ?? new SeriesModel { Id = src.SeriesId }))
         .ReverseMap()
             .ForMember(dest => dest.Categories, opt => opt.MapFrom(src =>
                 src.Categories
@@ -35,6 +39,7 @@ public class BookMappingProfile : Profile
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src =>
                 src.Tags
                     .Select(x => new BookTagModel { TagId = x.Id })
-                    .ToList()));
+                    .ToList()))
+            .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.Series.Id));
     }
 }

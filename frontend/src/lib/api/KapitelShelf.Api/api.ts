@@ -276,13 +276,19 @@ export interface SeriesDTO {
      * @type {string}
      * @memberof SeriesDTO
      */
-    'createdAt'?: string;
+    'createdAt'?: string | null;
     /**
      * Gets or sets the update time.
      * @type {string}
      * @memberof SeriesDTO
      */
-    'updatedAt'?: string;
+    'updatedAt'?: string | null;
+    /**
+     * Gets or sets the total number of books.
+     * @type {number}
+     * @memberof SeriesDTO
+     */
+    'totalBooks'?: number;
 }
 /**
  * The series dto.
@@ -402,8 +408,8 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary Fetch a book by its id.
-         * @param {string} bookId The id of the book to fetch.
+         * @summary Get books by the series id.
+         * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -561,12 +567,12 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Fetch a book by its id.
-         * @param {string} bookId The id of the book to fetch.
+         * @summary Get books by the series id.
+         * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BookDTO>>> {
+        async booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdGet(bookId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdGet']?.[localVarOperationServerIndex]?.url;
@@ -633,12 +639,12 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
-         * @summary Fetch a book by its id.
-         * @param {string} bookId The id of the book to fetch.
+         * @summary Get books by the series id.
+         * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
+        booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
             return localVarFp.booksBookIdGet(bookId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -695,8 +701,8 @@ export class BooksApi extends BaseAPI {
 
     /**
      * 
-     * @summary Fetch a book by its id.
-     * @param {string} bookId The id of the book to fetch.
+     * @summary Get books by the series id.
+     * @param {string} bookId The id of the book to get.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi

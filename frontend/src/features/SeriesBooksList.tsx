@@ -18,7 +18,7 @@ interface SeriesBooksListProps {
 const SeriesBooksList = ({ seriesId }: SeriesBooksListProps): ReactElement => {
   const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
     useInfiniteQuery({
-      queryKey: ["series"],
+      queryKey: ["series-books-list", seriesId],
       queryFn: async ({ pageParam = 1 }) => {
         const { data } = await seriesApi.seriesSeriesIdBooksGet(
           seriesId,
@@ -36,7 +36,7 @@ const SeriesBooksList = ({ seriesId }: SeriesBooksListProps): ReactElement => {
     });
 
   if (isLoading) {
-    return <LoadingCard useLogo delayed itemName="Series" showRandomFacts />;
+    return <LoadingCard useLogo delayed itemName="Books" showRandomFacts />;
   }
 
   if (isError) {

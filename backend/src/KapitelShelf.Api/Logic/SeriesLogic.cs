@@ -70,10 +70,25 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        return await context.Series
+        var series = await context.Series
+            .AsNoTracking()
             .Where(x => x.Id == seriesId)
             .Select(x => this.mapper.Map<SeriesDTO>(x))
             .FirstOrDefaultAsync();
+
+        if (series is null)
+        {
+            return null;
+        }
+
+        var bookCount = await context.Books
+            .AsNoTracking()
+            .Where(x => x.SeriesId == seriesId)
+            .CountAsync();
+
+        series.TotalBooks = bookCount;
+
+        return series;
     }
 
     /// <summary>

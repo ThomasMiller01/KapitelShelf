@@ -9,11 +9,12 @@ import {
 import type { FC, ReactElement, ReactNode } from "react";
 import { createContext, useContext, useMemo, useState } from "react";
 
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import { getTheme } from "../styles/Theme";
 
 type ThemeMode = "light" | "dark";
 
-const THEME_LOCAL_STORAGE_KEY = "kapitelshelf.theme";
+const THEME_KEY = "kapitelshelf.theme";
 
 const ThemeToggleContext = createContext<() => void>(() => {});
 const ThemeModeContext = createContext<ThemeMode>("light");
@@ -23,8 +24,10 @@ export const useToggleTheme = (): (() => void) =>
 export const useThemeMode = (): ThemeMode => useContext(ThemeModeContext);
 
 export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const [getItem, setItem] = useLocalStorage();
+
   const getDefaultMode = (): ThemeMode => {
-    const stored = localStorage.getItem(THEME_LOCAL_STORAGE_KEY);
+    const stored = getItem(THEME_KEY);
     if (stored === "light" || stored === "dark") {
       return stored;
     }
@@ -40,7 +43,7 @@ export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const toggleTheme = (): void => {
     setMode((prev) => {
       const next = prev === "light" ? "dark" : "light";
-      localStorage.setItem(THEME_LOCAL_STORAGE_KEY, next);
+      setItem(THEME_KEY, next);
       return next;
     });
   };

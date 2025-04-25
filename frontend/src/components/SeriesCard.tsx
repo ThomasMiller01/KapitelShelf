@@ -1,6 +1,7 @@
 import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
+import { useMobile } from "../hooks/useMobile";
 import type { SeriesSummaryDTO } from "../lib/api/KapitelShelf.Api/api";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
 
@@ -9,6 +10,8 @@ interface SeriesCardProps {
 }
 
 const SeriesCard = ({ serie }: SeriesCardProps): ReactElement => {
+  const { isMobile } = useMobile();
+
   const book = serie.lastVolume;
   if (book === undefined) {
     return <></>;
@@ -17,11 +20,14 @@ const SeriesCard = ({ serie }: SeriesCardProps): ReactElement => {
   return (
     <ItemCardLayout
       title={serie.name}
-      link={`/library/${serie.id}`}
+      link={`/library/series/${serie.id}`}
       image={book.cover?.filePath}
       fallbackImage={bookCover}
       metadata={[
-        <MetadataItem key="author">
+        <MetadataItem
+          key="author"
+          sx={{ fontSize: isMobile ? "0.7rem" : "0.9rem" }}
+        >
           {book.author?.firstName} {book.author?.lastName}
         </MetadataItem>,
       ]}

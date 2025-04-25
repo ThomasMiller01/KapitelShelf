@@ -1,8 +1,8 @@
 import { Stack } from "@mui/material";
-import { type ReactElement } from "react";
+import React, { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
-import { useMobile } from "../hooks/isMobile";
+import { useMobile } from "../hooks/useMobile";
 import { LocationTypeToString } from "../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
@@ -22,8 +22,9 @@ const BookCard = ({
 
   return (
     <ItemCardLayout
-      title={book.title ?? ""}
-      image={book.cover?.filePath ?? undefined}
+      title={book.title}
+      link={`/library/books/${book.id}`}
+      image={book.cover?.filePath}
       fallbackImage={bookCover}
       badge={
         book.seriesNumber !== 0 ? book.seriesNumber?.toString() : undefined
@@ -34,7 +35,7 @@ const BookCard = ({
             {book.author?.firstName} {book.author?.lastName}
           </MetadataItem>
         ) : (
-          <></>
+          <React.Fragment key="no-author"></React.Fragment>
         ),
         showMetadata ? (
           <Stack
@@ -51,7 +52,7 @@ const BookCard = ({
             </MetadataItem>
           </Stack>
         ) : (
-          <></>
+          <React.Fragment key="no-metadata"></React.Fragment>
         ),
       ]}
     />

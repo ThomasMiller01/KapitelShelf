@@ -1,18 +1,40 @@
-import { useMediaQuery, useTheme } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
-export const useResponsiveDrawer = (): [boolean, () => void, boolean] => {
-  const theme = useTheme();
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.down("md"));
-  const [open, setOpen] = useState<boolean>(!isMobile);
+import { useLocalStorage } from "./useLocalStorage";
+import { useMobile } from "./useMobile";
 
-  useEffect(() => {
-    setOpen(!isMobile);
-  }, [isMobile]);
+const OPEN_KEY = "sidebar.open";
+
+export const useResponsiveDrawer = (): [boolean, () => void] => {
+  const { isMobile } = useMobile();
+  const [getItem, setItem] = useLocalStorage();
+
+  const getInitialState = useCallback((): boolean => {
+    if (isMobile) {
+      // mobile defaults to closed
+      return false;
+    }
+
+    const stored = getItem(OPEN_KEY);
+    if (stored === null) {
+      // desktop defaults to open
+      return true;
+    }
+
+    return stored === "true";
+  }, [getItem, isMobile]);
+
+  const [open, setOpen] = useState(getInitialState);
 
   const toggleDrawer = (): void => {
-    setOpen((prev) => !prev);
+    const newValue = !open;
+    setOpen(newValue);
+
+    if (!isMobile) {
+      // store new value only on desktop
+      setItem(OPEN_KEY, String(newValue));
+    }
   };
 
-  return [open, toggleDrawer, isMobile];
+  return [open, toggleDrawer];
 };

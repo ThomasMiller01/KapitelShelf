@@ -73,12 +73,12 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic) 
     }
 
     /// <summary>
-    /// Fetch a book by its id.
+    /// Get books by the series id.
     /// </summary>
-    /// <param name="bookId">The id of the book to fetch.</param>
+    /// <param name="bookId">The id of the book to get.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpGet("{bookId:guid}")]
-    public async Task<ActionResult<IList<BookDTO>>> GetBookById(Guid bookId)
+    [HttpGet("{bookId}")]
+    public async Task<ActionResult<BookDTO>> GetBookById(Guid bookId)
     {
         try
         {
@@ -92,7 +92,7 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic) 
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error fetching book with Id: {BookId}", bookId);
+            this.logger.LogError(ex, "Error fetching book");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

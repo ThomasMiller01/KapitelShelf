@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 import { type ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useMobile } from "../../hooks/isMobile";
+import { useMobile } from "../../hooks/useMobile";
 
 interface MetadataItemProps extends TypographyProps {
   isMobile?: boolean;
@@ -59,7 +59,7 @@ const ItemCardLayout = ({
         {image && (
           <CardMedia
             component="img"
-            height={isMobile ? "200" : "250"}
+            height={isMobile ? "200" : "230"}
             image={imageSrc ?? undefined}
             onError={() => setImageSrc(fallbackImage)}
             alt={title || "Item image"}
@@ -84,7 +84,7 @@ const ItemCardLayout = ({
             </Avatar>
           </Box>
         )}
-        <CardContent sx={{ padding: "12px !important" }}>
+        <CardContent sx={{ px: "12px", pt: "10px", pb: "8px" }}>
           <Typography
             variant="h6"
             sx={{

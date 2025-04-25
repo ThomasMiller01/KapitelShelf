@@ -37,7 +37,7 @@ public class BookModel
     /// <summary>
     /// Gets or sets the series id.
     /// </summary>
-    public Guid? SeriesId { get; set; }
+    public Guid SeriesId { get; set; }
 
     /// <summary>
     /// Gets or sets the series.
@@ -47,7 +47,7 @@ public class BookModel
     /// <summary>
     /// Gets or sets the series number.
     /// </summary>
-    public int? SeriesNumber { get; set; } = null;
+    public int SeriesNumber { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the author id.

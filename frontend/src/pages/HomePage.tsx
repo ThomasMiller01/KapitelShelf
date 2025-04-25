@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 import KapitelShelfLogo from "/kapitelshelf.png";
 
-import { useMobile } from "../hooks/isMobile";
+import { useMobile } from "../hooks/useMobile";
 
 const ProductNameText = styled(Typography)({
   fontFamily: "Playwrite AU SA",

@@ -37,7 +37,7 @@ public class BookDTO
     /// <summary>
     /// Gets or sets the series.
     /// </summary>
-    public SeriesDTO? Series { get; set; }
+    public SeriesDTO Series { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the series number.
