@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 import { type ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useMobile } from "../../hooks/isMobile";
+import { useMobile } from "../../hooks/useMobile";
 
 interface MetadataItemProps extends TypographyProps {
   isMobile?: boolean;

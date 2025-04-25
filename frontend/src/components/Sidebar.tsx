@@ -14,26 +14,22 @@ import {
 import type { ReactElement, ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
+import { useMobile } from "../hooks/useMobile";
 import { useVersion } from "../hooks/useVersion";
 import { ResponsiveDrawer } from "./base/ResponsiveDrawer";
 
 interface SidebarProps {
   open: boolean;
-  mobile: boolean;
   onClose: () => void;
 }
 
-export const Sidebar = ({
-  open,
-  onClose,
-  mobile,
-}: SidebarProps): ReactElement => {
+export const Sidebar = ({ open, onClose }: SidebarProps): ReactElement => {
   const { APP_VERSION, BACKEND_VERSION } = useVersion();
+  const { isMobile } = useMobile();
 
   return (
     <ResponsiveDrawer
       open={open}
-      mobile={mobile}
       onClose={onClose}
       name="KapitelShelf"
       logo="/kapitelshelf.png"
@@ -44,13 +40,13 @@ export const Sidebar = ({
             name="Home"
             icon={<HomeIcon />}
             link="/"
-            onClose={mobile ? onClose : undefined}
+            onClose={isMobile ? onClose : undefined}
           />
           <SidebarLinkItem
             name="Library"
             icon={<LibraryBooksIcon />}
             link="/library"
-            onClose={mobile ? onClose : undefined}
+            onClose={isMobile ? onClose : undefined}
           />
         </List>
         <List>
