@@ -35,13 +35,14 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 - Database: [PostgreSQL](https://www.postgresql.org/)
 - API Docs: Swagger/OpenAPI (auto-generated)
 
+> Coming soon
+
 Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.md).
 
 ## Documentation
 
 - [Installation Guide](docs/installation.md) (coming soon)
-- [API Reference](docs/api.md) (Swagger auto-generated)
-- [Admin Setup](docs/admin-setup.md) (coming soon)
+- [Development Guide](docs/development.md) (coming soon)
 
 ## Support
 
@@ -57,6 +58,4 @@ See [LICENSE](./LICENSE) for more information.
 The name **KapitelShelf** combines the German word **"Kapitel"** (meaning _chapter_) and the English word **"Shelf"**.
 It's a simple nod to organizing your collection of books, one chapter at a time.
 
----
-
-> "KapitelShelf – Organizing chaos, one chapter at a time."
+> "KapitelShelf - Organizing chaos, one chapter at a time."
