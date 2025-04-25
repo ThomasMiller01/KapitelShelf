@@ -11,18 +11,25 @@ import { type ReactElement, useState } from "react";
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import LocationDetails from "./LocationDetails";
+
 interface MetadataItemProps {
   icon: ReactNode;
   children: ReactNode;
 }
 
-const MetadataItem = ({ icon, children }: MetadataItemProps): ReactElement => (
-  <Stack direction="row" spacing={0.8} alignItems="start">
-    {icon && (
-      <Box sx={{ "& > *": { fontSize: "1.2rem !important" } }}>{icon}</Box>
-    )}
-    <Typography variant="body2">{children}</Typography>
-  </Stack>
+const MetadataGridItem = ({
+  icon,
+  children,
+}: MetadataItemProps): ReactElement => (
+  <Grid>
+    <Stack direction="row" spacing={0.8} alignItems="start">
+      {icon && (
+        <Box sx={{ "& > *": { fontSize: "1.2rem !important" } }}>{icon}</Box>
+      )}
+      <Typography variant="body2">{children}</Typography>
+    </Stack>
+  </Grid>
 );
 
 interface BookDetailsProps {
@@ -35,24 +42,28 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
 
   return (
     <Box p={3}>
-      <Grid container spacing={4}>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <img
-            src={imageSrc ?? undefined}
-            onError={() => setImageSrc(bookCover)}
-            alt={book.title ?? "Book Cover"}
-            style={{
-              width: "100%",
-              maxWidth: 320,
-              borderRadius: 2,
-              boxShadow: "3",
-              marginLeft: isMobile ? "auto" : 0,
-              marginRight: isMobile ? "auto" : 0,
-            }}
-          />
+      <Grid container spacing={2} columns={11}>
+        <Grid size={{ xs: 11, md: 2 }}>
+          <Stack>
+            <img
+              src={imageSrc ?? undefined}
+              onError={() => setImageSrc(bookCover)}
+              alt={book.title ?? "Book Cover"}
+              style={{
+                width: "100%",
+                // maxWidth: 340,
+                borderRadius: 2,
+                boxShadow: "3",
+                marginLeft: isMobile ? "auto" : 0,
+                marginRight: isMobile ? "auto" : 0,
+              }}
+            />
+
+            {book.location && <LocationDetails location={book.location} />}
+          </Stack>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 8 }} mt="20px">
+        <Grid size={{ xs: 11, md: 9 }} mt="20px">
           <Typography variant="h4" gutterBottom>
             {book.title}
           </Typography>
@@ -61,26 +72,27 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
             {book.description}
           </Typography>
 
-          <Stack direction="row" spacing={3} flexWrap="wrap" mb={2}>
+          <Grid container rowSpacing={1} columnSpacing={2.5} mb={2}>
             {book.pageNumber && (
-              <MetadataItem icon={<DescriptionIcon />}>
+              <MetadataGridItem icon={<DescriptionIcon />}>
                 {book.pageNumber} pages
-              </MetadataItem>
+              </MetadataGridItem>
             )}
             {book.author && (
-              <MetadataItem icon={<PersonIcon />}>
+              <MetadataGridItem icon={<PersonIcon />}>
                 {book.author.firstName} {book.author.lastName}
-              </MetadataItem>
+              </MetadataGridItem>
             )}
             {book.releaseDate && (
-              <MetadataItem icon={<CalendarMonthIcon />}>
+              <MetadataGridItem icon={<CalendarMonthIcon />}>
                 {new Date(book.releaseDate).toLocaleDateString()}
-              </MetadataItem>
+              </MetadataGridItem>
             )}
-            <MetadataItem icon={<CollectionsBookmarkIcon />}>
+            <MetadataGridItem icon={<CollectionsBookmarkIcon />}>
               {book.series?.name} #{book.seriesNumber}
-            </MetadataItem>
-          </Stack>
+            </MetadataGridItem>
+          </Grid>
+
           <Stack direction="row" spacing={1} mb="5px">
             <CategoryIcon sx={{ mr: "5px !important" }} />
             <Stack
@@ -102,6 +114,7 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
                 ))}
             </Stack>
           </Stack>
+
           <Stack direction="row" spacing={1}>
             <LocalOfferIcon sx={{ mr: "5px !important" }} />
             <Stack
