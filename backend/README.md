@@ -28,11 +28,11 @@ For example, given this in the JSON:
 
 You can override each setting at runtime by setting:
 
-- `KapitelShelf__Database__Host`
-- `KapitelShelf__Database__Username`
-- `KapitelShelf__Database__Password`
+- `KapitelShelf__Database__Host=myotherhost`
+- `KapitelShelf__Database__Username=myotherusername`
+- `KapitelShelf__Database__Password=myotherpassword`
 
-#### Available Environment Variables
+#### Available Environment Variables:
 
 | JSON Path                        | Environment Variable               | Default Value          |
 | -------------------------------- | ---------------------------------- | ---------------------- |

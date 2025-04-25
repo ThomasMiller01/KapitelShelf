@@ -20,9 +20,13 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 
 ## Installation
 
-### Docker
+### Docker (standalone)
 
 > Coming soon - prebuilt images will be available.
+
+### docker-compose
+
+> Coming soon
 
 ## Quick Start
 
@@ -53,7 +57,7 @@ If you like KapitelShelf, consider giving a ⭐ on GitHub!
 KapitelShelf is licensed under the MIT License.  
 See [LICENSE](./LICENSE) for more information.
 
-## Fun Fact:
+## Fun Fact
 
 The name **KapitelShelf** combines the German word **"Kapitel"** (meaning _chapter_) and the English word **"Shelf"**.  
 It's a simple nod to organizing your collection of books, one chapter at a time.
