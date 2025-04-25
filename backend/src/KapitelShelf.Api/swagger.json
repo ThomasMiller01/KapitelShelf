@@ -1,0 +1,703 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "KapitelShelf.Api, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "version": "1.0"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Fetch all books.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Create a new book.",
+        "requestBody": {
+          "description": "The new book dto.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{bookId}": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get books by the series id.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to get.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Update a book.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated book dto.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Delete a book.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/demodata/generate": {
+      "put": {
+        "tags": [
+          "DemoData"
+        ],
+        "summary": "Generates and inserts demodata into the database.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/series/summary": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Fetch all series summaries.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesSummaryDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesSummaryDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesSummaryDTOPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/series/{seriesId}": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Get series by its id.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The id of the series to get.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/series/{seriesId}/books": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Get books by the series id.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id of the books to get.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/version": {
+      "get": {
+        "tags": [
+          "Version"
+        ],
+        "summary": "Gets the backend version.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthorDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the author id.",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Gets or sets or set the first name.",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Gets or sets the last name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The Author DTO."
+      },
+      "BookDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the book id.",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "Gets or sets the title.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Gets or sets the description.",
+            "nullable": true
+          },
+          "releaseDate": {
+            "type": "string",
+            "description": "Gets or sets the release date.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pageNumber": {
+            "type": "integer",
+            "description": "Gets or sets the page number.",
+            "format": "int32",
+            "nullable": true
+          },
+          "series": {
+            "$ref": "#/components/schemas/SeriesDTO"
+          },
+          "seriesNumber": {
+            "type": "integer",
+            "description": "Gets or sets the series number.",
+            "format": "int32",
+            "nullable": true
+          },
+          "author": {
+            "$ref": "#/components/schemas/AuthorDTO"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryDTO"
+            },
+            "description": "Gets or sets the categories.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagDTO"
+            },
+            "description": "Gets or sets the tags.",
+            "nullable": true
+          },
+          "cover": {
+            "$ref": "#/components/schemas/FileInfoDTO"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LocationDTO"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The book dto."
+      },
+      "BookDTOPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDTO"
+            },
+            "description": "Gets or sets the items.",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Gets or sets the total number of items.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The paginated result."
+      },
+      "CategoryDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the category id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The category dto."
+      },
+      "FileInfoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the fileinfo id.",
+            "format": "uuid"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Gets or sets the file path.",
+            "nullable": true
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "description": "Gets or sets the file size in bytes.",
+            "format": "int64"
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "Gets or sets the mimetype.",
+            "nullable": true
+          },
+          "sha256": {
+            "type": "string",
+            "description": "Gets or sets the sha256 checksum.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Gets or sets the fileinfo dto."
+      },
+      "LocationDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the locaiton id.",
+            "format": "uuid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/LocationTypeDTO"
+          },
+          "url": {
+            "type": "string",
+            "description": "Gets or sets the url.",
+            "nullable": true
+          },
+          "fileInfo": {
+            "$ref": "#/components/schemas/FileInfoDTO"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The location dto."
+      },
+      "LocationTypeDTO": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "description": "The location type enum.",
+        "format": "int32"
+      },
+      "SeriesDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the series id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Gets or sets the creation time.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Gets or sets the update time.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "totalBooks": {
+            "type": "integer",
+            "description": "Gets or sets the total number of books.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The series dto."
+      },
+      "SeriesSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the series id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Gets or sets the creation time.",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Gets or sets the update time.",
+            "format": "date-time"
+          },
+          "lastVolume": {
+            "$ref": "#/components/schemas/BookDTO"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The series dto."
+      },
+      "SeriesSummaryDTOPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeriesSummaryDTO"
+            },
+            "description": "Gets or sets the items.",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Gets or sets the total number of items.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The paginated result."
+      },
+      "TagDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the tag id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The tag dto."
+      }
+    }
+  }
+}
