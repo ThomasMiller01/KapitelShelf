@@ -81,29 +81,46 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
               {book.series?.name} #{book.seriesNumber}
             </MetadataItem>
           </Stack>
-          <Stack direction="row" spacing={1} mb={1.5} flexWrap="wrap">
+          <Stack direction="row" spacing={1} mb="5px">
             <CategoryIcon sx={{ mr: "5px !important" }} />
-            {book.categories &&
-              book.categories.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  color="primary"
-                  size="small"
-                />
-              ))}
+            <Stack
+              direction="row"
+              spacing={1}
+              mb={1.5}
+              flexWrap="wrap"
+              alignItems="center"
+            >
+              {book.categories &&
+                book.categories.map((category) => (
+                  <Chip
+                    key={category.id}
+                    label={category.name}
+                    color="primary"
+                    size="small"
+                    sx={{ my: "4px !important" }}
+                  />
+                ))}
+            </Stack>
           </Stack>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+          <Stack direction="row" spacing={1}>
             <LocalOfferIcon sx={{ mr: "5px !important" }} />
-            {book.tags &&
-              book.tags.map((tag) => (
-                <Chip
-                  key={tag.id}
-                  label={tag.name}
-                  variant="outlined"
-                  size="small"
-                />
-              ))}
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap="wrap"
+              alignItems="center"
+            >
+              {book.tags &&
+                book.tags.map((tag) => (
+                  <Chip
+                    key={tag.id}
+                    label={tag.name}
+                    variant="outlined"
+                    size="small"
+                    sx={{ my: "4px !important" }}
+                  />
+                ))}
+            </Stack>
           </Stack>
         </Grid>
       </Grid>

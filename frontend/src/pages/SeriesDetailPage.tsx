@@ -1,16 +1,24 @@
-import { Avatar, Box } from "@mui/material";
+import { Box, Chip, styled } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
+import { type ReactElement } from "react";
 import { useParams } from "react-router-dom";
 
 import LoadingCard from "../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../components/base/ItemAppBar";
 import SeriesBooksList from "../features/SeriesBooksList";
+import { useMobile } from "../hooks/useMobile";
 import { seriesApi } from "../lib/api/KapitelShelf.Api";
+
+const VolumesBadge = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== "isMobile",
+})<{ isMobile: boolean }>(({ isMobile }) => ({
+  fontSize: isMobile ? "0.82rem" : "0.95rem",
+}));
 
 const SeriesDetailPage = (): ReactElement => {
   const { seriesId } = useParams<{ seriesId: string }>();
+  const { isMobile } = useMobile();
 
   const {
     data: series,
@@ -42,21 +50,11 @@ const SeriesDetailPage = (): ReactElement => {
       <ItemAppBar
         title={series?.name}
         addons={[
-          <Avatar
+          <VolumesBadge
             key="series-count"
-            sx={{
-              width: 36,
-              height: 36,
-              fontSize: "1.2rem",
-              bgcolor: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "rgba(255, 255, 255, 0.15)"
-                  : "rgba(0, 0, 0, 0.1)",
-              color: "text.primary",
-            }}
-          >
-            {series?.totalBooks}
-          </Avatar>,
+            label={`${series?.totalBooks} Volume(s)`}
+            isMobile={isMobile}
+          />,
         ]}
       />
       <Box padding="24px">

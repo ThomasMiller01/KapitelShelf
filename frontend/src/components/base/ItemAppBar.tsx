@@ -3,6 +3,7 @@ import type { TooltipProps } from "@mui/material";
 import {
   AppBar,
   IconButton,
+  Stack,
   Toolbar,
   tooltipClasses,
   Typography,
@@ -11,6 +12,8 @@ import { Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { ReactElement, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { useMobile } from "../../hooks/useMobile";
 
 const BackButtonTooltip = styled((props: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: props.className }} />
@@ -28,13 +31,8 @@ const BackButton = ({ backTooltip }: BackButtonProps): ReactElement => {
   const navigate = useNavigate();
 
   const button = (
-    <IconButton
-      edge="start"
-      onClick={() => navigate(-1)}
-      color="inherit"
-      aria-label="back"
-    >
-      <ArrowBackIcon />
+    <IconButton edge="start" onClick={() => navigate(-1)} color="inherit">
+      <ArrowBackIcon sx={{ fontSize: "1.8rem" }} />
     </IconButton>
   );
 
@@ -50,25 +48,36 @@ interface ItemAppBarProps {
   addons?: ReactNode[];
 }
 
-const ItemAppBar = ({ title, addons = [] }: ItemAppBarProps): ReactElement => (
-  <AppBar position="static" color="default" elevation={1}>
-    <Toolbar>
-      <BackButton backTooltip={"Go back"} />
-      <Typography
-        variant="h6"
-        noWrap
-        sx={{
-          textAlign: "left",
-          marginLeft: "20px",
-          marginRight: "20px",
-          width: "fit-content",
-        }}
-      >
-        {title}
-      </Typography>
-      {addons}
-    </Toolbar>
-  </AppBar>
-);
+const ItemAppBar = ({ title, addons = [] }: ItemAppBarProps): ReactElement => {
+  const { isMobile } = useMobile();
+
+  return (
+    <AppBar position="static" color="default" elevation={1}>
+      <Toolbar sx={{ py: "8px" }}>
+        <BackButton backTooltip={"Go back"} />
+        <Stack direction={{ xs: "column", md: "row" }} spacing={1} width="100%">
+          <Typography
+            variant="h6"
+            sx={{
+              textAlign: "left",
+              ml: "10px !important",
+              mr: "10px !important",
+              width: "fit-content",
+            }}
+          >
+            {title}
+          </Typography>
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent={isMobile ? "end" : "start"}
+          >
+            {addons}
+          </Stack>
+        </Stack>
+      </Toolbar>
+    </AppBar>
+  );
+};
 
 export default ItemAppBar;
