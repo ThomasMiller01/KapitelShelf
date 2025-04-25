@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import LoadingCard from "../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../components/base/ItemAppBar";
+import BookDetails from "../features/BookDetails";
 import { seriesApi } from "../lib/api/KapitelShelf.Api";
 
 const BookDetailPage = (): ReactElement => {
@@ -38,13 +39,14 @@ const BookDetailPage = (): ReactElement => {
     return <LoadingCard useLogo delayed itemName="Book" showRandomFacts />;
   }
 
-  if (isError) {
+  if (isError || book === undefined || book === null) {
     return <RequestErrorCard onRetry={refetch} />;
   }
 
   return (
     <Box>
-      <ItemAppBar title={book?.title} />
+      <ItemAppBar title={book?.title} backTooltip="Go to series" />
+      <BookDetails book={book} />
     </Box>
   );
 };

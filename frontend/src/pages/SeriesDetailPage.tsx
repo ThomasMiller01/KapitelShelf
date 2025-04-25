@@ -41,6 +41,7 @@ const SeriesDetailPage = (): ReactElement => {
     <Box>
       <ItemAppBar
         title={series?.name}
+        backTooltip="Go to library"
         addons={[
           <Avatar
             key="series-count"
