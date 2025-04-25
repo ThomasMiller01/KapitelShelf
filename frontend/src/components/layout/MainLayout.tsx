@@ -1,10 +1,10 @@
 import { Box, CssBaseline, Toolbar } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import { useMobile } from "../../hooks/useMobile";
+import { useResponsiveDrawer } from "../../hooks/useResponsiveDrawer";
 import { AppBar } from "../AppBar";
 import { DRAWER_WIDTH } from "../base/ResponsiveDrawer";
 import { Sidebar } from "../Sidebar";
@@ -23,15 +23,7 @@ const Main = styled("main", {
 
 export const MainLayout = (): ReactElement => {
   const { isMobile } = useMobile();
-  const [open, setOpen] = useState<boolean>(!isMobile);
-
-  useEffect(() => {
-    setOpen(!isMobile);
-  }, [isMobile]);
-
-  const toggleDrawer = (): void => {
-    setOpen((prev) => !prev);
-  };
+  const [open, toggleDrawer] = useResponsiveDrawer();
 
   return (
     <Box sx={{ display: "flex" }}>
