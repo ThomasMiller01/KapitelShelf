@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material";
-import { type ReactElement } from "react";
+import React, { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
@@ -34,7 +34,7 @@ const BookCard = ({
             {book.author?.firstName} {book.author?.lastName}
           </MetadataItem>
         ) : (
-          <></>
+          <React.Fragment key="no-author"></React.Fragment>
         ),
         showMetadata ? (
           <Stack
@@ -51,7 +51,7 @@ const BookCard = ({
             </MetadataItem>
           </Stack>
         ) : (
-          <></>
+          <React.Fragment key="no-metadata"></React.Fragment>
         ),
       ]}
     />
