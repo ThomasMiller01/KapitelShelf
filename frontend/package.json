@@ -1,16 +1,13 @@
 {
-  "name": "kapitelshelf",
-  "private": true,
-  "version": "0.0.0",
+  "name": "kapitelshelf-frontend",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "gen:swagger": "npm run gen:swaggerjson && npm run gen:swaggerclient",
-    "gen:swaggerjson": "cd ../backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
-    "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ../backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./src/lib/api/KapitelShelf.Api --additional-properties=supportsES6=true,typescriptThreePlus=true"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
