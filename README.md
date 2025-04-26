@@ -20,33 +20,32 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 
 ## Installation
 
-### Docker (standalone)
-
-> Coming soon - prebuilt images will be available.
-
-### docker-compose
-
-> Coming soon
+Refer to the [Installation Guide](docs/installation.md) for instructions.
 
 ## Quick Start
 
 > Coming soon
 
-## Development
-
-- Frontend: [Vite](https://vitejs.dev/), [React](https://react.dev/), [MUI](https://mui.com/)
-- Backend: [ASP.NET Core 9](https://learn.microsoft.com/en-us/aspnet/core/), [EF Core 9](https://learn.microsoft.com/en-us/ef/core/)
-- Database: [PostgreSQL](https://www.postgresql.org/)
-- API Docs: Swagger/OpenAPI (auto-generated)
-
-> Coming soon
-
-Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.md).
-
 ## Documentation
 
-- [Installation Guide](docs/installation.md) (coming soon)
-- [Development Guide](docs/development.md) (coming soon)
+- [Installation Guide](docs/installation.md)
+- [Development Guide](docs/development.md) _(Coming soon)_
+
+## Development
+
+### Technologies
+
+|          |                                                                                                                        |
+| -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Frontend | [Vite](https://vitejs.dev/) • [React](https://react.dev/) • [MUI](https://mui.com/)                                    |
+| Backend  | [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/) • [EF Core](https://learn.microsoft.com/en-us/ef/core/) |
+| Database | [PostgreSQL](https://www.postgresql.org/)                                                                              |
+
+### Guide
+
+Refer to the [Development Guide](docs/development.md) for instructions. _(Coming soon)_
+
+Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.md). _(Coming soon)_
 
 ## Support
 
