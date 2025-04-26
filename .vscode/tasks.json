@@ -1,0 +1,102 @@
+// .vscode/tasks.json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build: Dev",
+      "type": "shell",
+      "command": "npm run build:dev",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Run All",
+      "command": "${command:multiCommand.openDevEnv}",
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Build Frontend",
+      "type": "shell",
+      "command": "npm run build:docker:frontend",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Build Api",
+      "type": "shell",
+      "command": "npm run build:docker:backend:api",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Build Migrations",
+      "type": "shell",
+      "command": "npm run build:docker:backend:migrations",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Release: Bump Frontend",
+      "type": "shell",
+      "command": "npm run release:frontend",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Release: Bump Api",
+      "type": "shell",
+      "command": "npm run release:backend:api",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Release: Bump Migrations",
+      "type": "shell",
+      "command": "npm run release:backend:migrations",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}

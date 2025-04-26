@@ -1,10 +1,17 @@
 # Setup Development Environment
 
-TODO
+VSCode Tasks:
+Dev: Run All -> start dev env
+Dev: Build All -> build everything
 
 ## Requirements
 
-### Swagger
+Strongly suggest:
+
+- use VSCode for frontend / building
+- use VS for backend
+
+## Swagger
 
 Generate swagger json
 
