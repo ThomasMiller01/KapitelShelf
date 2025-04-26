@@ -5,7 +5,7 @@
     "build:backend": "cd ./backend/src && dotnet build",
     "dev:docker-compose": "cd ./development && docker-compose up",
     "dev:frontend": "cd ./frontend && npm run dev",
-    "dev:backend:api": "cd ./backend/src && dotnet run --project KapitelShelf.Api",
+    "dev:backend:api": "cd ./backend/src && dotnet watch run --project KapitelShelf.Api",
     "dev:backend:migrations": "cd ./backend/src && dotnet run --project KapitelShelf.Data.Migrations",
     "gen:swagger": "npm run gen:swaggerjson && npm run gen:swaggerclient",
     "gen:swaggerjson": "cd ./backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
