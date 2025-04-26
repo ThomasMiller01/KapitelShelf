@@ -1,8 +1,3 @@
-# base stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-
-WORKDIR /app
-
 # build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
@@ -19,7 +14,7 @@ RUN dotnet restore "./KapitelShelf.Data.Migrations.csproj" && \
     dotnet publish "./KapitelShelf.Data.Migrations.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # production stage
-FROM base AS production
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
 
 WORKDIR /app
 

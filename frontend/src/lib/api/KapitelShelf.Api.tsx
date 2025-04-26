@@ -1,11 +1,10 @@
 /* eslint-disable no-magic-numbers */
-// src/services/api.ts
 import type { LocationTypeDTO } from "./KapitelShelf.Api/api";
 import { BooksApi, SeriesApi, VersionApi } from "./KapitelShelf.Api/api";
 import { Configuration } from "./KapitelShelf.Api/configuration";
 
 const config = new Configuration({
-  basePath: "http://localhost:5261", // replace with your actual API base URL
+  basePath: "http://localhost:5261",
 });
 
 export const booksApi = new BooksApi(config);

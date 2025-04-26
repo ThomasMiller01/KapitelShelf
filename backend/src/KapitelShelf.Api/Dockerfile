@@ -1,11 +1,3 @@
-# base stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-
-WORKDIR /app
-
-EXPOSE 5261
-ENV HTTP_PORTS=5261
-
 # build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
@@ -22,10 +14,13 @@ RUN dotnet restore "./KapitelShelf.Api.csproj" && \
     dotnet publish "./KapitelShelf.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # production stage
-FROM base AS production
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
 
 WORKDIR /app
 
 COPY --from=build /app/publish .
+
+EXPOSE 5261
+ENV HTTP_PORTS=5261
 
 ENTRYPOINT ["dotnet", "KapitelShelf.Api.dll"]
