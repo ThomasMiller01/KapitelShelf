@@ -11,7 +11,7 @@ WORKDIR /src/KapitelShelf.Data.Migrations
 
 RUN dotnet restore "./KapitelShelf.Data.Migrations.csproj" && \
     dotnet build "./KapitelShelf.Data.Migrations.csproj" -c Release -o /app/build && \
-    dotnet publish "./KapitelShelf.Data.Migrations.csproj" -c Release -o /app/publish /p:UseAppHost=false
+    dotnet publish "./KapitelShelf.Data.Migrations.csproj" -c Release -o /app/publish
 
 # production stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
