@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Builds the Docker image for the migrator.
+    Builds the Docker image for the API.
 
 .PARAMETER Tag
-    The tag for the Docker image. Default: "null" (reads the tag from the KapitelShelf.Data.Migrations.csproj).
+    The tag for the Docker image. Default: "null" (reads the tag from the package.json).
 
 .EXAMPLE
     .\build.ps1
@@ -17,25 +17,25 @@ param(
     [switch]$push = $false
 )
 
-$IMAGE = "thomasmiller01/kapitelshelf-migrator"
+$IMAGE = "thomasmiller01/kapitelshelf-api"
 
-# if tag not provided, read version from KapitelShelf.Data.Migrations.csproj
+# if tag not provided, read version from KapitelShelf.Api.csproj
 if (-not $Tag) {
     Write-Host "No tag specified:"
     try {
         # Load XML and extract Version element
-        [xml]$xml = Get-Content -Path "./KapitelShelf.Data.Migrations.csproj"
+        [xml]$xml = Get-Content -Path "./KapitelShelf.Api.csproj"
         $versionNode = $xml.Project.PropertyGroup.Version
         $tag = $versionNode.Trim()
 
-        Write-Host "> Using version '$tag' from KapitelShelf.Data.Migrations.csproj."
+        Write-Host "> Using version '$tag' from KapitelShelf.Api.csproj."
     } catch {
-        Write-Error "❌ Failed to read version from KapitelShelf.Data.Migrations.csproj: $_"
+        Write-Error "❌ Failed to read version from KapitelShelf.Api.csproj: $_"
         exit 1
     }
 }
 
-Write-Host "Building migrator image: '${IMAGE}:$tag'"
+Write-Host "Building API image: '${IMAGE}:$tag'"
 try {
     docker build --progress=plain -t "${IMAGE}:$tag" ../ -f ./Dockerfile
     if ($LASTEXITCODE -eq 0) {
@@ -52,7 +52,7 @@ catch {
 }
 
 if ($push) {
-    Write-Host "Pushing migrator image: '${IMAGE}:$Tag'"
+    Write-Host "Pushing API image: '${IMAGE}:$Tag'"
     try {
         docker push "${IMAGE}:$Tag"
         if ($LASTEXITCODE -eq 0) {
