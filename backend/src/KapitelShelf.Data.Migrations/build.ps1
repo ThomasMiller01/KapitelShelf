@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds the Docker image for the frontend.
+    Builds the Docker image for the migrator.
 
 .PARAMETER Tag
     The tag for the Docker image. Default: "null" (reads the tag from the package.json).
@@ -17,25 +17,27 @@ param(
     [switch]$push = $false
 )
 
-$IMAGE = "thomasmiller01/kapitelshelf-frontend"
+$IMAGE = "thomasmiller01/kapitelshelf-migrator"
 
-# if tag not provided, read version from package.json
+# if tag not provided, read version from KapitelShelf.Data.Migrations.csproj
 if (-not $Tag) {
     Write-Host "No tag specified:"
     try {
-        $pkgJson = Get-Content -Path "./package.json" -Raw | ConvertFrom-Json
-        $tag = $pkgJson.version
-        Write-Host "> Using version '$tag' from package.json."
-    }
-    catch {
-        Write-Error "❌ Failed to read version from package.json: $_"
+        # Load XML and extract Version element
+        [xml]$xml = Get-Content -Path "./KapitelShelf.Data.Migrations.csproj"
+        $versionNode = $xml.Project.PropertyGroup.Version
+        $tag = $versionNode.Trim()
+
+        Write-Host "> Using version '$tag' from KapitelShelf.Data.Migrations.csproj."
+    } catch {
+        Write-Error "❌ Failed to read version from KapitelShelf.Data.Migrations.csproj: $_"
         exit 1
     }
 }
 
-Write-Host "Building frontend image: '${IMAGE}:$tag'"
+Write-Host "Building migrator image: '${IMAGE}:$tag'"
 try {
-    docker build --progress=plain -t "${IMAGE}:$tag" .
+    docker build --progress=plain -t "${IMAGE}:$tag" ../ -f ./Dockerfile
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Image '${IMAGE}:$tag' built successfully."
     }
@@ -50,7 +52,7 @@ catch {
 }
 
 if ($push) {
-    Write-Host "Pushing frontend image: '${IMAGE}:$Tag'"
+    Write-Host "Pushing migrator image: '${IMAGE}:$Tag'"
     try {
         docker push "${IMAGE}:$Tag"
         if ($LASTEXITCODE -eq 0) {
