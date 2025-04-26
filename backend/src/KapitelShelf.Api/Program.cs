@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Reflection;
+using System.Text.Json;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
@@ -12,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // configuration settings
 var settings = builder.Configuration.GetSection("KapitelShelf").Get<KapitelShelfSettings>()!;
+#pragma warning disable CA1869 // Cache and reuse 'JsonSerializerOptions' instances
+Console.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+#pragma warning restore CA1869 // Cache and reuse 'JsonSerializerOptions' instances
+
 #pragma warning disable IDE0001 // Simplify Names
 builder.Services.AddSingleton<KapitelShelfSettings>(settings);
 #pragma warning restore IDE0001 // Simplify Names
@@ -35,9 +40,8 @@ builder.Services.AddCors(options =>
         name: "CorsPolicy",
         policy =>
         {
-            policy.WithOrigins(
-                    "http://localhost:5261", // swagger
-                    "http://localhost:5173") // frontend
+            policy
+                .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });

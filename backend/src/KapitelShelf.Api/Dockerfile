@@ -11,7 +11,7 @@ WORKDIR /src/KapitelShelf.Api
 
 RUN dotnet restore "./KapitelShelf.Api.csproj" && \
     dotnet build "./KapitelShelf.Api.csproj" -c Release -o /app/build && \
-    dotnet publish "./KapitelShelf.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+    dotnet publish "./KapitelShelf.Api.csproj" -c Release -o /app/publish
 
 # production stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production

@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Text.Json;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Migrations.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,9 @@ var config = new ConfigurationBuilder()
                 .Build();
 
 var settings = config.GetSection("KapitelShelf").Get<KapitelShelfSettings>()!;
+#pragma warning disable CA1869 // Cache and reuse 'JsonSerializerOptions' instances
+Console.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+#pragma warning restore CA1869 // Cache and reuse 'JsonSerializerOptions' instances
 
 var options = new DbContextOptionsBuilder<KapitelShelfDBContext>()
             .UseNpgsql(
