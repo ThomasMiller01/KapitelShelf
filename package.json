@@ -1,6 +1,6 @@
 {
   "name": "kapitelshelf",
-  "version": "0.0.2",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build": "npm i && npm run build:frontend && npm run build:backend && npm run gen:swagger",
