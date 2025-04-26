@@ -1,4 +1,4 @@
-# Installation
+# Installation Guide
 
 - [docker-compose](#docker-compose)
 - [Docker (Standalone)](#docker-standalone)
