@@ -1,0 +1,24 @@
+// .vscode/tasks.json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build: Run All",
+      "type": "shell",
+      "command": "npm run build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Run All",
+      "command": "${command:multiCommand.openDevEnv}",
+      "problemMatcher": []
+    }
+  ]
+}

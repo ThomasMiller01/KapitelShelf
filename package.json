@@ -1,10 +1,12 @@
 {
   "scripts": {
-    "build": "npm run i && npm run build:frontend && npm run build:backend && npm run gen:swagger",
+    "build": "npm i && npm run build:frontend && npm run build:backend && npm run gen:swagger",
     "build:frontend": "cd ./frontend/src && npm i",
     "build:backend": "cd ./backend/src && dotnet build",
-    "frontend": "cd ./frontend && npm run dev",
-    "backend": "cd ./backend/src && dotnet run --project KapitelShelf.Api",
+    "dev:docker-compose": "cd ./development && docker-compose up",
+    "dev:frontend": "cd ./frontend && npm run dev",
+    "dev:backend:api": "cd ./backend/src && dotnet run --project KapitelShelf.Api",
+    "dev:backend:migrations": "cd ./backend/src && dotnet run --project KapitelShelf.Data.Migrations",
     "gen:swagger": "npm run gen:swaggerjson && npm run gen:swaggerclient",
     "gen:swaggerjson": "cd ./backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
     "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ./backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./frontend/src/lib/api/KapitelShelf.Api --additional-properties=supportsES6=true,typescriptThreePlus=true"
