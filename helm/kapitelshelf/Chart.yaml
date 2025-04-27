@@ -1,0 +1,11 @@
+apiVersion: v2
+name: kapitelshelf
+description: A Helm chart for deploying KapitelShelf
+type: application
+version: 0.0.0
+appVersion: "N/A"
+dependencies:
+  - name: postgresql
+    version: 16.6.6
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled

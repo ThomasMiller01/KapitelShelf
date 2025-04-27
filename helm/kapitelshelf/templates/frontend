@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kapitelshelf.fullname" . }}-frontend
+  {{ include "kapitelshelf.labels" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      component: frontend
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: frontend
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: frontend
+          image: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.frontend.service.port }}
+          env:
+            - name: KAPITELSHELF_API
+              value: http://{{ include "kapitelshelf.fullname" . }}-api:{{ .Values.api.service.port }}
+          resources:
+            {{ toYaml .Values.resources | indent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kapitelshelf.fullname" . }}-frontend
+  {{ include "kapitelshelf.labels" . }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    component: frontend
+    release: {{ .Release.Name }}

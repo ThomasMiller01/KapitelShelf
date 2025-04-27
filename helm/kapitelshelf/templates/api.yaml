@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kapitelshelf.fullname" . }}-api
+  {{ include "kapitelshelf.labels" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      component: api
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: api
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: api
+          image: {{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.service.port }}
+          env:
+            - name: KapitelShelf__Database__Host
+              value: {{ include "postgresql.host" . }}
+            - name: KapitelShelf__Database__Username
+              value: {{ .Values.postgresql.auth.username }}
+            - name: KapitelShelf__Database__Password
+              value: {{ .Values.postgresql.auth.password }}
+          resources:
+            {{ toYaml .Values.api.resources | indent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kapitelshelf.fullname" . }}-api
+  {{ include "kapitelshelf.labels" . }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.api.service.port }}
+      targetPort: {{ .Values.api.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    component: api
+    release: {{ .Release.Name }}

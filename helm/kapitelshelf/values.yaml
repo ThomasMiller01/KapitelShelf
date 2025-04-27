@@ -1,0 +1,82 @@
+global:
+  deployPostgresql: true
+
+frontend:
+  image:
+    repository: thomasmiller01/kapitelshelf-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 5173
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+api:
+  image:
+    repository: thomasmiller01/kapitelshelf-api
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 5261
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+migrator:
+  image:
+    repository: thomasmiller01/kapitelshelf-migrator
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+postgresql:
+  auth:
+    username: "kapitelshelf"
+    password: "kapitelshelf"
+
+    database: kapitelshelf
+
+  architecture: standalone
+
+  primary:
+    service:
+      port: 5432
+
+    persistence:
+      size: 50Gi
+
+    updateStrategy:
+      type: RollingUpdate
+
+    resources:
+      limits:
+        memory: 2Gi
+
+  readReplicas:
+    replicaCount: 0
+
+  metrics:
+    enabled: false

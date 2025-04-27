@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "kapitelshelf.fullname" . }}-migrator
+  {{ include "kapitelshelf.labels" . }}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrator
+          image: {{ .Values.migrator.image.repository }}:{{ .Values.migrator.image.tag }}
+          imagePullPolicy: {{ .Values.migrator.image.pullPolicy }}
+          env:
+            - name: KapitelShelf__Database__Host
+              value: {{ include "postgresql.host" }}
+            - name: KapitelShelf__Database__Username
+              value: {{ .Values.postgres.credentials.username }}
+            - name: KapitelShelf__Database__Password
+              value: {{ .Values.postgres.credentials.password }}
