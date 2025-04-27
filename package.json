@@ -14,7 +14,7 @@
     "gen:swaggerjson": "cd ./backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
     "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ./backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./frontend/src/lib/api/KapitelShelf.Api --additional-properties=supportsES6=true,typescriptThreePlus=true",
     "gen:helm:docs": "docker run --rm -v %cd%/helm:/helm-docs jnorwood/helm-docs:v1.14.2",
-    "release:helm": "cd ./helm/kapitelshelf && npx commit-and-tag-version",
+    "release:helm": "cd ./helm/kapitelshelf && npx commit-and-tag-version -a",
     "release:frontend": "cd ./frontend && npx commit-and-tag-version",
     "release:backend:api": "cd ./backend/src/KapitelShelf.Api && npx commit-and-tag-version",
     "release:backend:migrations": "cd ./backend/src/KapitelShelf.Data.Migrations && npx commit-and-tag-version"

@@ -62,7 +62,7 @@
     {
       "label": "Release: Bump Helm",
       "type": "shell",
-      "command": "npm run gen:helm:docs && npm run release:helm",
+      "command": "npm run release:helm",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",

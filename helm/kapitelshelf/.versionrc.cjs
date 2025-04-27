@@ -4,7 +4,8 @@ module.exports = {
   path: ".",
   packageFiles: "Chart.yaml",
   bumpFiles: "Chart.yaml",
-  script: {
-    prerelease: "git add README.md",
+  scripts: {
+    postchangelog: "cd ../../ && npm run gen:helm:docs",
+    precommit: "git add README.md",
   },
 };
