@@ -8,4 +8,6 @@ dependencies:
   - name: postgresql
     version: 16.6.6
     repository: https://charts.bitnami.com/bitnami
-    condition: global.deploypostgres
+    condition: global.deployPostgres
+home: "https://github.com/ThomasMiller01/KapitelShelf"
+sources: ["https://github.com/ThomasMiller01/KapitelShelf/tree/main/helm/kapitelshelf"]

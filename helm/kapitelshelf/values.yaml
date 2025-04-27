@@ -3,76 +3,87 @@ global:
 
 frontend:  
   image:
-    # -- Frontend image repository
+    # -- Docker image repository
+    # @section -- Frontend Values
     repository: thomasmiller01/kapitelshelf-frontend
-    # -- Frontend image tag
+    # -- Docker image tag
+    # @section -- Frontend Values
     tag: "0.1.0"
-    # -- Frontend [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # @section -- Frontend Values
     pullPolicy: IfNotPresent
 
   service:
     # -- Frontend port
+    # @section -- Frontend Values
     port: 5173
 
-  resources:        
+  resources:      
+    # -- Sets the frontend container resources limits  
+    # @section -- Frontend Values
     limits:
-      # -- Sets the frontend container cpu limit
       cpu: 500m
-      # -- Sets the frontend container memory limit
       memory: 512Mi
-      
+
+    # -- Sets the frontend container resources requests 
+    # @section -- Frontend Values
     requests:
-      # -- Sets the frontend container cpu request
       cpu: 250m
-      # -- Sets the frontend container memory request
       memory: 256Mi
 
 api:
   image:
-    # -- Api image repository
+    # -- Docker image repository
+    # @section -- Api Values
     repository: thomasmiller01/kapitelshelf-api
-    # -- Api image tag
+    # -- Docker image tag
+    # @section -- Api Values
     tag: "0.1.0"
-    # -- Api [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # @section -- Api Values
     pullPolicy: IfNotPresent
 
   service:
     # -- Api port
+    # @section -- Api Values
     port: 5261
 
-  resources:        
+  resources:     
+    # -- Sets the api container resources limits
+    # @section -- Api Values
     limits:
-      # -- Sets the api container cpu limit
       cpu: 500m
-      # -- Sets the api container memory limit
       memory: 512Mi
       
+    # -- Sets the api container resources requests
+    # @section -- Api Values
     requests:
-      # -- Sets the api container cpu request
       cpu: 250m
-      # -- Sets the api container memory request
       memory: 256Mi
 
 migrator:
   image:
-    # -- Migrator image repository
+    # -- Docker image repository
+    # @section -- Migrator Values
     repository: thomasmiller01/kapitelshelf-migrator
-    # -- Migrator image tag
+    # -- Docker image tag
+    # @section -- Migrator Values
     tag: "0.1.0"
-    # -- Migrator [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # @section -- Migrator Values
     pullPolicy: IfNotPresent
 
   resources:
+    # -- Sets the migrator container resources limits
+    # @section -- Migrator Values
     limits:
-      # -- Sets the migrator container cpu limit
       cpu: 500m
-      # -- Sets the migrator container memory limit
       memory: 512Mi
       
+    # -- Sets the migrator container resources limits
+    # @section -- Migrator Values
     requests:
-      # -- Sets the migrator container cpu request
       cpu: 250m
-      # -- Sets the migrator container memory request
       memory: 256Mi
 
 ingress:
@@ -91,8 +102,7 @@ ingress:
           port: 5173
   tls: []
 
-postgresql:
-  # host: "mypostgres.example"
+postgresql:  
   auth:
     username: "kapitelshelf"
     password: "kapitelshelf"
@@ -103,19 +113,28 @@ postgresql:
     service:
       port: 5432
 
+      # -- (string) Sets the postgres host, if you're using an external postgres.
+      # Will be ignored, if `global.deployPostgres=true`.
+      # @section -- PostgreSQL Values
+      host:
+
     persistence:
       size: 50Gi
 
+    # @ignored
     updateStrategy:
       type: RollingUpdate
 
     resources:
+      # -- Sets the postgres container resources limits
+      # @section -- PostgreSQL Values
       limits:
-        # -- Sets the postgresql container memory request
         memory: 2Gi
 
+  # @ignored
   readReplicas:
     replicaCount: 0
 
+  # @ignored
   metrics:
     enabled: false
