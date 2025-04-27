@@ -1,0 +1,23 @@
+frontend:
+  ingress:
+    enabled: true
+    annotations: {}
+    host: ""
+    path: /
+    tls: []
+
+api:
+  ingress:
+    enabled: true
+    annotations: {}
+    host: ""
+    path: /
+    tls: []
+
+postgresql:
+  auth:
+    username: "<POSTGRES_USERNAME>"
+    password: "<POSTGRES_PASSWORD>"
+
+  persistence:
+    size: 50Gi
