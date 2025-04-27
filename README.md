@@ -4,7 +4,6 @@ KapitelShelf is a modern web app for managing and reading your personal book lib
 It supports both digital books (EPUB, PDF, etc.) and physical collections, with a clean interface for browsing and managing your library.
 
 [![License](https://img.shields.io/github/license/thomasmiller01/kapitelshelf?style=flat-square)](./LICENSE)
-[![Release](https://img.shields.io/github/v/release/thomasmiller01/kapitelshelf?style=flat-square)](https://github.com/thomasmiller01/kapitelshelf/releases)
 
 ![Home Page](./docs/.attachments/home_page.png)
 
