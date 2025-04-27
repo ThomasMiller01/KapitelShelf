@@ -48,8 +48,8 @@ $ helm install my-release TODO/kapitelshelf
 | api.ingress.host | string | `nil` | Hostname for the api ingress<br /> e.g. `"api.example.com"` |
 | api.ingress.path | string | `"/"` | Path under the host to route to the api service |
 | api.ingress.tls | list | `[]` | TLS configuration for the Api ingress<br /> e.g.<br /> tls:<br />   - hosts:<br />       - api.example.com<br /> |
-| api.resources.limits | object | `{"cpu":"500m","memory":"512Mi"}` | Sets the api container resources limits |
-| api.resources.requests | object | `{"cpu":"250m","memory":"256Mi"}` | Sets the api container resources requests |
+| api.resources.limits | object | `{"cpu":"500m","memory":"1Gi"}` | Sets the api container resources limits |
+| api.resources.requests | object | `{"cpu":"250m","memory":"512Mi"}` | Sets the api container resources requests |
 | api.service.port | int | `5261` | Api port |
 
 ### Frontend Values
@@ -65,7 +65,7 @@ $ helm install my-release TODO/kapitelshelf
 | frontend.ingress.path | string | `"/"` | Path under the host to route to the frontend service |
 | frontend.ingress.tls | list | `[]` | TLS configuration for the frontend ingress<br /> e.g.<br /> tls:<br />   - hosts:<br />       - frontend.example.com<br /> |
 | frontend.resources.limits | object | `{"cpu":"500m","memory":"512Mi"}` | Sets the frontend container resources limits   |
-| frontend.resources.requests | object | `{"cpu":"250m","memory":"256Mi"}` | Sets the frontend container resources requests  |
+| frontend.resources.requests | object | `{"cpu":"50m","memory":"128Mi"}` | Sets the frontend container resources requests  |
 | frontend.service.port | int | `5173` | Frontend port |
 
 ### Global Values
@@ -81,8 +81,8 @@ $ helm install my-release TODO/kapitelshelf
 | migrator.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | migrator.image.repository | string | `"thomasmiller01/kapitelshelf-migrator"` | Docker image repository |
 | migrator.image.tag | string | `"0.1.0"` | Docker image tag |
-| migrator.resources.limits | object | `{"cpu":"500m","memory":"512Mi"}` | Sets the migrator container resources limits |
-| migrator.resources.requests | object | `{"cpu":"250m","memory":"256Mi"}` | Sets the migrator container resources limits |
+| migrator.resources.limits | object | `{"cpu":"200m","memory":"256Mi"}` | Sets the migrator container resources limits |
+| migrator.resources.requests | object | `{"cpu":"100m","memory":"128Mi"}` | Sets the migrator container resources limits |
 
 ### PostgreSQL Values _[SubChart]_
 

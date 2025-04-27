@@ -56,8 +56,8 @@ frontend:
     # -- Sets the frontend container resources requests 
     # @section -- Frontend Values
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 50m
+      memory: 128Mi
 
 api:
   image:
@@ -106,13 +106,13 @@ api:
     # @section -- Api Values
     limits:
       cpu: 500m
-      memory: 512Mi
+      memory: 1Gi
       
     # -- Sets the api container resources requests
     # @section -- Api Values
     requests:
       cpu: 250m
-      memory: 256Mi
+      memory: 512Mi
 
 migrator:
   image:
@@ -130,14 +130,14 @@ migrator:
     # -- Sets the migrator container resources limits
     # @section -- Migrator Values
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 200m
+      memory: 256Mi
       
     # -- Sets the migrator container resources limits
     # @section -- Migrator Values
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 100m
+      memory: 128Mi
 
 postgresql:  
   auth:
