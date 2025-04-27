@@ -60,6 +60,19 @@
       "problemMatcher": []
     },
     {
+      "label": "Release: Bump Helm",
+      "type": "shell",
+      "command": "npm run gen:helm:docs && npm run release:helm",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Release: Bump Frontend",
       "type": "shell",
       "command": "npm run release:frontend",

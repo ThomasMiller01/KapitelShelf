@@ -1,15 +1,20 @@
 # Setup Development Environment
 
 VSCode Tasks:
+Dev: Build: Dev -> build everything for dev env
 Dev: Run All -> start dev env
-Dev: Build All -> build everything
 
 ## Requirements
+
+- docker
 
 Strongly suggest:
 
 - use VSCode for frontend / building
 - use VS for backend
+
+- helm
+- [helm-docs](https://github.com/norwoodj/helm-docs)
 
 ## Swagger
 
