@@ -43,3 +43,30 @@ spec:
   selector:
     component: frontend
     release: {{ .Release.Name }}
+---
+{{- if .Values.frontend.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kapitelshelf.fullname" . }}-frontend
+  annotations:
+    {{ toYaml .Values.ingress.annotations | indent 4 }}
+spec:
+  rules:
+    - host: {{ (index .Values.ingress.hosts 0).host }}
+      http:
+        paths:
+          {{- range $p := (index .Values.ingress.hosts 0).paths }}
+          {{- if eq $p.service "frontend" }}
+          - path: {{ $p.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kapitelshelf.fullname" $ }}-frontend
+                port:
+                  number: {{ $p.port }}
+          {{- end }}
+          {{- end }}
+  tls:
+    {{ toYaml .Values.ingress.tls | indent 2 }}
+{{- end }}

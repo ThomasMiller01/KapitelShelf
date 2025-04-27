@@ -52,6 +52,22 @@ migrator:
       cpu: 250m
       memory: 256Mi
 
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    
+  hosts:
+    - host: kapitelshelf.example.com
+      paths:
+        - path: /api
+          service: api
+          port: 5261
+        - path: /
+          service: frontend
+          port: 5173
+  tls: []
+
 postgresql:
   auth:
     username: "kapitelshelf"

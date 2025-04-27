@@ -8,6 +8,14 @@ spec:
   template:
     spec:
       restartPolicy: Never
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.35
+          command:
+            - sh;-c;|
+              until nc -z {{ include "kapitelshelf.fullname" . }}-postgresql {{ .Values.postgresql.primary.service.port }}; do
+                sleep 2
+              done
       containers:
         - name: migrator
           image: {{ .Values.migrator.image.repository }}:{{ .Values.migrator.image.tag }}

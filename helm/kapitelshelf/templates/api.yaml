@@ -47,3 +47,30 @@ spec:
   selector:
     component: api
     release: {{ .Release.Name }}
+---
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kapitelshelf.fullname" . }}-api
+  annotations:
+    {{ toYaml .Values.ingress.annotations | indent 4 }}
+spec:
+  rules:
+    - host: {{ (index .Values.ingress.hosts 0).host }}
+      http:
+        paths:
+          {{- range $p := (index .Values.ingress.hosts 0).paths }}
+          {{- if eq $p.service "api" }}
+          - path: {{ $p.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kapitelshelf.fullname" $ }}-api
+                port:
+                  number: {{ $p.port }}
+          {{- end }}
+          {{- end }}
+  tls:
+    {{ toYaml .Values.ingress.tls | indent 2 }}
+{{- end }}
