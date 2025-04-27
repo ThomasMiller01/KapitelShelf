@@ -8,4 +8,4 @@ dependencies:
   - name: postgresql
     version: 16.6.6
     repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.enabled
+    condition: global.deploypostgres

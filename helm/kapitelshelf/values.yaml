@@ -1,55 +1,78 @@
 global:
-  deployPostgresql: true
+  deployPostgres: true
 
-frontend:
+frontend:  
   image:
+    # -- Frontend image repository
     repository: thomasmiller01/kapitelshelf-frontend
-    tag: "latest"
+    # -- Frontend image tag
+    tag: "0.1.0"
+    # -- Frontend [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
     pullPolicy: IfNotPresent
 
   service:
+    # -- Frontend port
     port: 5173
 
-  resources:
+  resources:        
     limits:
+      # -- Sets the frontend container cpu limit
       cpu: 500m
+      # -- Sets the frontend container memory limit
       memory: 512Mi
       
     requests:
+      # -- Sets the frontend container cpu request
       cpu: 250m
+      # -- Sets the frontend container memory request
       memory: 256Mi
 
 api:
   image:
+    # -- Api image repository
     repository: thomasmiller01/kapitelshelf-api
-    tag: "latest"
+    # -- Api image tag
+    tag: "0.1.0"
+    # -- Api [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
     pullPolicy: IfNotPresent
 
   service:
+    # -- Api port
     port: 5261
 
-  resources:
+  resources:        
     limits:
+      # -- Sets the api container cpu limit
       cpu: 500m
+      # -- Sets the api container memory limit
       memory: 512Mi
-
+      
     requests:
+      # -- Sets the api container cpu request
       cpu: 250m
+      # -- Sets the api container memory request
       memory: 256Mi
 
 migrator:
   image:
+    # -- Migrator image repository
     repository: thomasmiller01/kapitelshelf-migrator
-    tag: "latest"
+    # -- Migrator image tag
+    tag: "0.1.0"
+    # -- Migrator [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
     pullPolicy: IfNotPresent
 
   resources:
     limits:
+      # -- Sets the migrator container cpu limit
       cpu: 500m
+      # -- Sets the migrator container memory limit
       memory: 512Mi
-
+      
     requests:
+      # -- Sets the migrator container cpu request
       cpu: 250m
+      # -- Sets the migrator container memory request
       memory: 256Mi
 
 ingress:
@@ -76,8 +99,6 @@ postgresql:
 
     database: kapitelshelf
 
-  architecture: standalone
-
   primary:
     service:
       port: 5432
@@ -90,6 +111,7 @@ postgresql:
 
     resources:
       limits:
+        # -- Sets the postgresql container memory request
         memory: 2Gi
 
   readReplicas:

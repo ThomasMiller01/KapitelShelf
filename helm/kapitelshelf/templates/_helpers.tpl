@@ -19,7 +19,7 @@ labels:
 {{- end -}}
 
 {{- define "postgresql.host" -}}
-{{- if .Values.postgres.enabled -}}
+{{- if .Values.global.deploypostgres -}}
 {{ include "kapitelshelf.fullname" . }}-postgres:{{ .Values.postgres.service.port }}
 {{- else -}}
 {{ .Values.postgres.host }}
