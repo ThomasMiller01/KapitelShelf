@@ -28,6 +28,8 @@ $ helm repo add TODO http://charts.TODO.com
 $ helm install my-release TODO/kapitelshelf
 ```
 
+You can find example `values.yaml` configuration in [KapitelShelf Examples](https://github.com/ThomasMiller01/KapitelShelf/tree/main/examples/helm).
+
 ## Requirements
 
 | Repository | Name | Version |

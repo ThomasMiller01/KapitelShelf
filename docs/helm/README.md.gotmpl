@@ -27,6 +27,8 @@ $ helm repo add TODO http://charts.TODO.com
 $ helm install my-release TODO/{{ template "chart.name" . }}
 ```
 
+You can find example `values.yaml` configuration in [KapitelShelf Examples](https://github.com/ThomasMiller01/KapitelShelf/tree/main/examples/helm).
+
 {{ template "chart.requirementsSection" . }}
 
 {{ template "chart.valuesSection" . }}
