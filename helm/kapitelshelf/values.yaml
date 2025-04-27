@@ -1,4 +1,7 @@
 global:
+  # -- Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br />
+  # Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database
+  # @section -- Global Values
   deployPostgres: true
 
 frontend:  
@@ -17,6 +20,31 @@ frontend:
     # -- Frontend port
     # @section -- Frontend Values
     port: 5173
+
+  ingress:
+    # -- Whether to enable an ingress resource for the frontend
+    # @section -- Frontend Values
+    enabled: false
+    # -- Additional annotations<br />
+    # e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"`
+    # @section -- Frontend Values
+    annotations: {}
+    # -- Hostname for the frontend ingress<br />
+    # e.g. `"frontend.example.com"`
+    # @section -- Frontend Values
+    host:
+    # -- Path under the host to route to the frontend service
+    # @section -- Frontend Values
+    path: /
+    # -- TLS configuration for the frontend ingress<br />
+    # e.g.<br />
+    # tls:<br />
+    #   - hosts:<br />
+    #       - frontend.example.com<br />
+    # @section -- Frontend Values
+    tls: []
+    # @ignored
+    className: nginx
 
   resources:      
     # -- Sets the frontend container resources limits  
@@ -47,6 +75,31 @@ api:
     # -- Api port
     # @section -- Api Values
     port: 5261
+
+  ingress:
+    # -- Whether to enable an ingress resource for the api
+    # @section -- Api Values
+    enabled: false
+    # -- Additional annotations<br />
+    # e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"`
+    # @section -- Api Values
+    annotations: {}
+    # -- Hostname for the api ingress<br />
+    # e.g. `"api.example.com"`
+    # @section -- Api Values
+    host:
+    # -- Path under the host to route to the api service
+    # @section -- Api Values
+    path: /
+    # -- TLS configuration for the Api ingress<br />
+    # e.g.<br />
+    # tls:<br />
+    #   - hosts:<br />
+    #       - api.example.com<br />
+    # @section -- Api Values
+    tls: []
+    # @ignored
+    className: nginx
 
   resources:     
     # -- Sets the api container resources limits
@@ -86,39 +139,32 @@ migrator:
       cpu: 250m
       memory: 256Mi
 
-ingress:
-  enabled: false
-  annotations:
-    kubernetes.io/ingress.class: nginx
-
-  hosts:
-    - host: kapitelshelf.example.com
-      paths:
-        - path: /api
-          service: api
-          port: 5261
-        - path: /
-          service: frontend
-          port: 5173
-  tls: []
-
 postgresql:  
   auth:
+    # -- PostgreSQL database username **(Change this for production!)**
+    # @section -- PostgreSQL Values _[SubChart]_
     username: "kapitelshelf"
+    # -- PostgreSQL database password **(Change this for production!)**
+    # @section -- PostgreSQL Values _[SubChart]_
     password: "kapitelshelf"
 
+    # @ignored
     database: kapitelshelf
 
   primary:
     service:
+      # -- TCP port the PostgreSQL service will listen on
+      # @section -- PostgreSQL Values _[SubChart]_
       port: 5432
 
-      # -- (string) Sets the postgres host, if you're using an external postgres.
-      # Will be ignored, if `global.deployPostgres=true`.
-      # @section -- PostgreSQL Values
+      # -- (string) Sets the PostgreSQL host, if you're using an external PostgreSQL.<br />
+      # Will be ignored, if `global.deployPostgres=true`
+      # @section -- PostgreSQL Values _[SubChart]_
       host:
 
     persistence:
+      # -- Size of the PostgreSQL storage
+      # @section -- PostgreSQL Values _[SubChart]_
       size: 50Gi
 
     # @ignored
@@ -126,8 +172,8 @@ postgresql:
       type: RollingUpdate
 
     resources:
-      # -- Sets the postgres container resources limits
-      # @section -- PostgreSQL Values
+      # -- Sets the PostgreSQL container resources limits
+      # @section -- PostgreSQL Values _[SubChart]_
       limits:
         memory: 2Gi
 

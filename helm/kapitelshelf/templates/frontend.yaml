@@ -50,23 +50,23 @@ kind: Ingress
 metadata:
   name: {{ include "kapitelshelf.fullname" . }}-frontend
   annotations:
-    {{ toYaml .Values.ingress.annotations | indent 4 }}
+    {{- toYaml .Values.frontend.ingress.annotations | nindent 4 }}
 spec:
+  ingressClassName: {{ .Values.frontend.ingress.className }}
   rules:
-    - host: {{ (index .Values.ingress.hosts 0).host }}
+    - host: {{ .Values.frontend.ingress.host }}
       http:
         paths:
-          {{- range $p := (index .Values.ingress.hosts 0).paths }}
-          {{- if eq $p.service "frontend" }}
-          - path: {{ $p.path }}
+          - path: {{ .Values.frontend.ingress.path }}
             pathType: Prefix
             backend:
               service:
-                name: {{ include "kapitelshelf.fullname" $ }}-frontend
+                name: {{ include "kapitelshelf.fullname" . }}-frontend
                 port:
-                  number: {{ $p.port }}
-          {{- end }}
-          {{- end }}
+                  number: {{ .Values.frontend.service.port }}
+  {{- if .Values.frontend.ingress.tls }}
   tls:
-    {{ toYaml .Values.ingress.tls | indent 2 }}
+    {{- toYaml .Values.frontend.ingress.tls | nindent 4 }}
+  {{- end }}
 {{- end }}
+

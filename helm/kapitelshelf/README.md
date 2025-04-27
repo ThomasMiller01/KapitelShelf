@@ -43,6 +43,11 @@ $ helm install my-release TODO/kapitelshelf
 | api.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | api.image.repository | string | `"thomasmiller01/kapitelshelf-api"` | Docker image repository |
 | api.image.tag | string | `"0.1.0"` | Docker image tag |
+| api.ingress.annotations | object | `{}` | Additional annotations<br /> e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"` |
+| api.ingress.enabled | bool | `false` | Whether to enable an ingress resource for the api |
+| api.ingress.host | string | `nil` | Hostname for the api ingress<br /> e.g. `"api.example.com"` |
+| api.ingress.path | string | `"/"` | Path under the host to route to the api service |
+| api.ingress.tls | list | `[]` | TLS configuration for the Api ingress<br /> e.g.<br /> tls:<br />   - hosts:<br />       - api.example.com<br /> |
 | api.resources.limits | object | `{"cpu":"500m","memory":"512Mi"}` | Sets the api container resources limits |
 | api.resources.requests | object | `{"cpu":"250m","memory":"256Mi"}` | Sets the api container resources requests |
 | api.service.port | int | `5261` | Api port |
@@ -54,9 +59,20 @@ $ helm install my-release TODO/kapitelshelf
 | frontend.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | frontend.image.repository | string | `"thomasmiller01/kapitelshelf-frontend"` | Docker image repository |
 | frontend.image.tag | string | `"0.1.0"` | Docker image tag |
+| frontend.ingress.annotations | object | `{}` | Additional annotations<br /> e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"` |
+| frontend.ingress.enabled | bool | `false` | Whether to enable an ingress resource for the frontend |
+| frontend.ingress.host | string | `nil` | Hostname for the frontend ingress<br /> e.g. `"frontend.example.com"` |
+| frontend.ingress.path | string | `"/"` | Path under the host to route to the frontend service |
+| frontend.ingress.tls | list | `[]` | TLS configuration for the frontend ingress<br /> e.g.<br /> tls:<br />   - hosts:<br />       - frontend.example.com<br /> |
 | frontend.resources.limits | object | `{"cpu":"500m","memory":"512Mi"}` | Sets the frontend container resources limits   |
 | frontend.resources.requests | object | `{"cpu":"250m","memory":"256Mi"}` | Sets the frontend container resources requests  |
 | frontend.service.port | int | `5173` | Frontend port |
+
+### Global Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global.deployPostgres | bool | `true` | Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
 
 ### Migrator Values
 
@@ -68,33 +84,16 @@ $ helm install my-release TODO/kapitelshelf
 | migrator.resources.limits | object | `{"cpu":"500m","memory":"512Mi"}` | Sets the migrator container resources limits |
 | migrator.resources.requests | object | `{"cpu":"250m","memory":"256Mi"}` | Sets the migrator container resources limits |
 
-### PostgreSQL Values
+### PostgreSQL Values _[SubChart]_
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| postgresql.primary.resources.limits | object | `{"memory":"2Gi"}` | Sets the postgres container resources limits |
-| postgresql.primary.service.host | string | `nil` | Sets the postgres host, if you're using an external postgres. Will be ignored, if `global.deployPostgres=true`. |
-
-### Other Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| global.deployPostgres | bool | `true` |  |
-| ingress.annotations."kubernetes.io/ingress.class" | string | `"nginx"` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.hosts[0].host | string | `"kapitelshelf.example.com"` |  |
-| ingress.hosts[0].paths[0].path | string | `"/api"` |  |
-| ingress.hosts[0].paths[0].port | int | `5261` |  |
-| ingress.hosts[0].paths[0].service | string | `"api"` |  |
-| ingress.hosts[0].paths[1].path | string | `"/"` |  |
-| ingress.hosts[0].paths[1].port | int | `5173` |  |
-| ingress.hosts[0].paths[1].service | string | `"frontend"` |  |
-| ingress.tls | list | `[]` |  |
-| postgresql.auth.database | string | `"kapitelshelf"` |  |
-| postgresql.auth.password | string | `"kapitelshelf"` |  |
-| postgresql.auth.username | string | `"kapitelshelf"` |  |
-| postgresql.primary.persistence.size | string | `"50Gi"` |  |
-| postgresql.primary.service.port | int | `5432` |  |
+| postgresql.auth.password | string | `"kapitelshelf"` | PostgreSQL database password **(Change this for production!)** |
+| postgresql.auth.username | string | `"kapitelshelf"` | PostgreSQL database username **(Change this for production!)** |
+| postgresql.primary.persistence.size | string | `"50Gi"` | Size of the PostgreSQL storage |
+| postgresql.primary.resources.limits | object | `{"memory":"2Gi"}` | Sets the PostgreSQL container resources limits |
+| postgresql.primary.service.host | string | `nil` | Sets the PostgreSQL host, if you're using an external PostgreSQL.<br /> Will be ignored, if `global.deployPostgres=true` |
+| postgresql.primary.service.port | int | `5432` | TCP port the PostgreSQL service will listen on |
 
 ## Source Code
 
