@@ -1,0 +1,8 @@
+global:
+  deployPostgresql: false
+
+postgresql:
+  host: "<POSTGRES_HOST>"
+  auth:
+    username: "<POSTGRES_USERNAME>"
+    password: "<POSTGRES_PASSWORD>"

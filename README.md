@@ -30,6 +30,7 @@ Refer to the [Installation Guide](docs/installation.md) for instructions.
 
 - [Installation Guide](docs/installation.md)
 - [Development Guide](docs/development.md) _(Coming soon)_
+- [Examples](examples/README.md)
 
 ## Development
 

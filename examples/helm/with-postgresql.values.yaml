@@ -1,0 +1,4 @@
+postgresql:
+  auth:
+    username: "<POSTGRES_USERNAME>"
+    password: "<POSTGRES_PASSWORD>"

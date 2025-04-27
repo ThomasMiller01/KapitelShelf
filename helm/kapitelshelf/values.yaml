@@ -56,7 +56,7 @@ ingress:
   enabled: false
   annotations:
     kubernetes.io/ingress.class: nginx
-    
+
   hosts:
     - host: kapitelshelf.example.com
       paths:
@@ -69,6 +69,7 @@ ingress:
   tls: []
 
 postgresql:
+  # host: "mypostgres.example"
   auth:
     username: "kapitelshelf"
     password: "kapitelshelf"
