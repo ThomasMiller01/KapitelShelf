@@ -2,14 +2,6 @@
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "kapitelshelf.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name (include "kapitelshelf.name" .) | trunc 63 | trimSuffix "-" }}
-{{- end -}}
-{{- end -}}
-
 {{- define "kapitelshelf.labels" -}}
 app.kubernetes.io/name: {{ include "kapitelshelf.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}

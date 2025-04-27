@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "kapitelshelf.fullname" . }}-api
+  name: {{ include "kapitelshelf.name" . }}-api
   namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "kapitelshelf.labels" . | nindent 4 }}
@@ -36,7 +36,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "kapitelshelf.fullname" . }}-api
+  name: {{ include "kapitelshelf.name" . }}-api
   namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "kapitelshelf.labels" . | nindent 4 }}
@@ -55,7 +55,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "kapitelshelf.fullname" . }}-api
+  name: {{ include "kapitelshelf.name" . }}-api
   namespace: {{ .Values.global.namespace }}
   annotations:
     {{- toYaml .Values.api.ingress.annotations | nindent 4 }}
@@ -69,7 +69,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "kapitelshelf.fullname" . }}-api
+                name: {{ include "kapitelshelf.name" . }}-api
                 port:
                   number: {{ .Values.api.service.port }}
   {{- if .Values.api.ingress.tls }}

@@ -15,7 +15,7 @@
 ===============================================================================
 {{- else }}
 ℹ️  Ingress is disabled. You can port-forward to access the frontend:
-   kubectl port-forward svc/{{ include "kapitelshelf.fullname" . }}-frontend 5173:{{ .Values.frontend.service.port }}
+   kubectl port-forward svc/{{ include "kapitelshelf.name" . }}-frontend 5173:{{ .Values.frontend.service.port }}
    Then visit http://localhost:5173
 ===============================================================================
 {{- end }}

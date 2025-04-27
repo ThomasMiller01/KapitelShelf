@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "kapitelshelf.fullname" . }}-migrator
+  name: {{ include "kapitelshelf.name" . }}-migrator
   namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "kapitelshelf.labels" . | nindent 4 }}
