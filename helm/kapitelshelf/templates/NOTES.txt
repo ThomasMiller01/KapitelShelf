@@ -1,19 +1,14 @@
 ===============================================================================
 🎉  Congratulations! Your release {{ .Release.Name }} is deployed.
 
-{{- if .Values.ingress.enabled }}
+{{- if .Values.frontend.ingress.enabled }}
 👉  Frontend is exposed through your Ingress. You can access it here:
 
-   {{- $host := (index .Values.ingress.hosts 0).host -}}
-   {{- $path := "/" -}}
-   {{- range (index .Values.ingress.hosts 0).paths }}
-     {{- if eq .service "frontend" }}
-       {{- $path = .path }}
-     {{- end -}}
-   {{- end }}
+   {{- $host := .Values.frontend.ingress.host -}}
+   {{- $path := .Values.frontend.ingress.path -}}
    http://{{ $host }}{{ $path }}
 
-   {{- if .Values.ingress.tls }}
+   {{- if .Values.frontend.ingress.tls }}
    (TLS enabled – use https://{{ $host }}{{ $path }})
    {{- end }}
 

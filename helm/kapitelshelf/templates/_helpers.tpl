@@ -11,16 +11,13 @@
 {{- end -}}
 
 {{- define "kapitelshelf.labels" -}}
-labels:
-  app.kubernetes.io/name: {{ include "kapitelshelf.name" . }}
-  app.kubernetes.io/instance: {{ .Release.Name }}
-  app.kubernetes.io/version: {{ .Chart.AppVersion }}
-  app.kubernetes.io/managed-by: Helm
+app.kubernetes.io/name: {{ include "kapitelshelf.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{- define "postgresql.host" -}}
-{{- if .Values.global.deploypostgres -}}
-{{ include "kapitelshelf.fullname" . }}-postgres:{{ .Values.postgres.service.port }}
+{{- if .Values.global.deployPostgres -}}
+{{ include "kapitelshelf.name" . }}-postgresql.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.postgresql.primary.service.port }}
 {{- else -}}
 {{ .Values.postgres.host }}
 {{- end -}}

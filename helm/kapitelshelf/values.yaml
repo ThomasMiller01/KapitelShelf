@@ -4,6 +4,10 @@ global:
   # @section -- Global Values
   deployPostgres: true
 
+  # -- The helm chart will be deployed into this namespace
+  # @section -- Global Values
+  namespace: kapitelshelf
+
 frontend:  
   image:
     # -- Docker image repository

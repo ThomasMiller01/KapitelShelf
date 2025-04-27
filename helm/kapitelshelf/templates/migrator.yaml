@@ -2,7 +2,9 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ include "kapitelshelf.fullname" . }}-migrator
-  {{ include "kapitelshelf.labels" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "kapitelshelf.labels" . | nindent 4 }}
 spec:
   backoffLimit: 1
   template:
@@ -12,8 +14,10 @@ spec:
         - name: wait-for-postgres
           image: busybox:1.35
           command:
-            - sh;-c;|
-              until nc -z {{ include "kapitelshelf.fullname" . }}-postgresql {{ .Values.postgresql.primary.service.port }}; do
+            - sh
+            - -c
+            - |
+              until nc -z {{ include "postgresql.host" . }}; do
                 sleep 2
               done
       containers:
@@ -22,8 +26,9 @@ spec:
           imagePullPolicy: {{ .Values.migrator.image.pullPolicy }}
           env:
             - name: KapitelShelf__Database__Host
-              value: {{ include "postgresql.host" }}
+              value: {{ include "postgresql.host" . }}
             - name: KapitelShelf__Database__Username
-              value: {{ .Values.postgres.credentials.username }}
+              value: {{ .Values.postgresql.auth.username }}
             - name: KapitelShelf__Database__Password
-              value: {{ .Values.postgres.credentials.password }}
+              value: {{ .Values.postgresql.auth.password }}
+          resources: {{ toYaml .Values.migrator.resources | nindent 12 }}
