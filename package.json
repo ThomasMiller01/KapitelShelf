@@ -1,11 +1,12 @@
 {
   "scripts": {
-    "build:dev": "npm i && npm run build:frontend && npm run build:backend && npm run gen:swagger",
+    "build:dev": "npm i && npm run build:dev:frontend && npm run build:dev:backend && npm run gen:swagger",
     "build:dev:frontend": "cd ./frontend/src && npm i",
     "build:dev:backend": "cd ./backend/src && dotnet build",
     "build:docker:frontend": "cd ./frontend && pwsh ./build.ps1",
     "build:docker:backend:api": "cd ./backend/src/KapitelShelf.Api && pwsh ./build.ps1",
     "build:docker:backend:migrations": "cd ./backend/src/KapitelShelf.Data.Migrations && pwsh ./build.ps1",
+    "build:helm": "cd ./helm && helm package ./kapitelshelf && helm repo index . --url https://thomasmiller01.github.io/kapitelshelf/helm",
     "dev:docker-compose": "cd ./development && docker-compose up",
     "dev:frontend": "cd ./frontend && npm run dev",
     "dev:backend:api": "cd ./backend/src && dotnet watch run --project KapitelShelf.Api",

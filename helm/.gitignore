@@ -35,3 +35,7 @@ Session.vim
 **/charts/*.tgz
 
 .history
+
+# Build
+*.tgz
+index.yaml

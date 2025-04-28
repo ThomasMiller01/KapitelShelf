@@ -23,8 +23,8 @@ To use your own database:
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm repo add TODO http://charts.TODO.com
-$ helm install my-release TODO/{{ template "chart.name" . }}
+$ helm repo add kapitelshelf https://thomasmiller01.github.io/kapitelshelf/helm
+$ helm install my-release kapitelshelf/{{ template "chart.name" . }}
 ```
 
 You can find example `values.yaml` configuration in [KapitelShelf Examples](https://github.com/ThomasMiller01/KapitelShelf/tree/main/examples/helm).

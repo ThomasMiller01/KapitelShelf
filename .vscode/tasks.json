@@ -60,6 +60,19 @@
       "problemMatcher": []
     },
     {
+      "label": "Helm: Build Chart",
+      "type": "shell",
+      "command": "npm run build:helm",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Release: Bump Helm",
       "type": "shell",
       "command": "npm run release:helm",
