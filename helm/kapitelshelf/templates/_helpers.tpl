@@ -9,8 +9,20 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "postgresql.host" -}}
 {{- if .Values.global.deployPostgres -}}
-{{ include "kapitelshelf.name" . }}-postgresql.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.postgresql.primary.service.port }}
+{{ .Release.Name }}-postgresql.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.postgresql.primary.service.port }}
 {{- else -}}
 {{ .Values.postgres.host }}
+{{- end -}}
+{{- end -}}
+
+{{- define "kapitelshelf.api.host" -}}
+{{- if .Values.api.ingress.enabled -}}
+    {{- if .Values.api.ingress.tls -}}
+https://{{ .Values.api.ingress.host }}{{ .Values.api.ingress.path }}
+    {{- else -}}
+http://{{ .Values.api.ingress.host }}{{ .Values.api.ingress.path }}
+    {{- end -}}
+{{- else -}}
+http://localhost:{{ .Values.api.service.port }}
 {{- end -}}
 {{- end -}}
