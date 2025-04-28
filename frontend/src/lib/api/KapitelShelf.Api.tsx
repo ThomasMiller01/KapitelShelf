@@ -4,7 +4,7 @@ import { BooksApi, SeriesApi, VersionApi } from "./KapitelShelf.Api/api";
 import { Configuration } from "./KapitelShelf.Api/configuration";
 
 const config = new Configuration({
-  basePath: "http://localhost:5261",
+  basePath: import.meta.env.VITE_KAPITELSHELF_API,
 });
 
 export const booksApi = new BooksApi(config);

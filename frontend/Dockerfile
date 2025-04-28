@@ -16,8 +16,9 @@ WORKDIR /app
 
 COPY --from=build /app/dist ./dist
 
-RUN npm i -g serve
+RUN npm i -g serve envsub
 
 EXPOSE 5173
 
-CMD ["serve", "-s", "dist", "-l", "5173"]
+CMD ["sh", "-c", "npx envsub dist/index.html && serve -s dist -l 5173"]
+

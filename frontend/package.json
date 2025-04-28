@@ -1,7 +1,7 @@
 {
   "name": "kapitelshelf-frontend",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -36,6 +36,7 @@
     "globals": "^16.0.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.26.1",
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "vite-plugin-runtime-env": "^0.1.1"
   }
 }
