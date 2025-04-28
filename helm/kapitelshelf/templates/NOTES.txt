@@ -4,17 +4,17 @@
 {{- if .Values.frontend.ingress.enabled }}
 👉  Frontend is exposed through your Ingress. You can access it here:
 
-   {{- $host := .Values.frontend.ingress.host -}}
-   {{- $path := .Values.frontend.ingress.path -}}
-   http://{{ $host }}{{ $path }}
-
-   {{- if .Values.frontend.ingress.tls }}
-   (TLS enabled – use https://{{ $host }}{{ $path }})
-   {{- end }}
+     {{- $host := .Values.frontend.ingress.host }}
+     {{- $path := .Values.frontend.ingress.path }}
+     {{- if .Values.frontend.ingress.tls }}
+     https://{{ $host }}{{ $path }}
+     {{- else }}
+     http://{{ $host }}{{ $path }}
+     {{- end }}
 ===============================================================================
 {{- else }}
 ℹ️  Ingress is disabled. You can port-forward to access the frontend:
    kubectl port-forward svc/{{ include "kapitelshelf.name" . }}-frontend 5173:{{ .Values.frontend.service.port }}
-   Then visit http://localhost:5173
+   Then visit: http://localhost:5173
 ===============================================================================
 {{- end }}
