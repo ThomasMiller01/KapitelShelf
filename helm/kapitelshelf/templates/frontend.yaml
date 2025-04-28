@@ -25,7 +25,7 @@ spec:
             - name: http
               containerPort: {{ .Values.frontend.service.port }}
           env:
-            - name: KAPITELSHELF_API
+            - name: VITE_KAPITELSHELF_API
               value: {{ include "kapitelshelf.api.host" . }}
           resources: {{ toYaml .Values.frontend.resources | nindent 12 }}
 ---
