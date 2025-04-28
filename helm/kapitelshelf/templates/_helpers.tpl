@@ -7,6 +7,12 @@ app.kubernetes.io/name: {{ include "kapitelshelf.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
+{{- define "kapitelshelf.annotations" -}}
+{{- if . -}}
+{{- toYaml . -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "postgresql.host" -}}
 {{- if .Values.global.deployPostgres -}}
 {{ .Release.Name }}-postgresql.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.postgresql.primary.service.port }}

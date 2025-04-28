@@ -58,14 +58,15 @@ metadata:
   name: {{ include "kapitelshelf.name" . }}-api
   namespace: {{ .Values.global.namespace }}
   annotations:
-    {{- toYaml .Values.api.ingress.annotations | nindent 4 }}
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    {{- include "kapitelshelf.annotations" .Values.api.ingress.annotations | nindent 4 }}
 spec:
   ingressClassName: {{ .Values.api.ingress.className }}
   rules:
     - host: {{ .Values.api.ingress.host }}
       http:
         paths:
-          - path: {{ .Values.api.ingress.path }}
+          - path: {{ .Values.api.ingress.path }}(/|$)(.*)
             pathType: Prefix
             backend:
               service:
