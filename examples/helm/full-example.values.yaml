@@ -1,1 +1,96 @@
-TODO
+global:  
+  deployPostgresql: true
+
+  namespace: my-namespace
+
+frontend:
+  image:
+    repository: thomasmiller01/kapitelshelf-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 5173
+
+  ingress:
+    enabled: true
+    annotations:
+      # You can use Cert-Manager for SSL certs
+      cert-manager.io/issuer: acme-issuer
+      cert-manager.io/issuer-kind: ClusterIssuer
+    host: "kapitelshelf.example.com"
+    path: /
+    tls:
+      - hosts:
+          - "kapitelshelf.example.com"
+        secretName: my-domain-cert
+    className: nginx
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+api:
+  image:
+    repository: thomasmiller01/kapitelshelf-api    
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 5261
+
+  ingress:
+    enabled: true
+    annotations:
+      # You can use CertManager for SSL certs
+      cert-manager.io/issuer: acme-issuer
+      cert-manager.io/issuer-kind: ClusterIssuer
+    host: "kapitelshelf.example.com"
+    path: /api
+    tls:
+      - hosts:
+          - "kapitelshelf.example.com"
+        secretName: my-domain-cert
+    className: nginx
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+migrator:
+  image:
+    repository: thomasmiller01/kapitelshelf-migrator
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+postgresql:
+  auth:
+    username: "<POSTGRES_USERNAME>"
+    password: "<POSTGRES_PASSWORD>"
+
+  primary:
+    service:
+      port: 5432
+
+    persistence:
+      size: 50Gi
+
+    resources:
+      limits:
+        memory: 2Gi

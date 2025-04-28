@@ -1,23 +1,20 @@
 frontend:
   ingress:
     enabled: true
-    annotations: {}
-    host: ""
+    host: "kapitelshelf.example.com"
     path: /
-    tls: []
 
 api:
   ingress:
     enabled: true
-    annotations: {}
-    host: ""
-    path: /
-    tls: []
+    host: "kapitelshelf.example.com"
+    path: /api
 
 postgresql:
   auth:
     username: "<POSTGRES_USERNAME>"
     password: "<POSTGRES_PASSWORD>"
 
-  persistence:
-    size: 50Gi
+  primary:
+    persistence:
+      size: 50Gi
