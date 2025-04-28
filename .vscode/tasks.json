@@ -1,4 +1,3 @@
-// .vscode/tasks.json
 {
   "version": "2.0.0",
   "tasks": [
@@ -18,58 +17,6 @@
     {
       "label": "Dev: Run All",
       "command": "${command:multiCommand.openDevEnv}",
-      "problemMatcher": []
-    },
-    {
-      "label": "Docker: Build Frontend",
-      "type": "shell",
-      "command": "npm run build:docker:frontend",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Docker: Build Api",
-      "type": "shell",
-      "command": "npm run build:docker:backend:api",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Docker: Build Migrations",
-      "type": "shell",
-      "command": "npm run build:docker:backend:migrations",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Helm: Build Chart",
-      "type": "shell",
-      "command": "npm run build:helm",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": false
-      },
       "problemMatcher": []
     },
     {
