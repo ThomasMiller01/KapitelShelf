@@ -1,0 +1,25 @@
+global:  
+  deployPostgresql: false # Disable the PostgreSQL subchart
+
+frontend:
+  ingress:
+    enabled: true
+    host: "kapitelshelf.example.com"
+    path: /
+
+api:
+  ingress:
+    enabled: true
+    host: "kapitelshelf.example.com"
+    path: /api
+
+postgresql:  
+  host: "<POSTGRES_HOST>" # Set the host to the external PostgreSQL instance
+  
+  auth:
+    username: "<POSTGRES_USERNAME>"
+    password: "<POSTGRES_PASSWORD>"
+
+  primary:
+    persistence:
+      size: 50Gi

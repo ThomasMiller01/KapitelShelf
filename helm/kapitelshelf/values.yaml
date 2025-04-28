@@ -1,0 +1,190 @@
+global:
+  # -- Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br />
+  # Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database
+  # @section -- Global Values
+  deployPostgres: true
+
+  # -- The helm chart will be deployed into this namespace
+  # @section -- Global Values
+  namespace: kapitelshelf
+
+frontend:  
+  image:
+    # -- Docker image repository
+    # @section -- Frontend Values
+    repository: thomasmiller01/kapitelshelf-frontend
+    # -- Docker image tag
+    # @section -- Frontend Values
+    tag: "0.1.1"
+    # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # @section -- Frontend Values
+    pullPolicy: IfNotPresent
+
+  service:
+    # -- Frontend port
+    # @section -- Frontend Values
+    port: 5173
+
+  ingress:
+    # -- Whether to enable an ingress resource for the frontend
+    # @section -- Frontend Values
+    enabled: false
+    # -- Additional annotations<br />
+    # e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"`
+    # @section -- Frontend Values
+    annotations: {}
+    # -- Hostname for the frontend ingress<br />
+    # e.g. `"frontend.example.com"`
+    # @section -- Frontend Values
+    host:
+    # -- Path under the host to route to the frontend service
+    # @section -- Frontend Values
+    path: /
+    # -- TLS configuration for the frontend ingress<br />
+    # e.g.<br />
+    # tls:<br />
+    #   - hosts:<br />
+    #       - frontend.example.com<br />
+    # @section -- Frontend Values
+    tls: []
+    # @ignored
+    className: nginx
+
+  resources:      
+    # -- Sets the frontend container resources limits  
+    # @section -- Frontend Values
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+    # -- Sets the frontend container resources requests 
+    # @section -- Frontend Values
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+api:
+  image:
+    # -- Docker image repository
+    # @section -- Api Values
+    repository: thomasmiller01/kapitelshelf-api
+    # -- Docker image tag
+    # @section -- Api Values
+    tag: "0.1.0"
+    # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # @section -- Api Values
+    pullPolicy: IfNotPresent
+
+  service:
+    # -- Api port
+    # @section -- Api Values
+    port: 5261
+
+  ingress:
+    # -- Whether to enable an ingress resource for the api
+    # @section -- Api Values
+    enabled: false
+    # -- Additional annotations<br />
+    # e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"`
+    # @section -- Api Values
+    annotations: {}
+    # -- Hostname for the api ingress<br />
+    # e.g. `"api.example.com"`
+    # @section -- Api Values
+    host:
+    # -- Path under the host to route to the api service
+    # @section -- Api Values
+    path: /
+    # -- TLS configuration for the Api ingress<br />
+    # e.g.<br />
+    # tls:<br />
+    #   - hosts:<br />
+    #       - api.example.com<br />
+    # @section -- Api Values
+    tls: []
+    # @ignored
+    className: nginx
+
+  resources:     
+    # -- Sets the api container resources limits
+    # @section -- Api Values
+    limits:
+      cpu: 500m
+      memory: 1Gi
+      
+    # -- Sets the api container resources requests
+    # @section -- Api Values
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+migrator:
+  image:
+    # -- Docker image repository
+    # @section -- Migrator Values
+    repository: thomasmiller01/kapitelshelf-migrator
+    # -- Docker image tag
+    # @section -- Migrator Values
+    tag: "0.1.0"
+    # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
+    # @section -- Migrator Values
+    pullPolicy: IfNotPresent
+
+  resources:
+    # -- Sets the migrator container resources limits
+    # @section -- Migrator Values
+    limits:
+      cpu: 200m
+      memory: 256Mi
+      
+    # -- Sets the migrator container resources limits
+    # @section -- Migrator Values
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+postgresql:  
+  auth:
+    # -- PostgreSQL database username **(Change this for production!)**
+    # @section -- PostgreSQL Values _[SubChart]_
+    username: "kapitelshelf"
+    # -- PostgreSQL database password **(Change this for production!)**
+    # @section -- PostgreSQL Values _[SubChart]_
+    password: "kapitelshelf"
+
+    # @ignored
+    database: kapitelshelf
+
+  primary:
+    service:
+      # -- TCP port the PostgreSQL service will listen on
+      # @section -- PostgreSQL Values _[SubChart]_
+      port: 5432
+
+      # -- (string) Sets the PostgreSQL host, if you're using an external PostgreSQL.<br />
+      # Will be ignored, if `global.deployPostgres=true`
+      # @section -- PostgreSQL Values _[SubChart]_
+      host:
+
+    persistence:
+      # -- Size of the PostgreSQL storage
+      # @section -- PostgreSQL Values _[SubChart]_
+      size: 50Gi
+
+    # @ignored
+    updateStrategy:
+      type: RollingUpdate
+
+    resources:
+      # -- Sets the PostgreSQL container resources limits
+      # @section -- PostgreSQL Values _[SubChart]_
+      limits:
+        memory: 2Gi
+
+  # @ignored
+  readReplicas:
+    replicaCount: 0
+
+  # @ignored
+  metrics:
+    enabled: false

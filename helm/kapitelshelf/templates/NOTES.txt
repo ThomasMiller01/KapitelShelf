@@ -1,0 +1,20 @@
+===============================================================================
+🎉  Congratulations! Your release {{ .Release.Name }} is deployed.
+
+{{- if .Values.frontend.ingress.enabled }}
+👉  Frontend is exposed through your Ingress. You can access it here:
+
+     {{- $host := .Values.frontend.ingress.host }}
+     {{- $path := .Values.frontend.ingress.path }}
+     {{- if .Values.frontend.ingress.tls }}
+     https://{{ $host }}{{ $path }}
+     {{- else }}
+     http://{{ $host }}{{ $path }}
+     {{- end }}
+===============================================================================
+{{- else }}
+ℹ️  Ingress is disabled. You can port-forward to access the frontend:
+   kubectl port-forward svc/{{ include "kapitelshelf.name" . }}-frontend 5173:{{ .Values.frontend.service.port }}
+   Then visit: http://localhost:5173
+===============================================================================
+{{- end }}

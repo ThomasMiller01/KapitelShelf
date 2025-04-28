@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kapitelshelf.name" . }}-frontend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "kapitelshelf.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: frontend
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: frontend
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: frontend
+          image: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.frontend.service.port }}
+          env:
+            - name: VITE_KAPITELSHELF_API
+              value: {{ include "kapitelshelf.api.host" . }}
+          resources: {{ toYaml .Values.frontend.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kapitelshelf.name" . }}-frontend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "kapitelshelf.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    component: frontend
+    release: {{ .Release.Name }}
+---
+{{- if .Values.frontend.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kapitelshelf.name" . }}-frontend
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    {{- toYaml .Values.frontend.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.frontend.ingress.className }}
+  rules:
+    - host: {{ .Values.frontend.ingress.host }}
+      http:
+        paths:
+          - path: {{ .Values.frontend.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kapitelshelf.name" . }}-frontend
+                port:
+                  number: {{ .Values.frontend.service.port }}
+  {{- if .Values.frontend.ingress.tls }}
+  tls:
+    {{- toYaml .Values.frontend.ingress.tls | nindent 4 }}
+  {{- end }}
+{{- end }}
+

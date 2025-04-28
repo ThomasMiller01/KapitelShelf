@@ -69,20 +69,6 @@ services:
     ports:
       - "5432:5432"
 
-  pgadmin:
-    image: dpage/pgadmin4:9.2.0
-    container_name: pgadmin4
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: kapitelshelf@example.com
-      PGADMIN_DEFAULT_PASSWORD: kapitelshelf
-    volumes:
-      - ./config/pgadmin4/servers.json:/pgadmin4/servers.json
-    ports:
-      - "5050:80"
-    depends_on:
-      - postgres
-
 volumes:
   postgres_data:
 ```

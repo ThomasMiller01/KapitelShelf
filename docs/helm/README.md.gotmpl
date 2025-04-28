@@ -1,0 +1,38 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" . }}
+
+{{ template "chart.homepageLine" . }}
+
+## Additional Information
+
+This Helm chart is primarily intended to deploy **KapitelShelf**, including all necessary components like the frontend, API, and migrator components.
+
+Additionally, the chart can deploy a **PostgreSQL** database alongside KapitelShelf by enabling the bundled [Bitnami PostgreSQL](https://artifacthub.io/packages/helm/bitnami/postgresql) subchart. This provides a fully self-contained deployment without requiring any external database setup.
+
+By default, PostgreSQL is **enabled**.  
+However, if you already have your own PostgreSQL instance available, you can configure KapitelShelf to connect to your external database instead.
+
+To use your own database:
+- Set `global.deployPostgresql=false`
+- Provide the external database connection information to KapitelShelf via Helm values.
+
+## Installing the Chart
+
+To install the chart with the release name `my-release`:
+
+```console
+$ helm repo add kapitelshelf https://thomasmiller01.github.io/kapitelshelf/helm
+$ helm install my-release kapitelshelf/{{ template "chart.name" . }}
+```
+
+You can find example `values.yaml` configuration in [KapitelShelf Examples](https://github.com/ThomasMiller01/KapitelShelf/tree/main/examples/helm).
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
