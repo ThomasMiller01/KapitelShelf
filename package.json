@@ -6,7 +6,7 @@
     "build:docker:frontend": "cd ./frontend && pwsh ./build.ps1",
     "build:docker:backend:api": "cd ./backend/src/KapitelShelf.Api && pwsh ./build.ps1",
     "build:docker:backend:migrations": "cd ./backend/src/KapitelShelf.Data.Migrations && pwsh ./build.ps1",
-    "build:helm": "cd ./helm && helm package ./kapitelshelf && helm repo index . --url https://thomasmiller01.github.io/kapitelshelf/helm",
+    "build:helm": "cd ./helm && rimraf ./build && mkdir build && helm package ./kapitelshelf --destination ./build && helm repo index ./build --url https://thomasmiller01.github.io/kapitelshelf/helm",
     "dev:docker-compose": "cd ./development && docker-compose up",
     "dev:frontend": "cd ./frontend && npm run dev",
     "dev:backend:api": "cd ./backend/src && dotnet watch run --project KapitelShelf.Api",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "commit-and-tag-version": "^12.5.1",
-    "conventional-changelog-cli": "^5.0.0"
+    "conventional-changelog-cli": "^5.0.0",
+    "rimraf": "^6.0.1"
   }
 }
