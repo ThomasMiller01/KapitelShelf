@@ -2,14 +2,24 @@
 .SYNOPSIS
     Builds the Docker image for the API.
 
+.PARAMETER Repository
+    The repository for the Docker image. Can be "docker.io" or "ghcr.io". Default: "docker.io"
+
 .PARAMETER Tag
-    The tag for the Docker image. Default: "null" (reads the tag from the package.json).
+    The tag for the Docker image. Default: "null" (reads the tag from the KapitelShelf.Api.csproj).
+
+.PARAMETER Push
+    Switch, if the image should be pushed or not.
 
 .EXAMPLE
     .\build.ps1
-    .\build.ps1 -tag 0.1.0 -push
+    .\build.ps1 -repository ghcr.io -tag 0.1.0 -push
 #>
 param(
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("docker.io", "ghcr.io")]
+    [string]$repository = "docker.io",
+
     [Parameter(Mandatory = $false)]
     [string]$tag = $null,
 
@@ -17,7 +27,7 @@ param(
     [switch]$push = $false
 )
 
-$IMAGE = "thomasmiller01/kapitelshelf-api"
+$IMAGE = "$repository/thomasmiller01/kapitelshelf-api"
 
 # if tag not provided, read version from KapitelShelf.Api.csproj
 if (-not $Tag) {
@@ -29,7 +39,8 @@ if (-not $Tag) {
         $tag = $versionNode.Trim()
 
         Write-Host "> Using version '$tag' from KapitelShelf.Api.csproj."
-    } catch {
+    }
+    catch {
         Write-Error "❌ Failed to read version from KapitelShelf.Api.csproj: $_"
         exit 1
     }
@@ -62,7 +73,8 @@ if ($push) {
             Write-Error "❌ Image '${IMAGE}:$tag' push failed with code $LASTEXITCODE."
             exit $LASTEXITCODE
         }
-    } catch {
+    }
+    catch {
         Write-Error "❌ An error occurred during '${IMAGE}:$tag' push: $_"
         exit 1
     }

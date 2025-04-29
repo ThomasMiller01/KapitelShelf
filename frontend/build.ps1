@@ -2,14 +2,24 @@
 .SYNOPSIS
     Builds the Docker image for the frontend.
 
+.PARAMETER Repository
+    The repository for the Docker image. Can be "docker.io" or "ghcr.io". Default: "docker.io"
+
 .PARAMETER Tag
     The tag for the Docker image. Default: "null" (reads the tag from the package.json).
 
+.PARAMETER Push
+    Switch, if the image should be pushed or not.
+
 .EXAMPLE
     .\build.ps1
-    .\build.ps1 -tag 0.1.0 -push
+    .\build.ps1 -repository ghcr.io -tag 0.1.0 -push
 #>
 param(
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("docker.io", "ghcr.io")]
+    [string]$repository = "docker.io",
+
     [Parameter(Mandatory = $false)]
     [string]$tag = $null,
 
@@ -17,7 +27,7 @@ param(
     [switch]$push = $false
 )
 
-$IMAGE = "thomasmiller01/kapitelshelf-frontend"
+$IMAGE = "$repository/thomasmiller01/kapitelshelf-frontend"
 
 # if tag not provided, read version from package.json
 if (-not $Tag) {
@@ -60,7 +70,8 @@ if ($push) {
             Write-Error "❌ Image '${IMAGE}:$tag' push failed with code $LASTEXITCODE."
             exit $LASTEXITCODE
         }
-    } catch {
+    }
+    catch {
         Write-Error "❌ An error occurred during '${IMAGE}:$tag' push: $_"
         exit 1
     }

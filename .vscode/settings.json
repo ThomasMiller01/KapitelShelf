@@ -11,21 +11,21 @@
         "workbench.action.terminal.new",
         {
           "command": "workbench.action.terminal.sendSequence",
-          "args": { "text": "npm run dev:docker-compose\u000D" }
+          "args": { "text": "npm run dev:run:docker-compose\u000D" }
         },
         // migrations + api
         "workbench.action.terminal.split",
         {
           "command": "workbench.action.terminal.sendSequence",
           "args": {
-            "text": "npm run dev:backend:migrations && npm run dev:backend:api\u000D"
+            "text": "npm run dev:run:backend:migrations && npm run dev:run:backend:api\u000D"
           }
         },
         // frontend
         "workbench.action.terminal.split",
         {
           "command": "workbench.action.terminal.sendSequence",
-          "args": { "text": "npm run dev:frontend\u000D" }
+          "args": { "text": "npm run dev:run:frontend\u000D" }
         }
       ]
     }

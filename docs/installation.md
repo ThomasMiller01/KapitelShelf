@@ -1,11 +1,20 @@
 # Installation Guide
 
+Installation methods:
+
+- [Helm Chart](#helm-chart)
 - [docker-compose](#docker-compose)
 - [Docker (Standalone)](#docker-standalone)
 
 > ⚠️ KapitelShelf relies on a PostgreSQL database, but the docker images **do not** include a database server - you must configure your own PostgreSQL connection via environment variables.
 
-> ℹ️ If you'd prefer not to install and manage PostgreSQL yourself, the below docker-compose file will automatically set up and configure a PostgreSQL instance for you.
+> ℹ️ If you'd prefer not to install and manage PostgreSQL yourself, either the below helm chart or the docker-compose file will automatically set up and configure a PostgreSQL instance for you.
+
+## Helm Chart
+
+Deploy KapitelShelf to your Kubernetes cluster using a Helm chart. This option installs all core components (frontend, API, migrator) and can optionally provision a bundled PostgreSQL database.
+
+For a detailed installation and configuration options see the Helm chart's [README](../helm/kapitelshelf/README.md).
 
 ## docker-compose
 
@@ -81,11 +90,11 @@ If you prefer to manage each container yourself.
 
 The docker images are published on:
 
-|          | Image                                  | Registries                                                                 |
-| -------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| Frontend | `thomasmiller01/kapitelshelf-frontend` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-frontend) |
-| API      | `thomasmiller01/kapitelshelf-api`      | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-api)      |
-| Migrator | `thomasmiller01/kapitelshelf-migrator` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-migrator) |
+|          | Image                                  | Registries                                                                                                                                                                  |
+| -------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend | `thomasmiller01/kapitelshelf-frontend` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-frontend) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-frontend) |
+| API      | `thomasmiller01/kapitelshelf-api`      | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-api) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-api)           |
+| Migrator | `thomasmiller01/kapitelshelf-migrator` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-migrator) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-migrator) |
 
 ### Frontend
 
@@ -93,16 +102,15 @@ The docker images are published on:
 docker run -d \
     --name=kapitelshelf-frontend \
     -p 5173:5173 \
-    -e KapitelShelf__Database__Host=localhost:5261 \
     --restart unless-stopped \
     thomasmiller01/kapitelshelf-frontend
 ```
 
 #### Environment Variables
 
-| Settings Path                | Environment Variable           | Default          |
-| ---------------------------- | ------------------------------ | ---------------- |
-| `KapitelShelf.Database.Host` | `KapitelShelf__Database__Host` | `localhost:5261` |
+| Environment Variable    | Default          |
+| ----------------------- | ---------------- |
+| `VITE_KAPITELSHELF_API` | `localhost:5261` |
 
 ### API
 
@@ -119,11 +127,11 @@ docker run -d \
 
 #### Environment Variables
 
-| Settings Path                    | Environment Variable               | Default                     |
-| -------------------------------- | ---------------------------------- | --------------------------- |
-| `KapitelShelf.Database.Host`     | `KapitelShelf__Database__Host`     | `host.docker.internal:5432` |
-| `KapitelShelf.Database.Username` | `KapitelShelf__Database__Username` | `kapitelshelf`              |
-| `KapitelShelf.Database.Password` | `KapitelShelf__Database__Password` | `kapitelshelf`              |
+| Environment Variable               | Default                     | Settings Path (appsettings.json) |
+| ---------------------------------- | --------------------------- | -------------------------------- |
+| `KapitelShelf__Database__Host`     | `host.docker.internal:5432` | `KapitelShelf.Database.Host`     |
+| `KapitelShelf__Database__Username` | `kapitelshelf`              | `KapitelShelf.Database.Username` |
+| `KapitelShelf__Database__Password` | `kapitelshelf`              | `KapitelShelf.Database.Password` |
 
 ### Migrator
 
@@ -139,8 +147,8 @@ docker run -d \
 
 #### Environment Variables
 
-| Settings Path                    | Environment Variable               | Default                     |
-| -------------------------------- | ---------------------------------- | --------------------------- |
-| `KapitelShelf.Database.Host`     | `KapitelShelf__Database__Host`     | `host.docker.internal:5432` |
-| `KapitelShelf.Database.Username` | `KapitelShelf__Database__Username` | `kapitelshelf`              |
-| `KapitelShelf.Database.Password` | `KapitelShelf__Database__Password` | `kapitelshelf`              |
+| Environment Variable               | Default                     | Settings Path (appsettings.json) |
+| ---------------------------------- | --------------------------- | -------------------------------- |
+| `KapitelShelf__Database__Host`     | `host.docker.internal:5432` | `KapitelShelf.Database.Host`     |
+| `KapitelShelf__Database__Username` | `kapitelshelf`              | `KapitelShelf.Database.Username` |
+| `KapitelShelf__Database__Password` | `kapitelshelf`              | `KapitelShelf.Database.Password` |

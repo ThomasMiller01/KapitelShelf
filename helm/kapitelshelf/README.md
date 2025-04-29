@@ -1,8 +1,8 @@
-# kapitelshelf
+# KapitelShelf
 
 KapitelShelf helm chart for deploying the KapitelShelf application stack, including optional PostgreSQL database support. Provides a flexible setup for both self-contained and external database configurations.
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) 
+![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) 
 
 **Homepage:** <https://github.com/ThomasMiller01/KapitelShelf>
 
@@ -24,8 +24,8 @@ To use your own database:
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm repo add kapitelshelf https://thomasmiller01.github.io/kapitelshelf/helm
-$ helm install my-release kapitelshelf/kapitelshelf
+$ helm repo add KapitelShelf https://thomasmiller01.github.io/KapitelShelf/helm
+$ helm install my-release KapitelShelf/KapitelShelf
 ```
 
 You can find example `values.yaml` configuration in [KapitelShelf Examples](https://github.com/ThomasMiller01/KapitelShelf/tree/main/examples/helm).
