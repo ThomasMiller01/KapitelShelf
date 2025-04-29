@@ -1,0 +1,89 @@
+name: Publish Frontend Docker Image
+
+on:
+  workflow_dispatch: {} # allow manual run
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/CHANGELOG.md' # only run when the frontend version got bumped
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '23'
+
+    - name: Install dev dependencies
+      run: npm install
+
+    - name: Log in to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        registry: docker.io
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extract version from package.json
+      id: version
+      run: |
+        VERSION=$(jq -r .version package.json)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        MAJOR=${VERSION%%.*}
+        MINOR=$(echo $VERSION | cut -d. -f2)
+        echo "MAJOR=$MAJOR" >> $GITHUB_ENV
+        echo "MINOR=$MINOR" >> $GITHUB_ENV
+        echo "MAJOR_MINOR=$MAJOR.$MINOR" >> $GITHUB_ENV
+
+    - name: Build initial docker image and push
+      shell: pwsh
+      run: |
+        ./myscript.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
+
+    - name: Retag images and push to $DOCKERHUB_REGISTRY
+      run: |
+        echo "Re-tag and push '$VERSION' to $DOCKERHUB_REGISTRY"
+        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
+        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
+
+        echo "Re-tag and push '$MAJOR_MINOR' to $DOCKERHUB_REGISTRY"
+        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+
+        echo "Re-tag and push '$MAJOR' to $DOCKERHUB_REGISTRY"
+        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
+        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
+
+        echo "Push 'latest' to $DOCKERHUB_REGISTRY"
+        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest
+
+    - name: Retag images and push to $GITHUB_REGISTRY
+      run: |
+        echo "Re-tag and push '$VERSION' to $GITHUB_REGISTRY"
+        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
+        docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
+
+        echo "Re-tag and push '$MAJOR_MINOR' to $GITHUB_REGISTRY"
+        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+        docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+
+        echo "Re-tag and push '$MAJOR' to $GITHUB_REGISTRY"
+        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
+        docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
