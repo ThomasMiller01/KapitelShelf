@@ -71,9 +71,13 @@ jobs:
           docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
           docker push docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to docker.io"
-          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
-          docker push docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          if [ "$MAJOR" != "0" ]; then
+            echo "Re-tag and push major version '$MAJOR' to docker.io"
+            docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+            docker push docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          else
+            echo "Skipping major tag (MAJOR=0)"
+          fi
 
           echo "Push 'latest' to docker.io"
           docker push docker.io/thomasmiller01/kapitelshelf-migrator:latest
@@ -88,9 +92,17 @@ jobs:
           docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
           docker push ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to ghcr.io"
-          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
-          docker push ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          if [ "$MAJOR" != "0" ]; then
+            echo "Re-tag and push '$MAJOR' to ghcr.io"
+            docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+            docker push ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          else
+            echo "Skipping major tag (MAJOR=0)"
+          fi
+
+          echo "Push 'latest' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest ghcr.io/thomasmiller01/kapitelshelf-migrator:latest
+          docker push ghcr.io/thomasmiller01/kapitelshelf-migrator:latest
 
       - name: Extract CHANGELOG for Release
         id: extract_changelog
