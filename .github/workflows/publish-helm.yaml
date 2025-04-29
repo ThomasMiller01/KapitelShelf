@@ -50,12 +50,26 @@ jobs:
           publish_dir: ./helm/deploy
           keep_files: true
 
+      - name: Extract version
+        id: extract_version
+        working-directory: ./helm/kapitelshelf
+        run: |
+          VERSION=$(grep '^version:' Chart.yaml | awk '{print $2}')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Extract CHANGELOG for Release
         id: extract_changelog
         working-directory: ./helm/kapitelshelf
         run: |
           # Pull the section under "## vX.Y.Z" up until the next "## "
-          sed -n '/^## v'"$VERSION"'/,/^## /{ /^## /d;p }' CHANGELOG.md > release_body.txt
+          awk '
+            # when we hit the header for our version, start printing
+            $0 ~ "^## '"$VERSION"'[[:space:]]*\\(" { flag=1 }
+            # if we see a new header (and have already started), exit
+            /^## / && flag && $0 !~ "^## '"$VERSION"'[[:space:]]*\\(" { exit }
+            # if flag is set, print the line
+            flag { print }
+          ' CHANGELOG.md > release_body.txt
 
           # Export it as a multiline ENV for use in create-release
           echo 'RELEASE_BODY<<EOF' >> $GITHUB_ENV
@@ -64,8 +78,11 @@ jobs:
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: helm@v${{ env.VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: helm@${{ env.VERSION }}
           release_name: "Helm Chart v${{ env.VERSION }}"
           body: ${{ env.RELEASE_BODY }}
           draft: false
