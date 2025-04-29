@@ -59,38 +59,38 @@ jobs:
         working-directory: ./backend/src/KapitelShelf.Data.Migrations
         shell: pwsh
         run: |
-          ./build.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
+          ./build.ps1 -repository docker.io -tag latest
 
-      - name: Retag images and push to $DOCKERHUB_REGISTRY
+      - name: Retag images and push to docker.io
         run: |
-          echo "Re-tag and push '$VERSION' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$VERSION
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$VERSION
+          echo "Re-tag and push '$VERSION' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest docker.io/thomasmiller01/kapitelshelf-migrator:$VERSION
+          docker push docker.io/thomasmiller01/kapitelshelf-migrator:$VERSION
 
-          echo "Re-tag and push '$MAJOR_MINOR' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
+          docker push docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          echo "Re-tag and push '$MAJOR' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          docker push docker.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
 
-          echo "Push 'latest' to $DOCKERHUB_REGISTRY"
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:latest
+          echo "Push 'latest' to docker.io"
+          docker push docker.io/thomasmiller01/kapitelshelf-migrator:latest
 
-      - name: Retag images and push to $GITHUB_REGISTRY
+      - name: Retag images and push to ghcr.io
         run: |
-          echo "Re-tag and push '$VERSION' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$VERSION
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$VERSION
+          echo "Re-tag and push '$VERSION' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest ghcr.io/thomasmiller01/kapitelshelf-migrator:$VERSION
+          docker push ghcr.io/thomasmiller01/kapitelshelf-migrator:$VERSION
 
-          echo "Re-tag and push '$MAJOR_MINOR' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
+          docker push ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          echo "Re-tag and push '$MAJOR' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-migrator:latest ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
+          docker push ghcr.io/thomasmiller01/kapitelshelf-migrator:$MAJOR
 
       - name: Extract CHANGELOG for Release
         id: extract_changelog

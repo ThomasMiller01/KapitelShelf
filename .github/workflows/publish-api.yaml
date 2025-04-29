@@ -56,38 +56,38 @@ jobs:
         working-directory: ./backend/src/KapitelShelf.Api
         shell: pwsh
         run: |
-          ./build.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
+          ./build.ps1 -repository docker.io -tag latest
 
       - name: Retag images and push to ${{ env.DOCKERHUB_REGISTRY }}
         run: |
-          echo "Re-tag and push '$VERSION' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
+          echo "Re-tag and push '$VERSION' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-api:latest docker.io/thomasmiller01/kapitelshelf-api:$VERSION
+          docker push docker.io/thomasmiller01/kapitelshelf-api:$VERSION
 
-          echo "Re-tag and push '$MAJOR_MINOR' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-api:latest docker.io/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          docker push docker.io/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
+          echo "Re-tag and push '$MAJOR' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-api:latest docker.io/thomasmiller01/kapitelshelf-api:$MAJOR
+          docker push docker.io/thomasmiller01/kapitelshelf-api:$MAJOR
 
-          echo "Push 'latest' to $DOCKERHUB_REGISTRY"
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest
+          echo "Push 'latest' to docker.io"
+          docker push docker.io/thomasmiller01/kapitelshelf-api:latest
 
       - name: Retag images and push to ${{ env.GITHUB_REGISTRY }}
         run: |
-          echo "Re-tag and push '$VERSION' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
+          echo "Re-tag and push '$VERSION' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-api:latest ghcr.io/thomasmiller01/kapitelshelf-api:$VERSION
+          docker push ghcr.io/thomasmiller01/kapitelshelf-api:$VERSION
 
-          echo "Re-tag and push '$MAJOR_MINOR' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-api:latest ghcr.io/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          docker push ghcr.io/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
+          echo "Re-tag and push '$MAJOR' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-api:latest ghcr.io/thomasmiller01/kapitelshelf-api:$MAJOR
+          docker push ghcr.io/thomasmiller01/kapitelshelf-api:$MAJOR
 
       - name: Extract CHANGELOG for Release
         id: extract_changelog
