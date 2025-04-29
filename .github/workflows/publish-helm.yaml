@@ -8,6 +8,9 @@ on:
     paths:
       - 'helm/kapitelshelf/Chart.yaml' # only run when the Chart version got bumped
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -35,10 +38,15 @@ jobs:
         run: |
           npm run build:helm
 
+      - name: Move artifacts into /helm folder
+        run: |
+          mkdir -p ./helm/deploy/helm
+          mv ./helm/build/* ./helm/deploy/helm/
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./helm/build
+          publish_dir: ./helm/deploy
           publish_branch: gh-pages
           force_orphan: true
