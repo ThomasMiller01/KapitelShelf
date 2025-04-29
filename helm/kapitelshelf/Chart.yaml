@@ -4,7 +4,7 @@ description: KapitelShelf helm chart for deploying the KapitelShelf application
   stack, including optional PostgreSQL database support. Provides a flexible
   setup for both self-contained and external database configurations.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "N/A"
 dependencies:
   - name: postgresql
