@@ -1,11 +1,20 @@
 # Installation Guide
 
+Installation methods:
+
+- [Helm Chart](#helm-chart)
 - [docker-compose](#docker-compose)
 - [Docker (Standalone)](#docker-standalone)
 
 > ⚠️ KapitelShelf relies on a PostgreSQL database, but the docker images **do not** include a database server - you must configure your own PostgreSQL connection via environment variables.
 
-> ℹ️ If you'd prefer not to install and manage PostgreSQL yourself, the below docker-compose file will automatically set up and configure a PostgreSQL instance for you.
+> ℹ️ If you'd prefer not to install and manage PostgreSQL yourself, either the below helm chart or the docker-compose file will automatically set up and configure a PostgreSQL instance for you.
+
+## Helm Chart
+
+Deploy KapitelShelf to your Kubernetes cluster using a Helm chart. This option installs all core components (frontend, API, migrator) and can optionally provision a bundled PostgreSQL database.
+
+For a detailed installation and configuration options see the Helm chart's [README](../helm/kapitelshelf/README.md).
 
 ## docker-compose
 
