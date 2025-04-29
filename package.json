@@ -9,7 +9,7 @@
     "build:helm": "npm run build:helm:addrepos && npm run build:helm:dependencies && npm run build:helm:chart",
     "build:helm:addrepos": "helm repo add bitnami https://charts.bitnami.com/bitnami",
     "build:helm:dependencies": "cd ./helm/kapitelshelf && helm dependency build",
-    "build:helm:chart": "cd ./helm && rimraf ./build && mkdir build && helm package ./kapitelshelf --destination ./build && helm repo index ./build --url https://thomasmiller01.github.io/kapitelshelf/helm",
+    "build:helm:chart": "cd ./helm && rimraf ./build && mkdir build && helm package ./kapitelshelf --destination ./build && helm repo index ./build --url https://thomasmiller01.github.io/KapitelShelf/helm",
     "dev:docker-compose": "cd ./development && docker-compose up",
     "dev:frontend": "cd ./frontend && npm run dev",
     "dev:backend:api": "cd ./backend/src && dotnet watch run --project KapitelShelf.Api",

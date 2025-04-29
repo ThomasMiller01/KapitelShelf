@@ -48,5 +48,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./helm/deploy
-          publish_branch: gh-pages
-          force_orphan: true
