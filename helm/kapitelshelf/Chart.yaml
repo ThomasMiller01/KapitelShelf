@@ -1,5 +1,5 @@
 apiVersion: v2
-name: kapitelshelf
+name: KapitelShelf
 description: KapitelShelf helm chart for deploying the KapitelShelf application
   stack, including optional PostgreSQL database support. Provides a flexible
   setup for both self-contained and external database configurations.
