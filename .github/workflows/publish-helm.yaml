@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'helm/kapitelshelf/Chart.yaml' # only run when the Chart version got bumped
+      - 'helm/kapitelshelf/CHANGELOG.md' # only run when the Chart version got bumped
 
 permissions:
   contents: write
