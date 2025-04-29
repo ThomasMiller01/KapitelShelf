@@ -19,14 +19,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: '23'
-
-    - name: Install dev dependencies
-      run: npm install
-
     - name: Log in to GHCR
       uses: docker/login-action@v3
       with:
@@ -42,20 +34,28 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Extract version from package.json
+      working-directory: ./frontend
       id: version
       run: |
+        # grab the version key
         VERSION=$(jq -r .version package.json)
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+        # split into major / minor
         MAJOR=${VERSION%%.*}
-        MINOR=$(echo $VERSION | cut -d. -f2)
         echo "MAJOR=$MAJOR" >> $GITHUB_ENV
+
+        MINOR=$(echo $VERSION | cut -d. -f2)
         echo "MINOR=$MINOR" >> $GITHUB_ENV
+        
+        # combine for x.y tag
         echo "MAJOR_MINOR=$MAJOR.$MINOR" >> $GITHUB_ENV
 
     - name: Build initial docker image and push
+      working-directory: ./frontend
       shell: pwsh
       run: |
-        ./myscript.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
+        ./build.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
 
     - name: Retag images and push to $DOCKERHUB_REGISTRY
       run: |
