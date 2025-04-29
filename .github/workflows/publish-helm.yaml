@@ -12,11 +12,11 @@ permissions:
   contents: write
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -49,3 +49,24 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./helm/deploy
           keep_files: true
+
+      - name: Extract CHANGELOG for Release
+        id: extract_changelog
+        working-directory: ./helm/kapitelshelf
+        run: |
+          # Pull the section under "## vX.Y.Z" up until the next "## "
+          sed -n '/^## v'"$VERSION"'/,/^## /{ /^## /d;p }' CHANGELOG.md > release_body.txt
+
+          # Export it as a multiline ENV for use in create-release
+          echo 'RELEASE_BODY<<EOF' >> $GITHUB_ENV
+          cat release_body.txt >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: helm@v${{ env.VERSION }}
+          release_name: "Helm Chart v${{ env.VERSION }}"
+          body: ${{ env.RELEASE_BODY }}
+          draft: false
+          prerelease: false

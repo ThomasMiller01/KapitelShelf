@@ -17,74 +17,95 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Log in to GHCR
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Log in to DockerHub
-      uses: docker/login-action@v3
-      with:
-        registry: docker.io
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Extract version from KapitelShelf.Api.csproj
-      working-directory: ./backend/src/KapitelShelf.Api
-      id: version
-      run: |
-        # grab the first <Version>…</Version> value
-        VERSION=$(grep -m1 '<Version>' KapitelShelf.Api.csproj \
-          | sed -E 's/.*<Version>([^<]+)<\/Version>.*/\1/')
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Extract version from KapitelShelf.Api.csproj
+        working-directory: ./backend/src/KapitelShelf.Api
+        id: version
+        run: |
+          # grab the first <Version>…</Version> value
+          VERSION=$(grep -m1 '<Version>' KapitelShelf.Api.csproj \
+            | sed -E 's/.*<Version>([^<]+)<\/Version>.*/\1/')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-        # split into major / minor
-        MAJOR=${VERSION%%.*}
-        echo "MAJOR=$MAJOR" >> $GITHUB_ENV
+          # split into major / minor
+          MAJOR=${VERSION%%.*}
+          echo "MAJOR=$MAJOR" >> $GITHUB_ENV
 
-        MINOR=$(echo "$VERSION" | cut -d. -f2)
-        echo "MINOR=$MINOR" >> $GITHUB_ENV
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          echo "MINOR=$MINOR" >> $GITHUB_ENV
 
-        # combine for x.y tag
-        echo "MAJOR_MINOR=$MAJOR.$MINOR" >> $GITHUB_ENV
+          # combine for x.y tag
+          echo "MAJOR_MINOR=$MAJOR.$MINOR" >> $GITHUB_ENV
 
-    - name: Build initial docker image and push
-      working-directory: ./backend/src/KapitelShelf.Api
-      shell: pwsh
-      run: |
-        ./build.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
+      - name: Build initial docker image and push
+        working-directory: ./backend/src/KapitelShelf.Api
+        shell: pwsh
+        run: |
+          ./build.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
 
-    - name: Retag images and push to $DOCKERHUB_REGISTRY
-      run: |
-        echo "Re-tag and push '$VERSION' to $DOCKERHUB_REGISTRY"
-        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
-        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
+      - name: Retag images and push to ${{ env.DOCKERHUB_REGISTRY }}
+        run: |
+          echo "Re-tag and push '$VERSION' to $DOCKERHUB_REGISTRY"
+          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
+          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
 
-        echo "Re-tag and push '$MAJOR_MINOR' to $DOCKERHUB_REGISTRY"
-        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
-        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to $DOCKERHUB_REGISTRY"
+          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
 
-        echo "Re-tag and push '$MAJOR' to $DOCKERHUB_REGISTRY"
-        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
-        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
+          echo "Re-tag and push '$MAJOR' to $DOCKERHUB_REGISTRY"
+          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
+          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
 
-        echo "Push 'latest' to $DOCKERHUB_REGISTRY"
-        docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest
+          echo "Push 'latest' to $DOCKERHUB_REGISTRY"
+          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest
 
-    - name: Retag images and push to $GITHUB_REGISTRY
-      run: |
-        echo "Re-tag and push '$VERSION' to $GITHUB_REGISTRY"
-        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
-        docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
+      - name: Retag images and push to ${{ env.GITHUB_REGISTRY }}
+        run: |
+          echo "Re-tag and push '$VERSION' to $GITHUB_REGISTRY"
+          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
+          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$VERSION
 
-        echo "Re-tag and push '$MAJOR_MINOR' to $GITHUB_REGISTRY"
-        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
-        docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to $GITHUB_REGISTRY"
+          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
+          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR_MINOR
 
-        echo "Re-tag and push '$MAJOR' to $GITHUB_REGISTRY"
-        docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
-        docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
+          echo "Re-tag and push '$MAJOR' to $GITHUB_REGISTRY"
+          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-api:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
+          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-api:$MAJOR
+
+      - name: Extract CHANGELOG for Release
+        id: extract_changelog
+        working-directory: ./backend/src/KapitelShelf.Api
+        run: |
+          # Pull the section under "## vX.Y.Z" up until the next "## "
+          sed -n '/^## v'"$VERSION"'/,/^## /{ /^## /d;p }' CHANGELOG.md > release_body.txt
+
+          # Export it as a multiline ENV for use in create-release
+          echo 'RELEASE_BODY<<EOF' >> $GITHUB_ENV
+          cat release_body.txt >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: api@v${{ env.VERSION }}
+          release_name: "API v${{ env.VERSION }}"
+          body: ${{ env.RELEASE_BODY }}
+          draft: false
+          prerelease: false
