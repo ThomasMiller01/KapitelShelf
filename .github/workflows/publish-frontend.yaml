@@ -55,38 +55,50 @@ jobs:
         working-directory: ./frontend
         shell: pwsh
         run: |
-          ./build.ps1 -repository $DOCKERHUB_REGISTRY -tag latest
+          ./build.ps1 -repository docker.io -tag latest
 
-      - name: Retag images and push to $DOCKERHUB_REGISTRY
+      - name: Retag images and push to docker.io
         run: |
-          echo "Re-tag and push '$VERSION' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
+          echo "Re-tag and push '$VERSION' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$VERSION
+          docker push docker.io/thomasmiller01/kapitelshelf-frontend:$VERSION
 
-          echo "Re-tag and push '$MAJOR_MINOR' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          docker push docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to $DOCKERHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
+          if [ "$MAJOR" != "0" ]; then
+            echo "Re-tag and push '$MAJOR' to docker.io"
+            docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+            docker push docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+          else
+            echo "Skipping major tag (MAJOR=0)"
+          fi
 
-          echo "Push 'latest' to $DOCKERHUB_REGISTRY"
-          docker push $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest
+          echo "Push 'latest' to docker.io"
+          docker push docker.io/thomasmiller01/kapitelshelf-frontend:latest
 
-      - name: Retag images and push to $GITHUB_REGISTRY
+      - name: Retag images and push to ghcr.io
         run: |
-          echo "Re-tag and push '$VERSION' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$VERSION
+          echo "Re-tag and push '$VERSION' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$VERSION
+          docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$VERSION
 
-          echo "Re-tag and push '$MAJOR_MINOR' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
 
-          echo "Re-tag and push '$MAJOR' to $GITHUB_REGISTRY"
-          docker tag $DOCKERHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:latest $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
-          docker push $GITHUB_REGISTRY/thomasmiller01/kapitelshelf-frontend:$MAJOR
+          if [ "$MAJOR" != "0" ]; then
+            echo "Re-tag and push '$MAJOR' to ghcr.io"
+            docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+            docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+          else
+            echo "Skipping major tag (MAJOR=0)"
+          fi
+
+          echo "Push 'latest' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
+          docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
 
       - name: Extract CHANGELOG for Release
         id: extract_changelog
@@ -109,6 +121,8 @@ jobs:
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: frontend@${{ env.VERSION }}
