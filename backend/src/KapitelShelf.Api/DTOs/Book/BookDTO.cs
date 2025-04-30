@@ -1,13 +1,20 @@
-﻿// <copyright file="BookModel.cs" company="KapitelShelf">
+﻿// <copyright file="BookDTO.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Data.Models;
+using KapitelShelf.Api.DTOs.Author;
+using KapitelShelf.Api.DTOs.Category;
+using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Tag;
+
+namespace KapitelShelf.Api.DTOs.Book;
 
 /// <summary>
-/// The book model.
+/// The book dto.
 /// </summary>
-public class BookModel
+public class BookDTO
 {
     /// <summary>
     /// Gets or sets the book id.
@@ -32,50 +39,40 @@ public class BookModel
     /// <summary>
     /// Gets or sets the page number.
     /// </summary>
-    public int? PageNumber { get; set; }
-
-    /// <summary>
-    /// Gets or sets the series id.
-    /// </summary>
-    public Guid SeriesId { get; set; }
+    public int PageNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the series.
     /// </summary>
-    public SeriesModel? Series { get; set; }
+    public SeriesDTO Series { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the series number.
     /// </summary>
-    public int SeriesNumber { get; set; } = 0;
-
-    /// <summary>
-    /// Gets or sets the author id.
-    /// </summary>
-    public Guid? AuthorId { get; set; }
+    public int SeriesNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the author.
     /// </summary>
-    public AuthorModel? Author { get; set; }
-
-    /// <summary>
-    /// Gets or sets the cover.
-    /// </summary>
-    public FileInfoModel? Cover { get; set; }
-
-    /// <summary>
-    /// Gets or sets the location.
-    /// </summary>
-    public LocationModel? Location { get; set; }
+    public AuthorDTO? Author { get; set; }
 
     /// <summary>
     /// Gets or sets the categories.
     /// </summary>
-    public ICollection<BookCategoryModel> Categories { get; set; } = [];
+    public IList<CategoryDTO> Categories { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the tags.
     /// </summary>
-    public ICollection<BookTagModel> Tags { get; set; } = [];
+    public IList<TagDTO> Tags { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the cover.
+    /// </summary>
+    public FileInfoDTO? Cover { get; set; }
+
+    /// <summary>
+    /// Gets or sets the location.
+    /// </summary>
+    public LocationDTO? Location { get; set; }
 }

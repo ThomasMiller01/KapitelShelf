@@ -1,19 +1,20 @@
-﻿// <copyright file="BookDTO.cs" company="KapitelShelf">
+﻿// <copyright file="CreateBookDTO.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Author;
+using KapitelShelf.Api.DTOs.Category;
+using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Tag;
+
+namespace KapitelShelf.Api.DTOs.Book;
 
 /// <summary>
-/// The book dto.
+/// The create dto for a book.
 /// </summary>
-public class BookDTO
+public class CreateBookDTO
 {
-    /// <summary>
-    /// Gets or sets the book id.
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Gets or sets the title.
     /// </summary>
@@ -37,35 +38,30 @@ public class BookDTO
     /// <summary>
     /// Gets or sets the series.
     /// </summary>
-    public SeriesDTO Series { get; set; } = null!;
+    public CreateSeriesDTO? Series { get; set; }
 
     /// <summary>
     /// Gets or sets the series number.
     /// </summary>
-    public int? SeriesNumber { get; set; } = null;
+    public int? SeriesNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the author.
     /// </summary>
-    public AuthorDTO? Author { get; set; }
+    public CreateAuthorDTO? Author { get; set; }
 
     /// <summary>
     /// Gets or sets the categories.
     /// </summary>
-    public IList<CategoryDTO> Categories { get; set; } = [];
+    public IList<CreateCategoryDTO> Categories { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the tags.
     /// </summary>
-    public IList<TagDTO> Tags { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the cover.
-    /// </summary>
-    public FileInfoDTO? Cover { get; set; }
+    public IList<CreateTagDTO> Tags { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the location.
     /// </summary>
-    public LocationDTO? Location { get; set; }
+    public CreateLocationDTO? Location { get; set; }
 }

@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -32,14 +32,32 @@ public class BookMappingProfile : Profile
             .ForMember(dest => dest.Series, opt => opt.MapFrom(src =>
                 src.Series ?? new SeriesModel { Id = src.SeriesId }))
         .ReverseMap()
-            .ForMember(dest => dest.Categories, opt => opt.MapFrom(src =>
+            .ForMember(dest => dest.Categories, opt => opt.MapFrom((src, dest, destMember, ctx) =>
                 src.Categories
-                    .Select(x => new BookCategoryModel { CategoryId = x.Id })
+                    .Select(x => new BookCategoryModel
+                    {
+                        BookId = src.Id,
+                        Book = dest,
+                        CategoryId = x.Id,
+                        Category = ctx.Mapper.Map<CategoryModel>(x),
+                    })
                     .ToList()))
-            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src =>
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom((src, dest, destMember, ctx) =>
                 src.Tags
-                    .Select(x => new BookTagModel { TagId = x.Id })
+                    .Select(x => new BookTagModel
+                    {
+                        BookId = src.Id,
+                        Book = dest,
+                        TagId = x.Id,
+                        Tag = ctx.Mapper.Map<TagModel>(x),
+                    })
                     .ToList()))
             .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.Series.Id));
+
+        CreateMap<CreateBookDTO, BookModel>()
+            .ForMember(dest => dest.Categories, opt => opt.Ignore())
+            .ForMember(dest => dest.Tags, opt => opt.Ignore())
+            .ForMember(dest => dest.Series, opt => opt.Ignore())
+            .ForMember(dest => dest.Cover, opt => opt.Ignore());
     }
 }

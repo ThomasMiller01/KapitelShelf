@@ -1,16 +1,16 @@
-﻿// <copyright file="TagDTO.cs" company="KapitelShelf">
+﻿// <copyright file="CategoryDTO.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Api.DTOs;
+namespace KapitelShelf.Api.DTOs.Category;
 
 /// <summary>
-/// The tag dto.
+/// The category dto.
 /// </summary>
-public class TagDTO
+public class CategoryDTO
 {
     /// <summary>
-    /// Gets or sets the tag id.
+    /// Gets or sets the category id.
     /// </summary>
     public Guid Id { get; set; }
 

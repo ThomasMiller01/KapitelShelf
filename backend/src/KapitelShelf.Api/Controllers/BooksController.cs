@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +14,16 @@ namespace KapitelShelf.Api.Controllers;
 /// </summary>
 /// <param name="logger">The logger.</param>
 /// <param name="logic">The books logic.</param>
+/// <param name="bookStorage">The book storage.</param>
 [ApiController]
 [Route("books")]
-public class BooksController(ILogger<BooksController> logger, BooksLogic logic) : ControllerBase
+public class BooksController(ILogger<BooksController> logger, BooksLogic logic, BookStorage bookStorage) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
     private readonly BooksLogic logic = logic;
+
+    private readonly BookStorage bookStorage = bookStorage;
 
     /// <summary>
     /// Fetch all books.
@@ -44,14 +47,14 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic) 
     /// <summary>
     /// Create a new book.
     /// </summary>
-    /// <param name="bookDto">The new book dto.</param>
+    /// <param name="createBookDto">The create book dto.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost]
-    public async Task<ActionResult<BookDTO>> CreateBook(BookDTO bookDto)
+    public async Task<ActionResult<BookDTO>> CreateBook(CreateBookDTO createBookDto)
     {
         try
         {
-            var book = await this.logic.CreateBookAsync(bookDto);
+            var book = await this.logic.CreateBookAsync(createBookDto);
 
             return CreatedAtAction(nameof(CreateBook), book);
         }
@@ -67,13 +70,13 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic) 
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error creating book with title: {Title}", bookDto?.Title);
+            this.logger.LogError(ex, "Error creating book with title: {Title}", createBookDto?.Title);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
 
     /// <summary>
-    /// Get books by the series id.
+    /// Get book by the id.
     /// </summary>
     /// <param name="bookId">The id of the book to get.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
@@ -98,27 +101,34 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic) 
     }
 
     /// <summary>
-    /// Update a book.
+    /// Add the cover for a book.
     /// </summary>
-    /// <param name="bookId">The id of the book to update.</param>
-    /// <param name="bookDto">The updated book dto.</param>
-    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpPut("{bookId:guid}")]
-    public async Task<IActionResult> UpdateBook(Guid bookId, BookDTO bookDto)
+    /// <param name="bookId">The id of the book to get.</param>
+    /// <param name="coverFile">The cover image file.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPost("{bookId}/cover")]
+    public async Task<IActionResult> AddBookCover(Guid bookId, IFormFile coverFile)
     {
         try
         {
-            var book = await this.logic.UpdateBookAsync(bookId, bookDto);
+            var book = await this.logic.GetBookByIdAsync(bookId);
             if (book is null)
             {
                 return NotFound();
             }
 
-            return NoContent();
+            // save file to disk
+            var cover = await this.bookStorage.Save(bookId, coverFile);
+
+            book.Cover = cover;
+
+            await this.logic.UpdateBookAsync(bookId, book);
+
+            return Ok();
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error updating book with Id: {BookId}", bookId);
+            this.logger.LogError(ex, "Error adding book cover");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

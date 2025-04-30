@@ -2,7 +2,9 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
+
+namespace KapitelShelf.Api.DTOs.Series;
 
 /// <summary>
 /// The series dto.

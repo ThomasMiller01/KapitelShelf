@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -20,5 +20,7 @@ public class AuthorMappingProfile : Profile
     {
         CreateMap<AuthorModel, AuthorDTO>()
             .ReverseMap();
+
+        CreateMap<CreateAuthorDTO, AuthorModel>();
     }
 }

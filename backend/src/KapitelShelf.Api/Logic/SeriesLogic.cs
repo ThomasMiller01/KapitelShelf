@@ -4,6 +4,8 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
 

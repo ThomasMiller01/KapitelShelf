@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -20,5 +20,7 @@ public class CategoryMappingProfile : Profile
     {
         CreateMap<CategoryModel, CategoryDTO>()
             .ReverseMap();
+
+        CreateMap<CreateCategoryDTO, CategoryModel>();
     }
 }
