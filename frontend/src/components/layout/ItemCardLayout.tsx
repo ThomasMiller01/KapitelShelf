@@ -58,7 +58,7 @@ const ItemCardLayout = ({
       <Box component={link ? CardActionArea : "div"}>
         <CardMedia
           component="img"
-          height={isMobile ? "200" : "230"}
+          height={isMobile ? "200" : "250"}
           image={imageSrc ?? undefined}
           onError={() => setImageSrc(fallbackImage ?? "")}
           alt={title || "Item image"}
