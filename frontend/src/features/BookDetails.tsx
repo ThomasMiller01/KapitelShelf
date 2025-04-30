@@ -38,7 +38,10 @@ interface BookDetailsProps {
 
 const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
-  const [imageSrc, setImageSrc] = useState(book.cover?.filePath ?? bookCover);
+
+  const [imageSrc, setImageSrc] = useState(
+    book.cover?.filePath ? `/${book.cover?.filePath}` : bookCover
+  );
 
   return (
     <Box p={3}>

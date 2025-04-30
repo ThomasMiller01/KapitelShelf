@@ -48,7 +48,7 @@ const ItemCardLayout = ({
 
   const { isMobile } = useMobile();
 
-  const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
+  const [imageSrc, setImageSrc] = useState(image ? `/${image}` : fallbackImage);
 
   return (
     <Card
@@ -56,15 +56,13 @@ const ItemCardLayout = ({
       onClick={() => link && navigate(link)}
     >
       <Box component={link ? CardActionArea : "div"}>
-        {image && (
-          <CardMedia
-            component="img"
-            height={isMobile ? "200" : "230"}
-            image={imageSrc ?? undefined}
-            onError={() => setImageSrc(fallbackImage)}
-            alt={title || "Item image"}
-          />
-        )}
+        <CardMedia
+          component="img"
+          height={isMobile ? "200" : "230"}
+          image={imageSrc ?? undefined}
+          onError={() => setImageSrc(fallbackImage ?? "")}
+          alt={title || "Item image"}
+        />
         {badge && (
           <Box position="absolute" top="2px" right="5px">
             <Avatar
