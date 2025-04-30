@@ -36,7 +36,7 @@ const BookDetailPage = (): ReactElement => {
   }
 
   if (isError || book === undefined || book === null) {
-    return <RequestErrorCard onRetry={refetch} />;
+    return <RequestErrorCard itemName="book" onRetry={refetch} />;
   }
 
   return (

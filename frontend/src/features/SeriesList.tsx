@@ -36,7 +36,7 @@ const SeriesList = (): ReactElement => {
   }
 
   if (isError) {
-    return <RequestErrorCard onRetry={refetch} />;
+    return <RequestErrorCard itemName="series" onRetry={refetch} />;
   }
 
   if (data?.pages[0].totalCount === 0) {
