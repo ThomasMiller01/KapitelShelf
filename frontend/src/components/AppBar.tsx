@@ -1,9 +1,21 @@
-import { Avatar, Box, Stack, TextField } from "@mui/material";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import {
+  Avatar,
+  Box,
+  Link,
+  SpeedDial,
+  SpeedDialAction,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useSnackbar } from "notistack";
 import type { ReactElement } from "react";
 
 import { ThemeToggle } from "../contexts/ThemeContext";
 import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
-
 interface TopAppBarProps {
   open: boolean;
   toggle: () => void;
@@ -26,6 +38,7 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => (
         alignItems="center"
         ml="30px"
       >
+        <AddBookActions />
         <ThemeToggle />
         <Avatar
           alt="User Avatar"
@@ -36,3 +49,78 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => (
     </Box>
   </ResponsiveDrawerAppBar>
 );
+
+const AddBookActions = (): ReactElement => {
+  const { enqueueSnackbar } = useSnackbar();
+  return (
+    <SpeedDial
+      ariaLabel="Add Book"
+      direction="down"
+      icon={<AddBoxIcon />}
+      sx={{
+        height: "36px",
+        ">.MuiButtonBase-root": {
+          width: "36px",
+          height: "36px",
+          bgcolor: "transparent",
+          boxShadow: "none",
+          color: "text.primary",
+        },
+        "& .MuiSpeedDial-actions": {
+          position: "absolute",
+          top: "40px",
+          "& .MuiSpeedDialAction-fab": {
+            width: "40px",
+            height: "40px",
+            color: "text.primary",
+          },
+        },
+      }}
+    >
+      <SpeedDialAction
+        icon={<NoteAddIcon />}
+        slotProps={{ tooltip: { title: "Create Book" } }}
+        onClick={() =>
+          enqueueSnackbar(
+            <Stack direction="row" spacing={0.8} alignItems="center">
+              <Typography>Not Implemented</Typography>
+              <Link
+                href="https://github.com/ThomasMiller01/KapitelShelf/issues/52"
+                fontSize="1rem"
+                target="_blank"
+                rel="noreferrer"
+              >
+                [Issue #52]
+              </Link>
+            </Stack>,
+            {
+              variant: "info",
+            }
+          )
+        }
+      />
+      <SpeedDialAction
+        icon={<FileUploadIcon />}
+        slotProps={{ tooltip: { title: "Import Book" } }}
+        onClick={() =>
+          enqueueSnackbar(
+            <Stack direction="row" spacing={0.8} alignItems="center">
+              <Typography>Not Implemented</Typography>
+              <Link
+                href="https://github.com/ThomasMiller01/KapitelShelf/issues/52"
+                fontSize="1rem"
+                target="_blank"
+                rel="noreferrer"
+              >
+                [Issue #52]
+              </Link>
+            </Stack>,
+            {
+              variant: "info",
+            }
+          )
+        }
+      />
+    </SpeedDial>
+  );
+};
