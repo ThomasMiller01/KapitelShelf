@@ -1,9 +1,11 @@
-import { Grid } from "@mui/material";
+import { Grid, Link, Stack, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useSnackbar } from "notistack";
 import type { ReactElement } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 import LoadingCard from "../components/base/feedback/LoadingCard";
+import { NoItemsFoundCard } from "../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import SeriesCard from "../components/SeriesCard";
 import { seriesApi } from "../lib/api/KapitelShelf.Api";
@@ -12,6 +14,8 @@ import type { SeriesSummaryDTO } from "../lib/api/KapitelShelf.Api/api";
 const PAGE_SIZE = 24;
 
 const SeriesList = (): ReactElement => {
+  const { enqueueSnackbar } = useSnackbar();
+
   const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
     useInfiniteQuery({
       queryKey: ["series"],
@@ -33,6 +37,33 @@ const SeriesList = (): ReactElement => {
 
   if (isError) {
     return <RequestErrorCard onRetry={refetch} />;
+  }
+
+  if (data?.pages[0].totalCount === 0) {
+    return (
+      <NoItemsFoundCard
+        itemName="Series"
+        useLogo
+        onCreate={() =>
+          enqueueSnackbar(
+            <Stack direction="row" spacing={0.8} alignItems="center">
+              <Typography>Not Implemented</Typography>
+              <Link
+                href="https://github.com/ThomasMiller01/KapitelShelf/issues/46"
+                fontSize="1rem"
+                target="_blank"
+                rel="noreferrer"
+              >
+                [Issue #46]
+              </Link>
+            </Stack>,
+            {
+              variant: "info",
+            }
+          )
+        }
+      />
+    );
   }
 
   return (
