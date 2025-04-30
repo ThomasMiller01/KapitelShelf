@@ -2,9 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
-using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
@@ -16,16 +14,16 @@ namespace KapitelShelf.Api.Controllers;
 /// </summary>
 /// <param name="logger">The logger.</param>
 /// <param name="logic">The books logic.</param>
-/// <param name="mapper">The mapper.</param>
+/// <param name="bookStorage">The book storage.</param>
 [ApiController]
 [Route("books")]
-public class BooksController(ILogger<BooksController> logger, BooksLogic logic, IMapper mapper) : ControllerBase
+public class BooksController(ILogger<BooksController> logger, BooksLogic logic, BookStorage bookStorage) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
     private readonly BooksLogic logic = logic;
 
-    private readonly IMapper mapper = mapper;
+    private readonly BookStorage bookStorage = bookStorage;
 
     /// <summary>
     /// Fetch all books.
@@ -119,13 +117,8 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
                 return NotFound();
             }
 
-            // TODO save file to disk
-            var filePath = "TODO";
-            var sha256 = "TODO";
-
-            var cover = this.mapper.Map<FileInfoDTO>(coverFile);
-            cover.FilePath = filePath;
-            cover.Sha256 = sha256;
+            // save file to disk
+            var cover = await this.bookStorage.Save(bookId, coverFile);
 
             book.Cover = cover;
 
@@ -135,7 +128,7 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error fetching book");
+            this.logger.LogError(ex, "Error adding book cover");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

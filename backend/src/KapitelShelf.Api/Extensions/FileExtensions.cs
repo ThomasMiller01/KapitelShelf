@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace KapitelShelf.Api.Extensions;
@@ -26,11 +27,23 @@ public static class FileExtensions
         }
 
         var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType(file.Name, out var contentType))
+        if (!provider.TryGetContentType(file.FileName, out var contentType))
         {
             contentType = DEFAULT_CONTENT_TYPE;
         }
 
         return contentType;
+    }
+
+    /// <summary>
+    /// Calculate the SHA256 checksum of a file.
+    /// </summary>
+    /// <param name="stream">The file stream.</param>
+    /// <returns>The SHA256 checksum.</returns>
+    public static string Checksum(this FileStream stream)
+    {
+        using var sha = SHA256.Create();
+        var hash = sha.ComputeHash(stream);
+        return Convert.ToHexStringLower(hash);
     }
 }
