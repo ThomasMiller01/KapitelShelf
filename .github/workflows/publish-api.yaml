@@ -58,7 +58,7 @@ jobs:
         run: |
           ./build.ps1 -repository docker.io -tag latest
 
-      - name: Retag images and push to ${{ env.DOCKERHUB_REGISTRY }}
+      - name: Retag images and push to to docker.io
         run: |
           echo "Re-tag and push '$VERSION' to docker.io"
           docker tag docker.io/thomasmiller01/kapitelshelf-api:latest docker.io/thomasmiller01/kapitelshelf-api:$VERSION
@@ -79,7 +79,7 @@ jobs:
           echo "Push 'latest' to docker.io"
           docker push docker.io/thomasmiller01/kapitelshelf-api:latest
 
-      - name: Retag images and push to ${{ env.GITHUB_REGISTRY }}
+      - name: Retag images and push to ghcr.io
         run: |
           echo "Re-tag and push '$VERSION' to ghcr.io"
           docker tag docker.io/thomasmiller01/kapitelshelf-api:latest ghcr.io/thomasmiller01/kapitelshelf-api:$VERSION
