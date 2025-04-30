@@ -42,7 +42,7 @@ const SeriesDetailPage = (): ReactElement => {
   }
 
   if (isError) {
-    return <RequestErrorCard onRetry={refetch} />;
+    return <RequestErrorCard itemName="series" onRetry={refetch} />;
   }
 
   return (

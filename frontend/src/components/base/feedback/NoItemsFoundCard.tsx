@@ -33,7 +33,7 @@ export const NoItemsFoundCard = ({
       textTransform="uppercase"
       color="text.secondary"
     >
-      Try adding your first series below!
+      Try adding your first {itemName} below!
     </Typography>
     {onCreate && (
       <Button variant="outlined" onClick={onCreate}>

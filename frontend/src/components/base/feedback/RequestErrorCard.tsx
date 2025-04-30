@@ -1,13 +1,15 @@
 import { Box, Button, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 
-interface ErrorBooksProps {
+interface RequestErrorCardProps {
+  itemName: string;
   onRetry?: () => void;
 }
 
 export const RequestErrorCard = ({
+  itemName,
   onRetry,
-}: ErrorBooksProps): ReactElement => (
+}: RequestErrorCardProps): ReactElement => (
   <Box
     sx={{
       display: "flex",
@@ -19,7 +21,7 @@ export const RequestErrorCard = ({
     }}
   >
     <Typography variant="h5" color="error" gutterBottom>
-      Failed to load books.
+      Failed to load {itemName}.
     </Typography>
     <Typography variant="body1" color="text.secondary" mb={3}>
       Please check your internet connection or try again later.
