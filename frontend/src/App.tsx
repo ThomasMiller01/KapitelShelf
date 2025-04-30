@@ -1,3 +1,4 @@
+import { SnackbarProvider } from "notistack";
 import type { ReactElement } from "react";
 import { BrowserRouter } from "react-router-dom";
 
@@ -7,9 +8,11 @@ import AppRoutes from "./routes/routes";
 function App(): ReactElement {
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <SnackbarProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }
