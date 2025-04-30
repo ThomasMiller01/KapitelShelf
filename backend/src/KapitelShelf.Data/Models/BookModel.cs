@@ -52,7 +52,7 @@ public class BookModel
     /// <summary>
     /// Gets or sets the author id.
     /// </summary>
-    public Guid AuthorId { get; set; }
+    public Guid? AuthorId { get; set; }
 
     /// <summary>
     /// Gets or sets the author.

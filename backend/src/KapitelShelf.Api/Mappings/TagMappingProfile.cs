@@ -18,7 +18,8 @@ public class TagMappingProfile : Profile
     /// </summary>
     public TagMappingProfile()
     {
-        CreateMap<TagModel, TagDTO>();
+        CreateMap<TagModel, TagDTO>()
+            .ReverseMap();
 
         CreateMap<CreateTagDTO, TagModel>();
     }

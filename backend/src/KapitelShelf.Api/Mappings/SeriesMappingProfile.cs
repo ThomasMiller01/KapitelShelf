@@ -18,7 +18,8 @@ public class SeriesMappingProfile : Profile
     /// </summary>
     public SeriesMappingProfile()
     {
-        CreateMap<SeriesModel, SeriesDTO>();
+        CreateMap<SeriesModel, SeriesDTO>()
+            .ReverseMap();
 
         CreateMap<SeriesModel, SeriesSummaryDTO>()
             .ForMember(dest => dest.LastVolume, opt =>

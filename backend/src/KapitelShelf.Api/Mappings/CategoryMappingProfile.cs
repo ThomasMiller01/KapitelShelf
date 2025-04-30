@@ -18,7 +18,8 @@ public class CategoryMappingProfile : Profile
     /// </summary>
     public CategoryMappingProfile()
     {
-        CreateMap<CategoryModel, CategoryDTO>();
+        CreateMap<CategoryModel, CategoryDTO>()
+            .ReverseMap();
 
         CreateMap<CreateCategoryDTO, CategoryModel>();
     }

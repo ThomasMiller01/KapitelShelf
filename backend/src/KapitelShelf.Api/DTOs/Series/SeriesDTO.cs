@@ -22,12 +22,12 @@ public class SeriesDTO
     /// <summary>
     /// Gets or sets the creation time.
     /// </summary>
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the update time.
     /// </summary>
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the total number of books.

@@ -18,7 +18,8 @@ public class AuthorMappingProfile : Profile
     /// </summary>
     public AuthorMappingProfile()
     {
-        CreateMap<AuthorModel, AuthorDTO>();
+        CreateMap<AuthorModel, AuthorDTO>()
+            .ReverseMap();
 
         CreateMap<CreateAuthorDTO, AuthorModel>();
     }

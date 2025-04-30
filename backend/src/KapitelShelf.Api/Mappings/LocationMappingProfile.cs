@@ -18,7 +18,8 @@ public class LocationMappingProfile : Profile
     /// </summary>
     public LocationMappingProfile()
     {
-        CreateMap<LocationModel, LocationDTO>();
+        CreateMap<LocationModel, LocationDTO>()
+            .ReverseMap();
 
         CreateMap<LocationType, LocationTypeDTO>()
             .ReverseMap();
