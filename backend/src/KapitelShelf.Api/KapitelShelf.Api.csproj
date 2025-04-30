@@ -40,8 +40,4 @@
     <ProjectReference Include="..\KapitelShelf.Data\KapitelShelf.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
 </Project>

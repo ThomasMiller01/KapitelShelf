@@ -134,32 +134,6 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
     }
 
     /// <summary>
-    /// Update a book.
-    /// </summary>
-    /// <param name="bookId">The id of the book to update.</param>
-    /// <param name="bookDto">The updated book dto.</param>
-    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpPut("{bookId}")]
-    public async Task<IActionResult> UpdateBook(Guid bookId, BookDTO bookDto)
-    {
-        try
-        {
-            var book = await this.logic.UpdateBookAsync(bookId, bookDto);
-            if (book is null)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error updating book with Id: {BookId}", bookId);
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
-
-    /// <summary>
     /// Delete a book.
     /// </summary>
     /// <param name="bookId">The id of the book to delete.</param>

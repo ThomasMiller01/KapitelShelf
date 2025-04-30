@@ -2,8 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.DTOs.FileInfo;
-
 namespace KapitelShelf.Api.DTOs.Location;
 
 /// <summary>
@@ -20,9 +18,4 @@ public class CreateLocationDTO
     /// Gets or sets the url.
     /// </summary>
     public string? Url { get; set; }
-
-    /// <summary>
-    /// Gets or sets the fileinfo.
-    /// </summary>
-    public CreateFileInfoDTO? FileInfo { get; set; }
 }

@@ -4,7 +4,6 @@
 
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Category;
-using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
@@ -60,11 +59,6 @@ public class CreateBookDTO
     /// Gets or sets the tags.
     /// </summary>
     public IList<CreateTagDTO> Tags { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the cover.
-    /// </summary>
-    public CreateFileInfoDTO? Cover { get; set; }
 
     /// <summary>
     /// Gets or sets the location.
