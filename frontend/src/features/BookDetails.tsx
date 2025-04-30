@@ -76,7 +76,7 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
           </Typography>
 
           <Grid container rowSpacing={1} columnSpacing={2.5} mb={2}>
-            {book.pageNumber && (
+            {book.pageNumber !== null && (
               <MetadataGridItem icon={<DescriptionIcon />}>
                 {book.pageNumber} pages
               </MetadataGridItem>
