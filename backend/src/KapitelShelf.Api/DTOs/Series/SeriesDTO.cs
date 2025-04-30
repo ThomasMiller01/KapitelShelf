@@ -1,13 +1,13 @@
-﻿// <copyright file="SeriesSummaryDTO.cs" company="KapitelShelf">
+﻿// <copyright file="SeriesDTO.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Api.DTOs;
+namespace KapitelShelf.Api.DTOs.Series;
 
 /// <summary>
 /// The series dto.
 /// </summary>
-public class SeriesSummaryDTO
+public class SeriesDTO
 {
     /// <summary>
     /// Gets or sets the series id.
@@ -22,15 +22,15 @@ public class SeriesSummaryDTO
     /// <summary>
     /// Gets or sets the creation time.
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the update time.
     /// </summary>
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     /// <summary>
-    /// Gets or sets the last volume of this series.
+    /// Gets or sets the total number of books.
     /// </summary>
-    public BookDTO LastVolume { get; set; } = null!;
+    public int TotalBooks { get; set; }
 }

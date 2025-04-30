@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -18,7 +18,6 @@ public class FileInfoMappingProfile : Profile
     /// </summary>
     public FileInfoMappingProfile()
     {
-        CreateMap<FileInfoModel, FileInfoDTO>()
-            .ReverseMap();
+        CreateMap<FileInfoModel, FileInfoDTO>();
     }
 }

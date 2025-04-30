@@ -2,7 +2,14 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Author;
+using KapitelShelf.Api.DTOs.Category;
+using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Tag;
+
+namespace KapitelShelf.Api.DTOs.Book;
 
 /// <summary>
 /// The book dto.
@@ -32,7 +39,7 @@ public class BookDTO
     /// <summary>
     /// Gets or sets the page number.
     /// </summary>
-    public int? PageNumber { get; set; }
+    public int PageNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the series.
@@ -42,7 +49,7 @@ public class BookDTO
     /// <summary>
     /// Gets or sets the series number.
     /// </summary>
-    public int? SeriesNumber { get; set; } = null;
+    public int SeriesNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the author.

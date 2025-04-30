@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -18,10 +18,12 @@ public class LocationMappingProfile : Profile
     /// </summary>
     public LocationMappingProfile()
     {
-        CreateMap<LocationModel, LocationDTO>()
-            .ReverseMap();
+        CreateMap<LocationModel, LocationDTO>();
 
         CreateMap<LocationType, LocationTypeDTO>()
             .ReverseMap();
+
+        CreateMap<CreateLocationDTO, LocationModel>()
+            .ForMember(dest => dest.FileInfo, opt => opt.Ignore());
     }
 }

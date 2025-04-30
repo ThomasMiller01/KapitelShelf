@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -18,7 +18,8 @@ public class TagMappingProfile : Profile
     /// </summary>
     public TagMappingProfile()
     {
-        CreateMap<TagModel, TagDTO>()
-            .ReverseMap();
+        CreateMap<TagModel, TagDTO>();
+
+        CreateMap<CreateTagDTO, TagModel>();
     }
 }

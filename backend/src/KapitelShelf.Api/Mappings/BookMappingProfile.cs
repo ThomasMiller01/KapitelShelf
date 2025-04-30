@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -41,5 +41,11 @@ public class BookMappingProfile : Profile
                     .Select(x => new BookTagModel { TagId = x.Id })
                     .ToList()))
             .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.Series.Id));
+
+        CreateMap<CreateBookDTO, BookModel>()
+            .ForMember(dest => dest.Categories, opt => opt.Ignore())
+            .ForMember(dest => dest.Tags, opt => opt.Ignore())
+            .ForMember(dest => dest.Series, opt => opt.Ignore())
+            .ForMember(dest => dest.Cover, opt => opt.Ignore());
     }
 }

@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
@@ -44,14 +44,14 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic) 
     /// <summary>
     /// Create a new book.
     /// </summary>
-    /// <param name="bookDto">The new book dto.</param>
+    /// <param name="createBookDto">The create book dto.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost]
-    public async Task<ActionResult<BookDTO>> CreateBook(BookDTO bookDto)
+    public async Task<ActionResult<BookDTO>> CreateBook(CreateBookDTO createBookDto)
     {
         try
         {
-            var book = await this.logic.CreateBookAsync(bookDto);
+            var book = await this.logic.CreateBookAsync(createBookDto);
 
             return CreatedAtAction(nameof(CreateBook), book);
         }
@@ -67,13 +67,13 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic) 
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error creating book with title: {Title}", bookDto?.Title);
+            this.logger.LogError(ex, "Error creating book with title: {Title}", createBookDto?.Title);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
 
     /// <summary>
-    /// Get books by the series id.
+    /// Get book by the id.
     /// </summary>
     /// <param name="bookId">The id of the book to get.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>

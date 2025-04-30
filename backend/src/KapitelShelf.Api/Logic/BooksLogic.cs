@@ -3,7 +3,8 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -84,34 +85,59 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <summary>
     /// Create a new book.
     /// </summary>
-    /// <param name="bookDto">The new book dto.</param>
+    /// <param name="createBookDTO">The create book dto.</param>
     /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<BookDTO?> CreateBookAsync(BookDTO bookDto)
+    public async Task<BookDTO?> CreateBookAsync(CreateBookDTO createBookDTO)
     {
-        if (bookDto is null)
+        if (createBookDTO is null)
         {
             return null;
         }
 
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        var duplicates = await this.GetDuplicates(bookDto);
+        // TODO: checksum
+        // check for duplicates
+        var duplicates = await this.GetDuplicates(createBookDTO.Title, createBookDTO.Location?.Url, null);
         if (duplicates.Any())
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
         }
 
-        var book = this.mapper.Map<BookModel>(bookDto);
-        book.Id = Guid.NewGuid();
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        foreach (var category in book.Categories)
+        if (createBookDTO.Series is null)
         {
-            category.CategoryId = book.Id;
+            // create new series based on book title
+            createBookDTO.Series = new CreateSeriesDTO
+            {
+                Name = createBookDTO.Title,
+            };
         }
 
-        foreach (var tag in book.Tags)
+        var series = this.mapper.Map<SeriesModel>(createBookDTO.Series);
+        context.Series.Add(series);
+        await context.SaveChangesAsync();
+
+        var book = this.mapper.Map<BookModel>(createBookDTO);
+        book.Id = Guid.NewGuid();
+
+        book.SeriesId = series.Id;
+
+        foreach (var category in createBookDTO.Categories)
         {
-            tag.BookId = book.Id;
+            book.Categories.Add(new BookCategoryModel
+            {
+                BookId = book.Id,
+                Category = this.mapper.Map<CategoryModel>(category),
+            });
+        }
+
+        foreach (var tag in createBookDTO.Tags)
+        {
+            book.Tags.Add(new BookTagModel
+            {
+                BookId = book.Id,
+                Tag = this.mapper.Map<TagModel>(tag),
+            });
         }
 
         context.Books.Add(book);
@@ -164,15 +190,20 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return this.mapper.Map<BookDTO>(book);
     }
 
-    private async Task<IList<BookModel>> GetDuplicates(BookDTO bookDto)
+    private async Task<IList<BookModel>> GetDuplicates(string title, string? url, string? checksum)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        var bookDtoSHA = bookDto.Location?.FileInfo?.Sha256;
-
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
         return await context.Books
             .AsNoTracking()
-            .Where(x => x.Title == bookDto.Title)
+            .Include(x => x.Location)
+                .ThenInclude(x => x.FileInfo)
+            .Where(x =>
+                x.Title == title ||
+                (url != null && x.Location.Url == url) ||
+                (checksum != null && x.Location.FileInfo.Sha256 == checksum))
             .ToListAsync();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
     }
 }

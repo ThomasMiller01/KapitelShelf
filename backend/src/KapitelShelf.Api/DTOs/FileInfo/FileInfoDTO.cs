@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Api.DTOs;
+namespace KapitelShelf.Api.DTOs.FileInfo;
 
 /// <summary>
 /// Gets or sets the fileinfo dto.

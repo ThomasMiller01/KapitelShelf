@@ -3,7 +3,7 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -18,13 +18,14 @@ public class SeriesMappingProfile : Profile
     /// </summary>
     public SeriesMappingProfile()
     {
-        CreateMap<SeriesModel, SeriesDTO>()
-            .ReverseMap();
+        CreateMap<SeriesModel, SeriesDTO>();
 
         CreateMap<SeriesModel, SeriesSummaryDTO>()
             .ForMember(dest => dest.LastVolume, opt =>
                 opt.MapFrom(src => src.Books
                     .OrderByDescending(b => b.SeriesNumber)
                     .FirstOrDefault()));
+
+        CreateMap<CreateSeriesDTO, SeriesModel>();
     }
 }

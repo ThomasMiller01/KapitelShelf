@@ -2,7 +2,9 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Api.DTOs
+using KapitelShelf.Api.DTOs.FileInfo;
+
+namespace KapitelShelf.Api.DTOs.Location
 {
     /// <summary>
     /// The location dto.
