@@ -13,22 +13,18 @@ const SeriesCard = ({ serie }: SeriesCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
   const book = serie.lastVolume;
-  if (book === undefined) {
-    return <></>;
-  }
-
   return (
     <ItemCardLayout
       title={serie.name}
       link={`/library/series/${serie.id}`}
-      image={book.cover?.filePath}
+      image={book?.cover?.filePath}
       fallbackImage={bookCover}
       metadata={[
         <MetadataItem
           key="author"
           sx={{ fontSize: isMobile ? "0.7rem" : "0.9rem" }}
         >
-          {book.author?.firstName} {book.author?.lastName}
+          {book?.author?.firstName} {book?.author?.lastName}
         </MetadataItem>,
       ]}
     />

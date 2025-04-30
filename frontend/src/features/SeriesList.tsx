@@ -83,7 +83,7 @@ const SeriesList = (): ReactElement => {
           .filter((serie): serie is SeriesSummaryDTO => Boolean(serie))
           .map((serie) => (
             <Grid key={serie.id} size={1}>
-              {serie.lastVolume && <SeriesCard serie={serie} />}
+              <SeriesCard serie={serie} />
             </Grid>
           ))}
       </Grid>
