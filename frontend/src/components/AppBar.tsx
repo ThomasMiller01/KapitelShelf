@@ -12,7 +12,6 @@ import {
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ThemeToggle } from "../contexts/ThemeContext";
 import { useMobile } from "../hooks/useMobile";
 import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
 interface TopAppBarProps {
@@ -41,9 +40,9 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
           ml={isMobile ? "15px" : "30px"}
         >
           <AddBookActions />
-          <Box ml={isMobile ? "10px !important" : ""}>
+          {/* <Box ml={isMobile ? "10px !important" : ""}>
             <ThemeToggle />
-          </Box>
+          </Box> */}
           <Avatar
             alt="User Avatar"
             src="/avatar.png"
