@@ -8,21 +8,14 @@ import {
   IconButton,
   Stack,
   Toolbar,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { ReactElement, ReactNode } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
+import FancyText from "../FancyText";
 
 export const DRAWER_WIDTH = 280;
-
-const ProductNameText = styled(Typography)({
-  fontFamily: "Playwrite AU SA",
-  fontWeight: "200",
-  lineHeight: "2",
-  fontFeatureSettings: '"calt"',
-});
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -82,9 +75,9 @@ export const ResponsiveDrawer = ({
             />
           )}
           {name && (
-            <ProductNameText variant="h6" noWrap sx={{ width: "100%" }}>
+            <FancyText variant="h6" noWrap sx={{ width: "100%" }}>
               {name}
-            </ProductNameText>
+            </FancyText>
           )}
         </Stack>
         {!isMobile && (
