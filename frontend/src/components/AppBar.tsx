@@ -4,15 +4,13 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import {
   Avatar,
   Box,
-  Link,
   SpeedDial,
   SpeedDialAction,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
-import { useSnackbar } from "notistack";
 import type { ReactElement } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { ThemeToggle } from "../contexts/ThemeContext";
 import { useMobile } from "../hooks/useMobile";
@@ -58,7 +56,8 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
 };
 
 const AddBookActions = (): ReactElement => {
-  const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
+
   return (
     <SpeedDial
       ariaLabel="Add Book"
@@ -87,46 +86,12 @@ const AddBookActions = (): ReactElement => {
       <SpeedDialAction
         icon={<NoteAddIcon />}
         slotProps={{ tooltip: { title: "Create Book" } }}
-        onClick={() =>
-          enqueueSnackbar(
-            <Stack direction="row" spacing={0.8} alignItems="center">
-              <Typography>Not Implemented</Typography>
-              <Link
-                href="https://github.com/ThomasMiller01/KapitelShelf/issues/52"
-                fontSize="1rem"
-                target="_blank"
-                rel="noreferrer"
-              >
-                [Issue #52]
-              </Link>
-            </Stack>,
-            {
-              variant: "info",
-            }
-          )
-        }
+        onClick={() => navigate("/library/books/create")}
       />
       <SpeedDialAction
         icon={<FileUploadIcon />}
         slotProps={{ tooltip: { title: "Import Book" } }}
-        onClick={() =>
-          enqueueSnackbar(
-            <Stack direction="row" spacing={0.8} alignItems="center">
-              <Typography>Not Implemented</Typography>
-              <Link
-                href="https://github.com/ThomasMiller01/KapitelShelf/issues/52"
-                fontSize="1rem"
-                target="_blank"
-                rel="noreferrer"
-              >
-                [Issue #52]
-              </Link>
-            </Stack>,
-            {
-              variant: "info",
-            }
-          )
-        }
+        onClick={() => navigate("/library/books/import")}
       />
     </SpeedDial>
   );
