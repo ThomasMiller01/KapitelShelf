@@ -54,7 +54,6 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
               alt={book.title ?? "Book Cover"}
               style={{
                 width: "100%",
-                // maxWidth: 340,
                 borderRadius: 2,
                 boxShadow: "3",
                 marginLeft: isMobile ? "auto" : 0,
@@ -71,7 +70,7 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
             {book.title}
           </Typography>
 
-          <Typography variant="body1" color="text.secondary" paragraph>
+          <Typography variant="body1" color="text.secondary">
             {book.description}
           </Typography>
 
