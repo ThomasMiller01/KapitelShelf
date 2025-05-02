@@ -3,6 +3,7 @@ import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
+import EditableLocationDetails from "./EditableLocationDetails";
 
 const EditableBookDetails = (): ReactElement => {
   const { isMobile } = useMobile();
@@ -55,7 +56,7 @@ const EditableBookDetails = (): ReactElement => {
               <TextField label="Volume" variant="filled" />
             </Stack>
 
-            <Typography>TODO: Location</Typography>
+            <EditableLocationDetails />
 
             <Typography>TODO: Categories</Typography>
 

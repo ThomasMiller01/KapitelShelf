@@ -5,26 +5,16 @@ import { Button, Stack } from "@mui/material";
 import { type ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { LocationTypeToString } from "../lib/api/KapitelShelf.Api";
 import type {
   LocationDTO,
   LocationTypeDTO,
 } from "../lib/api/KapitelShelf.Api/api";
-
-const RealWorldTypes = [
-  0, // Physical
-  5, // Library
-];
-
-const LocalTypes = [
-  1, // KapitelShelf
-];
-
-const UrlTypes = [
-  2, // Kindle
-  3, // Skoobe
-  4, // Onleihe
-];
+import {
+  LocalTypes,
+  LocationTypeToString,
+  RealWorldTypes,
+  UrlTypes,
+} from "../utils/LocationTypeUtils";
 
 const RealWorldTypeToText = (type: LocationTypeDTO | undefined): string => {
   switch (type) {
@@ -90,7 +80,7 @@ const LocationDetails = ({ location }: LocationDetailsProps): ReactElement => {
           startIcon={<AutoStoriesIcon />}
           onClick={() => (window.location.href = location.url ?? "")}
         >
-          Read on {LocationTypeToString(location.type)}
+          Read on {LocationTypeToString[location.type ?? -1]}
         </Button>
       </Stack>
     );
