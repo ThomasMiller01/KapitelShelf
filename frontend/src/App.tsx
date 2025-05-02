@@ -1,3 +1,7 @@
+import "dayjs/locale/en-gb";
+
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { SnackbarProvider } from "notistack";
 import type { ReactElement } from "react";
 import { BrowserRouter } from "react-router-dom";
@@ -10,7 +14,12 @@ function App(): ReactElement {
     <ThemeProvider>
       <SnackbarProvider>
         <BrowserRouter>
-          <AppRoutes />
+          <LocalizationProvider
+            dateAdapter={AdapterDayjs}
+            adapterLocale="en-gb"
+          >
+            <AppRoutes />
+          </LocalizationProvider>
         </BrowserRouter>
       </SnackbarProvider>
     </ThemeProvider>

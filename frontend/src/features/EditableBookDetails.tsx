@@ -1,4 +1,5 @@
 import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
+import { DateField } from "@mui/x-date-pickers/DateField";
 import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
@@ -45,7 +46,7 @@ const EditableBookDetails = (): ReactElement => {
             <Stack direction="row" spacing={2} justifyContent="space-between">
               <TextField label="Page Number" variant="filled" type="number" />
 
-              <TextField label="Release Date" variant="filled" />
+              <DateField label="Release Date" variant="filled" />
             </Stack>
 
             <TextField label="Author" variant="filled" />
