@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   FormControl,
   FormHelperText,
   InputLabel,
@@ -7,6 +8,7 @@ import {
   Select,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { type ReactElement, useState } from "react";
 
@@ -54,7 +56,9 @@ const LocationSelection = ({
         <MenuItem value="4">Onleihe</MenuItem>
         <MenuItem value="5">Library</MenuItem>
       </Select>
-      <FormHelperText> </FormHelperText>
+      {UrlTypes.includes(parseInt(locationType)) && (
+        <FormHelperText> </FormHelperText>
+      )}
     </FormControl>
   </Box>
 );
@@ -69,7 +73,22 @@ const LocationSettings = ({
   const locationTypeInt = parseInt(locationType);
 
   if (LocalTypes.includes(locationTypeInt)) {
-    return <Box>Local</Box>;
+    return (
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={{ xs: 1, md: 2 }}
+        width="100%"
+        alignItems="center"
+      >
+        <Button
+          variant="contained"
+          sx={{ width: "fit-content", height: "fit-content" }}
+        >
+          Upload Book
+        </Button>
+        <Typography>TODO: Current Book File</Typography>
+      </Stack>
+    );
   } else if (UrlTypes.includes(locationTypeInt)) {
     return (
       <Box width="100%">
