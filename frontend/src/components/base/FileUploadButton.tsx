@@ -17,13 +17,14 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 interface FileUploadButtonProps extends ButtonProps {
-  children: ReactNode;
   onFileChange?: (file: File) => void;
+  children: ReactNode;
 }
 
 const FileUploadButton = ({
-  children,
   onFileChange,
+  children,
+  startIcon = <FileUploadIcon />,
   ...props
 }: FileUploadButtonProps): ReactElement => {
   const [currentFile, setCurrentFile] = useState<File>();
@@ -43,7 +44,7 @@ const FileUploadButton = ({
       role={undefined}
       variant="contained"
       tabIndex={-1}
-      startIcon={<FileUploadIcon />}
+      startIcon={startIcon}
       {...props}
     >
       {children}
