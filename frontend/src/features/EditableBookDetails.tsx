@@ -1,7 +1,8 @@
-import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
+import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
 import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
+import FileUploadButton from "../components/base/FileUploadButton";
 import { useMobile } from "../hooks/useMobile";
 import EditableLocationDetails from "./EditableLocationDetails";
 
@@ -26,9 +27,7 @@ const EditableBookDetails = (): ReactElement => {
                 marginRight: isMobile ? "auto" : 0,
               }}
             />
-            <Button variant="contained" sx={{ width: "fit-content" }}>
-              Upload Cover
-            </Button>
+            <FileUploadButton>Upload Cover</FileUploadButton>
           </Stack>
         </Grid>
 

@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   FormControl,
   FormHelperText,
   InputLabel,
@@ -10,8 +9,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useCallback, useState } from "react";
 
+import FileUploadButton from "../components/base/FileUploadButton";
+import { useNotImplemented } from "../hooks/useNotImplemented";
 import {
   LocalTypes,
   LocationTypeToString,
@@ -20,6 +21,7 @@ import {
 
 const EditableLocationDetails = (): ReactElement => {
   const [locationType, setLocationType] = useState("1");
+
   return (
     <Box>
       <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
@@ -44,7 +46,7 @@ const LocationSelection = ({
 }: LocationSelectionProps): ReactElement => (
   <Box>
     <FormControl variant="filled" sx={{ width: 150 }}>
-      <InputLabel>Book Location</InputLabel>
+      <InputLabel>Location</InputLabel>
       <Select
         value={locationType}
         onChange={({ target: { value } }) => setLocationType(value)}
@@ -73,38 +75,63 @@ const LocationSettings = ({
   const locationTypeInt = parseInt(locationType);
 
   if (LocalTypes.includes(locationTypeInt)) {
-    return (
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={{ xs: 1, md: 2 }}
-        width="100%"
-        alignItems="center"
-      >
-        <Button
-          variant="contained"
-          sx={{ width: "fit-content", height: "fit-content" }}
-        >
-          Upload Book
-        </Button>
-        <Typography>TODO: Current Book File</Typography>
-      </Stack>
-    );
+    return <LocalLocationSettings />;
   } else if (UrlTypes.includes(locationTypeInt)) {
-    return (
-      <Box width="100%">
-        <TextField
-          label="Url"
-          helperText={`Link to the book on ${
-            LocationTypeToString[locationTypeInt ?? -1]
-          }`}
-          variant="filled"
-          fullWidth
-        />
-      </Box>
-    );
+    return <UrlLocationSettings locationTypeInt={locationTypeInt} />;
   }
 
   return <></>;
 };
+
+const LocalLocationSettings = (): ReactElement => {
+  const [currentFile, setCurrentFile] = useState<File>();
+  const trigger = useNotImplemented({ issueNumber: 58 });
+
+  const onFileChange = useCallback(
+    (file: File) => {
+      setCurrentFile(file);
+      trigger();
+    },
+    [trigger]
+  );
+
+  return (
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={{ xs: 1, md: 2 }}
+      width="100%"
+      alignItems="center"
+    >
+      <Box>
+        <FileUploadButton
+          onFileChange={onFileChange}
+          sx={{ whiteSpace: "nowrap" }}
+        >
+          Upload Book
+        </FileUploadButton>
+      </Box>
+      <Typography>{currentFile?.name}</Typography>
+    </Stack>
+  );
+};
+
+interface UrlLocationSettingsProps {
+  locationTypeInt: number;
+}
+
+const UrlLocationSettings = ({
+  locationTypeInt,
+}: UrlLocationSettingsProps): ReactElement => (
+  <Box width="100%">
+    <TextField
+      label="Url"
+      helperText={`Link to the book on ${
+        LocationTypeToString[locationTypeInt ?? -1]
+      }`}
+      variant="filled"
+      fullWidth
+    />
+  </Box>
+);
 
 export default EditableLocationDetails;
