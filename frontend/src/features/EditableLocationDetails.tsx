@@ -85,12 +85,13 @@ const LocationSettings = ({
 
 const LocalLocationSettings = (): ReactElement => {
   const [currentFile, setCurrentFile] = useState<File>();
-  const trigger = useNotImplemented({ issueNumber: 58 });
+  const trigger = useNotImplemented();
 
   const onFileChange = useCallback(
     (file: File) => {
       setCurrentFile(file);
-      trigger();
+      // eslint-disable-next-line no-magic-numbers
+      trigger(58);
     },
     [trigger]
   );
