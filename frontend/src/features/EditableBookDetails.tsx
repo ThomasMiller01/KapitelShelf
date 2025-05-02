@@ -1,9 +1,10 @@
-import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
+import { Box, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import FileUploadButton from "../components/base/FileUploadButton";
+import ItemList from "../components/base/ItemList";
 import { useMobile } from "../hooks/useMobile";
 import EditableLocationDetails from "./EditableLocationDetails";
 
@@ -58,9 +59,9 @@ const EditableBookDetails = (): ReactElement => {
 
             <EditableLocationDetails />
 
-            <Typography>TODO: Categories</Typography>
+            <ItemList itemName="Category" onChange={(items: string[]) => {}} />
 
-            <Typography>TODO: Tags</Typography>
+            <ItemList itemName="Tag" onChange={(items: string[]) => {}} />
           </Stack>
         </Grid>
       </Grid>
