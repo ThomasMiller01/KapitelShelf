@@ -13,8 +13,6 @@ import { styled } from "@mui/material/styles";
 import type { ReactElement, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useMobile } from "../../hooks/useMobile";
-
 const BackButtonTooltip = styled((props: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: props.className }} />
 ))(() => ({
@@ -46,38 +44,45 @@ const BackButton = ({ backTooltip }: BackButtonProps): ReactElement => {
 interface ItemAppBarProps {
   title: string | null | undefined;
   addons?: ReactNode[];
+  actions?: ReactNode[];
 }
 
-const ItemAppBar = ({ title, addons = [] }: ItemAppBarProps): ReactElement => {
-  const { isMobile } = useMobile();
-
-  return (
-    <AppBar position="static" color="default" elevation={1}>
-      <Toolbar sx={{ py: "8px" }}>
-        <BackButton backTooltip={"Go back"} />
-        <Stack direction={{ xs: "column", md: "row" }} spacing={1} width="100%">
-          <Typography
-            variant="h6"
-            sx={{
-              textAlign: "left",
-              ml: "10px !important",
-              mr: "10px !important",
-              width: "fit-content",
-            }}
-          >
-            {title}
-          </Typography>
-          <Stack
-            direction="row"
-            spacing={2}
-            justifyContent={isMobile ? "end" : "start"}
-          >
+const ItemAppBar = ({
+  title,
+  addons = [],
+  actions = [],
+}: ItemAppBarProps): ReactElement => (
+  <AppBar position="static" color="default" elevation={1}>
+    <Toolbar sx={{ py: "8px" }}>
+      <BackButton backTooltip={"Go back"} />
+      <Stack direction={{ xs: "column", md: "row" }} spacing={1} width="100%">
+        <Typography
+          variant="h6"
+          sx={{
+            textAlign: "left",
+            ml: "10px !important",
+            mr: "10px !important",
+            width: "fit-content",
+          }}
+        >
+          {title}
+        </Typography>
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="space-between"
+          width="100%"
+        >
+          <Stack direction="row" spacing={2}>
             {addons}
           </Stack>
+          <Stack direction="row" spacing={2} justifyContent={"end"}>
+            {actions}
+          </Stack>
         </Stack>
-      </Toolbar>
-    </AppBar>
-  );
-};
+      </Stack>
+    </Toolbar>
+  </AppBar>
+);
 
 export default ItemAppBar;

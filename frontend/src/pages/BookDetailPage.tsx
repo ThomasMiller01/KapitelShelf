@@ -1,4 +1,6 @@
-import { Box } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { Box, IconButton } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { useParams } from "react-router-dom";
@@ -7,12 +9,14 @@ import LoadingCard from "../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../components/base/ItemAppBar";
 import BookDetails from "../features/BookDetails";
+import { useNotImplemented } from "../hooks/useNotImplemented";
 import { booksApi } from "../lib/api/KapitelShelf.Api";
 
 const BookDetailPage = (): ReactElement => {
   const { bookId } = useParams<{
     bookId: string;
   }>();
+  const trigger = useNotImplemented();
 
   const {
     data: book,
@@ -41,7 +45,17 @@ const BookDetailPage = (): ReactElement => {
 
   return (
     <Box>
-      <ItemAppBar title={book?.title} />
+      <ItemAppBar
+        title={book?.title}
+        actions={[
+          <IconButton onClick={() => trigger(61)}>
+            <EditIcon />
+          </IconButton>,
+          <IconButton onClick={() => trigger(62)}>
+            <DeleteIcon />
+          </IconButton>,
+        ]}
+      />
       <BookDetails book={book} />
     </Box>
   );

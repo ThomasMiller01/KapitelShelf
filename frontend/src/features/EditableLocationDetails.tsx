@@ -12,6 +12,7 @@ import {
 import { type ReactElement, useCallback, useState } from "react";
 
 import FileUploadButton from "../components/base/FileUploadButton";
+import { useMobile } from "../hooks/useMobile";
 import { useNotImplemented } from "../hooks/useNotImplemented";
 import {
   LocalTypes,
@@ -43,27 +44,31 @@ interface LocationSelectionProps {
 const LocationSelection = ({
   locationType,
   setLocationType,
-}: LocationSelectionProps): ReactElement => (
-  <Box>
-    <FormControl variant="filled" sx={{ width: 150 }}>
-      <InputLabel>Location</InputLabel>
-      <Select
-        value={locationType}
-        onChange={({ target: { value } }) => setLocationType(value)}
-      >
-        <MenuItem value="0">Physical</MenuItem>
-        <MenuItem value="1">KapitelShelf</MenuItem>
-        <MenuItem value="2">Kindle</MenuItem>
-        <MenuItem value="3">Skoobe</MenuItem>
-        <MenuItem value="4">Onleihe</MenuItem>
-        <MenuItem value="5">Library</MenuItem>
-      </Select>
-      {UrlTypes.includes(parseInt(locationType)) && (
-        <FormHelperText> </FormHelperText>
-      )}
-    </FormControl>
-  </Box>
-);
+}: LocationSelectionProps): ReactElement => {
+  const { isMobile } = useMobile();
+
+  return (
+    <Box>
+      <FormControl variant="filled" sx={{ width: 150 }}>
+        <InputLabel>Location</InputLabel>
+        <Select
+          value={locationType}
+          onChange={({ target: { value } }) => setLocationType(value)}
+        >
+          <MenuItem value="0">Physical</MenuItem>
+          <MenuItem value="1">KapitelShelf</MenuItem>
+          <MenuItem value="2">Kindle</MenuItem>
+          <MenuItem value="3">Skoobe</MenuItem>
+          <MenuItem value="4">Onleihe</MenuItem>
+          <MenuItem value="5">Library</MenuItem>
+        </Select>
+        {!isMobile && UrlTypes.includes(parseInt(locationType)) && (
+          <FormHelperText> </FormHelperText>
+        )}
+      </FormControl>
+    </Box>
+  );
+};
 
 interface LocationSettingsProps {
   locationType: string;

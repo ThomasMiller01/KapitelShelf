@@ -43,7 +43,7 @@ const EditableBookDetails = (): ReactElement => {
             />
 
             <Stack direction="row" spacing={2} justifyContent="space-between">
-              <TextField label="Page Number" variant="filled" />
+              <TextField label="Page Number" variant="filled" type="number" />
 
               <TextField label="Release Date" variant="filled" />
             </Stack>
@@ -52,7 +52,7 @@ const EditableBookDetails = (): ReactElement => {
 
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
               <TextField label="Series" variant="filled" fullWidth />
-              <TextField label="Volume" variant="filled" />
+              <TextField label="Volume" variant="filled" type="number" />
             </Stack>
 
             <EditableLocationDetails />
