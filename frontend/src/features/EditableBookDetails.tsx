@@ -8,9 +8,11 @@ const EditableBookDetails = (): ReactElement => {
   const { isMobile } = useMobile();
 
   return (
-    <Box mt={isMobile ? "30px" : "15px"}>
-      <Grid container spacing={{ xs: 1, md: 12 }} columns={11}>
-        <Grid size={{ xs: 11, md: 3 }}>
+    <Box mt="15px">
+      <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
+        <Grid size={{ xs: 0, md: 1 }}></Grid>
+
+        <Grid size={{ xs: 11, md: 2.5 }}>
           <Stack spacing={1} alignItems="center">
             <img
               src={bookCover}
@@ -29,7 +31,7 @@ const EditableBookDetails = (): ReactElement => {
           </Stack>
         </Grid>
 
-        <Grid size={{ xs: 11, md: 8 }} mt="20px">
+        <Grid size={{ xs: 11, md: 6.5 }} mt="20px">
           <Stack spacing={2} width={isMobile ? "100%" : "60%"}>
             <TextField label="Title" variant="filled" />
 
