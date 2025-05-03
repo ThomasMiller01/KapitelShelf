@@ -16,6 +16,7 @@ interface EditableBookResult {
     key: "pageNumber" | "seriesNumber"
   ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleReleaseDateChange: (date: Dayjs | null) => void;
+  handleAuthorChange: (author: string) => void;
   setCategories: (items: string[]) => void;
   setTags: (items: string[]) => void;
 }
@@ -72,14 +73,42 @@ export const useEditableBook = (initial?: BookDTO): EditableBookResult => {
     }));
   }, []);
 
+  const handleAuthorChange = useCallback((author: string) => {
+    if (!author) {
+      setBook((b) => ({ ...b, author: undefined }));
+      return;
+    }
+
+    let firstName: string;
+    let lastName: string;
+
+    const parts = author.split(" ");
+    if (parts.length === 1) {
+      firstName = parts[0];
+      lastName = "";
+    } else {
+      // everything except last goes into firstName
+      firstName = parts.slice(0, -1).join(" ");
+      lastName = parts[parts.length - 1];
+    }
+
+    setBook((b) => ({
+      ...b,
+      author: {
+        firstName,
+        lastName: lastName || null,
+      },
+    }));
+  }, []);
+
   const setCategories = useCallback((items: string[]) => {
-    const dto: CategoryDTO[] = items.map((name) => ({ name }));
-    setBook((v) => ({ ...v, categories: dto }));
+    const categories: CategoryDTO[] = items.map((name) => ({ name }));
+    setBook((v) => ({ ...v, categories }));
   }, []);
 
   const setTags = useCallback((items: string[]) => {
-    const dto: TagDTO[] = items.map((name) => ({ name }));
-    setBook((v) => ({ ...v, tags: dto }));
+    const tags: TagDTO[] = items.map((name) => ({ name }));
+    setBook((v) => ({ ...v, tags }));
   }, []);
 
   return {
@@ -87,6 +116,7 @@ export const useEditableBook = (initial?: BookDTO): EditableBookResult => {
     handleTextChange,
     handleNumberChange,
     handleReleaseDateChange,
+    handleAuthorChange,
     setCategories,
     setTags,
   };

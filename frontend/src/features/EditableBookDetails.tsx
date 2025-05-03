@@ -5,7 +5,7 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { Box, Button, Divider, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import dayjs from "dayjs";
-import { type ReactElement } from "react";
+import { type ReactElement, useEffect, useState } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import FileUploadButton from "../components/base/FileUploadButton";
@@ -24,9 +24,15 @@ const EditableBookDetails = (): ReactElement => {
     handleTextChange,
     handleNumberChange,
     handleReleaseDateChange,
+    handleAuthorChange,
     setCategories,
     setTags,
   } = useEditableBook();
+
+  const [authorInput, setAuthorInput] = useState("");
+  useEffect(() => {
+    handleAuthorChange(authorInput);
+  }, [authorInput, handleAuthorChange]);
 
   return (
     <Box mt="15px">
@@ -85,8 +91,12 @@ const EditableBookDetails = (): ReactElement => {
               />
             </Stack>
 
-            {/* TODO author firstname and last name */}
-            <TextField label="Author" variant="filled" />
+            <TextField
+              label="Author"
+              variant="filled"
+              value={authorInput}
+              onChange={(e) => setAuthorInput(e.target.value)}
+            />
 
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
               {/* TODO series */}
