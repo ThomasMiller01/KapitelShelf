@@ -83,8 +83,10 @@ export const useEditableBook = (initial?: BookDTO): EditableBookResult => {
     let firstName: string;
     let lastName: string;
 
+    // split author into firstName and lastName
     const parts = author.split(" ");
     if (parts.length === 1) {
+      // no last name
       firstName = parts[0];
       lastName = "";
     } else {
