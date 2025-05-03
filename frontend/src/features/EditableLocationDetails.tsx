@@ -14,6 +14,7 @@ import { type ReactElement, useCallback, useEffect, useState } from "react";
 import FileUploadButton from "../components/base/FileUploadButton";
 import { useMobile } from "../hooks/useMobile";
 import { useNotImplemented } from "../hooks/useNotImplemented";
+import type { LocationDTO } from "../lib/api/KapitelShelf.Api/api";
 import {
   LocalTypes,
   LocationTypeToString,
@@ -21,13 +22,17 @@ import {
 } from "../utils/LocationTypeUtils";
 
 interface EditableLocationDetailsProps {
+  initial?: LocationDTO;
   onTypeChange?: (type: string) => void;
 }
 
 const EditableLocationDetails = ({
+  initial,
   onTypeChange,
 }: EditableLocationDetailsProps): ReactElement => {
-  const [locationType, setLocationType] = useState("1");
+  const [locationType, setLocationType] = useState(
+    initial?.type?.toString() ?? "1"
+  );
   useEffect(() => {
     if (onTypeChange) {
       onTypeChange(locationType);
@@ -133,6 +138,7 @@ const LocalLocationSettings = (): ReactElement => {
 };
 
 interface UrlLocationSettingsProps {
+  initial?: string;
   locationTypeInt: number;
 }
 

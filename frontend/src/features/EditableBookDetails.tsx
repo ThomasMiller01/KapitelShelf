@@ -154,7 +154,7 @@ const EditableBookDetails = ({
             </Stack>
 
             {/* TODO location */}
-            <EditableLocationDetails />
+            <EditableLocationDetails initial={book.location} />
 
             <Stack direction="row" spacing={1} alignItems="start">
               <CategoryIcon sx={{ mr: "5px !important" }} />
@@ -193,6 +193,7 @@ const EditableBookDetails = ({
                   height: "fit-content",
                   whiteSpace: "nowrap",
                 }}
+                // eslint-disable-next-line no-magic-numbers
                 onClick={() => trigger(63)}
               >
                 Import Metadata

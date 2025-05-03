@@ -45,8 +45,10 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
 
   return (
     <Box p={3}>
-      <Grid container spacing={2} columns={11}>
-        <Grid size={{ xs: 11, md: 2 }}>
+      <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
+        <Grid size={{ xs: 0, md: 0.5 }}></Grid>
+
+        <Grid size={{ xs: 11, md: 2.5 }}>
           <Stack>
             <img
               src={imageSrc ?? undefined}
@@ -65,7 +67,7 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
           </Stack>
         </Grid>
 
-        <Grid size={{ xs: 11, md: 9 }} mt="20px">
+        <Grid size={{ xs: 11, md: 8 }} mt="20px">
           <Typography variant="h4" gutterBottom>
             {book.title}
           </Typography>
