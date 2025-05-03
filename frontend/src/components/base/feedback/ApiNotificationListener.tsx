@@ -40,8 +40,12 @@ export const ApiNotificationListener = (): null => {
       }
 
       if (state?.status === "pending") {
-        // Fire on loading
-        triggerLoading({ operation: notify.operation, open: true });
+        // Fire on loading after a 1 second delay
+        triggerLoading({
+          operation: notify.operation,
+          delay: 1000,
+          open: true,
+        });
       } else if (state?.status === "error") {
         // Fire on error
         triggerError({

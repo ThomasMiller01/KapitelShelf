@@ -11,6 +11,7 @@ interface triggerProps {
 }
 
 interface triggerLoadingProps extends triggerProps {
+  delay?: number;
   open?: boolean;
   close?: boolean;
 }
@@ -29,24 +30,34 @@ export const useApiNotification = (): ApiNotificationResult => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const [loadingNotifId, setLoadingNotifId] = useState<SnackbarKey>();
+  const [loadingWaiting, setLoadingWaiting] = useState(false);
   const triggerLoading = ({
+    delay = 0,
     open,
     close,
     ...props
   }: triggerLoadingProps): void => {
     if (open && loadingNotifId === undefined) {
-      // add loading notification
-      const notifId = enqueueSnackbar(<LoadingMessage {...props} />, {
-        variant: "info",
-        persist: true,
-      });
-      setLoadingNotifId(notifId);
+      setLoadingWaiting(true);
+      setTimeout(() => {
+        if (loadingWaiting) {
+          setLoadingWaiting(false);
+
+          // add loading notification
+          const notifId = enqueueSnackbar(<LoadingMessage {...props} />, {
+            variant: "info",
+            persist: true,
+          });
+          setLoadingNotifId(notifId);
+        }
+      }, delay);
     }
 
     if (close && loadingNotifId !== undefined) {
       // close loading notification
       closeSnackbar(loadingNotifId);
       setLoadingNotifId(undefined);
+      setLoadingWaiting(false);
     }
   };
 
