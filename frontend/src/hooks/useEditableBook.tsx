@@ -33,7 +33,6 @@ export const useEditableBook = (initial?: BookDTO): EditableBookResult => {
     author: initial?.author ?? undefined,
     categories: initial?.categories ?? [],
     tags: initial?.tags ?? [],
-    cover: initial?.cover ?? undefined,
     location: initial?.location ?? undefined,
   });
 

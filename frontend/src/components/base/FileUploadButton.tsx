@@ -2,6 +2,7 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import type { ButtonProps } from "@mui/material/Button";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
+import { useSnackbar } from "notistack";
 import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 
 const VisuallyHiddenInput = styled("input")({
@@ -18,25 +19,38 @@ const VisuallyHiddenInput = styled("input")({
 
 interface FileUploadButtonProps extends ButtonProps {
   onFileChange?: (file: File) => void;
+  accept?: string[];
   children: ReactNode;
 }
 
 const FileUploadButton = ({
   onFileChange,
+  accept = [],
   children,
   startIcon = <FileUploadIcon />,
   ...props
 }: FileUploadButtonProps): ReactElement => {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [currentFile, setCurrentFile] = useState<File>();
   useEffect(() => {
     if (currentFile === undefined || currentFile === null) {
       return;
     }
 
+    if (accept.length > 0 && !accept.includes(currentFile.type)) {
+      enqueueSnackbar(`Invalid file type, allowed: ${accept.join(", ")}`, {
+        variant: "warning",
+      });
+
+      setCurrentFile(undefined);
+      return;
+    }
+
     if (onFileChange !== undefined) {
       onFileChange(currentFile);
     }
-  }, [currentFile, onFileChange]);
+  }, [currentFile, accept, onFileChange, enqueueSnackbar]);
 
   return (
     <Button
@@ -53,7 +67,7 @@ const FileUploadButton = ({
         onChange={(event) =>
           event.target.files && setCurrentFile(event.target.files[0])
         }
-        multiple
+        accept={accept.join(",")}
       />
     </Button>
   );

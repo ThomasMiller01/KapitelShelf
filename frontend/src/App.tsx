@@ -1,4 +1,4 @@
-import "dayjs/locale/en-gb";
+import "dayjs/locale/de";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -14,10 +14,7 @@ function App(): ReactElement {
     <ThemeProvider>
       <SnackbarProvider>
         <BrowserRouter>
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale="en-gb"
-          >
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
             <AppRoutes />
           </LocalizationProvider>
         </BrowserRouter>

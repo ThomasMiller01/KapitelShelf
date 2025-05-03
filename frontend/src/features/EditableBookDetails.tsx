@@ -1,10 +1,10 @@
 import CategoryIcon from "@mui/icons-material/Category";
 import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { Box, Button, Divider, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import dayjs from "dayjs";
+import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
 
 import bookCover from "../assets/books/nocover.png";
@@ -13,9 +13,28 @@ import ItemList from "../components/base/ItemList";
 import { useEditableBook } from "../hooks/useEditableBook";
 import { useMobile } from "../hooks/useMobile";
 import { useNotImplemented } from "../hooks/useNotImplemented";
+import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import { ImageTypes } from "../utils/FileTypesUtils";
+import { UrlToFile } from "../utils/FileUtils";
 import EditableLocationDetails from "./EditableLocationDetails";
 
-const EditableBookDetails = (): ReactElement => {
+const DEFAULT_BOOK_COVER_FILE = await UrlToFile(bookCover);
+
+interface ActionProps {
+  name: string;
+  onClick: (book: BookDTO, cover: File) => void;
+  icon?: ReactNode;
+}
+
+interface EditableBookDetailsProps {
+  initial?: BookDTO;
+  action?: ActionProps;
+}
+
+const EditableBookDetails = ({
+  initial,
+  action,
+}: EditableBookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
   const trigger = useNotImplemented();
 
@@ -28,12 +47,28 @@ const EditableBookDetails = (): ReactElement => {
     handleSeriesChange,
     setCategories,
     setTags,
-  } = useEditableBook();
+  } = useEditableBook(initial);
 
-  const [authorInput, setAuthorInput] = useState("");
+  let initialAuthor = initial?.author?.firstName ?? "";
+  if (initial?.author?.lastName) {
+    initialAuthor += " " + initial.author.lastName;
+  }
+  const [authorInput, setAuthorInput] = useState(initialAuthor);
   useEffect(() => {
     handleAuthorChange(authorInput);
   }, [authorInput, handleAuthorChange]);
+
+  const [coverPath, setCoverPath] = useState(
+    initial?.cover?.filePath ? `/${initial?.cover?.filePath}` : bookCover
+  );
+  const [cover, setCover] = useState<File>();
+  useEffect(() => {
+    if (cover === undefined) {
+      return;
+    }
+
+    setCoverPath(URL.createObjectURL(cover));
+  }, [cover]);
 
   return (
     <Box mt="15px">
@@ -43,7 +78,7 @@ const EditableBookDetails = (): ReactElement => {
         <Grid size={{ xs: 11, md: 2.5 }}>
           <Stack spacing={1} alignItems="center">
             <img
-              src={bookCover}
+              src={coverPath}
               alt={"Book Cover"}
               style={{
                 width: "100%",
@@ -53,7 +88,9 @@ const EditableBookDetails = (): ReactElement => {
                 marginRight: isMobile ? "auto" : 0,
               }}
             />
-            <FileUploadButton>Upload Cover</FileUploadButton>
+            <FileUploadButton onFileChange={setCover} accept={ImageTypes}>
+              Upload Cover
+            </FileUploadButton>
           </Stack>
         </Grid>
 
@@ -69,7 +106,7 @@ const EditableBookDetails = (): ReactElement => {
             <TextField
               label="Description"
               multiline
-              rows={4}
+              minRows={4}
               variant="filled"
               value={book.description ?? ""}
               onChange={handleTextChange("description")}
@@ -160,19 +197,23 @@ const EditableBookDetails = (): ReactElement => {
               >
                 Import Metadata
               </Button>
-              <Button
-                variant="contained"
-                startIcon={<NoteAddIcon />}
-                onClick={() => console.log(book)}
-                sx={{
-                  alignItems: "start",
-                  width: "fit-content",
-                  height: "fit-content",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Create Book
-              </Button>
+              {action && (
+                <Button
+                  variant="contained"
+                  startIcon={action.icon}
+                  onClick={() =>
+                    action.onClick(book, cover ?? DEFAULT_BOOK_COVER_FILE)
+                  }
+                  sx={{
+                    alignItems: "start",
+                    width: "fit-content",
+                    height: "fit-content",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {action.name}
+                </Button>
+              )}
             </Stack>
           </Stack>
         </Grid>

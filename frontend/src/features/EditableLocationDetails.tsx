@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { type ReactElement, useCallback, useState } from "react";
+import { type ReactElement, useCallback, useEffect, useState } from "react";
 
 import FileUploadButton from "../components/base/FileUploadButton";
 import { useMobile } from "../hooks/useMobile";
@@ -20,8 +20,19 @@ import {
   UrlTypes,
 } from "../utils/LocationTypeUtils";
 
-const EditableLocationDetails = (): ReactElement => {
+interface EditableLocationDetailsProps {
+  onTypeChange?: (type: string) => void;
+}
+
+const EditableLocationDetails = ({
+  onTypeChange,
+}: EditableLocationDetailsProps): ReactElement => {
   const [locationType, setLocationType] = useState("1");
+  useEffect(() => {
+    if (onTypeChange) {
+      onTypeChange(locationType);
+    }
+  }, [locationType, onTypeChange]);
 
   return (
     <Box>
