@@ -4,6 +4,7 @@ import type {
   QueryState,
 } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { useCallback, useEffect } from "react";
 
 import { useApiNotification } from "../../../hooks/useApiNotification";
@@ -11,6 +12,10 @@ import { useApiNotification } from "../../../hooks/useApiNotification";
 interface NotifyMetadata {
   enabled: boolean;
   operation: string;
+}
+
+interface ErrorData {
+  error: string;
 }
 
 export const ApiNotificationListener = (): null => {
@@ -24,9 +29,7 @@ export const ApiNotificationListener = (): null => {
       state: QueryState | MutationState | undefined
     ): void => {
       // map meta.notify to NotifyMetadata type
-      const notify: NotifyMetadata | undefined = meta?.notify as
-        | NotifyMetadata
-        | undefined;
+      const notify = meta?.notify as NotifyMetadata | undefined;
 
       if (notify?.enabled !== true) {
         // notifications disabled
@@ -48,10 +51,18 @@ export const ApiNotificationListener = (): null => {
         });
         return;
       } else if (state?.status === "error") {
+        const error = state.error as AxiosError<unknown>;
+
+        const raw = error.response?.data;
+        let errorData: ErrorData | undefined;
+        if (raw && typeof raw === "object" && "error" in raw) {
+          errorData = raw as ErrorData;
+        }
+
         // Fire on error
         triggerError({
           operation: notify.operation,
-          errorMessage: state.error?.message ?? "",
+          errorMessage: errorData?.error ?? state.error?.message ?? "",
         });
       } else if (state?.status === "success") {
         // Fire on success

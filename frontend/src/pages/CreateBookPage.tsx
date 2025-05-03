@@ -23,7 +23,7 @@ const CreateBookPage = (): ReactElement => {
     meta: {
       notify: {
         enabled: true,
-        operation: "Creating book",
+        operation: "Creating Book",
       },
     },
   });
@@ -37,7 +37,7 @@ const CreateBookPage = (): ReactElement => {
     meta: {
       notify: {
         enabled: true,
-        operation: "Uploading cover",
+        operation: "Uploading Cover",
       },
     },
   });
@@ -49,6 +49,10 @@ const CreateBookPage = (): ReactElement => {
       return;
     }
 
+    if (cover.name === "nocover.png") {
+      // dont upload the nocover image
+      return;
+    }
     await mutateUploadCover({ bookId: createdBook.id, coverFile: cover });
   };
 

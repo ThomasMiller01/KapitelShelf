@@ -48,9 +48,11 @@ const BookDetailPage = (): ReactElement => {
       <ItemAppBar
         title={book?.title}
         actions={[
+          // eslint-disable-next-line no-magic-numbers
           <IconButton onClick={() => trigger(61)}>
             <EditIcon />
           </IconButton>,
+          // eslint-disable-next-line no-magic-numbers
           <IconButton onClick={() => trigger(62)}>
             <DeleteIcon />
           </IconButton>,

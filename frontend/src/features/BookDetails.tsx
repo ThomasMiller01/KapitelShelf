@@ -117,6 +117,9 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
                   />
                 ))}
             </Stack>
+            {book.categories?.length === 0 && (
+              <Typography variant="subtitle1">No Categories</Typography>
+            )}
           </Stack>
 
           <Stack direction="row" spacing={1}>
@@ -138,6 +141,9 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
                   />
                 ))}
             </Stack>
+            {book.tags?.length === 0 && (
+              <Typography variant="subtitle1">No Tags</Typography>
+            )}
           </Stack>
         </Grid>
       </Grid>

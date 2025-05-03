@@ -24,12 +24,12 @@ interface EditableBookResult {
 
 export const useEditableBook = (initial?: BookDTO): EditableBookResult => {
   const [book, setBook] = useState<BookDTO>({
-    title: initial?.title ?? null,
-    description: initial?.description ?? null,
-    releaseDate: initial?.releaseDate ?? null,
-    pageNumber: initial?.pageNumber ?? null,
+    title: initial?.title ?? "",
+    description: initial?.description ?? "",
+    releaseDate: initial?.releaseDate ?? undefined,
+    pageNumber: initial?.pageNumber ?? undefined,
     series: initial?.series ?? undefined,
-    seriesNumber: initial?.seriesNumber ?? null,
+    seriesNumber: initial?.seriesNumber ?? undefined,
     author: initial?.author ?? undefined,
     categories: initial?.categories ?? [],
     tags: initial?.tags ?? [],
