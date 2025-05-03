@@ -25,6 +25,7 @@ const EditableBookDetails = (): ReactElement => {
     handleNumberChange,
     handleReleaseDateChange,
     handleAuthorChange,
+    handleSeriesChange,
     setCategories,
     setTags,
   } = useEditableBook();
@@ -99,8 +100,13 @@ const EditableBookDetails = (): ReactElement => {
             />
 
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              {/* TODO series */}
-              <TextField label="Series" variant="filled" fullWidth />
+              <TextField
+                label="Series"
+                variant="filled"
+                fullWidth
+                value={book.series?.name ?? ""}
+                onChange={handleSeriesChange}
+              />
               <TextField
                 label="Volume"
                 variant="filled"
