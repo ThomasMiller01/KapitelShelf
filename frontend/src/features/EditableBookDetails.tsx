@@ -61,7 +61,11 @@ const EditableBookDetails = (): ReactElement => {
 
             <ItemList itemName="Category" onChange={(items: string[]) => {}} />
 
-            <ItemList itemName="Tag" onChange={(items: string[]) => {}} />
+            <ItemList
+              itemName="Tag"
+              onChange={(items: string[]) => {}}
+              variant="outlined"
+            />
           </Stack>
         </Grid>
       </Grid>

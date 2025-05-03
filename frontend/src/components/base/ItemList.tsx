@@ -1,4 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 import {
   Button,
@@ -10,11 +11,14 @@ import {
 } from "@mui/material";
 import { type ReactElement, useEffect, useState } from "react";
 
+type ChipVariant = React.ComponentProps<typeof Chip>["variant"];
+
 interface ItemListProps {
   itemName: string;
   initial?: string[];
   onChange: (items: string[]) => void;
   width?: string;
+  variant?: ChipVariant;
 }
 
 const ItemList = ({
@@ -22,6 +26,7 @@ const ItemList = ({
   initial = [],
   onChange,
   width = "25ch",
+  variant = "filled",
 }: ItemListProps): ReactElement => {
   const [items, setItems] = useState<string[]>(initial);
   useEffect(() => {
@@ -37,15 +42,18 @@ const ItemList = ({
         ...items.filter((x) => x !== addTextfield),
         addTextfield,
       ]);
-      setAddTextfield("");
     }
 
-    setShowAddTextfield(false);
+    onClose();
   };
   const onKeyDown = (key: string): void => {
     if (key === "Enter") {
       onSave();
     }
+  };
+  const onClose = (): void => {
+    setAddTextfield("");
+    setShowAddTextfield(false);
   };
 
   return (
@@ -62,7 +70,8 @@ const ItemList = ({
           label={item}
           onDelete={() => setItems((items) => items.filter((x) => x !== item))}
           color="primary"
-          sx={{ my: "4px !important" }}
+          variant={variant}
+          sx={{ mb: "8px !important" }}
         />
       ))}
       {!showAddTextfield && (
@@ -70,33 +79,44 @@ const ItemList = ({
           variant="outlined"
           startIcon={<AddIcon />}
           size="small"
+          sx={{ mb: "8px !important" }}
           onClick={() => setShowAddTextfield(true)}
         >
           Add {itemName}
         </Button>
       )}
       {showAddTextfield && (
-        <TextField
-          label={itemName}
-          size="small"
-          variant="outlined"
-          value={addTextfield}
-          autoFocus
-          onChange={(event) => setAddTextfield(event.target.value)}
-          onKeyDown={(event) => onKeyDown(event.key)}
-          sx={{ width }}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={onSave} edge="end">
-                    <SaveIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        <Stack
+          direction="row"
+          spacing={1}
+          mt="15px !important"
+          alignItems="center"
+        >
+          <TextField
+            label={itemName}
+            size="small"
+            variant="outlined"
+            value={addTextfield}
+            autoFocus
+            onChange={(event) => setAddTextfield(event.target.value)}
+            onKeyDown={(event) => onKeyDown(event.key)}
+            sx={{ width }}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={onSave} edge="end">
+                      <SaveIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <IconButton onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
+        </Stack>
       )}
     </Stack>
   );
