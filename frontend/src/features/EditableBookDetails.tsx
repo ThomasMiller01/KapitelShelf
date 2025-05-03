@@ -4,11 +4,13 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { Box, Button, Divider, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
+import dayjs from "dayjs";
 import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import FileUploadButton from "../components/base/FileUploadButton";
 import ItemList from "../components/base/ItemList";
+import { useEditableBook } from "../hooks/useEditableBook";
 import { useMobile } from "../hooks/useMobile";
 import { useNotImplemented } from "../hooks/useNotImplemented";
 import EditableLocationDetails from "./EditableLocationDetails";
@@ -16,6 +18,15 @@ import EditableLocationDetails from "./EditableLocationDetails";
 const EditableBookDetails = (): ReactElement => {
   const { isMobile } = useMobile();
   const trigger = useNotImplemented();
+
+  const {
+    book,
+    handleTextChange,
+    handleNumberChange,
+    handleReleaseDateChange,
+    setCategories,
+    setTags,
+  } = useEditableBook();
 
   return (
     <Box mt="15px">
@@ -41,35 +52,63 @@ const EditableBookDetails = (): ReactElement => {
 
         <Grid size={{ xs: 11, md: 6.5 }} mt="20px">
           <Stack spacing={2} width={isMobile ? "100%" : "60%"}>
-            <TextField label="Title" variant="filled" />
+            <TextField
+              label="Title"
+              variant="filled"
+              value={book.title ?? ""}
+              onChange={handleTextChange("title")}
+            />
 
             <TextField
               label="Description"
               multiline
               rows={4}
               variant="filled"
+              value={book.description ?? ""}
+              onChange={handleTextChange("description")}
             />
 
             <Stack direction="row" spacing={2} justifyContent="space-between">
-              <TextField label="Page Number" variant="filled" type="number" />
+              <TextField
+                label="Page Number"
+                variant="filled"
+                type="number"
+                value={book.pageNumber ?? ""}
+                onChange={handleNumberChange("pageNumber")}
+              />
 
-              <DateField label="Release Date" variant="filled" />
+              <DateField
+                label="Release Date"
+                variant="filled"
+                value={book.releaseDate ? dayjs(book.releaseDate) : null}
+                onChange={handleReleaseDateChange}
+              />
             </Stack>
 
+            {/* TODO author firstname and last name */}
             <TextField label="Author" variant="filled" />
 
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              {/* TODO series */}
               <TextField label="Series" variant="filled" fullWidth />
-              <TextField label="Volume" variant="filled" type="number" />
+              <TextField
+                label="Volume"
+                variant="filled"
+                type="number"
+                value={book.seriesNumber ?? ""}
+                onChange={handleNumberChange("seriesNumber")}
+              />
             </Stack>
 
+            {/* TODO location */}
             <EditableLocationDetails />
 
             <Stack direction="row" spacing={1} alignItems="start">
               <CategoryIcon sx={{ mr: "5px !important" }} />
               <ItemList
                 itemName="Category"
-                onChange={(items: string[]) => {}}
+                initial={book.categories?.map((x) => x.name ?? "") ?? []}
+                onChange={setCategories}
               />
             </Stack>
 
@@ -77,8 +116,9 @@ const EditableBookDetails = (): ReactElement => {
               <LocalOfferIcon sx={{ mr: "5px !important" }} />
               <ItemList
                 itemName="Tag"
-                onChange={(items: string[]) => {}}
                 variant="outlined"
+                initial={book.tags?.map((x) => x.name ?? "") ?? []}
+                onChange={setTags}
               />
             </Stack>
 
@@ -107,6 +147,7 @@ const EditableBookDetails = (): ReactElement => {
               <Button
                 variant="contained"
                 startIcon={<NoteAddIcon />}
+                onClick={() => console.log(book)}
                 sx={{
                   alignItems: "start",
                   width: "fit-content",
