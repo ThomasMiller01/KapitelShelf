@@ -1,6 +1,8 @@
 import CategoryIcon from "@mui/icons-material/Category";
+import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import { Box, Grid, Stack, TextField } from "@mui/material";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import { Box, Button, Divider, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import { type ReactElement } from "react";
 
@@ -8,10 +10,12 @@ import bookCover from "../assets/books/nocover.png";
 import FileUploadButton from "../components/base/FileUploadButton";
 import ItemList from "../components/base/ItemList";
 import { useMobile } from "../hooks/useMobile";
+import { useNotImplemented } from "../hooks/useNotImplemented";
 import EditableLocationDetails from "./EditableLocationDetails";
 
 const EditableBookDetails = (): ReactElement => {
   const { isMobile } = useMobile();
+  const trigger = useNotImplemented();
 
   return (
     <Box mt="15px">
@@ -76,6 +80,42 @@ const EditableBookDetails = (): ReactElement => {
                 onChange={(items: string[]) => {}}
                 variant="outlined"
               />
+            </Stack>
+
+            <Divider />
+
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={2}
+              justifyContent="space-between"
+              alignItems="end"
+              mt="15px"
+            >
+              <Button
+                variant="outlined"
+                startIcon={<ImportContactsIcon />}
+                sx={{
+                  alignItems: "start",
+                  width: "fit-content",
+                  height: "fit-content",
+                  whiteSpace: "nowrap",
+                }}
+                onClick={() => trigger(63)}
+              >
+                Import Metadata
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<NoteAddIcon />}
+                sx={{
+                  alignItems: "start",
+                  width: "fit-content",
+                  height: "fit-content",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Create Book
+              </Button>
             </Stack>
           </Stack>
         </Grid>
