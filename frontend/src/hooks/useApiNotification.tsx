@@ -2,7 +2,7 @@ import { Stack, Typography } from "@mui/material";
 import type { SnackbarKey } from "notistack";
 import { useSnackbar } from "notistack";
 import type { ReactElement } from "react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { DotsProgress } from "../components/base/feedback/DotsProgress";
 
@@ -30,36 +30,38 @@ export const useApiNotification = (): ApiNotificationResult => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const [loadingNotifId, setLoadingNotifId] = useState<SnackbarKey>();
-  const [loadingWaiting, setLoadingWaiting] = useState(false);
-  const triggerLoading = ({
-    delay = 0,
-    open,
-    close,
-    ...props
-  }: triggerLoadingProps): void => {
-    if (open && loadingNotifId === undefined) {
-      setLoadingWaiting(true);
-      setTimeout(() => {
-        if (loadingWaiting) {
-          setLoadingWaiting(false);
+  const loadingTimeout = useRef<number>(undefined);
+  const triggerLoading = useCallback(
+    ({ open, close, delay = 0, ...props }: triggerLoadingProps) => {
+      if (open) {
+        // if we already have a timer or a visible toast, do nothing
+        if (loadingTimeout.current || loadingNotifId !== undefined) {
+          return;
+        }
 
-          // add loading notification
-          const notifId = enqueueSnackbar(<LoadingMessage {...props} />, {
+        loadingTimeout.current = setTimeout(() => {
+          const id = enqueueSnackbar(<LoadingMessage {...props} />, {
             variant: "info",
             persist: true,
           });
-          setLoadingNotifId(notifId);
+          setLoadingNotifId(id);
+          loadingTimeout.current = undefined;
+        }, delay);
+      } else if (close) {
+        // cancel any pending toast
+        if (loadingTimeout.current) {
+          clearTimeout(loadingTimeout.current);
+          loadingTimeout.current = undefined;
         }
-      }, delay);
-    }
-
-    if (close && loadingNotifId !== undefined) {
-      // close loading notification
-      closeSnackbar(loadingNotifId);
-      setLoadingNotifId(undefined);
-      setLoadingWaiting(false);
-    }
-  };
+        // dismiss the visible toast
+        if (loadingNotifId !== undefined) {
+          closeSnackbar(loadingNotifId);
+          setLoadingNotifId(undefined);
+        }
+      }
+    },
+    [enqueueSnackbar, closeSnackbar, loadingNotifId]
+  );
 
   const triggerError = (props: triggerErrorProps): void => {
     enqueueSnackbar(<ErrorMessage {...props} />, {

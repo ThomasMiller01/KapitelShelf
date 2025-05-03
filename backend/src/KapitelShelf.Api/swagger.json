@@ -49,21 +49,21 @@
         ],
         "summary": "Create a new book.",
         "requestBody": {
-          "description": "The new book dto.",
+          "description": "The create book dto.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BookDTO"
+                "$ref": "#/components/schemas/CreateBookDTO"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/BookDTO"
+                "$ref": "#/components/schemas/CreateBookDTO"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/BookDTO"
+                "$ref": "#/components/schemas/CreateBookDTO"
               }
             }
           }
@@ -97,7 +97,7 @@
         "tags": [
           "Books"
         ],
-        "summary": "Get books by the series id.",
+        "summary": "Get book by the id.",
         "parameters": [
           {
             "name": "bookId",
@@ -133,49 +133,6 @@
           }
         }
       },
-      "put": {
-        "tags": [
-          "Books"
-        ],
-        "summary": "Update a book.",
-        "parameters": [
-          {
-            "name": "bookId",
-            "in": "path",
-            "description": "The id of the book to update.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "The updated book dto.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BookDTO"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BookDTO"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/BookDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
       "delete": {
         "tags": [
           "Books"
@@ -193,6 +150,52 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/books/{bookId}/cover": {
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Add the cover for a book.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to get.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coverFile": {
+                    "type": "string",
+                    "description": "The cover image file.",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "coverFile": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -451,8 +454,7 @@
           "pageNumber": {
             "type": "integer",
             "description": "Gets or sets the page number.",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "series": {
             "$ref": "#/components/schemas/SeriesDTO"
@@ -460,8 +462,7 @@
           "seriesNumber": {
             "type": "integer",
             "description": "Gets or sets the series number.",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "author": {
             "$ref": "#/components/schemas/AuthorDTO"
@@ -528,6 +529,134 @@
         },
         "additionalProperties": false,
         "description": "The category dto."
+      },
+      "CreateAuthorDTO": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "Gets or sets or set the first name.",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Gets or sets the last name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The create dto for a author."
+      },
+      "CreateBookDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Gets or sets the title.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Gets or sets the description.",
+            "nullable": true
+          },
+          "releaseDate": {
+            "type": "string",
+            "description": "Gets or sets the release date.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pageNumber": {
+            "type": "integer",
+            "description": "Gets or sets the page number.",
+            "format": "int32",
+            "nullable": true
+          },
+          "series": {
+            "$ref": "#/components/schemas/CreateSeriesDTO"
+          },
+          "seriesNumber": {
+            "type": "integer",
+            "description": "Gets or sets the series number.",
+            "format": "int32",
+            "nullable": true
+          },
+          "author": {
+            "$ref": "#/components/schemas/CreateAuthorDTO"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateCategoryDTO"
+            },
+            "description": "Gets or sets the categories.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateTagDTO"
+            },
+            "description": "Gets or sets the tags.",
+            "nullable": true
+          },
+          "location": {
+            "$ref": "#/components/schemas/CreateLocationDTO"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The create dto for a book."
+      },
+      "CreateCategoryDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The create dto for a category."
+      },
+      "CreateLocationDTO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/LocationTypeDTO"
+          },
+          "url": {
+            "type": "string",
+            "description": "Gets or sets the url.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The create model for a location."
+      },
+      "CreateSeriesDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The create dto for a series."
+      },
+      "CreateTagDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The create dto for a tag."
       },
       "FileInfoDTO": {
         "type": "object",
@@ -613,14 +742,12 @@
           "createdAt": {
             "type": "string",
             "description": "Gets or sets the creation time.",
-            "format": "date-time",
-            "nullable": true
+            "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
             "description": "Gets or sets the update time.",
-            "format": "date-time",
-            "nullable": true
+            "format": "date-time"
           },
           "totalBooks": {
             "type": "integer",

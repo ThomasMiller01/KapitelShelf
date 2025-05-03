@@ -46,6 +46,7 @@ export const ApiNotificationListener = (): null => {
           delay: 1000,
           open: true,
         });
+        return;
       } else if (state?.status === "error") {
         // Fire on error
         triggerError({
