@@ -83,7 +83,7 @@ export interface BookDTO {
      * @type {number}
      * @memberof BookDTO
      */
-    'pageNumber'?: number | null;
+    'pageNumber'?: number;
     /**
      * 
      * @type {SeriesDTO}
@@ -95,7 +95,7 @@ export interface BookDTO {
      * @type {number}
      * @memberof BookDTO
      */
-    'seriesNumber'?: number | null;
+    'seriesNumber'?: number;
     /**
      * 
      * @type {AuthorDTO}
@@ -162,6 +162,152 @@ export interface CategoryDTO {
      * Gets or sets the name.
      * @type {string}
      * @memberof CategoryDTO
+     */
+    'name'?: string | null;
+}
+/**
+ * The create dto for a author.
+ * @export
+ * @interface CreateAuthorDTO
+ */
+export interface CreateAuthorDTO {
+    /**
+     * Gets or sets or set the first name.
+     * @type {string}
+     * @memberof CreateAuthorDTO
+     */
+    'firstName'?: string | null;
+    /**
+     * Gets or sets the last name.
+     * @type {string}
+     * @memberof CreateAuthorDTO
+     */
+    'lastName'?: string | null;
+}
+/**
+ * The create dto for a book.
+ * @export
+ * @interface CreateBookDTO
+ */
+export interface CreateBookDTO {
+    /**
+     * Gets or sets the title.
+     * @type {string}
+     * @memberof CreateBookDTO
+     */
+    'title'?: string | null;
+    /**
+     * Gets or sets the description.
+     * @type {string}
+     * @memberof CreateBookDTO
+     */
+    'description'?: string | null;
+    /**
+     * Gets or sets the release date.
+     * @type {string}
+     * @memberof CreateBookDTO
+     */
+    'releaseDate'?: string | null;
+    /**
+     * Gets or sets the page number.
+     * @type {number}
+     * @memberof CreateBookDTO
+     */
+    'pageNumber'?: number | null;
+    /**
+     * 
+     * @type {CreateSeriesDTO}
+     * @memberof CreateBookDTO
+     */
+    'series'?: CreateSeriesDTO;
+    /**
+     * Gets or sets the series number.
+     * @type {number}
+     * @memberof CreateBookDTO
+     */
+    'seriesNumber'?: number | null;
+    /**
+     * 
+     * @type {CreateAuthorDTO}
+     * @memberof CreateBookDTO
+     */
+    'author'?: CreateAuthorDTO;
+    /**
+     * Gets or sets the categories.
+     * @type {Array<CreateCategoryDTO>}
+     * @memberof CreateBookDTO
+     */
+    'categories'?: Array<CreateCategoryDTO> | null;
+    /**
+     * Gets or sets the tags.
+     * @type {Array<CreateTagDTO>}
+     * @memberof CreateBookDTO
+     */
+    'tags'?: Array<CreateTagDTO> | null;
+    /**
+     * 
+     * @type {CreateLocationDTO}
+     * @memberof CreateBookDTO
+     */
+    'location'?: CreateLocationDTO;
+}
+/**
+ * The create dto for a category.
+ * @export
+ * @interface CreateCategoryDTO
+ */
+export interface CreateCategoryDTO {
+    /**
+     * Gets or sets the name.
+     * @type {string}
+     * @memberof CreateCategoryDTO
+     */
+    'name'?: string | null;
+}
+/**
+ * The create model for a location.
+ * @export
+ * @interface CreateLocationDTO
+ */
+export interface CreateLocationDTO {
+    /**
+     * 
+     * @type {LocationTypeDTO}
+     * @memberof CreateLocationDTO
+     */
+    'type'?: LocationTypeDTO;
+    /**
+     * Gets or sets the url.
+     * @type {string}
+     * @memberof CreateLocationDTO
+     */
+    'url'?: string | null;
+}
+
+
+/**
+ * The create dto for a series.
+ * @export
+ * @interface CreateSeriesDTO
+ */
+export interface CreateSeriesDTO {
+    /**
+     * Gets or sets the name.
+     * @type {string}
+     * @memberof CreateSeriesDTO
+     */
+    'name'?: string | null;
+}
+/**
+ * The create dto for a tag.
+ * @export
+ * @interface CreateTagDTO
+ */
+export interface CreateTagDTO {
+    /**
+     * Gets or sets the name.
+     * @type {string}
+     * @memberof CreateTagDTO
      */
     'name'?: string | null;
 }
@@ -276,13 +422,13 @@ export interface SeriesDTO {
      * @type {string}
      * @memberof SeriesDTO
      */
-    'createdAt'?: string | null;
+    'createdAt'?: string;
     /**
      * Gets or sets the update time.
      * @type {string}
      * @memberof SeriesDTO
      */
-    'updatedAt'?: string | null;
+    'updatedAt'?: string;
     /**
      * Gets or sets the total number of books.
      * @type {number}
@@ -374,6 +520,49 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
     return {
         /**
          * 
+         * @summary Add the cover for a book.
+         * @param {string} bookId The id of the book to get.
+         * @param {File} [coverFile] The cover image file.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksBookIdCoverPost: async (bookId: string, coverFile?: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'bookId' is not null or undefined
+            assertParamExists('booksBookIdCoverPost', 'bookId', bookId)
+            const localVarPath = `/books/{bookId}/cover`
+                .replace(`{${"bookId"}}`, encodeURIComponent(String(bookId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+
+            if (coverFile !== undefined) { 
+                localVarFormParams.append('coverFile', coverFile as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Delete a book.
          * @param {string} bookId The id of the book to delete.
          * @param {*} [options] Override http request option.
@@ -408,7 +597,7 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary Get books by the series id.
+         * @summary Get book by the id.
          * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -434,44 +623,6 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update a book.
-         * @param {string} bookId The id of the book to update.
-         * @param {BookDTO} [bookDTO] The updated book dto.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        booksBookIdPut: async (bookId: string, bookDTO?: BookDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'bookId' is not null or undefined
-            assertParamExists('booksBookIdPut', 'bookId', bookId)
-            const localVarPath = `/books/{bookId}`
-                .replace(`{${"bookId"}}`, encodeURIComponent(String(bookId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(bookDTO, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -511,11 +662,11 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * 
          * @summary Create a new book.
-         * @param {BookDTO} [bookDTO] The new book dto.
+         * @param {CreateBookDTO} [createBookDTO] The create book dto.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksPost: async (bookDTO?: BookDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        booksPost: async (createBookDTO?: CreateBookDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/books`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -535,7 +686,7 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(bookDTO, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(createBookDTO, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -554,6 +705,20 @@ export const BooksApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Add the cover for a book.
+         * @param {string} bookId The id of the book to get.
+         * @param {File} [coverFile] The cover image file.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksBookIdCoverPost(bookId: string, coverFile?: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdCoverPost(bookId, coverFile, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdCoverPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Delete a book.
          * @param {string} bookId The id of the book to delete.
          * @param {*} [options] Override http request option.
@@ -567,7 +732,7 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Get books by the series id.
+         * @summary Get book by the id.
          * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -576,20 +741,6 @@ export const BooksApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdGet(bookId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update a book.
-         * @param {string} bookId The id of the book to update.
-         * @param {BookDTO} [bookDTO] The updated book dto.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async booksBookIdPut(bookId: string, bookDTO?: BookDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdPut(bookId, bookDTO, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -607,12 +758,12 @@ export const BooksApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Create a new book.
-         * @param {BookDTO} [bookDTO] The new book dto.
+         * @param {CreateBookDTO} [createBookDTO] The create book dto.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksPost(bookDTO?: BookDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksPost(bookDTO, options);
+        async booksPost(createBookDTO?: CreateBookDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksPost(createBookDTO, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -629,6 +780,17 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
     return {
         /**
          * 
+         * @summary Add the cover for a book.
+         * @param {string} bookId The id of the book to get.
+         * @param {File} [coverFile] The cover image file.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksBookIdCoverPost(bookId: string, coverFile?: File, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.booksBookIdCoverPost(bookId, coverFile, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Delete a book.
          * @param {string} bookId The id of the book to delete.
          * @param {*} [options] Override http request option.
@@ -639,24 +801,13 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
-         * @summary Get books by the series id.
+         * @summary Get book by the id.
          * @param {string} bookId The id of the book to get.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
             return localVarFp.booksBookIdGet(bookId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update a book.
-         * @param {string} bookId The id of the book to update.
-         * @param {BookDTO} [bookDTO] The updated book dto.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        booksBookIdPut(bookId: string, bookDTO?: BookDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.booksBookIdPut(bookId, bookDTO, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -670,12 +821,12 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         /**
          * 
          * @summary Create a new book.
-         * @param {BookDTO} [bookDTO] The new book dto.
+         * @param {CreateBookDTO} [createBookDTO] The create book dto.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksPost(bookDTO?: BookDTO, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
-            return localVarFp.booksPost(bookDTO, options).then((request) => request(axios, basePath));
+        booksPost(createBookDTO?: CreateBookDTO, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
+            return localVarFp.booksPost(createBookDTO, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -687,6 +838,19 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
  * @extends {BaseAPI}
  */
 export class BooksApi extends BaseAPI {
+    /**
+     * 
+     * @summary Add the cover for a book.
+     * @param {string} bookId The id of the book to get.
+     * @param {File} [coverFile] The cover image file.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksBookIdCoverPost(bookId: string, coverFile?: File, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksBookIdCoverPost(bookId, coverFile, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Delete a book.
@@ -701,7 +865,7 @@ export class BooksApi extends BaseAPI {
 
     /**
      * 
-     * @summary Get books by the series id.
+     * @summary Get book by the id.
      * @param {string} bookId The id of the book to get.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -709,19 +873,6 @@ export class BooksApi extends BaseAPI {
      */
     public booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksBookIdGet(bookId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update a book.
-     * @param {string} bookId The id of the book to update.
-     * @param {BookDTO} [bookDTO] The updated book dto.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof BooksApi
-     */
-    public booksBookIdPut(bookId: string, bookDTO?: BookDTO, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksBookIdPut(bookId, bookDTO, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -738,13 +889,13 @@ export class BooksApi extends BaseAPI {
     /**
      * 
      * @summary Create a new book.
-     * @param {BookDTO} [bookDTO] The new book dto.
+     * @param {CreateBookDTO} [createBookDTO] The create book dto.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
      */
-    public booksPost(bookDTO?: BookDTO, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksPost(bookDTO, options).then((request) => request(this.axios, this.basePath));
+    public booksPost(createBookDTO?: CreateBookDTO, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksPost(createBookDTO, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

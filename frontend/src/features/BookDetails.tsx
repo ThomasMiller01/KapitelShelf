@@ -38,12 +38,17 @@ interface BookDetailsProps {
 
 const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
-  const [imageSrc, setImageSrc] = useState(book.cover?.filePath ?? bookCover);
+
+  const [imageSrc, setImageSrc] = useState(
+    book.cover?.filePath ? `/${book.cover?.filePath}` : bookCover
+  );
 
   return (
     <Box p={3}>
-      <Grid container spacing={2} columns={11}>
-        <Grid size={{ xs: 11, md: 2 }}>
+      <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
+        <Grid size={{ xs: 0, md: 0.5 }}></Grid>
+
+        <Grid size={{ xs: 11, md: 2.5 }}>
           <Stack>
             <img
               src={imageSrc ?? undefined}
@@ -51,7 +56,6 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
               alt={book.title ?? "Book Cover"}
               style={{
                 width: "100%",
-                // maxWidth: 340,
                 borderRadius: 2,
                 boxShadow: "3",
                 marginLeft: isMobile ? "auto" : 0,
@@ -63,17 +67,17 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
           </Stack>
         </Grid>
 
-        <Grid size={{ xs: 11, md: 9 }} mt="20px">
+        <Grid size={{ xs: 11, md: 8 }} mt="20px">
           <Typography variant="h4" gutterBottom>
             {book.title}
           </Typography>
 
-          <Typography variant="body1" color="text.secondary" paragraph>
+          <Typography variant="body1" color="text.secondary">
             {book.description}
           </Typography>
 
           <Grid container rowSpacing={1} columnSpacing={2.5} mb={2}>
-            {book.pageNumber && (
+            {book.pageNumber !== null && (
               <MetadataGridItem icon={<DescriptionIcon />}>
                 {book.pageNumber} pages
               </MetadataGridItem>
@@ -113,6 +117,9 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
                   />
                 ))}
             </Stack>
+            {book.categories?.length === 0 && (
+              <Typography variant="subtitle1">No Categories</Typography>
+            )}
           </Stack>
 
           <Stack direction="row" spacing={1}>
@@ -134,6 +141,9 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
                   />
                 ))}
             </Stack>
+            {book.tags?.length === 0 && (
+              <Typography variant="subtitle1">No Tags</Typography>
+            )}
           </Stack>
         </Grid>
       </Grid>

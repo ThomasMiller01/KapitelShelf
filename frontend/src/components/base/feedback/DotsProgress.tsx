@@ -6,6 +6,8 @@ const DEFAULT_DOTS_COUNT = 3;
 const DEFAULT_DOTS_DELAY = 1000;
 
 export interface DotsProgressProps {
+  initialDots?: number;
+
   dotsCount?: number;
   dotsDelay?: number;
 
@@ -13,11 +15,12 @@ export interface DotsProgressProps {
 }
 
 export const DotsProgress = ({
+  initialDots = 0,
   dotsCount = DEFAULT_DOTS_COUNT,
   dotsDelay = DEFAULT_DOTS_DELAY,
   small = false,
 }: DotsProgressProps): ReactElement => {
-  const [dotCount, setDotCount] = useState(0);
+  const [dotCount, setDotCount] = useState(initialDots);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,7 +38,7 @@ export const DotsProgress = ({
       color="inherit"
       mt={1}
       display="inline"
-      fontSize="1.5rem"
+      fontSize={small ? "1rem" : "1.5rem"}
       letterSpacing={small ? "0.0075em" : "5px"}
     >
       {dotSymbol.repeat(dotCount)}

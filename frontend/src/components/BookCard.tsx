@@ -3,8 +3,8 @@ import React, { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
-import { LocationTypeToString } from "../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import { LocationTypeToString } from "../utils/LocationTypeUtils";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
 
 interface BookCardProps {
@@ -45,7 +45,7 @@ const BookCard = ({
             spacing={0}
           >
             <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
-              {LocationTypeToString(book.location?.type)}
+              {LocationTypeToString[book.location?.type ?? -1]}
             </MetadataItem>
             <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
               {book.pageNumber} pages

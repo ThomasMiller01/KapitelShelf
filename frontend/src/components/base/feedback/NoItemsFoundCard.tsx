@@ -29,7 +29,7 @@ export const NoItemsFoundCard = ({
     </Typography>
     <Typography
       variant="body1"
-      mb={1}
+      mb={2}
       textTransform="uppercase"
       color="text.secondary"
     >

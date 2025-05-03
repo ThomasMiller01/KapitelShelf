@@ -32,9 +32,10 @@ export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
       return stored;
     }
 
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
+    // const prefersDark = window.matchMedia(
+    //   "(prefers-color-scheme: dark)"
+    // ).matches;
+    const prefersDark = true;
     return prefersDark ? "dark" : "light";
   };
 
