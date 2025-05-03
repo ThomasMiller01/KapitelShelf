@@ -86,12 +86,7 @@ const ItemList = ({
         </Button>
       )}
       {showAddTextfield && (
-        <Stack
-          direction="row"
-          spacing={1}
-          mt="15px !important"
-          alignItems="center"
-        >
+        <Stack direction="row" spacing={1} alignItems="center">
           <TextField
             label={itemName}
             size="small"

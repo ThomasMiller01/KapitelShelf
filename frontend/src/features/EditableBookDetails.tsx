@@ -1,3 +1,5 @@
+import CategoryIcon from "@mui/icons-material/Category";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { Box, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import { type ReactElement } from "react";
@@ -59,13 +61,22 @@ const EditableBookDetails = (): ReactElement => {
 
             <EditableLocationDetails />
 
-            <ItemList itemName="Category" onChange={(items: string[]) => {}} />
+            <Stack direction="row" spacing={1} alignItems="start">
+              <CategoryIcon sx={{ mr: "5px !important" }} />
+              <ItemList
+                itemName="Category"
+                onChange={(items: string[]) => {}}
+              />
+            </Stack>
 
-            <ItemList
-              itemName="Tag"
-              onChange={(items: string[]) => {}}
-              variant="outlined"
-            />
+            <Stack direction="row" spacing={1} alignItems="start">
+              <LocalOfferIcon sx={{ mr: "5px !important" }} />
+              <ItemList
+                itemName="Tag"
+                onChange={(items: string[]) => {}}
+                variant="outlined"
+              />
+            </Stack>
           </Stack>
         </Grid>
       </Grid>
