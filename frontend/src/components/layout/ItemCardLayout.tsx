@@ -48,7 +48,9 @@ const ItemCardLayout = ({
 
   const { isMobile } = useMobile();
 
-  const [imageSrc, setImageSrc] = useState(image ? `/${image}` : fallbackImage);
+  const [imageSrc, setImageSrc] = useState(
+    image ? `/data/${image}` : fallbackImage
+  );
 
   return (
     <Card

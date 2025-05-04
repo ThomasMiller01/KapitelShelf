@@ -3,6 +3,9 @@ global:
 
   namespace: my-namespace
 
+  storage:
+    size: 20Gi
+
 frontend:
   image:
     repository: thomasmiller01/kapitelshelf-frontend
@@ -89,7 +92,7 @@ postgresql:
       port: 5432
 
     persistence:
-      size: 50Gi
+      size: 20Gi
 
     resources:
       limits:

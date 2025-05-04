@@ -4,26 +4,17 @@
 
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.Extensions;
+using KapitelShelf.Api.Settings;
 
 namespace KapitelShelf.Api.Logic;
 
 /// <summary>
 /// Interface with the filesystem to retrieve and store book files.
 /// </summary>
-public class BookStorage
+/// <param name="settings">The settings.</param>
+public class BookStorage(KapitelShelfSettings settings)
 {
-    private const string DATA_DIRECTORY = "data";
-
-    private readonly string baseDirectory;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BookStorage"/> class.
-    /// </summary>
-    public BookStorage()
-    {
-        // TODO
-        this.baseDirectory = "../../../frontend/public";
-    }
+    private readonly KapitelShelfSettings settings = settings;
 
     /// <summary>
     /// Save a file in the specific book directory.
@@ -35,13 +26,13 @@ public class BookStorage
     {
         ArgumentNullException.ThrowIfNull(file);
 
-        var filePath = Path.Combine(DATA_DIRECTORY, bookId.ToString(), file.FileName);
+        var filePath = Path.Combine(bookId.ToString(), file.FileName);
         return await Save(filePath, file);
     }
 
     private async Task<FileInfoDTO> Save(string filePath, IFormFile file)
     {
-        var fullFilePath = Path.Combine(this.baseDirectory, filePath);
+        var fullFilePath = Path.Combine(this.settings.DataDir, filePath);
 
         var directory = Path.GetDirectoryName(fullFilePath);
         if (directory is not null && !Directory.Exists(directory))

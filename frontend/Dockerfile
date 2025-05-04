@@ -20,5 +20,7 @@ RUN npm i -g serve envsub
 
 EXPOSE 5173
 
+ENV VITE_KAPITELSHELF_API=http://localhost:5261
+
 CMD ["sh", "-c", "npx envsub dist/index.html && serve -s dist -l 5173"]
 

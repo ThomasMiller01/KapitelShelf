@@ -27,7 +27,14 @@ spec:
           env:
             - name: VITE_KAPITELSHELF_API
               value: {{ include "kapitelshelf.api.host" . }}
+          volumeMounts:
+            - mountPath: /app/dist/data
+              name: data
           resources: {{ toYaml .Values.frontend.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "kapitelshelf.name" . }}-data
 ---
 apiVersion: v1
 kind: Service

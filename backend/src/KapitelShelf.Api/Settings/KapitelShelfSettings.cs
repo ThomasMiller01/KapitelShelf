@@ -10,6 +10,11 @@ namespace KapitelShelf.Api.Settings
     public class KapitelShelfSettings
     {
         /// <summary>
+        /// Gets or sets the kapitelshelf data directory.
+        /// </summary>
+        public string DataDir { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the database settings.
         /// </summary>
         public DatabaseSettings Database { get; set; } = null!;
