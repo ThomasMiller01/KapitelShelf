@@ -2,7 +2,7 @@
 
 KapitelShelf helm chart for deploying the KapitelShelf application stack, including optional PostgreSQL database support. Provides a flexible setup for both self-contained and external database configurations.
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) 
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) 
 
 **Homepage:** <https://github.com/ThomasMiller01/KapitelShelf>
 
@@ -44,7 +44,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | api.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | api.image.repository | string | `"thomasmiller01/kapitelshelf-api"` | Docker image repository |
-| api.image.tag | string | `"0.1.0"` | Docker image tag |
+| api.image.tag | string | `"0.1.1"` | Docker image tag |
 | api.ingress.annotations | object | `{}` | Additional annotations<br /> e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"` |
 | api.ingress.enabled | bool | `false` | Whether to enable an ingress resource for the api |
 | api.ingress.host | string | `nil` | Hostname for the api ingress<br /> e.g. `"api.example.com"` |
@@ -60,7 +60,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | frontend.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | frontend.image.repository | string | `"thomasmiller01/kapitelshelf-frontend"` | Docker image repository |
-| frontend.image.tag | string | `"0.1.1"` | Docker image tag |
+| frontend.image.tag | string | `"0.1.2"` | Docker image tag |
 | frontend.ingress.annotations | object | `{}` | Additional annotations<br /> e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"` |
 | frontend.ingress.enabled | bool | `false` | Whether to enable an ingress resource for the frontend |
 | frontend.ingress.host | string | `nil` | Hostname for the frontend ingress<br /> e.g. `"frontend.example.com"` |
@@ -76,6 +76,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | global.deployPostgres | bool | `true` | Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
 | global.namespace | string | `"kapitelshelf"` | The helm chart will be deployed into this namespace |
+| global.storage.size | string | `"20Gi"` | Size of the KapitelShelf storage |
 
 ### Migrator Values
 
@@ -83,7 +84,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | migrator.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | migrator.image.repository | string | `"thomasmiller01/kapitelshelf-migrator"` | Docker image repository |
-| migrator.image.tag | string | `"0.1.0"` | Docker image tag |
+| migrator.image.tag | string | `"0.1.1"` | Docker image tag |
 | migrator.resources.limits | object | `{"cpu":"200m","memory":"256Mi"}` | Sets the migrator container resources limits |
 | migrator.resources.requests | object | `{"cpu":"100m","memory":"128Mi"}` | Sets the migrator container resources limits |
 
@@ -93,7 +94,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | postgresql.auth.password | string | `"kapitelshelf"` | PostgreSQL database password **(Change this for production!)** |
 | postgresql.auth.username | string | `"kapitelshelf"` | PostgreSQL database username **(Change this for production!)** |
-| postgresql.primary.persistence.size | string | `"50Gi"` | Size of the PostgreSQL storage |
+| postgresql.primary.persistence.size | string | `"20Gi"` | Size of the PostgreSQL storage |
 | postgresql.primary.resources.limits | object | `{"memory":"2Gi"}` | Sets the PostgreSQL container resources limits |
 | postgresql.primary.service.host | string | `nil` | Sets the PostgreSQL host, if you're using an external PostgreSQL.<br /> Will be ignored, if `global.deployPostgres=true` |
 | postgresql.primary.service.port | int | `5432` | TCP port the PostgreSQL service will listen on |
