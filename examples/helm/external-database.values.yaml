@@ -13,9 +13,14 @@ api:
     host: "kapitelshelf.example.com"
     path: /api
 
-postgresql:  
-  host: "<POSTGRES_HOST>" # Set the host to the external PostgreSQL instance
-  
+postgresql:    
   auth:
     username: "<POSTGRES_USERNAME>"
     password: "<POSTGRES_PASSWORD>"
+
+  primary:
+    service:
+      # Set the host and port to the external PostgreSQL instance
+      host: "<POSTGRES_HOST>" 
+      port: 5432
+

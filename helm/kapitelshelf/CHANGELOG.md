@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5 (2025-05-04)
+
+
+### Bug Fixes
+
+* add port to external-database host ([ff4ea01](https://github.com/ThomasMiller01/KapitelShelf/commit/ff4ea018c316b3c662ba323ad457c3e32ae292ba))
+
 ## 0.1.4 (2025-05-04)
 
 

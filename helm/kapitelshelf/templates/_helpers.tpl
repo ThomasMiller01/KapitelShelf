@@ -14,10 +14,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{- define "postgresql.host" -}}
-{{- if .Values.global.deployPostgres -}}
+{{- if .Values.global.deployPostgresql -}}
 {{ .Release.Name }}-postgresql.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.postgresql.primary.service.port }}
 {{- else -}}
-{{ .Values.postgresql.host }}
+{{ .Values.postgresql.primary.service.host }}:{{ .Values.postgresql.primary.service.port }}
 {{- end -}}
 {{- end -}}
 
