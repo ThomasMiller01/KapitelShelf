@@ -2,7 +2,7 @@
 
 KapitelShelf helm chart for deploying the KapitelShelf application stack, including optional PostgreSQL database support. Provides a flexible setup for both self-contained and external database configurations.
 
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) 
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) 
 
 **Homepage:** <https://github.com/ThomasMiller01/KapitelShelf>
 
@@ -74,7 +74,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.deployPostgres | bool | `true` | Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
+| global.deployPostgresql | bool | `true` | Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
 | global.namespace | string | `"kapitelshelf"` | The helm chart will be deployed into this namespace |
 | global.storage.size | string | `"20Gi"` | Size of the KapitelShelf storage |
 
