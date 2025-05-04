@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4 (2025-05-04)
+
+
+### Bug Fixes
+
+* inconsistent PostgreSQL naming ([#88](https://github.com/ThomasMiller01/KapitelShelf/issues/88)) ([064d167](https://github.com/ThomasMiller01/KapitelShelf/commit/064d167afbe959c4fc25b1d85562fe35d6436af8))
+
 ## 0.1.3 (2025-05-04)
 
 
