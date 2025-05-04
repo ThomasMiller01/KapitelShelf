@@ -19,7 +19,3 @@ postgresql:
   auth:
     username: "<POSTGRES_USERNAME>"
     password: "<POSTGRES_PASSWORD>"
-
-  primary:
-    persistence:
-      size: 20Gi
