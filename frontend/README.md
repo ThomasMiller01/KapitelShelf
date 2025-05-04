@@ -9,7 +9,7 @@
 │   ├── /books
 │   └── ...
 ├── /hooks            # custom React hooks
-├── /lib              # utils, API clients, mappers
+├── /lib              # utils, API clients, schemas
 ├── /pages            # route-level pages (BooksPage, HomePage, etc.)
 ├── /routes           # React Router config
 ├── /styles           # custom MUI theme, palette
