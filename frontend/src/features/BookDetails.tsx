@@ -67,12 +67,12 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
           </Stack>
         </Grid>
 
-        <Grid size={{ xs: 11, md: 8 }} mt="20px">
-          <Typography variant="h4" gutterBottom>
+        <Grid size={{ xs: 11, md: 7.5 }} mt="20px">
+          <Typography variant="h5" gutterBottom>
             {book.title}
           </Typography>
 
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body1" color="text.secondary" mb="15px">
             {book.description}
           </Typography>
 
@@ -146,6 +146,8 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
             )}
           </Stack>
         </Grid>
+
+        <Grid size={{ xs: 0, md: 0.5 }}></Grid>
       </Grid>
     </Box>
   );

@@ -58,11 +58,15 @@ const ItemAppBar = ({
       <Stack direction={{ xs: "column", md: "row" }} spacing={1} width="100%">
         <Typography
           variant="h6"
+          noWrap={false}
           sx={{
             textAlign: "left",
             ml: "10px !important",
             mr: "10px !important",
-            width: "fit-content",
+            // dont wrap title too early
+            flexShrink: 1, // allow it to shrink below its content width
+            flexGrow: 0, // don’t force it to take extra space
+            minWidth: 0,
           }}
         >
           {title}
@@ -71,7 +75,11 @@ const ItemAppBar = ({
           direction="row"
           spacing={2}
           justifyContent="space-between"
-          width="100%"
+          sx={{
+            flexGrow: 1, // fill remaining space
+            flexShrink: 1, // allow it to shrink if the title needs more
+            minWidth: 0,
+          }}
         >
           <Stack direction="row" spacing={2}>
             {addons}
