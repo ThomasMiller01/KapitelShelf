@@ -2,7 +2,7 @@
 
 KapitelShelf helm chart for deploying the KapitelShelf application stack, including optional PostgreSQL database support. Provides a flexible setup for both self-contained and external database configurations.
 
-![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) 
+![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square) 
 
 **Homepage:** <https://github.com/ThomasMiller01/KapitelShelf>
 
