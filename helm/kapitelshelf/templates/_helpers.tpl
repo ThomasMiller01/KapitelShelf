@@ -17,7 +17,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Values.global.deployPostgres -}}
 {{ .Release.Name }}-postgresql.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.postgresql.primary.service.port }}
 {{- else -}}
-{{ .Values.postgres.host }}
+{{ .Values.postgresql.host }}
 {{- end -}}
 {{- end -}}
 

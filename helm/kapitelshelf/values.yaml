@@ -2,7 +2,7 @@ global:
   # -- Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br />
   # Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database
   # @section -- Global Values
-  deployPostgres: true
+  deployPostgresql: true
 
   # -- The helm chart will be deployed into this namespace
   # @section -- Global Values
