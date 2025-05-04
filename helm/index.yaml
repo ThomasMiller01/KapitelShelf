@@ -3,22 +3,22 @@ entries:
   KapitelShelf:
   - apiVersion: v2
     appVersion: N/A
-    created: "2025-05-04T18:14:20.4644957Z"
+    created: "2025-05-04T18:41:26.327659182Z"
     dependencies:
-    - condition: global.deployPostgres
+    - condition: global.deployPostgresql
       name: postgresql
       repository: https://charts.bitnami.com/bitnami
       version: 16.6.6
     description: KapitelShelf helm chart for deploying the KapitelShelf application
       stack, including optional PostgreSQL database support. Provides a flexible setup
       for both self-contained and external database configurations.
-    digest: e186890f0bf57d26bfeb4a24d8e2259a1c4c3e5e5410743f788ac03a6b303c60
+    digest: 96513b048a007a4ab5a0517bb44ffc3ea09873d556be121fc040c38c65d6b3c7
     home: https://github.com/ThomasMiller01/KapitelShelf
     name: KapitelShelf
     sources:
     - https://github.com/ThomasMiller01/KapitelShelf/tree/main/helm/kapitelshelf
     type: application
     urls:
-    - https://thomasmiller01.github.io/KapitelShelf/helm/KapitelShelf-0.1.3.tgz
-    version: 0.1.3
-generated: "2025-05-04T18:14:20.458506283Z"
+    - https://thomasmiller01.github.io/KapitelShelf/helm/KapitelShelf-0.1.4.tgz
+    version: 0.1.4
+generated: "2025-05-04T18:41:26.322060887Z"
