@@ -20,7 +20,7 @@ frontend:
     repository: thomasmiller01/kapitelshelf-frontend
     # -- Docker image tag
     # @section -- Frontend Values
-    tag: "0.1.1"
+    tag: "0.1.2"
     # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
     # @section -- Frontend Values
     pullPolicy: IfNotPresent
