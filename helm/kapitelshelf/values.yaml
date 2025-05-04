@@ -8,6 +8,11 @@ global:
   # @section -- Global Values
   namespace: kapitelshelf
 
+  storage:
+    # -- Size of the KapitelShelf storage
+    # @section -- Global Values
+    size: 20Gi
+
 frontend:  
   image:
     # -- Docker image repository
@@ -169,7 +174,7 @@ postgresql:
     persistence:
       # -- Size of the PostgreSQL storage
       # @section -- PostgreSQL Values _[SubChart]_
-      size: 50Gi
+      size: 20Gi
 
     # @ignored
     updateStrategy:

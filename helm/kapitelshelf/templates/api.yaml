@@ -31,7 +31,14 @@ spec:
               value: {{ .Values.postgresql.auth.username }}
             - name: KapitelShelf__Database__Password
               value: {{ .Values.postgresql.auth.password }}
+          volumeMounts:
+            - mountPath: /var/lib/kapitelshelf/data
+              name: data
           resources: {{ toYaml .Values.api.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "kapitelshelf.name" . }}-data
 ---
 apiVersion: v1
 kind: Service

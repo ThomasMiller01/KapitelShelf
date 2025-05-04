@@ -27,8 +27,6 @@ import { ImageTypes } from "../utils/FileTypesUtils";
 import { UrlToFile } from "../utils/FileUtils";
 import EditableLocationDetails from "./EditableLocationDetails";
 
-const DEFAULT_COVER_FILE = await UrlToFile(bookCover);
-
 interface ActionProps {
   name: string;
   onClick: (book: BookDTO, cover: File) => void;
@@ -79,18 +77,26 @@ const EditableBookDetails = ({
     triggerValidation();
   }, [triggerValidation]);
 
-  const [coverFile, setCoverFile] = useState<File>(DEFAULT_COVER_FILE);
+  const [coverFile, setCoverFile] = useState<File>();
   const [coverPreview, setCoverPreview] = useState<string>(bookCover);
+
+  useEffect(() => {
+    UrlToFile(bookCover).then((file) => setCoverFile(file));
+  }, []);
 
   // preview the cover
   useEffect(() => {
+    if (coverFile === undefined) {
+      return;
+    }
+
     const url = URL.createObjectURL(coverFile);
     setCoverPreview(url);
     return (): void => URL.revokeObjectURL(url);
   }, [coverFile, setCoverPreview]);
 
   const onSubmit = (data: CreateBookFormValues): void => {
-    if (action === undefined) {
+    if (action === undefined || coverFile === undefined) {
       return;
     }
 

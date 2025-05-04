@@ -21,20 +21,22 @@ For a detailed installation and configuration options see the Helm chart's [READ
 ```yaml
 services:
   frontend:
-    image: thomasmiller01/kapitelshelf-frontend
     container_name: kapitelshelf-frontend
+    image: thomasmiller01/kapitelshelf-frontend:latest
     restart: unless-stopped
     depends_on:
       migrator:
         condition: service_completed_successfully
     environment:
-      KAPITELSHELF_API: host.docker.internal:5261
+      VITE_KAPITELSHELF_API: http://localhost:5261
     ports:
       - "5173:5173"
+    volumes:
+      - kapitelshelf_data:/app/dist/data
 
   api:
-    image: thomasmiller01/kapitelshelf-api
     container_name: kapitelshelf-api
+    image: thomasmiller01/kapitelshelf-api:latest
     restart: unless-stopped
     depends_on:
       migrator:
@@ -45,10 +47,12 @@ services:
       KapitelShelf__Database__Password: kapitelshelf
     ports:
       - "5261:5261"
+    volumes:
+      - kapitelshelf_data:/var/lib/kapitelshelf/data
 
   migrator:
-    image: thomasmiller01/kapitelshelf-migrator
     container_name: kapitelshelf-migrator
+    image: thomasmiller01/kapitelshelf-migrator:latest
     restart: no
     depends_on:
       postgres:
@@ -79,6 +83,7 @@ services:
       - "5432:5432"
 
 volumes:
+  kapitelshelf_data:
   postgres_data:
 ```
 
@@ -102,15 +107,16 @@ The docker images are published on:
 docker run -d \
     --name=kapitelshelf-frontend \
     -p 5173:5173 \
+    -e VITE_KAPITELSHELF_API=http://localhost:5261 \
     --restart unless-stopped \
     thomasmiller01/kapitelshelf-frontend
 ```
 
 #### Environment Variables
 
-| Environment Variable    | Default          |
-| ----------------------- | ---------------- |
-| `VITE_KAPITELSHELF_API` | `localhost:5261` |
+| Environment Variable    | Default                 |
+| ----------------------- | ----------------------- |
+| `VITE_KAPITELSHELF_API` | `http://localhost:5261` |
 
 ### API
 
@@ -127,11 +133,12 @@ docker run -d \
 
 #### Environment Variables
 
-| Environment Variable               | Default                     | Settings Path (appsettings.json) |
-| ---------------------------------- | --------------------------- | -------------------------------- |
-| `KapitelShelf__Database__Host`     | `host.docker.internal:5432` | `KapitelShelf.Database.Host`     |
-| `KapitelShelf__Database__Username` | `kapitelshelf`              | `KapitelShelf.Database.Username` |
-| `KapitelShelf__Database__Password` | `kapitelshelf`              | `KapitelShelf.Database.Password` |
+| Environment Variable               | Default                      | Settings Path (appsettings.json) |
+| ---------------------------------- | ---------------------------- | -------------------------------- |
+| `KapitelShelf__DataDir`            | `/var/lib/kapitelshelf/data` | `KapitelShelf.DataDir`           |
+| `KapitelShelf__Database__Host`     | `host.docker.internal:5432`  | `KapitelShelf.Database.Host`     |
+| `KapitelShelf__Database__Username` | `kapitelshelf`               | `KapitelShelf.Database.Username` |
+| `KapitelShelf__Database__Password` | `kapitelshelf`               | `KapitelShelf.Database.Password` |
 
 ### Migrator
 

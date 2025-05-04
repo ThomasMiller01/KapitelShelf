@@ -40,7 +40,7 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
 
   const [imageSrc, setImageSrc] = useState(
-    book.cover?.filePath ? `/${book.cover?.filePath}` : bookCover
+    book.cover?.filePath ? `/data/${book.cover?.filePath}` : bookCover
   );
 
   return (
