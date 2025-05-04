@@ -94,14 +94,12 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             return null;
         }
 
-        // check for duplicates
+        // check for duplicate books
         var duplicates = await this.GetDuplicates(createBookDTO.Title, createBookDTO.Location?.Url);
         if (duplicates.Any())
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
         }
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         if (createBookDTO.Series is null)
         {
@@ -112,29 +110,94 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             };
         }
 
-        var series = this.mapper.Map<SeriesModel>(createBookDTO.Series);
-        context.Series.Add(series);
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        // check for existing series
+        var series = await context.Series
+            .Where(x => x.Name == createBookDTO.Series.Name)
+            .FirstOrDefaultAsync();
+
+        if (series is null)
+        {
+            // create new series
+            series = this.mapper.Map<SeriesModel>(createBookDTO.Series);
+            series.Id = Guid.NewGuid();
+
+            context.Series.Add(series);
+        }
+        else
+        {
+            // update series.UpdatedAt
+            series.UpdatedAt = DateTime.UtcNow;
+        }
+
+        // check for existing author
+        AuthorModel? author = null;
+        if (createBookDTO.Author is not null)
+        {
+            author = await context.Authors
+                .Where(x => x.FirstName == createBookDTO.Author.FirstName && x.LastName == createBookDTO.Author.LastName)
+                .FirstOrDefaultAsync();
+
+            if (author is null)
+            {
+                // create new author
+                author = this.mapper.Map<AuthorModel>(createBookDTO.Author);
+                series.Id = Guid.NewGuid();
+
+                context.Authors.Add(author);
+            }
+        }
+
+        // save now, because of book foreign key constraints
         await context.SaveChangesAsync();
 
         var book = this.mapper.Map<BookModel>(createBookDTO);
         book.Id = Guid.NewGuid();
         book.SeriesId = series.Id;
+        book.AuthorId = author?.Id;
 
+        // map categories and check for existing categories
         foreach (var category in createBookDTO.Categories)
         {
+            var categoryModel = await context.Categories
+                .Where(x => x.Name == category.Name)
+                .FirstOrDefaultAsync();
+
+            if (categoryModel is null)
+            {
+                categoryModel = this.mapper.Map<CategoryModel>(category);
+                categoryModel.Id = Guid.NewGuid();
+
+                context.Categories.Add(categoryModel);
+            }
+
             book.Categories.Add(new BookCategoryModel
             {
                 BookId = book.Id,
-                Category = this.mapper.Map<CategoryModel>(category),
+                CategoryId = categoryModel.Id,
             });
         }
 
+        // map tags and check for existing tags
         foreach (var tag in createBookDTO.Tags)
         {
+            var tagModel = await context.Tags
+                .Where(x => x.Name == tag.Name)
+                .FirstOrDefaultAsync();
+
+            if (tagModel is null)
+            {
+                tagModel = this.mapper.Map<TagModel>(tag);
+                tagModel.Id = Guid.NewGuid();
+
+                context.Tags.Add(tagModel);
+            }
+
             book.Tags.Add(new BookTagModel
             {
                 BookId = book.Id,
-                Tag = this.mapper.Map<TagModel>(tag),
+                TagId = tagModel.Id,
             });
         }
 
