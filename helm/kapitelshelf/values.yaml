@@ -75,7 +75,7 @@ api:
     repository: thomasmiller01/kapitelshelf-api
     # -- Docker image tag
     # @section -- Api Values
-    tag: "0.1.0"
+    tag: "0.1.1"
     # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
     # @section -- Api Values
     pullPolicy: IfNotPresent
@@ -130,7 +130,7 @@ migrator:
     repository: thomasmiller01/kapitelshelf-migrator
     # -- Docker image tag
     # @section -- Migrator Values
-    tag: "0.1.0"
+    tag: "0.1.1"
     # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
     # @section -- Migrator Values
     pullPolicy: IfNotPresent
