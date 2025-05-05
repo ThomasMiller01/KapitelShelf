@@ -53,37 +53,31 @@ const ItemCardLayout = ({
   );
 
   return (
-    <Card
-      sx={{ height: "100%", position: "relative" }}
-      onClick={() => link && navigate(link)}
-    >
+    <Card sx={{ height: "100%" }} onClick={() => link && navigate(link)}>
       <Box component={link ? CardActionArea : "div"}>
-        <CardMedia
-          component="img"
-          height={isMobile ? "200" : "250"}
-          image={imageSrc ?? undefined}
-          onError={() => setImageSrc(fallbackImage ?? "")}
-          alt={title || "Item image"}
-        />
-        {badge && (
-          <Box position="absolute" top="2px" right="5px">
-            <Avatar
-              sx={{
-                width: 30,
-                height: 30,
-                backgroundColor: "rgba(0, 0, 0, 0.3)",
-                opacity: "0.8",
-                fontSize: "0.8rem",
-                fontWeight: 400,
-                lineHeight: "2",
-                fontFeatureSettings: '"calt"',
-                fontFamily: "Playwrite AU SA",
-              }}
-            >
-              {badge}
-            </Avatar>
-          </Box>
-        )}
+        <Box position="relative">
+          <CardMedia
+            component="img"
+            height={isMobile ? "200" : "250"}
+            image={imageSrc ?? undefined}
+            onError={() => setImageSrc(fallbackImage ?? "")}
+            alt={title || "Item image"}
+          />
+          {badge && (
+            <Box position="absolute" bottom="5px" right="5px">
+              <Avatar
+                variant="rounded"
+                sx={{
+                  width: 30,
+                  height: 30,
+                  opacity: "0.82",
+                }}
+              >
+                {badge}
+              </Avatar>
+            </Box>
+          )}
+        </Box>
         <CardContent sx={{ px: "12px", pt: "10px", pb: "8px" }}>
           <Typography
             variant="h6"
