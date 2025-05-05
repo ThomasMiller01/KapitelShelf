@@ -28,7 +28,7 @@ Refer to the [Installation Guide](docs/installation.md) for instructions.
 ## Documentation
 
 - [Installation Guide](docs/installation.md)
-- [Development Guide](docs/development.md) _(Coming soon)_
+- [Development Guide](docs/development.md)
 - [Helm Chart](helm/kapitelshelf/README.md)
 - [Examples](examples/README.md)
 
@@ -44,7 +44,7 @@ Refer to the [Installation Guide](docs/installation.md) for instructions.
 
 ### Guide
 
-Refer to the [Development Guide](docs/development.md) for instructions. _(Coming soon)_
+Refer to the [Development Guide](docs/development.md) for instructions.
 
 Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.md). _(Coming soon)_
 
