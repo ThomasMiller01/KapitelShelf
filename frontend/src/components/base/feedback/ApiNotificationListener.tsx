@@ -7,11 +7,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useCallback, useEffect } from "react";
 
-import { useApiNotification } from "../../../hooks/useApiNotification";
+import { useNotification } from "../../../hooks/useNotification";
 
 interface NotifyMetadata {
-  enabled: boolean;
+  enabled: boolean; // default: false
   operation: string;
+  showLoading?: boolean; // default: true
+  showError?: boolean; // default: true
+  showSuccess?: boolean; // default: false
 }
 
 interface ErrorData {
@@ -20,7 +23,7 @@ interface ErrorData {
 
 export const ApiNotificationListener = (): null => {
   const client = useQueryClient();
-  const { triggerLoading, triggerError, triggerSuccess } = useApiNotification();
+  const { triggerLoading, triggerError, triggerSuccess } = useNotification();
 
   const handleNotifications = useCallback(
     (
@@ -42,15 +45,15 @@ export const ApiNotificationListener = (): null => {
         return;
       }
 
-      if (state?.status === "pending") {
+      if (state?.status === "pending" && notify.showLoading !== false) {
         // Fire on loading after a 1 second delay
         triggerLoading({
           operation: notify.operation,
-          delay: 1000,
+          delay: 600,
           open: true,
         });
         return;
-      } else if (state?.status === "error") {
+      } else if (state?.status === "error" && notify.showError !== false) {
         const error = state.error as AxiosError<unknown>;
 
         const raw = error.response?.data;
@@ -64,7 +67,7 @@ export const ApiNotificationListener = (): null => {
           operation: notify.operation,
           errorMessage: errorData?.error ?? state.error?.message ?? "",
         });
-      } else if (state?.status === "success") {
+      } else if (state?.status === "success" && notify.showSuccess === true) {
         // Fire on success
         triggerSuccess({ operation: notify.operation });
       }

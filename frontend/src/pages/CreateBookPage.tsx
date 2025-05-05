@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 
 import FancyText from "../components/FancyText";
 import EditableBookDetails from "../features/EditableBookDetails";
+import { useNotification } from "../hooks/useNotification";
 import { booksApi } from "../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 
@@ -14,6 +15,8 @@ interface UploadCoverMutationProps {
 }
 
 const CreateBookPage = (): ReactElement => {
+  const { triggerNavigate } = useNotification();
+
   const { mutateAsync: mutateCreateBook } = useMutation({
     mutationKey: ["create-book"],
     mutationFn: async (book: BookDTO) => {
@@ -44,16 +47,25 @@ const CreateBookPage = (): ReactElement => {
 
   const onCreate = async (book: BookDTO, cover: File): Promise<void> => {
     const createdBook = await mutateCreateBook(book);
-    if (createdBook?.id === undefined) {
+    if (
+      createdBook?.id === undefined ||
+      createdBook.title === undefined ||
+      createdBook.title === null
+    ) {
       // only continue, if creation was successful
       return;
     }
 
-    if (cover.name === "nocover.png") {
-      // dont upload the nocover image
-      return;
+    // dont upload the nocover image
+    if (cover.name !== "nocover.png") {
+      await mutateUploadCover({ bookId: createdBook.id, coverFile: cover });
     }
-    await mutateUploadCover({ bookId: createdBook.id, coverFile: cover });
+
+    triggerNavigate({
+      operation: "Created the following book",
+      itemName: createdBook.title,
+      url: `/library/books/${createdBook.id}`,
+    });
   };
 
   return (

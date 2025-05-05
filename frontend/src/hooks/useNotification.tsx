@@ -1,33 +1,41 @@
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import type { SnackbarKey } from "notistack";
 import { useSnackbar } from "notistack";
 import type { ReactElement } from "react";
 import { useCallback, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { DotsProgress } from "../components/base/feedback/DotsProgress";
 
-interface triggerProps {
+interface triggerApiProps {
   operation: string | undefined;
 }
 
-interface triggerLoadingProps extends triggerProps {
+interface triggerLoadingProps extends triggerApiProps {
   delay?: number;
   open?: boolean;
   close?: boolean;
 }
 
-interface triggerErrorProps extends triggerProps {
+interface triggerErrorProps extends triggerApiProps {
   errorMessage: string;
 }
 
-interface ApiNotificationResult {
-  triggerLoading: (props: triggerLoadingProps) => void;
-  triggerError: (props: triggerErrorProps) => void;
-  triggerSuccess: (props: triggerProps) => void;
+interface triggerNavigateProps extends triggerApiProps {
+  itemName: string;
+  url: string;
 }
 
-export const useApiNotification = (): ApiNotificationResult => {
+interface NotificationResult {
+  triggerLoading: (props: triggerLoadingProps) => void;
+  triggerError: (props: triggerErrorProps) => void;
+  triggerSuccess: (props: triggerApiProps) => void;
+  triggerNavigate: (props: triggerNavigateProps) => void;
+}
+
+export const useNotification = (): NotificationResult => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   const [loadingNotifId, setLoadingNotifId] = useState<SnackbarKey>();
   const loadingTimeout = useRef<number>(undefined);
@@ -70,9 +78,27 @@ export const useApiNotification = (): ApiNotificationResult => {
     });
   };
 
-  const triggerSuccess = (props: triggerProps): void => {
+  const triggerSuccess = (props: triggerApiProps): void => {
     enqueueSnackbar(<SuccessMessage {...props} />, {
       variant: "success",
+    });
+  };
+
+  const triggerNavigate = (props: triggerNavigateProps): void => {
+    enqueueSnackbar(<NavigateMessage {...props} />, {
+      variant: "info",
+      autoHideDuration: 8000,
+      action: (snackbarId) => (
+        <Button
+          variant="text"
+          onClick={() => {
+            closeSnackbar(snackbarId);
+            navigate(props.url);
+          }}
+        >
+          View
+        </Button>
+      ),
     });
   };
 
@@ -80,10 +106,11 @@ export const useApiNotification = (): ApiNotificationResult => {
     triggerLoading,
     triggerError,
     triggerSuccess,
+    triggerNavigate,
   };
 };
 
-const LoadingMessage = ({ operation }: triggerProps): ReactElement => (
+const LoadingMessage = ({ operation }: triggerLoadingProps): ReactElement => (
   <Stack direction="row" spacing={0.5} alignItems="center">
     <Typography>{operation}</Typography>
     <DotsProgress small initialDots={1} />
@@ -100,8 +127,19 @@ const ErrorMessage = ({
   </Stack>
 );
 
-const SuccessMessage = ({ operation }: triggerProps): ReactElement => (
+const SuccessMessage = ({ operation }: triggerApiProps): ReactElement => (
   <Stack direction="row" spacing={0.5} alignItems="center">
     <Typography>{operation} succeeded</Typography>
+  </Stack>
+);
+
+const NavigateMessage = ({
+  operation,
+  itemName,
+}: triggerNavigateProps): ReactElement => (
+  <Stack direction="row" spacing={0.5} alignItems="center">
+    <Typography>
+      {operation}: "{itemName}".
+    </Typography>
   </Stack>
 );
