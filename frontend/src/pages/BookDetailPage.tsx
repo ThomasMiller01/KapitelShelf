@@ -49,11 +49,11 @@ const BookDetailPage = (): ReactElement => {
         title={book?.title}
         actions={[
           // eslint-disable-next-line no-magic-numbers
-          <IconButton onClick={() => trigger(61)}>
+          <IconButton onClick={() => trigger(61)} key="edit">
             <EditIcon />
           </IconButton>,
           // eslint-disable-next-line no-magic-numbers
-          <IconButton onClick={() => trigger(62)}>
+          <IconButton onClick={() => trigger(62)} key="delete">
             <DeleteIcon />
           </IconButton>,
         ]}
