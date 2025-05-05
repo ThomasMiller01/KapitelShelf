@@ -15,10 +15,10 @@
     "gen:swaggerjson": "cd ./backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
     "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ./backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./frontend/src/lib/api/KapitelShelf.Api --additional-properties=supportsES6=true,typescriptThreePlus=true",
     "gen:helm:docs": "docker run --rm -v %cd%/helm:/helm-docs -v %cd%/docs/helm:/templates jnorwood/helm-docs:v1.14.2 --template-files=/templates/README.md.gotmpl",
-    "release:helm": "cd ./helm/kapitelshelf && npx commit-and-tag-version -a && git push --tags origin",
-    "release:frontend": "cd ./frontend && npx commit-and-tag-version && git push --tags origin",
-    "release:backend:api": "cd ./backend/src/KapitelShelf.Api && npx commit-and-tag-version && git push --tags origin",
-    "release:backend:migrations": "cd ./backend/src/KapitelShelf.Data.Migrations && npx commit-and-tag-version && git push --tags origin"
+    "release:helm": "cd ./helm/kapitelshelf && npx commit-and-tag-version -a && git push origin main --tags",
+    "release:frontend": "cd ./frontend && npx commit-and-tag-version && git push origin main --tags",
+    "release:backend:api": "cd ./backend/src/KapitelShelf.Api && npx commit-and-tag-version && git push origin main --tags",
+    "release:backend:migrations": "cd ./backend/src/KapitelShelf.Data.Migrations && npx commit-and-tag-version && git push origin main --tags"
   },
   "devDependencies": {
     "commit-and-tag-version": "^12.5.1",
