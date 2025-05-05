@@ -29,6 +29,14 @@ const RealWorldTypeToText = (type: LocationTypeDTO | undefined): string => {
   }
 };
 
+const EncodeBookFileUri = (uri: string): string => {
+  const normalized = uri.replace(/\\/g, "/");
+  return normalized
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+};
+
 interface LocationDetailsProps {
   location: LocationDTO;
 }
@@ -66,7 +74,11 @@ const LocationDetails = ({ location }: LocationDetailsProps): ReactElement => {
         <Button
           variant="outlined"
           startIcon={<DownloadIcon />}
-          onClick={() => navigate(`/library/books/<bookid>/download`)}
+          onClick={() =>
+            navigate(
+              `/data/${EncodeBookFileUri(location.fileInfo?.filePath ?? "")}`
+            )
+          }
         >
           Download
         </Button>
