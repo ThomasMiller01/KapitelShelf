@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "kapitelshelf.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
   backoffLimit: 1
   template:
