@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
@@ -129,6 +130,44 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error adding book cover");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Add the file for a book.
+    /// </summary>
+    /// <param name="bookId">The id of the book to get.</param>
+    /// <param name="bookFile">The book file.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPost("{bookId}/file")]
+    public async Task<IActionResult> AddBookFile(Guid bookId, IFormFile bookFile)
+    {
+        try
+        {
+            var book = await this.logic.GetBookByIdAsync(bookId);
+            if (book is null)
+            {
+                return NotFound();
+            }
+
+            // save file to disk
+            var file = await this.bookStorage.Save(bookId, bookFile);
+
+            book.Location = new LocationDTO
+            {
+                Type = LocationTypeDTO.KapitelShelf,
+                Url = null,
+                FileInfo = file,
+            };
+
+            await this.logic.UpdateBookAsync(bookId, book);
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error adding book file");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
