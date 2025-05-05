@@ -64,16 +64,12 @@ const SeriesBooksList = ({ seriesId }: SeriesBooksListProps): ReactElement => {
       hasMore={hasNextPage}
       loader={<LoadingCard itemName="more" />}
     >
-      <Grid
-        container
-        spacing={2}
-        columns={{ xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }}
-      >
+      <Grid container spacing={2}>
         {data?.pages
           .flatMap((p) => p.items)
           .filter((book): book is BookDTO => Boolean(book))
           .map((book) => (
-            <Grid key={book.id} size={1}>
+            <Grid key={book.id}>
               <BookCard book={book} />
             </Grid>
           ))}

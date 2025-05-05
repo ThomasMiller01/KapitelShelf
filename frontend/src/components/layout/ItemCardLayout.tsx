@@ -53,15 +53,31 @@ const ItemCardLayout = ({
   );
 
   return (
-    <Card sx={{ height: "100%" }} onClick={() => link && navigate(link)}>
+    <Card
+      sx={{
+        width: {
+          xs: "41vw", // mobile: about 2 cards per row
+          sm: "30vw", // small tablet: 3 per row
+          md: "22vw", // desktop: 4–5 per row
+          lg: "15vw", // large screen: 7–8 per row
+        },
+        maxWidth: 200,
+        height: "100%",
+      }}
+      onClick={() => link && navigate(link)}
+    >
       <Box component={link ? CardActionArea : "div"}>
         <Box position="relative">
           <CardMedia
             component="img"
-            height={isMobile ? "200" : "250"}
             image={imageSrc ?? undefined}
             onError={() => setImageSrc(fallbackImage ?? "")}
             alt={title || "Item image"}
+            width="100%"
+            sx={{
+              aspectRatio: "2 / 3", // book-cover ratio
+              objectFit: "cover",
+            }}
           />
           {badge && (
             <Box position="absolute" bottom="5px" right="5px">

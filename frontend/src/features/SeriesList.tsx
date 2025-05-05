@@ -56,16 +56,12 @@ const SeriesList = (): ReactElement => {
       hasMore={hasNextPage}
       loader={<LoadingCard itemName="more" />}
     >
-      <Grid
-        container
-        spacing={2}
-        columns={{ xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }}
-      >
+      <Grid container spacing={2}>
         {data?.pages
           .flatMap((p) => p.items)
           .filter((serie): serie is SeriesSummaryDTO => Boolean(serie))
           .map((serie) => (
-            <Grid key={serie.id} size={1}>
+            <Grid key={serie.id}>
               <SeriesCard serie={serie} />
             </Grid>
           ))}
