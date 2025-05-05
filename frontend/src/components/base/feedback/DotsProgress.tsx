@@ -38,7 +38,7 @@ export const DotsProgress = ({
       color="inherit"
       mt={1}
       display="inline"
-      fontSize={small ? "1rem" : "1.5rem"}
+      fontSize={small ? "1.2rem" : "1.5rem"}
       letterSpacing={small ? "0.0075em" : "5px"}
     >
       {dotSymbol.repeat(dotCount)}

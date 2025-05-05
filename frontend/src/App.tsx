@@ -18,8 +18,8 @@ function App(): ReactElement {
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <SnackbarProvider>
-          <ApiNotificationListener />
           <BrowserRouter>
+            <ApiNotificationListener />
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
               <AppRoutes />
             </LocalizationProvider>
