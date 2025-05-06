@@ -14,6 +14,11 @@ interface UploadCoverMutationProps {
   coverFile: File;
 }
 
+interface UploadFileMutationProps {
+  bookId: string;
+  bookFile: File;
+}
+
 const CreateBookPage = (): ReactElement => {
   const { triggerNavigate } = useNotification();
 
@@ -45,7 +50,26 @@ const CreateBookPage = (): ReactElement => {
     },
   });
 
-  const onCreate = async (book: BookDTO, cover: File): Promise<void> => {
+  const { mutateAsync: mutateUploadFile } = useMutation({
+    mutationKey: ["upload-file"],
+    mutationFn: async ({ bookId, bookFile }: UploadFileMutationProps) => {
+      const { data } = await booksApi.booksBookIdFilePost(bookId, bookFile);
+      return data;
+    },
+    meta: {
+      notify: {
+        enabled: true,
+        operation: "Uploading file",
+        showLoading: true,
+      },
+    },
+  });
+
+  const onCreate = async (
+    book: BookDTO,
+    cover: File,
+    bookFile?: File
+  ): Promise<void> => {
     const createdBook = await mutateCreateBook(book);
     if (
       createdBook?.id === undefined ||
@@ -59,6 +83,10 @@ const CreateBookPage = (): ReactElement => {
     // dont upload the nocover image
     if (cover.name !== "nocover.png") {
       await mutateUploadCover({ bookId: createdBook.id, coverFile: cover });
+    }
+
+    if (bookFile !== undefined) {
+      await mutateUploadFile({ bookId: createdBook.id, bookFile });
     }
 
     triggerNavigate({

@@ -30,7 +30,7 @@ import EditableLocationDetails from "./EditableLocationDetails";
 
 interface ActionProps {
   name: string;
-  onClick: (book: BookDTO, cover: File) => void;
+  onClick: (book: BookDTO, cover: File, bookFile?: File) => void;
   icon?: ReactNode;
 }
 
@@ -83,8 +83,9 @@ const EditableBookDetails = ({
   }, [triggerValidation]);
 
   const [coverFile, setCoverFile] = useState<File>();
-  const [coverPreview, setCoverPreview] = useState<string>(bookCover);
+  const [bookFile, setBookFile] = useState<File>();
 
+  const [coverPreview, setCoverPreview] = useState<string>(bookCover);
   useEffect(() => {
     UrlToFile(bookCover).then((file) => setCoverFile(file));
   }, []);
@@ -143,7 +144,7 @@ const EditableBookDetails = ({
       tags: data.tags?.map((x): TagDTO => ({ name: x })),
     };
 
-    action.onClick(book, coverFile);
+    action.onClick(book, coverFile, bookFile);
   };
 
   return (
@@ -285,7 +286,10 @@ const EditableBookDetails = ({
                 </Stack>
 
                 {/* Location */}
-                <EditableLocationDetails control={control} />
+                <EditableLocationDetails
+                  control={control}
+                  onFileChange={setBookFile}
+                />
 
                 <Stack direction="row" spacing={1} alignItems="start">
                   <CategoryIcon sx={{ mr: "5px !important" }} />

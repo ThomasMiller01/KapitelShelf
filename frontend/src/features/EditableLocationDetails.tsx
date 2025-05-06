@@ -19,7 +19,6 @@ import {
 
 import FileUploadButton from "../components/base/FileUploadButton";
 import { useMobile } from "../hooks/useMobile";
-import { useNotImplemented } from "../hooks/useNotImplemented";
 import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
 import {
   LocalTypes,
@@ -30,10 +29,12 @@ import {
 interface EditableLocationDetailsProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
+  onFileChange?: (file?: File) => void;
 }
 
 const EditableLocationDetails = ({
   control,
+  onFileChange,
 }: EditableLocationDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
 
@@ -64,7 +65,7 @@ const EditableLocationDetails = ({
             )}
           />
         </Box>
-        <LocationSettings control={control} />
+        <LocationSettings control={control} onFileChange={onFileChange} />
       </Stack>
     </Box>
   );
@@ -72,9 +73,13 @@ const EditableLocationDetails = ({
 
 interface LocationSettingsProps {
   control: Control;
+  onFileChange?: (file?: File) => void;
 }
 
-const LocationSettings = ({ control }: LocationSettingsProps): ReactElement => {
+const LocationSettings = ({
+  control,
+  onFileChange,
+}: LocationSettingsProps): ReactElement => {
   const locationType = useWatch({
     control,
     name: "locationType",
@@ -89,11 +94,20 @@ const LocationSettings = ({ control }: LocationSettingsProps): ReactElement => {
 
     if (LocalTypes.includes(lti)) {
       setValue("locationUrl", "");
+    } else if (UrlTypes.includes(lti)) {
+      if (onFileChange !== undefined) {
+        onFileChange(undefined);
+      }
+    } else {
+      setValue("locationUrl", "");
+      if (onFileChange !== undefined) {
+        onFileChange(undefined);
+      }
     }
-  }, [locationType, setValue]);
+  }, [locationType, setValue, onFileChange]);
 
   if (LocalTypes.includes(locationTypeInt)) {
-    return <LocalLocationSettings />;
+    return <LocalLocationSettings onFileChange={onFileChange} />;
   } else if (UrlTypes.includes(locationTypeInt)) {
     return (
       <UrlLocationSettings
@@ -106,17 +120,26 @@ const LocationSettings = ({ control }: LocationSettingsProps): ReactElement => {
   return <></>;
 };
 
-const LocalLocationSettings = (): ReactElement => {
+interface LocalLocationSettingsProps {
+  onFileChange?: (file: File) => void;
+}
+
+const LocalLocationSettings = ({
+  onFileChange: onFileChangeEvent,
+}: LocalLocationSettingsProps): ReactElement => {
   const [currentFile, setCurrentFile] = useState<File>();
-  const trigger = useNotImplemented();
 
   const onFileChange = useCallback(
     (file: File) => {
       setCurrentFile(file);
-      // eslint-disable-next-line no-magic-numbers
-      trigger(58);
+
+      if (onFileChangeEvent === undefined) {
+        return;
+      }
+
+      onFileChangeEvent(file);
     },
-    [trigger]
+    [onFileChangeEvent]
   );
 
   return (

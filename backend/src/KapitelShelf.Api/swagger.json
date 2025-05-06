@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "KapitelShelf.Api, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null",
+    "title": "KapitelShelf.Api, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null",
     "version": "1.0"
   },
   "paths": {
@@ -158,6 +158,29 @@
       }
     },
     "/books/{bookId}/cover": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get the cover for a book.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to get the cover for.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Books"
@@ -190,6 +213,75 @@
               },
               "encoding": {
                 "coverFile": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/books/{bookId}/file": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get the file for a book.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to get the file for.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Add the file for a book.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to get.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookFile": {
+                    "type": "string",
+                    "description": "The book file.",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "bookFile": {
                   "style": "form"
                 }
               }
@@ -685,6 +777,12 @@
             "type": "string",
             "description": "Gets or sets the sha256 checksum.",
             "nullable": true
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Gets the filename.",
+            "nullable": true,
+            "readOnly": true
           }
         },
         "additionalProperties": false,
