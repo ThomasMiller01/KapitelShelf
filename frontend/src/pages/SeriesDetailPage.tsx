@@ -49,6 +49,8 @@ const SeriesDetailPage = (): ReactElement => {
     <Box>
       <ItemAppBar
         title={series?.name}
+        backTooltip="Go to library"
+        backUrl="/library"
         addons={[
           <VolumesBadge
             key="series-count"

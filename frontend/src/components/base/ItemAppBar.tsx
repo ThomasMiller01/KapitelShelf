@@ -23,13 +23,29 @@ const BackButtonTooltip = styled((props: TooltipProps) => (
 
 interface BackButtonProps {
   backTooltip?: string;
+  // Defines the back button action:
+  // - undefined: go back in the navigation history
+  // - string: go to the defined url
+  backUrl?: string | undefined;
 }
 
-const BackButton = ({ backTooltip }: BackButtonProps): ReactElement => {
+const BackButton = ({
+  backTooltip,
+  backUrl,
+}: BackButtonProps): ReactElement => {
   const navigate = useNavigate();
 
+  let backAction: () => void;
+  if (backUrl === undefined) {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    backAction = () => navigate(-1);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    backAction = () => navigate(backUrl);
+  }
+
   const button = (
-    <IconButton edge="start" onClick={() => navigate(-1)} color="inherit">
+    <IconButton edge="start" onClick={backAction} color="inherit">
       <ArrowBackIcon sx={{ fontSize: "1.8rem" }} />
     </IconButton>
   );
@@ -41,7 +57,7 @@ const BackButton = ({ backTooltip }: BackButtonProps): ReactElement => {
   );
 };
 
-interface ItemAppBarProps {
+interface ItemAppBarProps extends BackButtonProps {
   title: string | null | undefined;
   addons?: ReactNode[];
   actions?: ReactNode[];
@@ -51,10 +67,12 @@ const ItemAppBar = ({
   title,
   addons = [],
   actions = [],
+  backTooltip = "Go back",
+  backUrl = undefined,
 }: ItemAppBarProps): ReactElement => (
   <AppBar position="static" color="default" elevation={1}>
     <Toolbar sx={{ py: "8px" }}>
-      <BackButton backTooltip={"Go back"} />
+      <BackButton backTooltip={backTooltip} backUrl={backUrl} />
       <Stack direction={{ xs: "column", md: "row" }} spacing={1} width="100%">
         <Typography
           variant="h6"
