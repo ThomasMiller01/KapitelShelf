@@ -298,7 +298,7 @@ const EditableBookDetails = ({
                     control={control}
                     render={({ field }) => (
                       <ItemList
-                        itemName="Tag"
+                        itemName="Category"
                         initial={field.value?.map((x) => x ?? "")}
                         onChange={field.onChange}
                       />
