@@ -3,6 +3,7 @@ import { type ReactElement } from "react";
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { SeriesSummaryDTO } from "../lib/api/KapitelShelf.Api/api";
+import { CoverUrl } from "../utils/FileUtils";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
 
 interface SeriesCardProps {
@@ -17,7 +18,7 @@ const SeriesCard = ({ serie }: SeriesCardProps): ReactElement => {
     <ItemCardLayout
       title={serie.name}
       link={`/library/series/${serie.id}`}
-      image={book?.cover?.filePath}
+      image={CoverUrl(book)}
       fallbackImage={bookCover}
       metadata={[
         <MetadataItem
