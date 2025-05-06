@@ -63,7 +63,7 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
         {
             if (ex.Message == StaticConstants.DuplicateExceptionKey)
             {
-                return Conflict(new { error = "A book with this title already exists." });
+                return Conflict(new { error = "A book with this title (or location) already exists." });
             }
 
             // re-throw exception
