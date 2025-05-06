@@ -92,8 +92,11 @@ const LocationDetails = ({
       <Stack direction="row" justifyContent="center" mt="15px">
         <Button
           variant="outlined"
+          component={Link}
           startIcon={<AutoStoriesIcon />}
-          onClick={() => (window.location.href = location.url ?? "")}
+          href={location.url ?? undefined}
+          target="_blank"
+          rel="noreferer"
         >
           Read on {LocationTypeToString[location.type ?? -1]}
         </Button>
