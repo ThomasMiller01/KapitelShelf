@@ -33,4 +33,10 @@ public class FileInfoDTO
     /// Gets or sets the sha256 checksum.
     /// </summary>
     public string Sha256 { get; set; } = null!;
+
+    /// <summary>
+    /// Gets the filename.
+    /// </summary>
+    /// <returns>The filename.</returns>
+    public string FileName => Path.GetFileName(this.FilePath);
 }

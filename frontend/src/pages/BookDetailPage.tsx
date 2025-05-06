@@ -47,6 +47,8 @@ const BookDetailPage = (): ReactElement => {
     <Box>
       <ItemAppBar
         title={book?.title}
+        backTooltip="Go to series"
+        backUrl={`/library/series/${book.series?.id}`}
         actions={[
           // eslint-disable-next-line no-magic-numbers
           <IconButton onClick={() => trigger(61)} key="edit">

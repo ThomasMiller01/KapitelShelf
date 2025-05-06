@@ -10,111 +10,136 @@ import {
   Typography,
 } from "@mui/material";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
+import {
+  type Control,
+  Controller,
+  useFormContext,
+  useWatch,
+} from "react-hook-form";
 
 import FileUploadButton from "../components/base/FileUploadButton";
 import { useMobile } from "../hooks/useMobile";
-import { useNotImplemented } from "../hooks/useNotImplemented";
-import type { LocationDTO } from "../lib/api/KapitelShelf.Api/api";
+import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
 import {
   LocalTypes,
   LocationTypeToString,
   UrlTypes,
-} from "../utils/LocationTypeUtils";
+} from "../utils/LocationUtils";
 
 interface EditableLocationDetailsProps {
-  initial?: LocationDTO;
-  onTypeChange?: (type: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
+  onFileChange?: (file?: File) => void;
 }
 
 const EditableLocationDetails = ({
-  initial,
-  onTypeChange,
+  control,
+  onFileChange,
 }: EditableLocationDetailsProps): ReactElement => {
-  const [locationType, setLocationType] = useState(
-    initial?.type?.toString() ?? "1"
-  );
-  useEffect(() => {
-    if (onTypeChange) {
-      onTypeChange(locationType);
-    }
-  }, [locationType, onTypeChange]);
+  const { isMobile } = useMobile();
 
   return (
     <Box>
       <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-        <LocationSelection
-          locationType={locationType}
-          setLocationType={setLocationType}
-        />
-        <LocationSettings locationType={locationType} />
+        <Box>
+          {/* Location Type */}
+          <Controller
+            name="locationType"
+            control={control}
+            defaultValue="1"
+            render={({ field }) => (
+              <FormControl variant="filled" sx={{ width: 150 }}>
+                <InputLabel>Location</InputLabel>
+                <Select {...field}>
+                  <MenuItem value="0">Physical</MenuItem>
+                  <MenuItem value="1">KapitelShelf</MenuItem>
+                  <MenuItem value="2">Kindle</MenuItem>
+                  <MenuItem value="3">Skoobe</MenuItem>
+                  <MenuItem value="4">Onleihe</MenuItem>
+                  <MenuItem value="5">Library</MenuItem>
+                </Select>
+                {!isMobile && UrlTypes.includes(parseInt(field.value)) && (
+                  <FormHelperText> </FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
+        </Box>
+        <LocationSettings control={control} onFileChange={onFileChange} />
       </Stack>
     </Box>
   );
 };
 
-interface LocationSelectionProps {
-  locationType: string;
-  setLocationType: (locationType: string) => void;
-}
-
-const LocationSelection = ({
-  locationType,
-  setLocationType,
-}: LocationSelectionProps): ReactElement => {
-  const { isMobile } = useMobile();
-
-  return (
-    <Box>
-      <FormControl variant="filled" sx={{ width: 150 }}>
-        <InputLabel>Location</InputLabel>
-        <Select
-          value={locationType}
-          onChange={({ target: { value } }) => setLocationType(value)}
-        >
-          <MenuItem value="0">Physical</MenuItem>
-          <MenuItem value="1">KapitelShelf</MenuItem>
-          <MenuItem value="2">Kindle</MenuItem>
-          <MenuItem value="3">Skoobe</MenuItem>
-          <MenuItem value="4">Onleihe</MenuItem>
-          <MenuItem value="5">Library</MenuItem>
-        </Select>
-        {!isMobile && UrlTypes.includes(parseInt(locationType)) && (
-          <FormHelperText> </FormHelperText>
-        )}
-      </FormControl>
-    </Box>
-  );
-};
-
 interface LocationSettingsProps {
-  locationType: string;
+  control: Control;
+  onFileChange?: (file?: File) => void;
 }
 
 const LocationSettings = ({
-  locationType,
+  control,
+  onFileChange,
 }: LocationSettingsProps): ReactElement => {
-  const locationTypeInt = parseInt(locationType);
+  const locationType = useWatch({
+    control,
+    name: "locationType",
+    defaultValue: "1",
+  });
+  const { setValue } = useFormContext<CreateBookFormValues>();
+
+  const [locationTypeInt, setLocationTypeInt] = useState(1);
+  useEffect(() => {
+    const lti = parseInt(locationType);
+    setLocationTypeInt(lti);
+
+    if (LocalTypes.includes(lti)) {
+      setValue("locationUrl", "");
+    } else if (UrlTypes.includes(lti)) {
+      if (onFileChange !== undefined) {
+        onFileChange(undefined);
+      }
+    } else {
+      setValue("locationUrl", "");
+      if (onFileChange !== undefined) {
+        onFileChange(undefined);
+      }
+    }
+  }, [locationType, setValue, onFileChange]);
 
   if (LocalTypes.includes(locationTypeInt)) {
-    return <LocalLocationSettings />;
+    return <LocalLocationSettings onFileChange={onFileChange} />;
   } else if (UrlTypes.includes(locationTypeInt)) {
-    return <UrlLocationSettings locationTypeInt={locationTypeInt} />;
+    return (
+      <UrlLocationSettings
+        control={control}
+        locationTypeInt={locationTypeInt}
+      />
+    );
   }
 
   return <></>;
 };
 
-const LocalLocationSettings = (): ReactElement => {
+interface LocalLocationSettingsProps {
+  onFileChange?: (file: File) => void;
+}
+
+const LocalLocationSettings = ({
+  onFileChange: onFileChangeEvent,
+}: LocalLocationSettingsProps): ReactElement => {
   const [currentFile, setCurrentFile] = useState<File>();
-  const trigger = useNotImplemented();
 
   const onFileChange = useCallback(
     (file: File) => {
       setCurrentFile(file);
-      // eslint-disable-next-line no-magic-numbers
-      trigger(58);
+
+      if (onFileChangeEvent === undefined) {
+        return;
+      }
+
+      onFileChangeEvent(file);
     },
-    [trigger]
+    [onFileChangeEvent]
   );
 
   return (
@@ -125,6 +150,7 @@ const LocalLocationSettings = (): ReactElement => {
       alignItems="center"
     >
       <Box>
+        {/* Location File */}
         <FileUploadButton
           onFileChange={onFileChange}
           sx={{ whiteSpace: "nowrap" }}
@@ -138,23 +164,42 @@ const LocalLocationSettings = (): ReactElement => {
 };
 
 interface UrlLocationSettingsProps {
-  initial?: string;
+  control: Control;
   locationTypeInt: number;
 }
 
 const UrlLocationSettings = ({
+  control,
   locationTypeInt,
-}: UrlLocationSettingsProps): ReactElement => (
-  <Box width="100%">
-    <TextField
-      label="Url"
-      helperText={`Link to the book on ${
-        LocationTypeToString[locationTypeInt ?? -1]
-      }`}
-      variant="filled"
-      fullWidth
-    />
-  </Box>
-);
+}: UrlLocationSettingsProps): ReactElement => {
+  const {
+    formState: { errors },
+  } = useFormContext<CreateBookFormValues>();
+
+  return (
+    <Box width="100%">
+      {/* Location Url */}
+      <Controller
+        name="locationUrl"
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            label="Url"
+            error={Boolean(errors.locationUrl)}
+            helperText={
+              errors.locationUrl?.message ??
+              `Link to the book on ${
+                LocationTypeToString[locationTypeInt ?? -1]
+              }`
+            }
+            variant="filled"
+            fullWidth
+          />
+        )}
+      />
+    </Box>
+  );
+};
 
 export default EditableLocationDetails;

@@ -7,29 +7,30 @@ import { DateField } from "@mui/x-date-pickers/DateField";
 import dayjs from "dayjs";
 import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import bookCover from "../assets/books/nocover.png";
 import FileUploadButton from "../components/base/FileUploadButton";
 import ItemList from "../components/base/ItemList";
 import { useMobile } from "../hooks/useMobile";
 import { useNotImplemented } from "../hooks/useNotImplemented";
-import type {
-  AuthorDTO,
-  BookDTO,
-  CategoryDTO,
-  SeriesDTO,
-  TagDTO,
+import {
+  type AuthorDTO,
+  type BookDTO,
+  type CategoryDTO,
+  type SeriesDTO,
+  type TagDTO,
 } from "../lib/api/KapitelShelf.Api/api";
 import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
 import { CreateBookSchema } from "../lib/schemas/CreateBookSchema";
 import { ImageTypes } from "../utils/FileTypesUtils";
 import { UrlToFile } from "../utils/FileUtils";
+import { toLocationTypeDTO } from "../utils/LocationUtils";
 import EditableLocationDetails from "./EditableLocationDetails";
 
 interface ActionProps {
   name: string;
-  onClick: (book: BookDTO, cover: File) => void;
+  onClick: (book: BookDTO, cover: File, bookFile?: File) => void;
   icon?: ReactNode;
 }
 
@@ -50,12 +51,7 @@ const EditableBookDetails = ({
     initialAuthor += " " + initial.author.lastName;
   }
 
-  const {
-    control,
-    handleSubmit,
-    trigger: triggerValidation,
-    formState: { errors, isValid },
-  } = useForm({
+  const methods = useForm({
     resolver: yupResolver(CreateBookSchema),
     mode: "onBlur",
     defaultValues: {
@@ -66,11 +62,20 @@ const EditableBookDetails = ({
       series: initial?.series?.name,
       seriesNumber: initial?.seriesNumber,
       author: initialAuthor,
+      locationUrl: initial?.location?.url ?? "",
+      locationType: initial?.location?.type ?? 1,
       categories:
         initial?.categories?.flatMap((x) => (x.name ? [x.name] : [])) ?? [],
       tags: initial?.tags?.flatMap((x) => (x.name ? [x.name] : [])) ?? [],
     },
   });
+
+  const {
+    control,
+    handleSubmit,
+    trigger: triggerValidation,
+    formState: { errors, isValid },
+  } = methods;
 
   // run validation on mount
   useEffect(() => {
@@ -78,8 +83,9 @@ const EditableBookDetails = ({
   }, [triggerValidation]);
 
   const [coverFile, setCoverFile] = useState<File>();
-  const [coverPreview, setCoverPreview] = useState<string>(bookCover);
+  const [bookFile, setBookFile] = useState<File>();
 
+  const [coverPreview, setCoverPreview] = useState<string>(bookCover);
   useEffect(() => {
     UrlToFile(bookCover).then((file) => setCoverFile(file));
   }, []);
@@ -130,221 +136,237 @@ const EditableBookDetails = ({
       series: data.series ? ({ name: data.series } as SeriesDTO) : undefined,
       seriesNumber: data.seriesNumber ?? undefined,
       author: data.author ? parseAuthor(data.author) : undefined,
+      location: {
+        type: toLocationTypeDTO(data.locationType ?? -1),
+        url: data.locationUrl !== "" ? data.locationUrl : undefined,
+      },
       categories: data.categories?.map((x): CategoryDTO => ({ name: x })),
       tags: data.tags?.map((x): TagDTO => ({ name: x })),
     };
 
-    action.onClick(book, coverFile);
+    action.onClick(book, coverFile, bookFile);
   };
 
   return (
     <Box mt="15px">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
-          <Grid size={{ xs: 0, md: 1 }}></Grid>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
+            <Grid size={{ xs: 0, md: 1 }}></Grid>
 
-          <Grid size={{ xs: 11, md: 2.5 }}>
-            <Stack spacing={1} alignItems="center">
-              <img
-                src={coverPreview}
-                alt={"Book Cover"}
-                style={{
-                  width: "100%",
-                  borderRadius: 2,
-                  boxShadow: "3",
-                  marginLeft: isMobile ? "auto" : 0,
-                  marginRight: isMobile ? "auto" : 0,
-                }}
-              />
-              <FileUploadButton onFileChange={setCoverFile} accept={ImageTypes}>
-                Upload Cover
-              </FileUploadButton>
-            </Stack>
-          </Grid>
-
-          <Grid size={{ xs: 11, md: 6.5 }} mt="20px">
-            <Stack spacing={2} width={isMobile ? "100%" : "60%"}>
-              {/* Title */}
-              <Controller
-                name="title"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Title"
-                    variant="filled"
-                    error={Boolean(errors.title)}
-                    helperText={errors.title?.message}
-                  />
-                )}
-              />
-
-              {/* Description */}
-              <Controller
-                name="description"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Description"
-                    variant="filled"
-                    multiline
-                    minRows={4}
-                  />
-                )}
-              />
-
-              <Stack direction="row" spacing={2} justifyContent="space-between">
-                {/* Page Number */}
-                <Controller
-                  name="pageNumber"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Page Number"
-                      variant="filled"
-                      type="number"
-                      error={Boolean(errors.pageNumber)}
-                      helperText={errors.pageNumber?.message}
-                    />
-                  )}
-                />
-
-                {/* Release Date */}
-                <Controller
-                  name="releaseDate"
-                  control={control}
-                  render={({ field }) => (
-                    <DateField
-                      {...field}
-                      label="Release Date"
-                      variant="filled"
-                      error={Boolean(errors.releaseDate)}
-                    />
-                  )}
-                />
-              </Stack>
-
-              {/* Author */}
-              <Controller
-                name="author"
-                control={control}
-                render={({ field }) => (
-                  <TextField {...field} label="Author" variant="filled" />
-                )}
-              />
-
-              <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                {/* Series */}
-                <Controller
-                  name="series"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Series"
-                      variant="filled"
-                      fullWidth
-                    />
-                  )}
-                />
-
-                {/* Volume */}
-                <Controller
-                  name="seriesNumber"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Volume"
-                      variant="filled"
-                      type="number"
-                      error={Boolean(errors.seriesNumber)}
-                      helperText={errors.seriesNumber?.message}
-                    />
-                  )}
-                />
-              </Stack>
-
-              {/* TODO location */}
-              <EditableLocationDetails initial={initial?.location} />
-
-              <Stack direction="row" spacing={1} alignItems="start">
-                <CategoryIcon sx={{ mr: "5px !important" }} />
-                <Controller
-                  name="categories"
-                  control={control}
-                  render={({ field }) => (
-                    <ItemList
-                      itemName="Tag"
-                      initial={field.value?.map((x) => x ?? "")}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-              </Stack>
-
-              <Stack direction="row" spacing={1} alignItems="start">
-                <LocalOfferIcon sx={{ mr: "5px !important" }} />
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
-                    <ItemList
-                      itemName="Tag"
-                      initial={field.value?.map((x) => x ?? "")}
-                      onChange={field.onChange}
-                      variant="outlined"
-                    />
-                  )}
-                />
-              </Stack>
-
-              <Divider />
-
-              <Stack
-                direction={{ xs: "column", md: "row" }}
-                spacing={2}
-                justifyContent="space-between"
-                alignItems="end"
-                mt="15px"
-              >
-                <Button
-                  variant="outlined"
-                  startIcon={<ImportContactsIcon />}
-                  sx={{
-                    alignItems: "start",
-                    width: "fit-content",
-                    height: "fit-content",
-                    whiteSpace: "nowrap",
+            <Grid size={{ xs: 11, md: 2.5 }}>
+              <Stack spacing={1} alignItems="center">
+                <img
+                  src={coverPreview}
+                  alt={"Book Cover"}
+                  style={{
+                    width: "100%",
+                    borderRadius: 2,
+                    boxShadow: "3",
+                    marginLeft: isMobile ? "auto" : 0,
+                    marginRight: isMobile ? "auto" : 0,
                   }}
-                  // eslint-disable-next-line no-magic-numbers
-                  onClick={() => trigger(63)}
+                />
+                <FileUploadButton
+                  onFileChange={setCoverFile}
+                  accept={ImageTypes}
                 >
-                  Import Metadata
-                </Button>
-                {action && (
+                  Upload Cover
+                </FileUploadButton>
+              </Stack>
+            </Grid>
+
+            <Grid size={{ xs: 11, md: 6.5 }} mt="20px">
+              <Stack spacing={2} width={isMobile ? "100%" : "60%"}>
+                {/* Title */}
+                <Controller
+                  name="title"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Title"
+                      variant="filled"
+                      error={Boolean(errors.title)}
+                      helperText={errors.title?.message}
+                    />
+                  )}
+                />
+
+                {/* Description */}
+                <Controller
+                  name="description"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Description"
+                      variant="filled"
+                      multiline
+                      minRows={4}
+                    />
+                  )}
+                />
+
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  justifyContent="space-between"
+                >
+                  {/* Page Number */}
+                  <Controller
+                    name="pageNumber"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Page Number"
+                        variant="filled"
+                        type="number"
+                        error={Boolean(errors.pageNumber)}
+                        helperText={errors.pageNumber?.message}
+                      />
+                    )}
+                  />
+
+                  {/* Release Date */}
+                  <Controller
+                    name="releaseDate"
+                    control={control}
+                    render={({ field }) => (
+                      <DateField
+                        {...field}
+                        label="Release Date"
+                        variant="filled"
+                        error={Boolean(errors.releaseDate)}
+                      />
+                    )}
+                  />
+                </Stack>
+
+                {/* Author */}
+                <Controller
+                  name="author"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Author" variant="filled" />
+                  )}
+                />
+
+                <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                  {/* Series */}
+                  <Controller
+                    name="series"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Series"
+                        variant="filled"
+                        fullWidth
+                      />
+                    )}
+                  />
+
+                  {/* Volume */}
+                  <Controller
+                    name="seriesNumber"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Volume"
+                        variant="filled"
+                        type="number"
+                        error={Boolean(errors.seriesNumber)}
+                        helperText={errors.seriesNumber?.message}
+                      />
+                    )}
+                  />
+                </Stack>
+
+                {/* Location */}
+                <EditableLocationDetails
+                  control={control}
+                  onFileChange={setBookFile}
+                />
+
+                <Stack direction="row" spacing={1} alignItems="start">
+                  <CategoryIcon sx={{ mr: "5px !important" }} />
+                  <Controller
+                    name="categories"
+                    control={control}
+                    render={({ field }) => (
+                      <ItemList
+                        itemName="Tag"
+                        initial={field.value?.map((x) => x ?? "")}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                </Stack>
+
+                <Stack direction="row" spacing={1} alignItems="start">
+                  <LocalOfferIcon sx={{ mr: "5px !important" }} />
+                  <Controller
+                    name="tags"
+                    control={control}
+                    render={({ field }) => (
+                      <ItemList
+                        itemName="Tag"
+                        initial={field.value?.map((x) => x ?? "")}
+                        onChange={field.onChange}
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                </Stack>
+
+                <Divider />
+
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={2}
+                  justifyContent="space-between"
+                  alignItems="end"
+                  mt="15px"
+                >
                   <Button
-                    variant="contained"
-                    startIcon={action.icon}
-                    type="submit"
-                    disabled={!isValid}
+                    variant="outlined"
+                    startIcon={<ImportContactsIcon />}
                     sx={{
                       alignItems: "start",
                       width: "fit-content",
                       height: "fit-content",
                       whiteSpace: "nowrap",
                     }}
+                    // eslint-disable-next-line no-magic-numbers
+                    onClick={() => trigger(63)}
                   >
-                    {action.name}
+                    Import Metadata
                   </Button>
-                )}
+                  {action && (
+                    <Button
+                      variant="contained"
+                      startIcon={action.icon}
+                      type="submit"
+                      disabled={!isValid}
+                      sx={{
+                        alignItems: "start",
+                        width: "fit-content",
+                        height: "fit-content",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {action.name}
+                    </Button>
+                  )}
+                </Stack>
               </Stack>
-            </Stack>
+            </Grid>
           </Grid>
-        </Grid>
-      </form>
+        </form>
+      </FormProvider>
     </Box>
   );
 };

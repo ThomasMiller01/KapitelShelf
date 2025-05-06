@@ -1,20 +1,20 @@
 /* eslint-disable no-magic-numbers */
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
-import DownloadIcon from "@mui/icons-material/Download";
-import { Button, Stack } from "@mui/material";
+import { Button, Link, Stack } from "@mui/material";
 import { type ReactElement } from "react";
-import { useNavigate } from "react-router-dom";
 
+import { useNotImplemented } from "../hooks/useNotImplemented";
 import type {
   LocationDTO,
   LocationTypeDTO,
 } from "../lib/api/KapitelShelf.Api/api";
 import {
+  FileUrl,
   LocalTypes,
   LocationTypeToString,
   RealWorldTypes,
   UrlTypes,
-} from "../utils/LocationTypeUtils";
+} from "../utils/LocationUtils";
 
 const RealWorldTypeToText = (type: LocationTypeDTO | undefined): string => {
   switch (type) {
@@ -30,12 +30,15 @@ const RealWorldTypeToText = (type: LocationTypeDTO | undefined): string => {
 };
 
 interface LocationDetailsProps {
+  bookId: string | undefined;
   location: LocationDTO;
 }
 
-const LocationDetails = ({ location }: LocationDetailsProps): ReactElement => {
-  const navigate = useNavigate();
-
+const LocationDetails = ({
+  bookId,
+  location,
+}: LocationDetailsProps): ReactElement => {
+  const trigger = useNotImplemented();
   if (RealWorldTypes.includes(location.type ?? -1)) {
     return (
       <Stack direction="row" justifyContent="center" mt="15px">
@@ -54,19 +57,31 @@ const LocationDetails = ({ location }: LocationDetailsProps): ReactElement => {
       </Stack>
     );
   } else if (LocalTypes.includes(location.type ?? -1)) {
+    const fileUrl = FileUrl({
+      id: bookId,
+      location: {
+        fileInfo: location.fileInfo,
+      },
+    });
+
     return (
       <Stack direction="row" justifyContent="center" spacing={2} mt="15px">
         <Button
           variant="outlined"
           startIcon={<AutoStoriesIcon />}
-          onClick={() => navigate(`/library/books/<bookid>/read`)}
+          onClick={() => trigger(107)}
+          disabled={fileUrl === undefined}
         >
           Read
         </Button>
         <Button
           variant="outlined"
-          startIcon={<DownloadIcon />}
-          onClick={() => navigate(`/library/books/<bookid>/download`)}
+          startIcon={<AutoStoriesIcon />}
+          component={Link}
+          href={fileUrl}
+          target="_blank"
+          rel="noreferer"
+          disabled={fileUrl === undefined}
         >
           Download
         </Button>
@@ -77,8 +92,11 @@ const LocationDetails = ({ location }: LocationDetailsProps): ReactElement => {
       <Stack direction="row" justifyContent="center" mt="15px">
         <Button
           variant="outlined"
+          component={Link}
           startIcon={<AutoStoriesIcon />}
-          onClick={() => (window.location.href = location.url ?? "")}
+          href={location.url ?? undefined}
+          target="_blank"
+          rel="noreferer"
         >
           Read on {LocationTypeToString[location.type ?? -1]}
         </Button>

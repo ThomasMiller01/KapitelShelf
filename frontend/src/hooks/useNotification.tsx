@@ -1,9 +1,8 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Link, Stack, Typography } from "@mui/material";
 import type { SnackbarKey } from "notistack";
 import { useSnackbar } from "notistack";
 import type { ReactElement } from "react";
 import { useCallback, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { DotsProgress } from "../components/base/feedback/DotsProgress";
 
@@ -35,7 +34,6 @@ interface NotificationResult {
 
 export const useNotification = (): NotificationResult => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const navigate = useNavigate();
 
   const [loadingNotifId, setLoadingNotifId] = useState<SnackbarKey>();
   const loadingTimeout = useRef<number>(undefined);
@@ -90,10 +88,11 @@ export const useNotification = (): NotificationResult => {
       autoHideDuration: 8000,
       action: (snackbarId) => (
         <Button
+          component={Link}
           variant="text"
+          href={props.url ?? undefined}
           onClick={() => {
             closeSnackbar(snackbarId);
-            navigate(props.url);
           }}
         >
           View

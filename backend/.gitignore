@@ -400,4 +400,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 # book data
-src/KapitelShelf.Api/data
+src/data

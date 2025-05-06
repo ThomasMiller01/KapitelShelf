@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
@@ -123,7 +124,7 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
                 return NotFound();
             }
 
-            return File(stream, book.Cover.MimeType, enableRangeProcessing: true);
+            return File(stream, book.Cover.MimeType, book.Cover.FileName, enableRangeProcessing: true);
         }
         catch (Exception ex)
         {
@@ -161,6 +162,85 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error adding book cover");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Get the file for a book.
+    /// </summary>
+    /// <param name="bookId">The id of the book to get the file for.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{bookId}/file")]
+    public async Task<IActionResult> GetBookFile(Guid bookId)
+    {
+        try
+        {
+            var book = await this.logic.GetBookByIdAsync(bookId);
+            if (book is null || book.Location is null)
+            {
+                return NotFound();
+            }
+
+            if (book.Location.Type != LocationTypeDTO.KapitelShelf)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = $"Location {book.Location.Type} does not store files in KapitelShelf." });
+            }
+
+            if (book.Location.FileInfo is null)
+            {
+                return NotFound();
+            }
+
+            var stream = this.bookStorage.Stream(book.Location.FileInfo);
+            if (stream is null)
+            {
+                return NotFound();
+            }
+
+            return File(stream, book.Location.FileInfo.MimeType, book.Location.FileInfo.FileName, enableRangeProcessing: true);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting book file");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Add the file for a book.
+    /// </summary>
+    /// <param name="bookId">The id of the book to get.</param>
+    /// <param name="bookFile">The book file.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPost("{bookId}/file")]
+    public async Task<IActionResult> AddBookFile(Guid bookId, IFormFile bookFile)
+    {
+        try
+        {
+            var book = await this.logic.GetBookByIdAsync(bookId);
+            if (book is null)
+            {
+                return NotFound();
+            }
+
+            // save file to disk
+            var file = await this.bookStorage.Save(bookId, bookFile);
+
+            book.Location = new LocationDTO
+            {
+                Type = LocationTypeDTO.KapitelShelf,
+                Url = null,
+                FileInfo = file,
+            };
+
+            await this.logic.UpdateBookAsync(bookId, book);
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error adding book file");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

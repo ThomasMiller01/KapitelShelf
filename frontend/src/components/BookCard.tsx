@@ -5,7 +5,7 @@ import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 import { CoverUrl } from "../utils/FileUtils";
-import { LocationTypeToString } from "../utils/LocationTypeUtils";
+import { LocationTypeToString } from "../utils/LocationUtils";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
 
 interface BookCardProps {

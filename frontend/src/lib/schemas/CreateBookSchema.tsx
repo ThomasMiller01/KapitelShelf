@@ -21,6 +21,12 @@ export const CreateBookSchema = yup.object({
     .integer("Volume must be an integer")
     .nullable(),
   author: yup.string().nullable(),
+  locationType: yup.number(),
+  locationUrl: yup
+    .string()
+    .transform((value, original) => (original === "" ? null : value))
+    .nullable()
+    .url("Link must be a valid URL"),
   categories: yup.array().of(yup.string()),
   tags: yup.array().of(yup.string()),
 });
