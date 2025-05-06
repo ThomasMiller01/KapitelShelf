@@ -2,8 +2,8 @@
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import { Button, Link, Stack } from "@mui/material";
 import { type ReactElement } from "react";
-import { Link as RouterLink } from "react-router-dom";
 
+import { useNotImplemented } from "../hooks/useNotImplemented";
 import type {
   LocationDTO,
   LocationTypeDTO,
@@ -38,6 +38,7 @@ const LocationDetails = ({
   bookId,
   location,
 }: LocationDetailsProps): ReactElement => {
+  const trigger = useNotImplemented();
   if (RealWorldTypes.includes(location.type ?? -1)) {
     return (
       <Stack direction="row" justifyContent="center" mt="15px">
@@ -68,8 +69,7 @@ const LocationDetails = ({
         <Button
           variant="outlined"
           startIcon={<AutoStoriesIcon />}
-          component={RouterLink}
-          to={`/library/books/<bookid>/read`}
+          onClick={() => trigger(107)}
           disabled={fileUrl === undefined}
         >
           Read
