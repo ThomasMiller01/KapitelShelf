@@ -30,9 +30,21 @@ public class BookStorage(KapitelShelfSettings settings)
         return await Save(filePath, file);
     }
 
+    /// <summary>
+    /// Get the stream for a file in the specified book directory.
+    /// </summary>
+    /// <param name="file">The file to stream.</param>
+    /// <returns>The file stream.</returns>
+    public FileStream? Stream(FileInfoDTO file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        return this.Stream(file.FilePath);
+    }
+
     private async Task<FileInfoDTO> Save(string filePath, IFormFile file)
     {
-        var fullFilePath = Path.Combine(this.settings.DataDir, filePath);
+        var fullFilePath = this.FullFilePath(filePath);
 
         var directory = Path.GetDirectoryName(fullFilePath);
         if (directory is not null && !Directory.Exists(directory))
@@ -50,5 +62,23 @@ public class BookStorage(KapitelShelfSettings settings)
             MimeType = file.GetMimeType(),
             Sha256 = stream.Checksum(),
         };
+    }
+
+    private FileStream? Stream(string filePath)
+    {
+        var fullFilePath = this.FullFilePath(filePath);
+        if (!File.Exists(fullFilePath))
+        {
+            return null;
+        }
+
+        return File.OpenRead(fullFilePath);
+    }
+
+    private string FullFilePath(string filePath)
+    {
+        var combinedPath = Path.Combine(this.settings.DataDir, filePath);
+        var absPath = Path.GetFullPath(combinedPath);
+        return absPath;
     }
 }

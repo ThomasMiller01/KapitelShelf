@@ -101,6 +101,38 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
     }
 
     /// <summary>
+    /// Get the cover for a book.
+    /// </summary>
+    /// <param name="bookId">The id of the book to get the cover for.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{bookId}/cover")]
+    [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Client)]
+    public async Task<IActionResult> GetBookCover(Guid bookId)
+    {
+        try
+        {
+            var book = await this.logic.GetBookByIdAsync(bookId);
+            if (book is null || book.Cover is null)
+            {
+                return NotFound();
+            }
+
+            var stream = this.bookStorage.Stream(book.Cover);
+            if (stream is null)
+            {
+                return NotFound();
+            }
+
+            return File(stream, book.Cover.MimeType, enableRangeProcessing: true);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting book cover");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Add the cover for a book.
     /// </summary>
     /// <param name="bookId">The id of the book to get.</param>

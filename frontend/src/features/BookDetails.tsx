@@ -11,6 +11,7 @@ import { type ReactElement, useState } from "react";
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import { CoverUrl } from "../utils/FileUtils";
 import LocationDetails from "./LocationDetails";
 
 interface MetadataItemProps {
@@ -39,9 +40,7 @@ interface BookDetailsProps {
 const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
 
-  const [imageSrc, setImageSrc] = useState(
-    book.cover?.filePath ? `/data/${book.cover?.filePath}` : bookCover
-  );
+  const [imageSrc, setImageSrc] = useState(CoverUrl(book) ?? bookCover);
 
   return (
     <Box p={3}>

@@ -31,8 +31,6 @@ services:
       VITE_KAPITELSHELF_API: http://localhost:5261
     ports:
       - "5173:5173"
-    volumes:
-      - kapitelshelf_data:/app/dist/data
 
   api:
     container_name: kapitelshelf-api
@@ -127,6 +125,7 @@ docker run -d \
     -e KapitelShelf__Database__Host=host.docker.internal:5432 \
     -e KapitelShelf__Database__Username=kapitelshelf \
     -e KapitelShelf__Database__Password=kapitelshelf \
+    -v ./data:/var/lib/kapitelshelf/data
     --restart unless-stopped \
     thomasmiller01/kapitelshelf-api
 ```
