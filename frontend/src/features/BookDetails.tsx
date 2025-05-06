@@ -62,7 +62,9 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
               }}
             />
 
-            {book.location && <LocationDetails location={book.location} />}
+            {book.location && (
+              <LocationDetails bookId={book.id} location={book.location} />
+            )}
           </Stack>
         </Grid>
 

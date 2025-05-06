@@ -19,7 +19,7 @@ import {
   LocalTypes,
   LocationTypeToString,
   UrlTypes,
-} from "../utils/LocationTypeUtils";
+} from "../utils/LocationUtils";
 
 interface EditableLocationDetailsProps {
   initial?: LocationDTO;

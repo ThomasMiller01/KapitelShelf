@@ -1,5 +1,7 @@
 /* eslint-disable no-magic-numbers */
 
+import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+
 export const RealWorldTypes = [
   0, // Physical
   5, // Library
@@ -27,4 +29,12 @@ export const LocationTypeToString: LocationTypeToStringResult = {
   3: "Skoobe",
   4: "Onleihe",
   5: "Library",
+};
+
+export const FileUrl = (book: BookDTO | undefined): string | undefined => {
+  if (book === undefined || book?.location?.fileInfo === undefined) {
+    return undefined;
+  }
+
+  return `${import.meta.env.VITE_KAPITELSHELF_API}/books/${book.id}/file`;
 };
