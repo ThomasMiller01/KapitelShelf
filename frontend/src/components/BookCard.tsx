@@ -4,6 +4,7 @@ import React, { type ReactElement } from "react";
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import { CoverUrl } from "../utils/FileUtils";
 import { LocationTypeToString } from "../utils/LocationTypeUtils";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
 
@@ -24,7 +25,7 @@ const BookCard = ({
     <ItemCardLayout
       title={book.title}
       link={`/library/books/${book.id}`}
-      image={book.cover?.filePath}
+      image={CoverUrl(book)}
       fallbackImage={bookCover}
       badge={
         book.seriesNumber !== 0 ? book.seriesNumber?.toString() : undefined
