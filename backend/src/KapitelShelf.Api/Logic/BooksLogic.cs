@@ -366,6 +366,19 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return this.mapper.Map<BookDTO>(book);
     }
 
+    /// <summary>
+    /// Import a book from a file.
+    /// </summary>
+    /// <param name="file">The book file to import.</param>
+    /// <returns>The imported book.</returns>
+    public BookDTO ImportBook(IFormFile file)
+    {
+        using var parser = BookMetadataParserFactory
+            .WithFile(file);
+
+        return parser.Parse();
+    }
+
     private async Task<IList<BookModel>> GetDuplicates(string title, string? url)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
