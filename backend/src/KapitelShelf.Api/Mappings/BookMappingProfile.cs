@@ -38,5 +38,7 @@ public class BookMappingProfile : Profile
             .ForMember(dest => dest.Series, opt => opt.Ignore())
             .ForMember(dest => dest.Author, opt => opt.Ignore())
             .ForMember(dest => dest.Cover, opt => opt.Ignore());
+
+        CreateMap<BookDTO, CreateBookDTO>();
     }
 }

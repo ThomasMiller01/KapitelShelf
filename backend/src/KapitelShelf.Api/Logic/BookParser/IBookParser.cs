@@ -1,15 +1,15 @@
-﻿// <copyright file="IBookMetadataParser.cs" company="KapitelShelf">
+﻿// <copyright file="IBookParser.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.BookParser;
 
-namespace KapitelShelf.Api.Logic.BookMetadataParser;
+namespace KapitelShelf.Api.Logic.BookParser;
 
 /// <summary>
 /// The book metadata parser.
 /// </summary>
-public interface IBookMetadataParser
+public interface IBookParser
 {
     /// <summary>
     /// Gets the file extensions supported by this parser.
@@ -19,7 +19,7 @@ public interface IBookMetadataParser
     /// <summary>
     /// Parse a book file stream for metadata.
     /// </summary>
-    /// <param name="fileStream">The book file stream.</param>
-    /// <returns>The metadata of the book.</returns>
-    BookDTO Parse(Stream fileStream);
+    /// <param name="file">The book file to parse.</param>
+    /// <returns>The book parsing result.</returns>
+    Task<BookParsingResult> Parse(IFormFile file);
 }

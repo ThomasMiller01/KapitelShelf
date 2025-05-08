@@ -82,11 +82,11 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
     /// <param name="bookFile">Thebook file to import.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost("import")]
-    public ActionResult<BookDTO> ImportBook(IFormFile bookFile)
+    public async Task<ActionResult<BookDTO>> ImportBook(IFormFile bookFile)
     {
         try
         {
-            var book = this.logic.ImportBook(bookFile);
+            var book = await this.logic.ImportBookAsync(bookFile);
 
             return CreatedAtAction(nameof(CreateBook), book);
         }

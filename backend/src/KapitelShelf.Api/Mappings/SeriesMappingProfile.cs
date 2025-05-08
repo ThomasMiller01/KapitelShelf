@@ -28,5 +28,7 @@ public class SeriesMappingProfile : Profile
                     .FirstOrDefault()));
 
         CreateMap<CreateSeriesDTO, SeriesModel>();
+
+        CreateMap<SeriesDTO, CreateSeriesDTO>();
     }
 }

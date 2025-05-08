@@ -20,5 +20,7 @@ public class FileInfoMappingProfile : Profile
     {
         CreateMap<FileInfoModel, FileInfoDTO>()
             .ReverseMap();
+
+        CreateMap<FileInfoDTO, CreateFileInfoDTO>();
     }
 }
