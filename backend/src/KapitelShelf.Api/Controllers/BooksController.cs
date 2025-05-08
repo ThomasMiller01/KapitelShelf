@@ -77,6 +77,37 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
     }
 
     /// <summary>
+    /// Import a new book.
+    /// </summary>
+    /// <param name="bookFile">Thebook file to import.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPost("import")]
+    public async Task<ActionResult<BookDTO>> ImportBook(IFormFile bookFile)
+    {
+        try
+        {
+            var book = await this.logic.ImportBookAsync(bookFile);
+
+            return CreatedAtAction(nameof(CreateBook), book);
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == StaticConstants.DuplicateExceptionKey)
+            {
+                return Conflict(new { error = "A book with this title (or location) already exists." });
+            }
+
+            // re-throw exception
+            throw;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error importing book");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Get book by the id.
     /// </summary>
     /// <param name="bookId">The id of the book to get.</param>

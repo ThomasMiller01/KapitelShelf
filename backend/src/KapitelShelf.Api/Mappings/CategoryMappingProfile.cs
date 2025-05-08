@@ -22,5 +22,7 @@ public class CategoryMappingProfile : Profile
             .ReverseMap();
 
         CreateMap<CreateCategoryDTO, CategoryModel>();
+
+        CreateMap<CategoryDTO, CreateCategoryDTO>();
     }
 }

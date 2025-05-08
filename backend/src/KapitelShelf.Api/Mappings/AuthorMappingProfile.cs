@@ -22,5 +22,7 @@ public class AuthorMappingProfile : Profile
             .ReverseMap();
 
         CreateMap<CreateAuthorDTO, AuthorModel>();
+
+        CreateMap<AuthorDTO, CreateAuthorDTO>();
     }
 }

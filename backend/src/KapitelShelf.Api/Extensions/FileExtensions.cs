@@ -46,4 +46,18 @@ public static class FileExtensions
         var hash = sha.ComputeHash(stream);
         return Convert.ToHexStringLower(hash);
     }
+
+    /// <summary>
+    /// Convert bytes to a file.
+    /// </summary>
+    /// <param name="bytes">The bytes to convert into the file.</param>
+    /// <param name="fileName">The file name.</param>
+    /// <returns>The file.</returns>
+    public static IFormFile ToFile(this byte[] bytes, string fileName)
+    {
+        ArgumentNullException.ThrowIfNull(bytes);
+
+        var stream = new MemoryStream(bytes);
+        return new FormFile(stream, 0, bytes.Length, "file", fileName);
+    }
 }

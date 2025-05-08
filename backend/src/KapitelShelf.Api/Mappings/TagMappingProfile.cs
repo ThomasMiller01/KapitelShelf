@@ -22,5 +22,7 @@ public class TagMappingProfile : Profile
             .ReverseMap();
 
         CreateMap<CreateTagDTO, TagModel>();
+
+        CreateMap<TagDTO, CreateTagDTO>();
     }
 }

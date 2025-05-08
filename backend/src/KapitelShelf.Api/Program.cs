@@ -59,6 +59,7 @@ builder.Services.AddSingleton<BooksLogic>();
 builder.Services.AddSingleton<SeriesLogic>();
 builder.Services.AddSingleton<DemoDataLogic>();
 builder.Services.AddSingleton<BookStorage>();
+builder.Services.AddSingleton<BookParserManager>();
 
 var app = builder.Build();
 

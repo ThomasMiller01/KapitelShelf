@@ -39,12 +39,12 @@ public class BookDTO
     /// <summary>
     /// Gets or sets the page number.
     /// </summary>
-    public int PageNumber { get; set; }
+    public int? PageNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the series.
     /// </summary>
-    public SeriesDTO Series { get; set; } = null!;
+    public SeriesDTO? Series { get; set; }
 
     /// <summary>
     /// Gets or sets the series number.

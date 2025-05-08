@@ -4,6 +4,7 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
@@ -17,11 +18,17 @@ namespace KapitelShelf.Api.Logic;
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
 /// <param name="mapper">The auto mapper.</param>
-public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper)
+/// <param name="bookParserManager">The book parser manager.</param>
+/// <param name="bookStorage">The book storage.</param>
+public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, BookParserManager bookParserManager, BookStorage bookStorage)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
+
+    private readonly BookParserManager bookParserManager = bookParserManager;
+
+    private readonly BookStorage bookStorage = bookStorage;
 
     /// <summary>
     /// Get all books.
@@ -272,7 +279,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         }
 
         // series
-        book.SeriesId = bookDto.Series.Id;
+        book.SeriesId = bookDto.Series!.Id;
         book.Series!.Name = bookDto.Series.Name;
         book.Series.UpdatedAt = bookDto.Series.UpdatedAt;
         book.SeriesNumber = bookDto.SeriesNumber;
@@ -364,6 +371,42 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         await context.SaveChangesAsync();
 
         return this.mapper.Map<BookDTO>(book);
+    }
+
+    /// <summary>
+    /// Import a book from a file.
+    /// </summary>
+    /// <param name="file">The book file to import.</param>
+    /// <returns>The imported book.</returns>
+    public async Task<BookDTO> ImportBookAsync(IFormFile file)
+    {
+        var parsingResult = await this.bookParserManager.Parse(file);
+
+        // create book
+        var createBookDto = this.mapper.Map<CreateBookDTO>(parsingResult.Book);
+        var bookDto = await this.CreateBookAsync(createBookDto);
+        ArgumentNullException.ThrowIfNull(bookDto);
+
+        // save cover file
+        if (parsingResult.CoverFile is not null)
+        {
+            var cover = await this.bookStorage.Save(bookDto.Id, parsingResult.CoverFile);
+            bookDto.Cover = cover;
+        }
+
+        // save book file
+        var locationFile = await this.bookStorage.Save(bookDto.Id, file);
+        bookDto.Location = new LocationDTO
+        {
+            Type = LocationTypeDTO.KapitelShelf,
+            Url = null,
+            FileInfo = locationFile,
+        };
+
+        // update book with new cover and file
+        await this.UpdateBookAsync(bookDto.Id, bookDto);
+
+        return bookDto;
     }
 
     private async Task<IList<BookModel>> GetDuplicates(string title, string? url)

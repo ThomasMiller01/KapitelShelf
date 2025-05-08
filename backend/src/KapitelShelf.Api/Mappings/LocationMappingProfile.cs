@@ -26,5 +26,7 @@ public class LocationMappingProfile : Profile
 
         CreateMap<CreateLocationDTO, LocationModel>()
             .ForMember(dest => dest.FileInfo, opt => opt.Ignore());
+
+        CreateMap<LocationDTO, CreateLocationDTO>();
     }
 }
