@@ -83,7 +83,7 @@ export interface BookDTO {
      * @type {number}
      * @memberof BookDTO
      */
-    'pageNumber'?: number;
+    'pageNumber'?: number | null;
     /**
      * 
      * @type {SeriesDTO}
@@ -778,6 +778,45 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Import a new book.
+         * @param {File} [bookFile] Thebook file to import.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksImportPost: async (bookFile?: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/books/import`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+
+            if (bookFile !== undefined) { 
+                localVarFormParams.append('bookFile', bookFile as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create a new book.
          * @param {CreateBookDTO} [createBookDTO] The create book dto.
          * @param {*} [options] Override http request option.
@@ -914,6 +953,19 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Import a new book.
+         * @param {File} [bookFile] Thebook file to import.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksImportPost(bookFile, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksImportPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create a new book.
          * @param {CreateBookDTO} [createBookDTO] The create book dto.
          * @param {*} [options] Override http request option.
@@ -1005,6 +1057,16 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          */
         booksGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
             return localVarFp.booksGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Import a new book.
+         * @param {File} [bookFile] Thebook file to import.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
+            return localVarFp.booksImportPost(bookFile, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1109,6 +1171,18 @@ export class BooksApi extends BaseAPI {
      */
     public booksGet(options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Import a new book.
+     * @param {File} [bookFile] Thebook file to import.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksImportPost(bookFile, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

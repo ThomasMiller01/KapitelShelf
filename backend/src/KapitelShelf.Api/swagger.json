@@ -92,6 +92,57 @@
         }
       }
     },
+    "/books/import": {
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Import a new book.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookFile": {
+                    "type": "string",
+                    "description": "Thebook file to import.",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "bookFile": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/books/{bookId}": {
       "get": {
         "tags": [
@@ -546,7 +597,8 @@
           "pageNumber": {
             "type": "integer",
             "description": "Gets or sets the page number.",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "series": {
             "$ref": "#/components/schemas/SeriesDTO"
