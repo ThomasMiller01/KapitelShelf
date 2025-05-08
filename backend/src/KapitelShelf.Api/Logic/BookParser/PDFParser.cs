@@ -38,19 +38,19 @@ public class PDFParser : BookParserBase
         var info = pdf.GetDocumentInfo();
 
         // title
-        string title = SanitizeText(ParseTitle(info, file.FileName));
+        var title = SanitizeText(ParseTitle(info, file.FileName));
 
         // description: try Subject, then Keywords
-        string description = SanitizeText(info.GetSubject() ?? info.GetMoreInfo("Keywords"));
+        var description = SanitizeText(info.GetSubject() ?? info.GetMoreInfo("Keywords"));
 
         // page count
-        int pageNumber = pdf.GetNumberOfPages();
+        var pageNumber = pdf.GetNumberOfPages();
 
         // release date
-        DateTime? releaseDate = ParseReleaseDate(info);
+        var releaseDate = ParseReleaseDate(info);
 
         // author
-        string rawAuthor = info.GetAuthor();
+        var rawAuthor = info.GetAuthor();
         var (firstName, lastName) = ParseAuthor(rawAuthor);
 
         // cover
