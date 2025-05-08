@@ -13,7 +13,8 @@ namespace KapitelShelf.Api.Logic;
 public class BookParserManager
 {
     private static readonly List<Type> ParserTypes = [
-        typeof(EPUBParser)
+        typeof(EPUBParser),
+        typeof(PDFParser)
     ];
 
     /// <summary>
