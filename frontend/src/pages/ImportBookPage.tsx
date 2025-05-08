@@ -71,18 +71,22 @@ const ImportBookPage = (): ReactElement => {
           alignItems="center"
           mt="30px"
         >
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={0.5}
-            alignItems={{ xs: "start", md: "center" }}
-          >
-            <Typography variant="button" color="text.secondary">
-              Selected:
-            </Typography>
-            <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
-              {currentFile?.name}
-            </Typography>
-          </Stack>
+          {currentFile ? (
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={0.5}
+              alignItems={{ xs: "start", md: "center" }}
+            >
+              <Typography variant="button" color="text.secondary">
+                Selected:
+              </Typography>
+              <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
+                {currentFile?.name}
+              </Typography>
+            </Stack>
+          ) : (
+            <Box />
+          )}
           <Button
             variant="contained"
             sx={{ width: "fit-content" }}

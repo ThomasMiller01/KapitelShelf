@@ -25,6 +25,7 @@ export const baseStyle = (theme: Theme): SxProps<Theme> => ({
   color: theme.palette.text.secondary,
   outline: "none",
   transition: "border .24s ease-in-out",
+  cursor: "pointer",
 });
 
 export const focusedStyle = (theme: Theme): SxProps<Theme> => ({
@@ -59,7 +60,11 @@ const FileUploadDropzone = ({
       return;
     }
 
-    if (accept.length > 0 && !accept.includes(currentFile.type)) {
+    if (
+      accept.length > 0 &&
+      !accept.includes(currentFile.type) &&
+      accept.filter((x) => currentFile.name.endsWith(x)).length === 0
+    ) {
       enqueueSnackbar(`Invalid file type, allowed: ${accept.join(", ")}`, {
         variant: "warning",
       });
