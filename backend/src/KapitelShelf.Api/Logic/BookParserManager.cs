@@ -15,7 +15,8 @@ public class BookParserManager
     private static readonly List<Type> ParserTypes = [
         typeof(EPUBParser),
         typeof(PDFParser),
-        typeof(FB2Parser)
+        typeof(FB2Parser),
+        typeof(TextParser),
     ];
 
     /// <summary>
