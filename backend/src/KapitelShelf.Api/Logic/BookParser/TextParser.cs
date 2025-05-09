@@ -13,7 +13,7 @@ namespace KapitelShelf.Api.Logic.BookParser;
 public class TextParser : BookParserBase
 {
     /// <inheritdoc/>
-    public override IReadOnlyCollection<string> SupportedExtensions { get; } = ["txt", "html", "xhtml", "rtf", "odt"];
+    public override IReadOnlyCollection<string> SupportedExtensions { get; } = ["txt", "htm", "html", "xhtml", "rtf", "odt"];
 
     /// <inheritdoc/>
     public override async Task<BookParsingResult> Parse(IFormFile file)
