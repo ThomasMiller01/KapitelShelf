@@ -1,7 +1,6 @@
-import UploadIcon from "@mui/icons-material/Upload";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useCallback } from "react";
 
 import FileUploadDropzone from "../components/base/FileUploadDropzone";
 import FancyText from "../components/FancyText";
@@ -14,12 +13,10 @@ const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();
   const { triggerNavigate } = useNotification();
 
-  const [currentFile, setCurrentFile] = useState<File>();
-
   const { mutateAsync: mutateImportBook } = useMutation({
     mutationKey: ["import-book"],
-    mutationFn: async () => {
-      const { data } = await booksApi.booksImportPost(currentFile);
+    mutationFn: async (file: File) => {
+      const { data } = await booksApi.booksImportPost(file);
       return data;
     },
     meta: {
@@ -30,23 +27,35 @@ const ImportBookPage = (): ReactElement => {
     },
   });
 
-  const onImport = async (): Promise<void> => {
-    const createdBook = await mutateImportBook();
-    if (
-      createdBook?.id === undefined ||
-      createdBook.title === undefined ||
-      createdBook.title === null
-    ) {
-      // only continue, if creation was successful
-      return;
-    }
+  const importFile = useCallback(
+    async (file: File): Promise<void> => {
+      const createdBook = await mutateImportBook(file);
+      if (
+        createdBook?.id === undefined ||
+        createdBook.title === undefined ||
+        createdBook.title === null
+      ) {
+        // only continue, if creation was successful
+        return;
+      }
 
-    triggerNavigate({
-      operation: "Imported the following book",
-      itemName: createdBook.title,
-      url: `/library/books/${createdBook.id}`,
-    });
-  };
+      triggerNavigate({
+        operation: "Imported the following book",
+        itemName: createdBook.title,
+        url: `/library/books/${createdBook.id}`,
+      });
+    },
+    [mutateImportBook, triggerNavigate]
+  );
+
+  const onImport = useCallback(
+    async (files: File[]): Promise<void> => {
+      files.forEach(async (file) => {
+        await importFile(file);
+      });
+    },
+    [importFile]
+  );
 
   return (
     <Box padding="24px">
@@ -62,41 +71,8 @@ const ImportBookPage = (): ReactElement => {
         <FileUploadDropzone
           accept={BookFileTypes}
           height={isMobile ? "300px" : "220px"}
-          onFileChange={setCurrentFile}
+          onFilesChange={onImport}
         />
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={{ xs: 4, md: 2 }}
-          justifyContent="space-between"
-          alignItems="center"
-          mt="30px"
-        >
-          {currentFile ? (
-            <Stack
-              direction={{ xs: "column", md: "row" }}
-              spacing={0.5}
-              alignItems={{ xs: "start", md: "center" }}
-            >
-              <Typography variant="button" color="text.secondary">
-                Selected:
-              </Typography>
-              <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
-                {currentFile?.name}
-              </Typography>
-            </Stack>
-          ) : (
-            <Box />
-          )}
-          <Button
-            variant="contained"
-            sx={{ width: "fit-content" }}
-            startIcon={<UploadIcon />}
-            disabled={currentFile === undefined}
-            onClick={onImport}
-          >
-            Import
-          </Button>
-        </Stack>
       </Box>
     </Box>
   );
