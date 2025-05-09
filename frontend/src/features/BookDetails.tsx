@@ -90,7 +90,11 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
             )}
             {book.releaseDate && (
               <MetadataGridItem icon={<CalendarMonthIcon />}>
-                {new Date(book.releaseDate).toLocaleDateString()}
+                {new Date(book.releaseDate).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
               </MetadataGridItem>
             )}
             <MetadataGridItem icon={<CollectionsBookmarkIcon />}>
