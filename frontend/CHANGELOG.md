@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.2.0](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.1.2...frontend@0.2.0) (2025-05-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* load cover images via Api and not reacts public directory (#110)
+
+### Features
+
+* import book from .fb2 file ([#126](https://github.com/ThomasMiller01/KapitelShelf/issues/126)) ([1551970](https://github.com/ThomasMiller01/KapitelShelf/commit/15519701928d80c4f2f9cd7f8e3f1e2cccd92e6f))
+* import book from .pdf file ([#125](https://github.com/ThomasMiller01/KapitelShelf/issues/125)) ([aafb441](https://github.com/ThomasMiller01/KapitelShelf/commit/aafb4411530f4c40a841ab901c4d128eec4f9522))
+* import book from doc/docx/odt/rtf ([#130](https://github.com/ThomasMiller01/KapitelShelf/issues/130)) ([c4ee296](https://github.com/ThomasMiller01/KapitelShelf/commit/c4ee2964bc0682209d32015488982f7aefc2050d))
+* import book from file ([#124](https://github.com/ThomasMiller01/KapitelShelf/issues/124)) ([f92fe81](https://github.com/ThomasMiller01/KapitelShelf/commit/f92fe811d714b10d54971014bca2ecba2cfb0e1f))
+* import book from text files ([#128](https://github.com/ThomasMiller01/KapitelShelf/issues/128)) ([7934f4e](https://github.com/ThomasMiller01/KapitelShelf/commit/7934f4e291385ed5ce19a7a7f0e199f2b448f657))
+* import multiples files at once ([#134](https://github.com/ThomasMiller01/KapitelShelf/issues/134)) ([3637c4d](https://github.com/ThomasMiller01/KapitelShelf/commit/3637c4dd7860d370201e499af7f5174683a21025))
+* improved general visibility of volume number on book cards ([#104](https://github.com/ThomasMiller01/KapitelShelf/issues/104)) ([c24b750](https://github.com/ThomasMiller01/KapitelShelf/commit/c24b750de3659499e899411da8999a83d05126c1))
+* improved sizing of book/series cards on different view widths ([#105](https://github.com/ThomasMiller01/KapitelShelf/issues/105)) ([95c4b4d](https://github.com/ThomasMiller01/KapitelShelf/commit/95c4b4df5b7afea046e54b2482d5546f0a7a04b1))
+* load cover images via Api and not reacts public directory ([#110](https://github.com/ThomasMiller01/KapitelShelf/issues/110)) ([4eb38e6](https://github.com/ThomasMiller01/KapitelShelf/commit/4eb38e634f0a88a9ff41c8ad7b83c8aee0cf13ea))
+* Notification to navigate to book after creation ([#102](https://github.com/ThomasMiller01/KapitelShelf/issues/102)) ([dd90d73](https://github.com/ThomasMiller01/KapitelShelf/commit/dd90d732cd3dbd9a2904d6ae522ea15280935f28))
+* upload book files ([5628dd3](https://github.com/ThomasMiller01/KapitelShelf/commit/5628dd32c870533fbc53849ff4fdb23defa7a7c2))
+
+
+### Bug Fixes
+
+* corrected "Category" label on "Create Book" page ([#113](https://github.com/ThomasMiller01/KapitelShelf/issues/113)) ([b2747aa](https://github.com/ThomasMiller01/KapitelShelf/commit/b2747aa9ac21ed13a0c11824f667109b8db0a153))
+
 ## 0.1.2 (2025-05-04)
 
 ### Features
