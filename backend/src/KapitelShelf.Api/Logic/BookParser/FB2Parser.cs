@@ -110,21 +110,15 @@ public class FB2Parser : BookParserBase
 
     private static DateTime? ParseReleaseDate(XElement? titleInfo, XElement? documentInfo, XNamespace fb2)
     {
-        var dateElement = titleInfo?.Element(fb2 + "date")
-            ?? documentInfo?.Element(fb2 + "date");
+        var dateValue = titleInfo?.Element(fb2 + "date")?.Attribute("value")
+            ?? documentInfo?.Element(fb2 + "date")?.Attribute("value");
 
-        if (dateElement is null)
+        if (dateValue is null)
         {
             return null;
         }
 
-        var valueAttribute = dateElement.Attribute("value");
-        if (valueAttribute is null)
-        {
-            return null;
-        }
-
-        if (DateTime.TryParse(valueAttribute.Value, CultureInfo.InvariantCulture, out var date))
+        if (DateTime.TryParse(dateValue.Value, CultureInfo.InvariantCulture, out var date))
         {
             return date.ToUniversalTime();
         }
