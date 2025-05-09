@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.0](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.1.5...helm@0.2.0) (2025-05-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* load cover images via Api and not reacts public directory (#110)
+
+### Features
+
+* load cover images via Api and not reacts public directory ([#110](https://github.com/ThomasMiller01/KapitelShelf/issues/110)) ([4eb38e6](https://github.com/ThomasMiller01/KapitelShelf/commit/4eb38e634f0a88a9ff41c8ad7b83c8aee0cf13ea))
+
+
+### Bug Fixes
+
+* delete migrator job after install/upgrade to prevent helm updating errors ([#103](https://github.com/ThomasMiller01/KapitelShelf/issues/103)) ([b1d3424](https://github.com/ThomasMiller01/KapitelShelf/commit/b1d3424b31ec4e9e0f60768fd5361122dd15490d))
+
 ## 0.1.5 (2025-05-04)
 
 
