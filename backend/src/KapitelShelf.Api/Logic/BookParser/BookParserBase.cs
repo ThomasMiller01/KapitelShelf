@@ -42,7 +42,7 @@ public abstract partial class BookParserBase : IBookParser
     /// <returns>The first and last name of the author.</returns>
     protected (string firstName, string lastName) ParseAuthor(string author)
     {
-        if (author is null)
+        if (string.IsNullOrEmpty(author))
         {
             return (string.Empty, string.Empty);
         }

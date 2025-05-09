@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
@@ -21,6 +22,9 @@ Console.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions {
 #pragma warning disable IDE0001 // Simplify Names
 builder.Services.AddSingleton<KapitelShelfSettings>(settings);
 #pragma warning restore IDE0001 // Simplify Names
+
+// register support for System.Text.Encoding.GetEncoding("Windows-1252"), etc.
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 // Add services to the container.
 builder.Services.AddControllers();

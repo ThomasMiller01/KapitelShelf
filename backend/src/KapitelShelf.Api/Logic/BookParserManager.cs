@@ -17,6 +17,8 @@ public class BookParserManager
         typeof(PDFParser),
         typeof(FB2Parser),
         typeof(TextParser),
+        typeof(DocxParser),
+        typeof(DocParser),
     ];
 
     /// <summary>
