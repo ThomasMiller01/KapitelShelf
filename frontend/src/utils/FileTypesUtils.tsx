@@ -7,4 +7,8 @@ export const BookFileTypes = [
   ".txt",
   ".html",
   ".xhtml",
+  ".doc",
+  ".docx",
+  ".odt",
+  ".rtf",
 ];
