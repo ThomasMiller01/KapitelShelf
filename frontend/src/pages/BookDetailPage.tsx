@@ -1,10 +1,11 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Box, IconButton } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
-import { useParams } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { type ReactElement, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
+import DeleteDialog from "../components/base/feedback/DeleteDialog";
 import LoadingCard from "../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../components/base/ItemAppBar";
@@ -16,6 +17,7 @@ const BookDetailPage = (): ReactElement => {
   const { bookId } = useParams<{
     bookId: string;
   }>();
+  const navigate = useNavigate();
   const trigger = useNotImplemented();
 
   const {
@@ -34,6 +36,34 @@ const BookDetailPage = (): ReactElement => {
       return data;
     },
   });
+
+  const { mutateAsync: mutateDeleteBook } = useMutation({
+    mutationKey: ["delete-book", bookId],
+    mutationFn: async () => {
+      if (bookId === undefined) {
+        return null;
+      }
+
+      await booksApi.booksBookIdDelete(bookId);
+    },
+    meta: {
+      notify: {
+        enabled: true,
+        operation: "Deleting book",
+        showLoading: true,
+        showSuccess: true,
+      },
+    },
+  });
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const onDelete = async (): Promise<void> => {
+    setDeleteOpen(false);
+
+    await mutateDeleteBook();
+
+    navigate(`/library/series/${book?.series?.id}`);
+  };
 
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Book" showRandomFacts />;
@@ -54,13 +84,17 @@ const BookDetailPage = (): ReactElement => {
           <IconButton onClick={() => trigger(61)} key="edit">
             <EditIcon />
           </IconButton>,
-          // eslint-disable-next-line no-magic-numbers
-          <IconButton onClick={() => trigger(62)} key="delete">
+          <IconButton onClick={() => setDeleteOpen(true)} key="delete">
             <DeleteIcon />
           </IconButton>,
         ]}
       />
       <BookDetails book={book} />
+      <DeleteDialog
+        open={deleteOpen}
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={onDelete}
+      />
     </Box>
   );
 };
