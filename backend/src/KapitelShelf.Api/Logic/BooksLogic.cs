@@ -129,8 +129,6 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         {
             // create new series
             series = this.mapper.Map<SeriesModel>(createBookDTO.Series);
-            series.Id = Guid.NewGuid();
-
             context.Series.Add(series);
         }
         else
@@ -151,8 +149,6 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             {
                 // create new author
                 author = this.mapper.Map<AuthorModel>(createBookDTO.Author);
-                series.Id = Guid.NewGuid();
-
                 context.Authors.Add(author);
             }
         }

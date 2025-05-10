@@ -24,7 +24,7 @@ import {
 import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
 import { CreateBookSchema } from "../lib/schemas/CreateBookSchema";
 import { ImageTypes } from "../utils/FileTypesUtils";
-import { UrlToFile } from "../utils/FileUtils";
+import { CoverUrl, UrlToFile } from "../utils/FileUtils";
 import { toLocationTypeDTO } from "../utils/LocationUtils";
 import EditableLocationDetails from "./EditableLocationDetails";
 
@@ -77,20 +77,24 @@ const EditableBookDetails = ({
     formState: { errors, isValid },
   } = methods;
 
-  // run validation on mount
   useEffect(() => {
-    triggerValidation();
-  }, [triggerValidation]);
+    // set initial cover
+    const coverUrl = CoverUrl(initial);
+    if (coverUrl !== undefined) {
+      UrlToFile(coverUrl).then((file) => setCoverFile(file));
+    } else {
+      // no cover is set, use default bookCover
+      UrlToFile(bookCover).then((file) => setCoverFile(file));
+    }
 
-  console.log(initial?.cover);
+    // run validation on mount
+    triggerValidation();
+  }, [triggerValidation, initial]);
 
   const [coverFile, setCoverFile] = useState<File>();
   const [bookFile, setBookFile] = useState<File>();
 
   const [coverPreview, setCoverPreview] = useState<string>(bookCover);
-  useEffect(() => {
-    UrlToFile(bookCover).then((file) => setCoverFile(file));
-  }, []);
 
   // preview the cover
   useEffect(() => {
