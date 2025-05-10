@@ -16,3 +16,13 @@ export const CoverUrl = (book: BookDTO | undefined): string | undefined => {
 
   return `${import.meta.env.VITE_KAPITELSHELF_API}/books/${book.id}/cover`;
 };
+
+export const RenameFile = (file: File, fileName: string): File =>
+  new File(
+    [file], // keep the same file‐contents
+    fileName, // override the name
+    {
+      type: file.type, // preserve MIME type
+      lastModified: file.lastModified, // preserve last-modified timestamp
+    }
+  );

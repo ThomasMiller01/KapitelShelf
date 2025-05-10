@@ -24,7 +24,7 @@ import {
 import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
 import { CreateBookSchema } from "../lib/schemas/CreateBookSchema";
 import { ImageTypes } from "../utils/FileTypesUtils";
-import { CoverUrl, UrlToFile } from "../utils/FileUtils";
+import { CoverUrl, RenameFile, UrlToFile } from "../utils/FileUtils";
 import { toLocationTypeDTO } from "../utils/LocationUtils";
 import EditableLocationDetails from "./EditableLocationDetails";
 
@@ -81,7 +81,13 @@ const EditableBookDetails = ({
     // set initial cover
     const coverUrl = CoverUrl(initial);
     if (coverUrl !== undefined) {
-      UrlToFile(coverUrl).then((file) => setCoverFile(file));
+      UrlToFile(coverUrl).then((file) => {
+        const renamedFile = RenameFile(
+          file,
+          initial?.cover?.fileName ?? "cover.png"
+        );
+        setCoverFile(renamedFile);
+      });
     } else {
       // no cover is set, use default bookCover
       UrlToFile(bookCover).then((file) => setCoverFile(file));
