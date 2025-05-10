@@ -72,6 +72,31 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
     }
 
     /// <summary>
+    /// Delete a series.
+    /// </summary>
+    /// <param name="seriesId">The id of the seriesto delete.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete("{seriesId}")]
+    public async Task<IActionResult> DeleteSeries(Guid seriesId)
+    {
+        try
+        {
+            var series = await this.logic.DeleteSeriesAsync(seriesId);
+            if (series is null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting series with Id: {SeriesId}", seriesId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Get books by the series id.
     /// </summary>
     /// <param name="seriesId">The series id of the books to get.</param>

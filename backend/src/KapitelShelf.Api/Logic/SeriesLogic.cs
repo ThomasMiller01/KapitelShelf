@@ -16,11 +16,14 @@ namespace KapitelShelf.Api.Logic;
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
 /// <param name="mapper">The auto mapper.</param>
-public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper)
+/// <param name="booksLogic">The books logic.</param>
+public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, BooksLogic booksLogic)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
+
+    private readonly BooksLogic booksLogic = booksLogic;
 
     /// <summary>
     /// Get all series.
@@ -136,5 +139,51 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             Items = items,
             TotalCount = totalCount,
         };
+    }
+
+    /// <summary>
+    /// Delete a series.
+    /// </summary>
+    /// <param name="seriesId">The id of the series to delete.</param>
+    /// <returns>A <see cref="Task{SeriesDTO}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<SeriesDTO?> DeleteSeriesAsync(Guid seriesId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var series = await context.Series.FindAsync(seriesId);
+        if (series is null)
+        {
+            return null;
+        }
+
+        await this.DeleteFilesAsync(seriesId);
+
+        context.Series.Remove(series);
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<SeriesDTO>(series);
+    }
+
+    /// <summary>
+    /// Delete the files of all books from a series.
+    /// </summary>
+    /// <param name="seriesId">The id of the series.</param>
+    /// <returns>A task.</returns>
+    public async Task DeleteFilesAsync(Guid seriesId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var bookIds = await context.Series
+            .AsNoTracking()
+            .Include(x => x.Books)
+            .Where(x => x.Id == seriesId)
+            .SelectMany(x => x.Books)
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        foreach (var bookId in bookIds)
+        {
+            this.booksLogic.DeleteFiles(bookId);
+        }
     }
 }

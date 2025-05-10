@@ -24,7 +24,7 @@ const DeleteDialog = ({
   onConfirm,
 }: DeleteDialogProps): ReactElement => (
   <Dialog open={open} onClose={onCancel}>
-    <DialogTitle>{title}</DialogTitle>
+    <DialogTitle textTransform="uppercase">{title}</DialogTitle>
     <DialogContent>
       <Typography>{description}</Typography>
     </DialogContent>

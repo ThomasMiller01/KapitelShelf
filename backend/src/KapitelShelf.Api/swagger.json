@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "KapitelShelf.Api, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null",
+    "title": "KapitelShelf.Api, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null",
     "version": "1.0"
   },
   "paths": {
@@ -449,6 +449,29 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Delete a series.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The id of the seriesto delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
