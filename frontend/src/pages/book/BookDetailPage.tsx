@@ -3,22 +3,20 @@ import EditIcon from "@mui/icons-material/Edit";
 import { Box, IconButton } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-import DeleteDialog from "../components/base/feedback/DeleteDialog";
-import LoadingCard from "../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
-import ItemAppBar from "../components/base/ItemAppBar";
-import BookDetails from "../features/BookDetails";
-import { useNotImplemented } from "../hooks/useNotImplemented";
-import { booksApi } from "../lib/api/KapitelShelf.Api";
+import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import LoadingCard from "../../components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import ItemAppBar from "../../components/base/ItemAppBar";
+import BookDetails from "../../features/BookDetails";
+import { booksApi } from "../../lib/api/KapitelShelf.Api";
 
 const BookDetailPage = (): ReactElement => {
   const { bookId } = useParams<{
     bookId: string;
   }>();
   const navigate = useNavigate();
-  const trigger = useNotImplemented();
 
   const {
     data: book,
@@ -80,8 +78,11 @@ const BookDetailPage = (): ReactElement => {
         backTooltip="Go to series"
         backUrl={`/library/series/${book.series?.id}`}
         actions={[
-          // eslint-disable-next-line no-magic-numbers
-          <IconButton onClick={() => trigger(61)} key="edit">
+          <IconButton
+            component={Link}
+            to={`/library/books/${book.id}/edit`}
+            key="edit"
+          >
             <EditIcon />
           </IconButton>,
           <IconButton onClick={() => setDeleteOpen(true)} key="delete">

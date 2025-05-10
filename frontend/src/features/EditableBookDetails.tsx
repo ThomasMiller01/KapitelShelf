@@ -82,6 +82,8 @@ const EditableBookDetails = ({
     triggerValidation();
   }, [triggerValidation]);
 
+  console.log(initial?.cover);
+
   const [coverFile, setCoverFile] = useState<File>();
   const [bookFile, setBookFile] = useState<File>();
 
@@ -132,7 +134,7 @@ const EditableBookDetails = ({
       title: data.title,
       description: data.description,
       releaseDate: data.releaseDate?.toISOString() ?? undefined,
-      pageNumber: data.pageNumber ?? 0,
+      pageNumber: data.pageNumber ?? undefined,
       series: data.series ? ({ name: data.series } as SeriesDTO) : undefined,
       seriesNumber: data.seriesNumber ?? undefined,
       author: data.author ? parseAuthor(data.author) : undefined,

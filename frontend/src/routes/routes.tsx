@@ -2,7 +2,8 @@ import type { ReactElement } from "react";
 import { useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
-import BookDetailPage from "../pages/BookDetailPage";
+import BookDetailPage from "../pages/book/BookDetailPage";
+import EditBookDetailPage from "../pages/book/EditBookDetailPage";
 import CreateBookPage from "../pages/CreateBookPage";
 import HomePage from "../pages/HomePage";
 import ImportBookPage from "../pages/ImportBookPage";
@@ -19,6 +20,7 @@ const AppRoutes = (): ReactElement | null =>
         { path: "library", element: <BooksPage /> },
         { path: "library/series/:seriesId", element: <SeriesDetailPage /> },
         { path: "library/books/:bookId", element: <BookDetailPage /> },
+        { path: "library/books/:bookId/edit", element: <EditBookDetailPage /> },
         { path: "library/books/create", element: <CreateBookPage /> },
         { path: "library/books/import", element: <ImportBookPage /> },
       ],

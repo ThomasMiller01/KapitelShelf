@@ -206,6 +206,49 @@
             "description": "OK"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Update a book.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated book.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/books/{bookId}/cover": {

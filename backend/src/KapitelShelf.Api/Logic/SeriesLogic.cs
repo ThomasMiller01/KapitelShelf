@@ -161,6 +161,8 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         context.Series.Remove(series);
         await context.SaveChangesAsync();
 
+        await this.booksLogic.CleanupDatabase();
+
         return this.mapper.Map<SeriesDTO>(series);
     }
 

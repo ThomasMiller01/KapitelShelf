@@ -48,6 +48,21 @@ public class BookStorage(KapitelShelfSettings settings)
     /// <param name="bookId">The id of the book directory.</param>
     public void DeleteDirectory(Guid bookId) => this.DeleteDirectory(bookId.ToString());
 
+    /// <summary>
+    /// Delete the specified file.
+    /// </summary>
+    /// <param name="filePath">The file path.</param>
+    public void DeleteFile(string filePath)
+    {
+        var fullFilePath = this.FullPath(filePath);
+        if (!File.Exists(fullFilePath))
+        {
+            return;
+        }
+
+        File.Delete(fullFilePath);
+    }
+
     private async Task<FileInfoDTO> Save(string filePath, IFormFile file)
     {
         var fullFilePath = this.FullPath(filePath);

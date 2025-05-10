@@ -17,7 +17,7 @@ export const CreateBookSchema = yup.object({
     .number()
     .transform((value, original) => (original === "" ? null : value))
     .typeError("Volume must be a number")
-    .positive("Volume must be positive")
+    .min(0, "Volume must be zero or positive")
     .integer("Volume must be an integer")
     .nullable(),
   author: yup.string().nullable(),
