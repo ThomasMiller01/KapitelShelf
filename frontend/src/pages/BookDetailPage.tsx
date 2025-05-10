@@ -94,6 +94,8 @@ const BookDetailPage = (): ReactElement => {
         open={deleteOpen}
         onCancel={() => setDeleteOpen(false)}
         onConfirm={onDelete}
+        title="Confirm to delete this book"
+        description="Are you sure you want to delete this book? This action cannot be undone."
       />
     </Box>
   );

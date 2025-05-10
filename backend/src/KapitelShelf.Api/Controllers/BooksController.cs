@@ -281,7 +281,7 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
     /// </summary>
     /// <param name="bookId">The id of the book to delete.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpDelete("{bookId:guid}")]
+    [HttpDelete("{bookId}")]
     public async Task<IActionResult> DeleteBook(Guid bookId)
     {
         try

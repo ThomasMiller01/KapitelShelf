@@ -102,7 +102,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         }
 
         // check for duplicate books
-        var duplicates = await this.GetDuplicates(createBookDTO.Title, createBookDTO.Location?.Url);
+        var duplicates = await this.GetDuplicatesAsync(createBookDTO.Title, createBookDTO.Location?.Url);
         if (duplicates.Any())
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
@@ -367,6 +367,8 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             return null;
         }
 
+        this.DeleteFiles(book.Id);
+
         context.Books.Remove(book);
         await context.SaveChangesAsync();
 
@@ -409,7 +411,13 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return bookDto;
     }
 
-    private async Task<IList<BookModel>> GetDuplicates(string title, string? url)
+    /// <summary>
+    /// Delete all files of a book.
+    /// </summary>
+    /// <param name="bookId">The id of the book.</param>
+    public void DeleteFiles(Guid bookId) => this.bookStorage.DeleteDirectory(bookId);
+
+    private async Task<IList<BookModel>> GetDuplicatesAsync(string title, string? url)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 

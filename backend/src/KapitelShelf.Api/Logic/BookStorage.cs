@@ -42,9 +42,15 @@ public class BookStorage(KapitelShelfSettings settings)
         return this.Stream(file.FilePath);
     }
 
+    /// <summary>
+    /// Delete the specific book directory.
+    /// </summary>
+    /// <param name="bookId">The id of the book directory.</param>
+    public void DeleteDirectory(Guid bookId) => this.DeleteDirectory(bookId.ToString());
+
     private async Task<FileInfoDTO> Save(string filePath, IFormFile file)
     {
-        var fullFilePath = this.FullFilePath(filePath);
+        var fullFilePath = this.FullPath(filePath);
 
         var directory = Path.GetDirectoryName(fullFilePath);
         if (directory is not null && !Directory.Exists(directory))
@@ -66,7 +72,7 @@ public class BookStorage(KapitelShelfSettings settings)
 
     private FileStream? Stream(string filePath)
     {
-        var fullFilePath = this.FullFilePath(filePath);
+        var fullFilePath = this.FullPath(filePath);
         if (!File.Exists(fullFilePath))
         {
             return null;
@@ -75,9 +81,20 @@ public class BookStorage(KapitelShelfSettings settings)
         return File.OpenRead(fullFilePath);
     }
 
-    private string FullFilePath(string filePath)
+    private void DeleteDirectory(string directoryPath)
     {
-        var combinedPath = Path.Combine(this.settings.DataDir, filePath);
+        var fullDirectoryPath = this.FullPath(directoryPath);
+        if (!Directory.Exists(fullDirectoryPath))
+        {
+            return;
+        }
+
+        Directory.Delete(fullDirectoryPath, recursive: true);
+    }
+
+    private string FullPath(string path)
+    {
+        var combinedPath = Path.Combine(this.settings.DataDir, path);
         var absPath = Path.GetFullPath(combinedPath);
         return absPath;
     }
