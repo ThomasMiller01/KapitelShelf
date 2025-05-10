@@ -17,6 +17,18 @@ export const CoverUrl = (book: BookDTO | undefined): string | undefined => {
   return `${import.meta.env.VITE_KAPITELSHELF_API}/books/${book.id}/cover`;
 };
 
+export const BookFileUrl = (book: BookDTO | undefined): string | undefined => {
+  if (
+    book === undefined ||
+    book?.location?.type !== 1 ||
+    book?.location?.fileInfo === undefined
+  ) {
+    return undefined;
+  }
+
+  return `${import.meta.env.VITE_KAPITELSHELF_API}/books/${book.id}/file`;
+};
+
 export const RenameFile = (file: File, fileName: string): File =>
   new File(
     [file], // keep the same file‐contents

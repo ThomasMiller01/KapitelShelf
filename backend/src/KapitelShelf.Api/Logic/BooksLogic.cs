@@ -293,23 +293,27 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             book.Series = series;
         }
 
-        // wipe & rebuild Cover (1:1)
+        // upsert Cover (1:1)
         if (bookDto.Cover is null)
         {
             book.Cover = null;
         }
         else
         {
-            book.Cover = new FileInfoModel
-            {
-                FilePath = bookDto.Cover.FilePath,
-                FileSizeBytes = bookDto.Cover.FileSizeBytes,
-                MimeType = bookDto.Cover.MimeType,
-                Sha256 = bookDto.Cover.Sha256,
-            };
+            var cover = await context.FileInfos
+                   .SingleOrDefaultAsync(x => x.FilePath == bookDto.Cover.FilePath)
+                    ?? new FileInfoModel
+                    {
+                        FilePath = bookDto.Cover.FilePath,
+                        FileSizeBytes = bookDto.Cover.FileSizeBytes,
+                        MimeType = bookDto.Cover.MimeType,
+                        Sha256 = bookDto.Cover.Sha256,
+                    };
+
+            book.Cover = cover;
         }
 
-        // wipe & rebuild Location (1:1)
+        // upsert Location (1:1)
         if (bookDto.Location is null)
         {
             book.Location = null;
@@ -320,13 +324,16 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             {
                 Type = this.mapper.Map<LocationType>(bookDto.Location.Type),
                 Url = bookDto.Location.Url,
-                FileInfo = bookDto.Location.FileInfo is null ? null : new FileInfoModel
-                {
-                    FilePath = bookDto.Location.FileInfo.FilePath,
-                    FileSizeBytes = bookDto.Location.FileInfo.FileSizeBytes,
-                    MimeType = bookDto.Location.FileInfo.MimeType,
-                    Sha256 = bookDto.Location.FileInfo.Sha256,
-                },
+                FileInfo = bookDto.Location.FileInfo is null
+                    ? null
+                    : await context.FileInfos.SingleOrDefaultAsync(x => x.FilePath == bookDto.Location.FileInfo.FilePath)
+                        ?? new FileInfoModel
+                        {
+                            FilePath = bookDto.Location.FileInfo.FilePath,
+                            FileSizeBytes = bookDto.Location.FileInfo.FileSizeBytes,
+                            MimeType = bookDto.Location.FileInfo.MimeType,
+                            Sha256 = bookDto.Location.FileInfo.Sha256,
+                        },
             };
         }
 

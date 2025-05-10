@@ -24,7 +24,12 @@ import {
 import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
 import { CreateBookSchema } from "../lib/schemas/CreateBookSchema";
 import { ImageTypes } from "../utils/FileTypesUtils";
-import { CoverUrl, RenameFile, UrlToFile } from "../utils/FileUtils";
+import {
+  BookFileUrl,
+  CoverUrl,
+  RenameFile,
+  UrlToFile,
+} from "../utils/FileUtils";
 import { toLocationTypeDTO } from "../utils/LocationUtils";
 import EditableLocationDetails from "./EditableLocationDetails";
 
@@ -93,6 +98,17 @@ const EditableBookDetails = ({
       UrlToFile(bookCover).then((file) => setCoverFile(file));
     }
 
+    const bookFileUrl = BookFileUrl(initial);
+    if (bookFileUrl !== undefined) {
+      UrlToFile(bookFileUrl).then((file) => {
+        const renamedFile = RenameFile(
+          file,
+          initial?.location?.fileInfo?.fileName ?? "book"
+        );
+        setBookFile(renamedFile);
+      });
+    }
+
     // run validation on mount
     triggerValidation();
   }, [triggerValidation, initial]);
@@ -151,7 +167,9 @@ const EditableBookDetails = ({
       location: {
         type: toLocationTypeDTO(data.locationType ?? -1),
         url: data.locationUrl !== "" ? data.locationUrl : undefined,
+        fileInfo: initial?.location?.fileInfo, // keep initial location fileInfo, will be updated in later request
       },
+      cover: initial?.cover, // keep initial cover, will be updated in later request
       categories: data.categories?.map((x): CategoryDTO => ({ name: x })),
       tags: data.tags?.map((x): TagDTO => ({ name: x })),
     };
