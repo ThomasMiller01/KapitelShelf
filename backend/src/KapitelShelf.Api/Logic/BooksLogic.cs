@@ -225,6 +225,13 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             return null;
         }
 
+        // check for duplicate books
+        var duplicates = await this.GetDuplicatesAsync(bookDto.Title, bookDto.Location?.Url);
+        if (duplicates.Any())
+        {
+            throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
+        }
+
         await using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         var book = await context.Books

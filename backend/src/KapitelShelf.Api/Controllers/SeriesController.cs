@@ -6,6 +6,7 @@ using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
@@ -92,6 +93,42 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error deleting series with Id: {SeriesId}", seriesId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Update a series.
+    /// </summary>
+    /// <param name="seriesId">The id of the series to update.</param>
+    /// <param name="series">The updated series.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{seriesId}")]
+    public async Task<IActionResult> UpdateSeries(Guid seriesId, SeriesDTO series)
+    {
+        try
+        {
+            var updatedSeries = await this.logic.UpdateSeriesAsync(seriesId, series);
+            if (updatedSeries is null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == StaticConstants.DuplicateExceptionKey)
+            {
+                return Conflict(new { error = "A series with this name already exists." });
+            }
+
+            // re-throw exception
+            throw;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error updating series with Id: {SeriesId}", seriesId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
