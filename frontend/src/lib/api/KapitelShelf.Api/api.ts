@@ -1497,6 +1497,44 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
+         * @summary Update a series.
+         * @param {string} seriesId The id of the series to update.
+         * @param {SeriesDTO} [seriesDTO] The updated series.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdPut: async (seriesId: string, seriesDTO?: SeriesDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'seriesId' is not null or undefined
+            assertParamExists('seriesSeriesIdPut', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}`
+                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(seriesDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Fetch all series summaries.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -1588,6 +1626,20 @@ export const SeriesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Update a series.
+         * @param {string} seriesId The id of the series to update.
+         * @param {SeriesDTO} [seriesDTO] The updated series.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdPut(seriesId, seriesDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Fetch all series summaries.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
@@ -1641,6 +1693,17 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          */
         seriesSeriesIdGet(seriesId: string, options?: RawAxiosRequestConfig): AxiosPromise<SeriesDTO> {
             return localVarFp.seriesSeriesIdGet(seriesId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update a series.
+         * @param {string} seriesId The id of the series to update.
+         * @param {SeriesDTO} [seriesDTO] The updated series.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1699,6 +1762,19 @@ export class SeriesApi extends BaseAPI {
      */
     public seriesSeriesIdGet(seriesId: string, options?: RawAxiosRequestConfig) {
         return SeriesApiFp(this.configuration).seriesSeriesIdGet(seriesId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update a series.
+     * @param {string} seriesId The id of the series to update.
+     * @param {SeriesDTO} [seriesDTO] The updated series.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

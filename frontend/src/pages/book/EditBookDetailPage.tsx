@@ -1,4 +1,5 @@
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
 import { Box, Button, Chip, styled } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement } from "react";
@@ -7,7 +8,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import EditableBookDetails from "../../features/EditableBookDetails";
+import EditableBookDetails from "../../features/book/EditableBookDetails";
 import { useMobile } from "../../hooks/useMobile";
 import { booksApi } from "../../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
@@ -143,7 +144,11 @@ const EditBookDetailPage = (): ReactElement => {
         backTooltip="Go back to book"
         backUrl={`/library/books/${book.id}`}
         addons={[
-          <EditingBadge key="editing" label="EDIT" isMobile={isMobile} />,
+          <EditingBadge
+            key="editing"
+            label="EDIT ~ BOOK"
+            isMobile={isMobile}
+          />,
         ]}
         actions={[
           <Button
@@ -163,6 +168,7 @@ const EditBookDetailPage = (): ReactElement => {
         action={{
           name: "Edit Book",
           onClick: onUpdate,
+          icon: <EditIcon />,
         }}
       />
     </Box>

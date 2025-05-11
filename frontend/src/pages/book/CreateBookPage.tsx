@@ -3,11 +3,11 @@ import { Box } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
-import FancyText from "../components/FancyText";
-import EditableBookDetails from "../features/EditableBookDetails";
-import { useNotification } from "../hooks/useNotification";
-import { booksApi } from "../lib/api/KapitelShelf.Api";
-import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import FancyText from "../../components/FancyText";
+import EditableBookDetails from "../../features/book/EditableBookDetails";
+import { useNotification } from "../../hooks/useNotification";
+import { booksApi } from "../../lib/api/KapitelShelf.Api";
+import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 interface UploadCoverMutationProps {
   bookId: string;

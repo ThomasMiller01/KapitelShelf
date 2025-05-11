@@ -320,6 +320,16 @@ public class BooksController(ILogger<BooksController> logger, BooksLogic logic, 
 
             return NoContent();
         }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == StaticConstants.DuplicateExceptionKey)
+            {
+                return Conflict(new { error = "A book with this title (or location) already exists." });
+            }
+
+            // re-throw exception
+            throw;
+        }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error updating book with Id: {BookId}", bookId);

@@ -9,29 +9,29 @@ import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-import bookCover from "../assets/books/nocover.png";
-import FileUploadButton from "../components/base/FileUploadButton";
-import ItemList from "../components/base/ItemList";
-import { useMobile } from "../hooks/useMobile";
-import { useNotImplemented } from "../hooks/useNotImplemented";
+import bookCover from "../../assets/books/nocover.png";
+import FileUploadButton from "../../components/base/FileUploadButton";
+import ItemList from "../../components/base/ItemList";
+import { useMobile } from "../../hooks/useMobile";
+import { useNotImplemented } from "../../hooks/useNotImplemented";
 import {
   type AuthorDTO,
   type BookDTO,
   type CategoryDTO,
   type SeriesDTO,
   type TagDTO,
-} from "../lib/api/KapitelShelf.Api/api";
-import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
-import { CreateBookSchema } from "../lib/schemas/CreateBookSchema";
-import { ImageTypes } from "../utils/FileTypesUtils";
+} from "../../lib/api/KapitelShelf.Api/api";
+import type { BookFormValues } from "../../lib/schemas/BookSchema";
+import { BookSchema } from "../../lib/schemas/BookSchema";
+import { ImageTypes } from "../../utils/FileTypesUtils";
 import {
   BookFileUrl,
   CoverUrl,
   RenameFile,
   UrlToFile,
-} from "../utils/FileUtils";
-import { toLocationTypeDTO } from "../utils/LocationUtils";
-import EditableLocationDetails from "./EditableLocationDetails";
+} from "../../utils/FileUtils";
+import { toLocationTypeDTO } from "../../utils/LocationUtils";
+import EditableLocationDetails from "../EditableLocationDetails";
 
 interface ActionProps {
   name: string;
@@ -57,7 +57,7 @@ const EditableBookDetails = ({
   }
 
   const methods = useForm({
-    resolver: yupResolver(CreateBookSchema),
+    resolver: yupResolver(BookSchema),
     mode: "onBlur",
     defaultValues: {
       title: initial?.title ?? "",
@@ -129,7 +129,7 @@ const EditableBookDetails = ({
     return (): void => URL.revokeObjectURL(url);
   }, [coverFile, setCoverPreview]);
 
-  const onSubmit = (data: CreateBookFormValues): void => {
+  const onSubmit = (data: BookFormValues): void => {
     if (action === undefined || coverFile === undefined) {
       return;
     }

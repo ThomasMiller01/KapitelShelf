@@ -517,6 +517,49 @@
             "description": "OK"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Update a series.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The id of the series to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated series.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeriesDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeriesDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeriesDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/series/{seriesId}/books": {

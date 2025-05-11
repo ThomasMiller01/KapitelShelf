@@ -8,11 +8,11 @@ import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { type ReactElement, useState } from "react";
 
-import bookCover from "../assets/books/nocover.png";
-import { useMobile } from "../hooks/useMobile";
-import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
-import { CoverUrl } from "../utils/FileUtils";
-import LocationDetails from "./LocationDetails";
+import bookCover from "../../assets/books/nocover.png";
+import { useMobile } from "../../hooks/useMobile";
+import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { CoverUrl } from "../../utils/FileUtils";
+import LocationDetails from "../LocationDetails";
 
 interface MetadataItemProps {
   icon: ReactNode;

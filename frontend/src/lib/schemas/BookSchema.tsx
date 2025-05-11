@@ -1,7 +1,7 @@
 import type { Dayjs } from "dayjs";
 import * as yup from "yup";
 
-export const CreateBookSchema = yup.object({
+export const BookSchema = yup.object({
   title: yup.string().required("Title is required"),
   description: yup.string(),
   releaseDate: yup.mixed<Dayjs>().nullable(),
@@ -31,4 +31,4 @@ export const CreateBookSchema = yup.object({
   tags: yup.array().of(yup.string()),
 });
 
-export type CreateBookFormValues = yup.InferType<typeof CreateBookSchema>;
+export type BookFormValues = yup.InferType<typeof BookSchema>;

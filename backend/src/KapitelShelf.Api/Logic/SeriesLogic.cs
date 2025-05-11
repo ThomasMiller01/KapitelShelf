@@ -6,7 +6,9 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
+using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic;
@@ -167,6 +169,49 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     }
 
     /// <summary>
+    /// Update a series.
+    /// </summary>
+    /// <param name="seriesId">The id of the series to update.</param>
+    /// <param name="seriesDto">The updated series dto.</param>
+    /// <returns>A <see cref="Task{SeriesDTO}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<SeriesDTO?> UpdateSeriesAsync(Guid seriesId, SeriesDTO seriesDto)
+    {
+        if (seriesDto is null)
+        {
+            return null;
+        }
+
+        // check for duplicate series
+        var duplicates = await this.GetDuplicatesAsync(seriesDto.Name);
+        if (duplicates.Any())
+        {
+            throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
+        }
+
+        await using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var series = await context.Series
+            .FirstOrDefaultAsync(b => b.Id == seriesId);
+
+        if (series is null)
+        {
+            return null;
+        }
+
+        // patch series root scalars
+        context.Entry(series).CurrentValues.SetValues(new
+        {
+            seriesDto.Name,
+            updatedAt = DateTime.UtcNow,
+        });
+
+        // commit
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<SeriesDTO>(series);
+    }
+
+    /// <summary>
     /// Delete the files of all books from a series.
     /// </summary>
     /// <param name="seriesId">The id of the series.</param>
@@ -187,5 +232,15 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         {
             this.booksLogic.DeleteFiles(bookId);
         }
+    }
+
+    private async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.Series
+            .AsNoTracking()
+            .Where(x => x.Name == name)
+            .ToListAsync();
     }
 }

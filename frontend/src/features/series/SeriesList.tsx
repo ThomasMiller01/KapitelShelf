@@ -4,12 +4,12 @@ import type { ReactElement } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useNavigate } from "react-router-dom";
 
-import LoadingCard from "../components/base/feedback/LoadingCard";
-import { NoItemsFoundCard } from "../components/base/feedback/NoItemsFoundCard";
-import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
-import SeriesCard from "../components/SeriesCard";
-import { seriesApi } from "../lib/api/KapitelShelf.Api";
-import type { SeriesSummaryDTO } from "../lib/api/KapitelShelf.Api/api";
+import LoadingCard from "../../components/base/feedback/LoadingCard";
+import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
+import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import SeriesCard from "../../components/SeriesCard";
+import { seriesApi } from "../../lib/api/KapitelShelf.Api";
+import type { SeriesSummaryDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 const PAGE_SIZE = 24;
 
