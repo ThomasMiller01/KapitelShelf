@@ -317,6 +317,7 @@ const EditableBookDetails = ({
 
                 {/* Location */}
                 <EditableLocationDetails
+                  initial={initial}
                   control={control}
                   onFileChange={setBookFile}
                 />
