@@ -2,12 +2,12 @@ import { Box } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useCallback } from "react";
 
-import FileUploadDropzone from "../components/base/FileUploadDropzone";
-import FancyText from "../components/FancyText";
-import { useMobile } from "../hooks/useMobile";
-import { useNotification } from "../hooks/useNotification";
-import { booksApi } from "../lib/api/KapitelShelf.Api";
-import { BookFileTypes } from "../utils/FileTypesUtils";
+import FileUploadDropzone from "../../components/base/FileUploadDropzone";
+import FancyText from "../../components/FancyText";
+import { useMobile } from "../../hooks/useMobile";
+import { useNotification } from "../../hooks/useNotification";
+import { booksApi } from "../../lib/api/KapitelShelf.Api";
+import { BookFileTypes } from "../../utils/FileTypesUtils";
 
 const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();

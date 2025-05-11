@@ -1,16 +1,17 @@
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { Box, Chip, IconButton, styled } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-import DeleteDialog from "../components/base/feedback/DeleteDialog";
-import LoadingCard from "../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
-import ItemAppBar from "../components/base/ItemAppBar";
-import SeriesBooksList from "../features/SeriesBooksList";
-import { useMobile } from "../hooks/useMobile";
-import { seriesApi } from "../lib/api/KapitelShelf.Api";
+import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import LoadingCard from "../../components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import ItemAppBar from "../../components/base/ItemAppBar";
+import SeriesBooksList from "../../features/series/SeriesBooksList";
+import { useMobile } from "../../hooks/useMobile";
+import { seriesApi } from "../../lib/api/KapitelShelf.Api";
 
 const VolumesBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",
@@ -90,6 +91,13 @@ const SeriesDetailPage = (): ReactElement => {
           />,
         ]}
         actions={[
+          <IconButton
+            component={Link}
+            to={`/library/series/${series?.id}/edit`}
+            key="edit"
+          >
+            <EditIcon />
+          </IconButton>,
           <IconButton onClick={() => setDeleteOpen(true)} key="delete">
             <DeleteIcon />
           </IconButton>,

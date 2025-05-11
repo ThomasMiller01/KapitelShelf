@@ -9,7 +9,7 @@ import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import BookDetails from "../../features/BookDetails";
+import BookDetails from "../../features/book/BookDetails";
 import { booksApi } from "../../lib/api/KapitelShelf.Api";
 
 const BookDetailPage = (): ReactElement => {

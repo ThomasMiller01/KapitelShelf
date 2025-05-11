@@ -21,7 +21,7 @@ import {
 import FileUploadButton from "../components/base/FileUploadButton";
 import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
-import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
+import type { BookFormValues } from "../lib/schemas/BookSchema";
 import { BookFileUrl, RenameFile, UrlToFile } from "../utils/FileUtils";
 import {
   LocalTypes,
@@ -96,7 +96,7 @@ const LocationSettings = ({
     name: "locationType",
     defaultValue: "1",
   });
-  const { setValue } = useFormContext<CreateBookFormValues>();
+  const { setValue } = useFormContext<BookFormValues>();
 
   const [locationTypeInt, setLocationTypeInt] = useState(1);
   useEffect(() => {
@@ -221,7 +221,7 @@ const UrlLocationSettings = ({
 }: UrlLocationSettingsProps): ReactElement => {
   const {
     formState: { errors },
-  } = useFormContext<CreateBookFormValues>();
+  } = useFormContext<BookFormValues>();
 
   return (
     <Box width="100%">
