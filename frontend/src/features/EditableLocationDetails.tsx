@@ -3,6 +3,7 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
+  Link,
   MenuItem,
   Select,
   Stack,
@@ -19,7 +20,9 @@ import {
 
 import FileUploadButton from "../components/base/FileUploadButton";
 import { useMobile } from "../hooks/useMobile";
+import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
+import { BookFileUrl, RenameFile, UrlToFile } from "../utils/FileUtils";
 import {
   LocalTypes,
   LocationTypeToString,
@@ -27,12 +30,14 @@ import {
 } from "../utils/LocationUtils";
 
 interface EditableLocationDetailsProps {
+  initial?: BookDTO;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
   onFileChange?: (file?: File) => void;
 }
 
 const EditableLocationDetails = ({
+  initial,
   control,
   onFileChange,
 }: EditableLocationDetailsProps): ReactElement => {
@@ -65,18 +70,24 @@ const EditableLocationDetails = ({
             )}
           />
         </Box>
-        <LocationSettings control={control} onFileChange={onFileChange} />
+        <LocationSettings
+          initial={initial}
+          control={control}
+          onFileChange={onFileChange}
+        />
       </Stack>
     </Box>
   );
 };
 
 interface LocationSettingsProps {
+  initial?: BookDTO;
   control: Control;
   onFileChange?: (file?: File) => void;
 }
 
 const LocationSettings = ({
+  initial,
   control,
   onFileChange,
 }: LocationSettingsProps): ReactElement => {
@@ -107,7 +118,9 @@ const LocationSettings = ({
   }, [locationType, setValue, onFileChange]);
 
   if (LocalTypes.includes(locationTypeInt)) {
-    return <LocalLocationSettings onFileChange={onFileChange} />;
+    return (
+      <LocalLocationSettings initial={initial} onFileChange={onFileChange} />
+    );
   } else if (UrlTypes.includes(locationTypeInt)) {
     return (
       <UrlLocationSettings
@@ -121,13 +134,41 @@ const LocationSettings = ({
 };
 
 interface LocalLocationSettingsProps {
+  initial?: BookDTO;
   onFileChange?: (file: File) => void;
 }
 
 const LocalLocationSettings = ({
+  initial,
   onFileChange: onFileChangeEvent,
 }: LocalLocationSettingsProps): ReactElement => {
   const [currentFile, setCurrentFile] = useState<File>();
+  const [currentFileUrl, setCurrentFileUrl] = useState<string>();
+
+  useEffect(() => {
+    // set initial book file
+    const bookFileUrl = BookFileUrl(initial);
+    if (bookFileUrl !== undefined) {
+      UrlToFile(bookFileUrl).then((file) => {
+        const renamedFile = RenameFile(
+          file,
+          initial?.location?.fileInfo?.fileName ?? "book.epub"
+        );
+        setCurrentFile(renamedFile);
+      });
+    }
+  }, [initial]);
+
+  // download the current file
+  useEffect(() => {
+    if (currentFile === undefined) {
+      return;
+    }
+
+    const url = URL.createObjectURL(currentFile);
+    setCurrentFileUrl(url);
+    return (): void => URL.revokeObjectURL(url);
+  }, [currentFile, setCurrentFileUrl]);
 
   const onFileChange = useCallback(
     (file: File) => {
@@ -158,7 +199,13 @@ const LocalLocationSettings = ({
           Upload Book
         </FileUploadButton>
       </Box>
-      <Typography>{currentFile?.name}</Typography>
+      <Typography
+        component={currentFileUrl ? Link : Typography}
+        href={currentFileUrl}
+        download={currentFile?.name}
+      >
+        {currentFile?.name}
+      </Typography>
     </Stack>
   );
 };

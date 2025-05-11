@@ -50,7 +50,7 @@ const ImportBookPage = (): ReactElement => {
 
   const onImport = useCallback(
     async (files: File[]): Promise<void> => {
-      files.forEach(async (file) => {
+      await files.forEach(async (file) => {
         await importFile(file);
       });
     },

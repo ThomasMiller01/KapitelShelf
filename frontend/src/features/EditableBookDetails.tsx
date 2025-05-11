@@ -24,7 +24,12 @@ import {
 import type { CreateBookFormValues } from "../lib/schemas/CreateBookSchema";
 import { CreateBookSchema } from "../lib/schemas/CreateBookSchema";
 import { ImageTypes } from "../utils/FileTypesUtils";
-import { UrlToFile } from "../utils/FileUtils";
+import {
+  BookFileUrl,
+  CoverUrl,
+  RenameFile,
+  UrlToFile,
+} from "../utils/FileUtils";
 import { toLocationTypeDTO } from "../utils/LocationUtils";
 import EditableLocationDetails from "./EditableLocationDetails";
 
@@ -77,18 +82,41 @@ const EditableBookDetails = ({
     formState: { errors, isValid },
   } = methods;
 
-  // run validation on mount
   useEffect(() => {
+    // set initial cover
+    const coverUrl = CoverUrl(initial);
+    if (coverUrl !== undefined) {
+      UrlToFile(coverUrl).then((file) => {
+        const renamedFile = RenameFile(
+          file,
+          initial?.cover?.fileName ?? "cover.png"
+        );
+        setCoverFile(renamedFile);
+      });
+    } else {
+      // no cover is set, use default bookCover
+      UrlToFile(bookCover).then((file) => setCoverFile(file));
+    }
+
+    const bookFileUrl = BookFileUrl(initial);
+    if (bookFileUrl !== undefined) {
+      UrlToFile(bookFileUrl).then((file) => {
+        const renamedFile = RenameFile(
+          file,
+          initial?.location?.fileInfo?.fileName ?? "book"
+        );
+        setBookFile(renamedFile);
+      });
+    }
+
+    // run validation on mount
     triggerValidation();
-  }, [triggerValidation]);
+  }, [triggerValidation, initial]);
 
   const [coverFile, setCoverFile] = useState<File>();
   const [bookFile, setBookFile] = useState<File>();
 
   const [coverPreview, setCoverPreview] = useState<string>(bookCover);
-  useEffect(() => {
-    UrlToFile(bookCover).then((file) => setCoverFile(file));
-  }, []);
 
   // preview the cover
   useEffect(() => {
@@ -132,14 +160,16 @@ const EditableBookDetails = ({
       title: data.title,
       description: data.description,
       releaseDate: data.releaseDate?.toISOString() ?? undefined,
-      pageNumber: data.pageNumber ?? 0,
+      pageNumber: data.pageNumber ?? undefined,
       series: data.series ? ({ name: data.series } as SeriesDTO) : undefined,
       seriesNumber: data.seriesNumber ?? undefined,
       author: data.author ? parseAuthor(data.author) : undefined,
       location: {
         type: toLocationTypeDTO(data.locationType ?? -1),
         url: data.locationUrl !== "" ? data.locationUrl : undefined,
+        fileInfo: initial?.location?.fileInfo, // keep initial location fileInfo, will be updated in later request
       },
+      cover: initial?.cover, // keep initial cover, will be updated in later request
       categories: data.categories?.map((x): CategoryDTO => ({ name: x })),
       tags: data.tags?.map((x): TagDTO => ({ name: x })),
     };
@@ -287,6 +317,7 @@ const EditableBookDetails = ({
 
                 {/* Location */}
                 <EditableLocationDetails
+                  initial={initial}
                   control={control}
                   onFileChange={setBookFile}
                 />

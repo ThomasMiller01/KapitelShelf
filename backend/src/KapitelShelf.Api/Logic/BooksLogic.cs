@@ -118,6 +118,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         }
 
         using var context = await this.dbContextFactory.CreateDbContextAsync();
+        await using var transaction = await context.Database.BeginTransactionAsync();
 
         // check for existing series
         var series = await context.Series
@@ -128,8 +129,6 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         {
             // create new series
             series = this.mapper.Map<SeriesModel>(createBookDTO.Series);
-            series.Id = Guid.NewGuid();
-
             context.Series.Add(series);
         }
         else
@@ -150,8 +149,6 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             {
                 // create new author
                 author = this.mapper.Map<AuthorModel>(createBookDTO.Author);
-                series.Id = Guid.NewGuid();
-
                 context.Authors.Add(author);
             }
         }
@@ -161,8 +158,8 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         var book = this.mapper.Map<BookModel>(createBookDTO);
         book.Id = Guid.NewGuid();
-        book.SeriesId = series.Id;
-        book.AuthorId = author?.Id;
+        book.Series = series;
+        book.Author = author;
 
         // map categories and check for existing categories
         foreach (var category in createBookDTO.Categories)
@@ -210,6 +207,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         context.Books.Add(book);
         await context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return this.mapper.Map<BookDTO>(book);
     }
@@ -227,127 +225,144 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             return null;
         }
 
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        await using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         var book = await context.Books
-            .Include(x => x.Author)
-            .Include(x => x.Series)
-            .Include(x => x.Cover)
-            .Include(x => x.Location)
+            .Include(b => b.Author)
+            .Include(b => b.Series)
+            .Include(b => b.Cover)
+            .Include(b => b.Location)!
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                .ThenInclude(x => x.FileInfo)
+                .ThenInclude(l => l.FileInfo)
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
-            .Include(x => x.Categories)
-                .ThenInclude(x => x.Category)
-            .Include(x => x.Tags)
-                .ThenInclude(x => x.Tag)
-            .AsSingleQuery()
-
-            .Where(x => x.Id == bookId)
-
-            .FirstOrDefaultAsync();
+            .Include(b => b.Categories)
+                .ThenInclude(bc => bc.Category)
+            .Include(b => b.Tags)
+                .ThenInclude(bt => bt.Tag)
+            .FirstOrDefaultAsync(b => b.Id == bookId);
 
         if (book is null)
         {
             return null;
         }
 
-        book.Title = bookDto.Title;
-        book.Description = bookDto.Description;
-        book.PageNumber = bookDto.PageNumber;
-        book.ReleaseDate = bookDto.ReleaseDate;
-
-        // author
-        if (bookDto.Author is not null)
+        // patch book root scalars
+        context.Entry(book).CurrentValues.SetValues(new
         {
-            book.AuthorId = bookDto.Author.Id;
-            if (book.Author is null)
-            {
-                book.Author = new AuthorModel
-                {
-                    Id = bookDto.Author.Id,
-                };
-            }
+            bookDto.Title,
+            bookDto.Description,
+            bookDto.PageNumber,
+            bookDto.ReleaseDate,
+            bookDto.SeriesNumber,
+        });
 
-            book.Author.FirstName = bookDto.Author.FirstName;
-            book.Author.LastName = bookDto.Author.LastName;
-        }
-        else
+        // upsert Author (N:1)
+        if (bookDto.Author is null)
         {
-            book.AuthorId = null;
             book.Author = null;
         }
-
-        // series
-        book.SeriesId = bookDto.Series!.Id;
-        book.Series!.Name = bookDto.Series.Name;
-        book.Series.UpdatedAt = bookDto.Series.UpdatedAt;
-        book.SeriesNumber = bookDto.SeriesNumber;
-
-        // cover
-        if (bookDto.Cover is not null)
+        else
         {
-            if (book.Cover is null)
-            {
-                book.Cover = new FileInfoModel
-                {
-                    Id = bookDto.Cover.Id,
-                };
-            }
+            var author = await context.Authors
+                   .SingleOrDefaultAsync(x =>
+                        x.FirstName == bookDto.Author.FirstName
+                        && x.LastName == bookDto.Author.LastName)
+                    ?? new AuthorModel
+                    {
+                        FirstName = bookDto.Author.FirstName,
+                        LastName = bookDto.Author.LastName,
+                    };
 
-            book.Cover.FilePath = bookDto.Cover.FilePath;
-            book.Cover.FileSizeBytes = bookDto.Cover.FileSizeBytes;
-            book.Cover.MimeType = bookDto.Cover.MimeType;
-            book.Cover.Sha256 = bookDto.Cover.Sha256;
+            book.Author = author;
+        }
+
+        // upsert Series (N:1)
+        if (bookDto.Series is null)
+        {
+            book.Series = null;
         }
         else
+        {
+            var series = await context.Series
+                   .SingleOrDefaultAsync(x => x.Name == bookDto.Series.Name)
+                    ?? new SeriesModel
+                    {
+                        Name = bookDto.Series.Name,
+                    };
+
+            book.Series = series;
+        }
+
+        // upsert Cover (1:1)
+        if (bookDto.Cover is null)
         {
             book.Cover = null;
         }
-
-        // location
-        if (bookDto.Location is not null)
-        {
-            if (book.Location is null)
-            {
-                book.Location = new LocationModel
-                {
-                    Id = bookDto.Location.Id,
-                };
-            }
-
-            book.Location.Type = this.mapper.Map<LocationType>(bookDto.Location.Type);
-            book.Location.Url = bookDto.Location.Url;
-
-            // fileinfo
-            if (bookDto.Location.FileInfo is not null)
-            {
-                if (book.Location.FileInfo is null)
-                {
-                    book.Location.FileInfo = new FileInfoModel
-                    {
-                        Id = bookDto.Location.FileInfo.Id,
-                    };
-                }
-
-                book.Location.FileInfo.FilePath = bookDto.Location.FileInfo.FilePath;
-                book.Location.FileInfo.FileSizeBytes = bookDto.Location.FileInfo.FileSizeBytes;
-                book.Location.FileInfo.MimeType = bookDto.Location.FileInfo.MimeType;
-                book.Location.FileInfo.Sha256 = bookDto.Location.FileInfo.Sha256;
-            }
-            else
-            {
-                book.Location.FileInfo = null;
-            }
-        }
         else
+        {
+            var cover = await context.FileInfos
+                   .SingleOrDefaultAsync(x => x.FilePath == bookDto.Cover.FilePath)
+                    ?? new FileInfoModel
+                    {
+                        FilePath = bookDto.Cover.FilePath,
+                        FileSizeBytes = bookDto.Cover.FileSizeBytes,
+                        MimeType = bookDto.Cover.MimeType,
+                        Sha256 = bookDto.Cover.Sha256,
+                    };
+
+            book.Cover = cover;
+        }
+
+        // upsert Location (1:1)
+        if (bookDto.Location is null)
         {
             book.Location = null;
         }
+        else
+        {
+            book.Location = new LocationModel
+            {
+                Type = this.mapper.Map<LocationType>(bookDto.Location.Type),
+                Url = bookDto.Location.Url,
+                FileInfo = bookDto.Location.FileInfo is null
+                    ? null
+                    : await context.FileInfos.SingleOrDefaultAsync(x => x.FilePath == bookDto.Location.FileInfo.FilePath)
+                        ?? new FileInfoModel
+                        {
+                            FilePath = bookDto.Location.FileInfo.FilePath,
+                            FileSizeBytes = bookDto.Location.FileInfo.FileSizeBytes,
+                            MimeType = bookDto.Location.FileInfo.MimeType,
+                            Sha256 = bookDto.Location.FileInfo.Sha256,
+                        },
+            };
+        }
 
-        // TODO categories
-        // TODO tags
+        // wipe & rebuild Categories (M:N)
+        book.Categories.Clear();
+        foreach (var name in bookDto.Categories.Select(c => c.Name).Distinct())
+        {
+            var category = await context.Categories
+                .SingleOrDefaultAsync(c => c.Name == name)
+                ?? new CategoryModel { Name = name };
+
+            book.Categories.Add(new BookCategoryModel { Category = category });
+        }
+
+        // wipe & rebuild Tags (M:N)
+        book.Tags.Clear();
+        foreach (var name in bookDto.Tags.Select(c => c.Name).Distinct())
+        {
+            var tag = await context.Tags
+                .SingleOrDefaultAsync(c => c.Name == name)
+                ?? new TagModel { Name = name };
+
+            book.Tags.Add(new BookTagModel { Tag = tag });
+        }
+
+        // commit
         await context.SaveChangesAsync();
+
+        await this.CleanupDatabase();
 
         return this.mapper.Map<BookDTO>(book);
     }
@@ -371,6 +386,8 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         context.Books.Remove(book);
         await context.SaveChangesAsync();
+
+        await this.CleanupDatabase();
 
         return this.mapper.Map<BookDTO>(book);
     }
@@ -416,6 +433,75 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// </summary>
     /// <param name="bookId">The id of the book.</param>
     public void DeleteFiles(Guid bookId) => this.bookStorage.DeleteDirectory(bookId);
+
+    /// <summary>
+    /// Cleanup the database of orphaned entries.
+    /// </summary>
+    /// <returns>A task.</returns>
+    public async Task CleanupDatabase()
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        // Authors
+        var orphanAuthors = await context.Authors
+            .Where(a => !context.Books.Any(b => b.AuthorId == a.Id))
+            .ToListAsync();
+
+        context.Authors.RemoveRange(orphanAuthors);
+
+        // Series
+        var orphanSeries = await context.Series
+            .Where(s => !context.Books.Any(b => b.SeriesId == s.Id))
+            .ToListAsync();
+
+        context.Series.RemoveRange(orphanSeries);
+
+        // Categories
+        var orphanCategories = await context.Categories
+            .Where(c => !context.BookCategories.Any(bc => bc.CategoryId == c.Id))
+            .ToListAsync();
+
+        context.Categories.RemoveRange(orphanCategories);
+
+        // Tags
+        var orphanTags = await context.Tags
+            .Where(t => !context.BookTags.Any(bt => bt.TagId == t.Id))
+            .ToListAsync();
+
+        context.Tags.RemoveRange(orphanTags);
+
+        // Location
+        var orphanLocations = await context.Locations
+            .Where(l => !context.Books
+                .Include(x => x.Location)
+                .Where(x => x.Location != null)
+                .Any(b => b.Location!.Id == l.Id))
+            .ToListAsync();
+
+        context.Locations.RemoveRange(orphanLocations);
+
+        // cover or location file
+        var orphanFileInfos = await context.FileInfos
+        .Where(fi =>
+                !context.Books
+                    .Include(x => x.Location)
+                    .Where(x => x.Cover != null)
+                    .Any(b => b.Cover!.Id == fi.Id)
+                && !context.Locations
+                    .Include(x => x.FileInfo)
+                    .Where(x => x.FileInfo != null)
+                    .Any(l => l.FileInfo!.Id == fi.Id))
+            .ToListAsync();
+
+        context.FileInfos.RemoveRange(orphanFileInfos);
+
+        foreach (var fileInfo in orphanFileInfos)
+        {
+            this.bookStorage.DeleteFile(fileInfo.FilePath);
+        }
+
+        await context.SaveChangesAsync();
+    }
 
     private async Task<IList<BookModel>> GetDuplicatesAsync(string title, string? url)
     {
