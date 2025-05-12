@@ -44,7 +44,7 @@ public class BookDTO
     /// <summary>
     /// Gets or sets the series.
     /// </summary>
-    public SeriesDTO? Series { get; set; }
+    public virtual SeriesDTO? Series { get; set; }
 
     /// <summary>
     /// Gets or sets the series number.

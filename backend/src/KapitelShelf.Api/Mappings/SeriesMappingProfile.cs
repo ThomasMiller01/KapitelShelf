@@ -19,13 +19,35 @@ public class SeriesMappingProfile : Profile
     public SeriesMappingProfile()
     {
         CreateMap<SeriesModel, SeriesDTO>()
+            .ForMember(dest => dest.LastVolume, opt =>
+                opt.MapFrom(src => src.Books
+                    .OrderByDescending(b => b.SeriesNumber)
+                    .FirstOrDefault()))
+            .ForMember(dest => dest.TotalBooks, opt =>
+                opt.MapFrom(src => src.Books.Count()))
+            .AfterMap((src, dest) => // prevent circular dependencies series -> book -> series ...
+            {
+                if (dest.LastVolume != null)
+                {
+                    dest.LastVolume.Series = null;
+                }
+            })
             .ReverseMap();
 
+#pragma warning disable CS0618 // Type or member is obsolete
         CreateMap<SeriesModel, SeriesSummaryDTO>()
             .ForMember(dest => dest.LastVolume, opt =>
                 opt.MapFrom(src => src.Books
                     .OrderByDescending(b => b.SeriesNumber)
-                    .FirstOrDefault()));
+                    .FirstOrDefault()))
+            .AfterMap((src, dest) => // prevent circular dependencies series -> book -> series ...
+            {
+                if (dest.LastVolume != null)
+                {
+                    dest.LastVolume.Series = null;
+                }
+            });
+#pragma warning restore CS0618 // Type or member is obsolete
 
         CreateMap<CreateSeriesDTO, SeriesModel>();
 

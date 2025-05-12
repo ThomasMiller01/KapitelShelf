@@ -20,7 +20,7 @@ const SeriesList = (): ReactElement => {
     useInfiniteQuery({
       queryKey: ["series"],
       queryFn: async ({ pageParam = 1 }) => {
-        const { data } = await seriesApi.seriesSummaryGet(pageParam, PAGE_SIZE);
+        const { data } = await seriesApi.seriesGet(pageParam, PAGE_SIZE);
         return data;
       },
       initialPageParam: 1,
@@ -59,10 +59,10 @@ const SeriesList = (): ReactElement => {
       <Grid container spacing={2}>
         {data?.pages
           .flatMap((p) => p.items)
-          .filter((serie): serie is SeriesSummaryDTO => Boolean(serie))
-          .map((serie) => (
-            <Grid key={serie.id}>
-              <SeriesCard serie={serie} />
+          .filter((series): series is SeriesSummaryDTO => Boolean(series))
+          .map((series) => (
+            <Grid key={series.id}>
+              <SeriesCard series={series} />
             </Grid>
           ))}
       </Grid>
