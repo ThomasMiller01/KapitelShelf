@@ -2,24 +2,25 @@ import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
-import type { SeriesSummaryDTO } from "../lib/api/KapitelShelf.Api/api";
+import type { SeriesDTO } from "../lib/api/KapitelShelf.Api/api";
 import { CoverUrl } from "../utils/FileUtils";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
 
 interface SeriesCardProps {
-  serie: SeriesSummaryDTO;
+  series: SeriesDTO;
 }
 
-const SeriesCard = ({ serie }: SeriesCardProps): ReactElement => {
+const SeriesCard = ({ series }: SeriesCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
-  const book = serie.lastVolume;
+  const book = series.lastVolume;
   return (
     <ItemCardLayout
-      title={serie.name}
-      link={`/library/series/${serie.id}`}
+      title={series.name}
+      link={`/library/series/${series.id}`}
       image={CoverUrl(book)}
       fallbackImage={bookCover}
+      badge={series.totalBooks ? series.totalBooks?.toString() : ""}
       metadata={[
         <MetadataItem
           key="author"

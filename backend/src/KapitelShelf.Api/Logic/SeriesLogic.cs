@@ -33,6 +33,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     /// <param name="page">The page to get.</param>
     /// <param name="pageSize">The size of the pages.</param>
     /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    [Obsolete("GetSeriesSummaryAsync is deprecated; use GetSeriesAsync instead.", false)]
     public async Task<PagedResult<SeriesSummaryDTO>> GetSeriesSummaryAsync(int page, int pageSize)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -63,6 +64,43 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         var totalCount = await query.CountAsync();
 
         return new PagedResult<SeriesSummaryDTO>
+        {
+            Items = items,
+            TotalCount = totalCount,
+        };
+    }
+
+    /// <summary>
+    /// Get all series.
+    /// </summary>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var query = context.Series
+            .AsNoTracking();
+
+        var items = await query
+            .Include(x => x.Books)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Cover)
+            .AsSingleQuery()
+
+            .OrderByDescending(x => x.UpdatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.Map<SeriesDTO>(x))
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
+
+        return new PagedResult<SeriesDTO>
         {
             Items = items,
             TotalCount = totalCount,

@@ -42,7 +42,7 @@ public class BookModel
     /// <summary>
     /// Gets or sets the series.
     /// </summary>
-    public SeriesModel? Series { get; set; }
+    public virtual SeriesModel? Series { get; set; }
 
     /// <summary>
     /// Gets or sets the series number.
@@ -57,25 +57,25 @@ public class BookModel
     /// <summary>
     /// Gets or sets the author.
     /// </summary>
-    public AuthorModel? Author { get; set; }
+    public virtual AuthorModel? Author { get; set; }
 
     /// <summary>
     /// Gets or sets the cover.
     /// </summary>
-    public FileInfoModel? Cover { get; set; }
+    public virtual FileInfoModel? Cover { get; set; }
 
     /// <summary>
     /// Gets or sets the location.
     /// </summary>
-    public LocationModel? Location { get; set; }
+    public virtual LocationModel? Location { get; set; }
 
     /// <summary>
     /// Gets or sets the categories.
     /// </summary>
-    public ICollection<BookCategoryModel> Categories { get; set; } = [];
+    public virtual ICollection<BookCategoryModel> Categories { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the tags.
     /// </summary>
-    public ICollection<BookTagModel> Tags { get; set; } = [];
+    public virtual ICollection<BookTagModel> Tags { get; set; } = [];
 }

@@ -2,6 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Book;
+
 namespace KapitelShelf.Api.DTOs.Series;
 
 /// <summary>
@@ -30,7 +32,12 @@ public class SeriesDTO
     public DateTime UpdatedAt { get; set; }
 
     /// <summary>
+    /// Gets or sets the last volume of this series.
+    /// </summary>
+    public BookDTO? LastVolume { get; set; } = null!;
+
+    /// <summary>
     /// Gets or sets the total number of books.
     /// </summary>
-    public int TotalBooks { get; set; }
+    public int? TotalBooks { get; set; }
 }

@@ -9,6 +9,7 @@ namespace KapitelShelf.Api.DTOs.Series;
 /// <summary>
 /// The series dto.
 /// </summary>
+[Obsolete("SeriesSummaryDTO is deprecated; use SeriesDTO instead.", false)]
 public class SeriesSummaryDTO
 {
     /// <summary>

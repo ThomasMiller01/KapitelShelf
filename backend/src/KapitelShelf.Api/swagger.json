@@ -451,6 +451,59 @@
               }
             }
           }
+        },
+        "deprecated": true
+      }
+    },
+    "/series": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Fetch all series.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTOPagedResult"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1008,6 +1061,9 @@
             "description": "Gets or sets the update time.",
             "format": "date-time"
           },
+          "lastVolume": {
+            "$ref": "#/components/schemas/BookDTO"
+          },
           "totalBooks": {
             "type": "integer",
             "description": "Gets or sets the total number of books.",
@@ -1016,6 +1072,26 @@
         },
         "additionalProperties": false,
         "description": "The series dto."
+      },
+      "SeriesDTOPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeriesDTO"
+            },
+            "description": "Gets or sets the items.",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Gets or sets the total number of items.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The paginated result."
       },
       "SeriesSummaryDTO": {
         "type": "object",

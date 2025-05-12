@@ -32,5 +32,5 @@ public class SeriesModel
     /// <summary>
     /// Gets or sets the books.
     /// </summary>
-    public ICollection<BookModel> Books { get; set; } = [];
+    public virtual ICollection<BookModel> Books { get; set; } = [];
 }

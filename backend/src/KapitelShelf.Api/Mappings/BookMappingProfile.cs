@@ -30,7 +30,15 @@ public class BookMappingProfile : Profile
 
             // map series from the model if set, otherwise just take the seriesId from the model
             .ForMember(dest => dest.Series, opt => opt.MapFrom(src =>
-                src.Series ?? new SeriesModel { Id = src.SeriesId }));
+                src.Series ?? new SeriesModel { Id = src.SeriesId }))
+
+            .AfterMap((src, dest) => // prevent circular dependencies book -> series-> book ...
+            {
+                if (dest.Series != null)
+                {
+                    dest.Series.LastVolume = null;
+                }
+            });
 
         CreateMap<CreateBookDTO, BookModel>()
             .ForMember(dest => dest.Categories, opt => opt.Ignore())
