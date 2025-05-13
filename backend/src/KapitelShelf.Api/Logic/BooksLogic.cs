@@ -246,6 +246,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
                 .ThenInclude(bc => bc.Category)
             .Include(b => b.Tags)
                 .ThenInclude(bt => bt.Tag)
+            .AsSingleQuery()
             .FirstOrDefaultAsync(b => b.Id == bookId);
 
         if (book is null)
