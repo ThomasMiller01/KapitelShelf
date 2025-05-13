@@ -21,6 +21,7 @@ const SeriesCard = ({ series }: SeriesCardProps): ReactElement => {
       image={CoverUrl(book)}
       fallbackImage={bookCover}
       badge={series.totalBooks ? series.totalBooks?.toString() : ""}
+      squareBadge={false}
       metadata={[
         <MetadataItem
           key="author"
