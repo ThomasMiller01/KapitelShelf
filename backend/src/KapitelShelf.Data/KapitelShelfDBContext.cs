@@ -104,6 +104,10 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .HasForeignKey(bc => bc.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<CategoryModel>()
+            .HasIndex(c => new { c.Name })
+            .IsUnique();
+
         // Tags
         modelBuilder.Entity<BookTagModel>()
             .HasKey(bt => new { bt.BookId, bt.TagId });
@@ -120,6 +124,10 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .HasForeignKey(bt => bt.TagId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<TagModel>()
+            .HasIndex(t => new { t.Name })
+            .IsUnique();
+
         // Users
         modelBuilder.Entity<UserBookMetadataModel>()
             .HasOne(ub => ub.Book)
@@ -132,6 +140,18 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .WithMany()
             .HasForeignKey(ub => ub.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Author
+        modelBuilder.Entity<AuthorModel>()
+            .HasIndex(a => new { a.FirstName, a.LastName })
+            .IsUnique();
+
+        // Series
+        modelBuilder.Entity<SeriesModel>()
+            .HasIndex(c => new { c.Name })
+            .IsUnique();
 #pragma warning restore CA1062 // Validate arguments of public methods
+
+        base.OnModelCreating(modelBuilder);
     }
 }
