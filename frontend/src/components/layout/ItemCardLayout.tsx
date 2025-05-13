@@ -33,6 +33,7 @@ interface ItemCardLayoutProps {
   image?: string | null | undefined;
   fallbackImage?: string | null | undefined;
   badge?: string | null | undefined;
+  squareBadge?: boolean;
   metadata: ReactNode[];
 }
 
@@ -42,6 +43,7 @@ const ItemCardLayout = ({
   image,
   fallbackImage,
   badge,
+  squareBadge = true,
   metadata = [],
 }: ItemCardLayoutProps): ReactElement => {
   const navigate = useNavigate();
@@ -64,7 +66,16 @@ const ItemCardLayout = ({
       }}
       onClick={() => link && navigate(link)}
     >
-      <Box component={link ? CardActionArea : "div"}>
+      <Box
+        component={link ? CardActionArea : "div"}
+        height="100%"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+        }}
+      >
         <Box position="relative">
           <CardMedia
             component="img"
@@ -80,7 +91,7 @@ const ItemCardLayout = ({
           {badge && (
             <Box position="absolute" bottom="5px" right="5px">
               <Avatar
-                variant="rounded"
+                variant={squareBadge ? "rounded" : "circular"}
                 sx={{
                   width: 30,
                   height: 30,
