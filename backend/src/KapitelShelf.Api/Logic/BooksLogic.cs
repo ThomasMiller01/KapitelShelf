@@ -20,7 +20,7 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="mapper">The auto mapper.</param>
 /// <param name="bookParserManager">The book parser manager.</param>
 /// <param name="bookStorage">The book storage.</param>
-public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, BookParserManager bookParserManager, BookStorage bookStorage)
+public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, BookParserManager bookParserManager, IBookStorage bookStorage) : IBooksLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -28,7 +28,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
     private readonly BookParserManager bookParserManager = bookParserManager;
 
-    private readonly BookStorage bookStorage = bookStorage;
+    private readonly IBookStorage bookStorage = bookStorage;
 
     /// <summary>
     /// Get all books.

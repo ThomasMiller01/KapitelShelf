@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
@@ -11,6 +12,8 @@ using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
+
 namespace KapitelShelf.Api.Logic;
 
 /// <summary>
@@ -19,13 +22,13 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="dbContextFactory">The dbContext factory.</param>
 /// <param name="mapper">The auto mapper.</param>
 /// <param name="booksLogic">The books logic.</param>
-public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, BooksLogic booksLogic)
+public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBooksLogic booksLogic)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
 
-    private readonly BooksLogic booksLogic = booksLogic;
+    private readonly IBooksLogic booksLogic = booksLogic;
 
     /// <summary>
     /// Get all series.
@@ -272,7 +275,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         }
     }
 
-    private async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
+    internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
