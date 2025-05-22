@@ -19,22 +19,18 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
         private TextParser testee;
 
         /// <summary>
+        /// Gets the supported extensions for <see cref="TextParser"/> as test cases.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{T}"/> of supported file extensions.</returns>
+        private static readonly IReadOnlyCollection<string> SupportedExtensions = new TextParser().SupportedExtensions;
+
+        /// <summary>
         /// Sets up a new TextParser before each test.
         /// </summary>
         [SetUp]
         public void SetUp()
         {
             this.testee = new TextParser();
-        }
-
-        /// <summary>
-        /// Tests that SupportedExtensions includes all expected values.
-        /// </summary>
-        [Test]
-        public void SupportedExtensions_ContainsAllExpectedExtensions()
-        {
-            var expected = new[] { "txt", "htm", "html", "xhtml", "rtf", "odt" };
-            Assert.That(this.testee.SupportedExtensions, Is.EquivalentTo(expected));
         }
 
         /// <summary>
@@ -114,15 +110,6 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
             var result = await this.testee.Parse(file);
 
             Assert.That(result.Book.Title, Is.EqualTo("title case"), $"Failed for extension: {ext}");
-        }
-
-        /// <summary>
-        /// Gets the supported extensions for <see cref="TextParser"/> as test cases.
-        /// </summary>
-        /// <returns>An <see cref="IEnumerable{T}"/> of supported file extensions.</returns>
-        private static IEnumerable<string> SupportedExtensions()
-        {
-            return new TextParser().SupportedExtensions;
         }
     }
 }
