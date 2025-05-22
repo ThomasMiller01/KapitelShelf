@@ -19,54 +19,6 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
         private TestBookParserBase testee;
 
         /// <summary>
-        /// Test data for HTML sanitization.
-        /// </summary>
-        private static readonly List<TestCaseData> SanitizeTextCases =
-        [
-            new TestCaseData("Some <b>bold</b> and <i>italic</i> text.", "Some bold and italic text."),
-            new TestCaseData("<p>Hello</p>", "Hello"),
-            new TestCaseData("No tags here", "No tags here"),
-            new TestCaseData(null, string.Empty),
-            new TestCaseData(string.Empty, string.Empty),
-        ];
-
-        /// <summary>
-        /// Test data for author parsing.
-        /// </summary>
-        private static readonly List<TestCaseData> AuthorCases =
-        [
-            new TestCaseData("Miller, Thomas", "Thomas", "Miller"),
-            new TestCaseData("Jane Doe", "Jane", "Doe"),
-            new TestCaseData("Mary Ann Smith", "Mary Ann", "Smith"),
-            new TestCaseData("Plato", "Plato", string.Empty),
-            new TestCaseData(null, string.Empty, string.Empty),
-            new TestCaseData(string.Empty, string.Empty, string.Empty),
-        ];
-
-        /// <summary>
-        /// Test data for title cleaning.
-        /// </summary>
-        private static readonly List<TestCaseData> TitleCases =
-        [
-            new TestCaseData("hello!@#$%^&*()world", "hello world"),
-            new TestCaseData("   the     quick   brown   fox   ", "the quick brown fox"),
-            new TestCaseData("Harry-Potter's: Adventures, Vol.1", "Harry-Potter's: Adventures, Vol.1"),
-            new TestCaseData("---strange---...,,,''", "---strange---...,,,''"),
-            new TestCaseData("hello___world", "hello world"),
-        ];
-
-        /// <summary>
-        /// Test data for file name title parsing.
-        /// </summary>
-        private static readonly List<TestCaseData> FileTitleCases =
-        [
-            new TestCaseData("the_witcher_3!.pdf", "the witcher 3"),
-            new TestCaseData("my.awesome-book_v2.2023.epub", "my.awesome-book v2.2023"),
-            new TestCaseData(null, string.Empty),
-            new TestCaseData(string.Empty, string.Empty),
-        ];
-
-        /// <summary>
         /// Sets up a new test instance before each test.
         /// </summary>
         [SetUp]
@@ -80,7 +32,11 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <param name="expected">The expected output string.</param>
-        [TestCaseSource(nameof(SanitizeTextCases))]
+        [TestCase("Some <b>bold</b> and <i>italic</i> text.", "Some bold and italic text.")]
+        [TestCase("<p>Hello</p>", "Hello")]
+        [TestCase("No tags here", "No tags here")]
+        [TestCase(null!, "")]
+        [TestCase("", "")]
         public void SanitizeText_RemovesHtmlTags_AndHandlesNull(string input, string expected)
         {
             var result = this.testee.SanitizeTextPublic(input);
@@ -93,7 +49,12 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
         /// <param name="input">The author string.</param>
         /// <param name="expectedFirst">Expected first name.</param>
         /// <param name="expectedLast">Expected last name.</param>
-        [TestCaseSource(nameof(AuthorCases))]
+        [TestCase("Miller, Thomas", "Thomas", "Miller")]
+        [TestCase("Jane Doe", "Jane", "Doe")]
+        [TestCase("Mary Ann Smith", "Mary Ann", "Smith")]
+        [TestCase("Plato", "Plato", "")]
+        [TestCase(null!, "", "")]
+        [TestCase("", "", "")]
         public void ParseAuthor_ParsesVariousFormats(string input, string expectedFirst, string expectedLast)
         {
             var (firstName, lastName) = this.testee.ParseAuthorPublic(input);
@@ -109,7 +70,11 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <param name="expected">The expected cleaned output.</param>
-        [TestCaseSource(nameof(TitleCases))]
+        [TestCase("hello!@#$%^&*()world", "hello world")]
+        [TestCase("   the     quick   brown   fox   ", "the quick brown fox")]
+        [TestCase("Harry-Potter's: Adventures, Vol.1", "Harry-Potter's: Adventures, Vol.1")]
+        [TestCase("---strange---...,,,''", "---strange---...,,,''")]
+        [TestCase("hello___world", "hello world")]
         public void ParseTitle_CleansTitle(string input, string expected)
         {
             var result = this.testee.ParseTitlePublic(input);
@@ -121,7 +86,10 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
         /// </summary>
         /// <param name="filename">The filename input.</param>
         /// <param name="expected">The expected cleaned title.</param>
-        [TestCaseSource(nameof(FileTitleCases))]
+        [TestCase("the_witcher_3!.pdf", "the witcher 3")]
+        [TestCase("my.awesome-book_v2.2023.epub", "my.awesome-book v2.2023")]
+        [TestCase(null!, "")]
+        [TestCase("", "")]
         public void ParseTitleFromFile_RemovesExtensionAndCleans(string filename, string expected)
         {
             var result = this.testee.ParseTitleFromFilePublic(filename);
@@ -134,9 +102,7 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser
         private sealed class TestBookParserBase : BookParserBase
         {
             public override IReadOnlyCollection<string> SupportedExtensions => ["unit"];
-
             public override Task<BookParsingResult> Parse(IFormFile file) => throw new NotImplementedException();
-
             public string SanitizeTextPublic(string text) => this.SanitizeText(text);
             public (string firstName, string lastName) ParseAuthorPublic(string author) => this.ParseAuthor(author);
             public string ParseTitlePublic(string str) => this.ParseTitle(str);

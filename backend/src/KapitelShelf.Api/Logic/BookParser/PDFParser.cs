@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Xobject;
 using KapitelShelf.Api.DTOs.Author;
@@ -11,6 +12,8 @@ using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Logic.BookParser;
 
@@ -76,7 +79,7 @@ public class PDFParser : BookParserBase
         };
     }
 
-    private static DateTime? ParseReleaseDate(PdfDocumentInfo info)
+    internal static DateTime? ParseReleaseDate(PdfDocumentInfo info)
     {
         // PDF dates are often stored as "D:YYYYMMDDHHmmSS"
         var raw = info.GetMoreInfo("CreationDate") ?? info.GetMoreInfo("ModDate");
@@ -105,7 +108,7 @@ public class PDFParser : BookParserBase
         return null;
     }
 
-    private static IFormFile? ParseCover(PdfDocument pdf, string title)
+    internal static IFormFile? ParseCover(PdfDocument pdf, string title)
     {
         // get cover from the first page of the pdf
         var first_page = pdf.GetPage(1);
