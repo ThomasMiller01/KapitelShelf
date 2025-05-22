@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
@@ -13,6 +14,8 @@ using KapitelShelf.Api.Extensions;
 using VersOne.Epub;
 using VersOne.Epub.Schema;
 
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
+
 namespace KapitelShelf.Api.Logic.BookParser;
 
 /// <summary>
@@ -20,6 +23,10 @@ namespace KapitelShelf.Api.Logic.BookParser;
 /// </summary>
 public class EPUBParser : BookParserBase
 {
+#pragma warning disable SA1401 // Fields should be private
+    internal IEpubBookLoader BookLoader = new EpubBookLoader();
+#pragma warning restore SA1401 // Fields should be private
+
     private static readonly string CalibreTimestampMetaName = "calibre:timestamp";
 
     private static readonly string CalibreSeriesNameMetaName = "calibre:series";
@@ -36,19 +43,19 @@ public class EPUBParser : BookParserBase
 
         // load the epub
         using var stream = file.OpenReadStream();
-        var epubBook = await EpubReader.OpenBookAsync(stream);
+        var epubBook = await this.BookLoader.OpenBookAsync(stream);
 
         var metadata = epubBook.Schema.Package.Metadata;
 
         // title
-        var title = this.ParseTitle(epubBook.Title
-            ?? metadata.Titles.FirstOrDefault()?.Title
-            ?? string.Empty);
+        var title = this.ParseTitle((string.IsNullOrEmpty(epubBook.Title)
+            ? metadata.Titles.FirstOrDefault()?.Title
+            : epubBook.Title) ?? string.Empty);
 
         // description
-        var description = this.SanitizeText(epubBook.Description
-            ?? metadata.Descriptions.FirstOrDefault()?.Description
-            ?? string.Empty);
+        var description = this.SanitizeText((string.IsNullOrEmpty(epubBook.Description)
+            ? metadata.Descriptions.FirstOrDefault()?.Description
+            : epubBook.Description) ?? string.Empty);
 
         // page number
         // TODO: https://github.com/ThomasMiller01/KapitelShelf/issues/123
@@ -101,7 +108,7 @@ public class EPUBParser : BookParserBase
         };
     }
 
-    private static DateTime? ParseReleaseDate(EpubMetadata? metadata)
+    internal static DateTime? ParseReleaseDate(EpubMetadata? metadata)
     {
         if (metadata is null)
         {
@@ -124,7 +131,7 @@ public class EPUBParser : BookParserBase
         return null;
     }
 
-    private static (string? seriesName, int seriesNumber) ParseSeries(EpubMetadata metadata)
+    internal static (string? seriesName, int seriesNumber) ParseSeries(EpubMetadata metadata)
     {
         string? seriesName = null;
         var seriesNumber = 0;
@@ -146,4 +153,27 @@ public class EPUBParser : BookParserBase
 
         return (seriesName, seriesNumber);
     }
+}
+
+/// <summary>
+/// Interface for loading an EPUB book.
+/// </summary>
+public interface IEpubBookLoader
+{
+    /// <summary>
+    /// Open the EPUB book from the given stream.
+    /// </summary>
+    /// <param name="stream">The input stream.</param>
+    /// <returns>The read epub.</returns>
+    Task<EpubBookRef> OpenBookAsync(Stream stream);
+}
+
+/// <summary>
+/// Implementation of the EPUB book loader.
+/// This is necessary to make the EPUBParser testable.
+/// </summary>
+public class EpubBookLoader : IEpubBookLoader
+{
+    /// <inheritdoc/>
+    public Task<EpubBookRef> OpenBookAsync(Stream stream) => EpubReader.OpenBookAsync(stream);
 }
