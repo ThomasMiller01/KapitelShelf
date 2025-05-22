@@ -41,7 +41,7 @@ public class EPUBParser : BookParserBase
         var metadata = epubBook.Schema.Package.Metadata;
 
         // title
-        var title = this.SanitizeText(epubBook.Title
+        var title = this.ParseTitle(epubBook.Title
             ?? metadata.Titles.FirstOrDefault()?.Title
             ?? string.Empty);
 

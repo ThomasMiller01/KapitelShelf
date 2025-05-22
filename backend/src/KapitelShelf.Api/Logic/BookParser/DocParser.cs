@@ -32,7 +32,7 @@ public class DocParser : BookParserBase
         var docInfo = hwpf.DocumentSummaryInformation;
 
         // title
-        var title = string.IsNullOrEmpty(info.Title) ? ParseTitle(file.FileName) : info.Title;
+        var title = string.IsNullOrEmpty(info.Title) ? this.ParseTitleFromFile(file.FileName) : info.Title;
 
         // description
         var description = info.Subject ?? string.Empty;
@@ -69,14 +69,5 @@ public class DocParser : BookParserBase
             Book = bookDto,
             CoverFile = null,
         };
-    }
-
-    private static string ParseTitle(string fileName)
-    {
-        var withoutExtension = fileName
-            .Split(".")
-            .First();
-
-        return withoutExtension.Replace("_", " ");
     }
 }

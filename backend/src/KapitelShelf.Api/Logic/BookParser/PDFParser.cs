@@ -38,7 +38,8 @@ public class PDFParser : BookParserBase
         var info = pdf.GetDocumentInfo();
 
         // title
-        var title = SanitizeText(ParseTitle(info, file.FileName));
+        var titleInfo = info.GetTitle();
+        var title = string.IsNullOrEmpty(titleInfo) ? this.ParseTitleFromFile(file.FileName) : this.ParseTitle(titleInfo);
 
         // description: try Subject, then Keywords
         var description = SanitizeText(info.GetSubject() ?? info.GetMoreInfo("Keywords"));
@@ -102,22 +103,6 @@ public class PDFParser : BookParserBase
         }
 
         return null;
-    }
-
-    private static string ParseTitle(PdfDocumentInfo info, string fileName)
-    {
-        var title = info.GetTitle();
-        if (string.IsNullOrEmpty(title))
-        {
-            // if title is not set, use cleaned filename
-            var withoutExtension = fileName
-                .Split(".")
-                .First();
-
-            title = withoutExtension.Replace("_", " ");
-        }
-
-        return title;
     }
 
     private static IFormFile? ParseCover(PdfDocument pdf, string title)

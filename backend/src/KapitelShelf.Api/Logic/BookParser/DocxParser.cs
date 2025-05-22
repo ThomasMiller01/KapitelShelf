@@ -30,7 +30,7 @@ public class DocxParser : BookParserBase
         var props = document.PackageProperties;
 
         // title
-        var title = string.IsNullOrEmpty(props.Title) ? ParseTitle(file.FileName) : props.Title;
+        var title = string.IsNullOrEmpty(props.Title) ? this.ParseTitleFromFile(file.FileName) : props.Title;
 
         // description
         var description = props.Subject ?? string.Empty;
@@ -58,14 +58,5 @@ public class DocxParser : BookParserBase
             Book = bookDto,
             CoverFile = null,
         };
-    }
-
-    private static string ParseTitle(string fileName)
-    {
-        var withoutExtension = fileName
-            .Split(".")
-            .First();
-
-        return withoutExtension.Replace("_", " ");
     }
 }
