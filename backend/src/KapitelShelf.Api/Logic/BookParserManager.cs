@@ -2,8 +2,11 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.Logic.BookParser;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Logic;
 
@@ -12,14 +15,28 @@ namespace KapitelShelf.Api.Logic;
 /// </summary>
 public class BookParserManager
 {
-    private static readonly List<Type> ParserTypes = [
-        typeof(EPUBParser),
-        typeof(PDFParser),
-        typeof(FB2Parser),
-        typeof(TextParser),
-        typeof(DocxParser),
-        typeof(DocParser),
-    ];
+    private readonly List<Type> parserTypes;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BookParserManager"/> class.
+    /// </summary>
+    public BookParserManager()
+        : this([
+            typeof(EPUBParser),
+            typeof(PDFParser),
+            typeof(FB2Parser),
+            typeof(TextParser),
+            typeof(DocxParser),
+            typeof(DocParser),
+        ])
+    {
+    }
+
+    // Needed for unit tests
+    internal BookParserManager(List<Type> parserTypes)
+    {
+        this.parserTypes = parserTypes;
+    }
 
     /// <summary>
     /// Parse a book file.
@@ -33,13 +50,18 @@ public class BookParserManager
             throw new ArgumentException("File must be set");
         }
 
+        // extract file extension
         var extension = Path.GetExtension(file.FileName)
             .TrimStart('.')
-            .ToLowerInvariant()
-            ?? throw new ArgumentException("File name must have an extension", nameof(file));
+            .ToLowerInvariant();
+
+        if (string.IsNullOrEmpty(extension))
+        {
+            throw new ArgumentException("File name must have an extension", nameof(file));
+        }
 
         // get parser for this file extension
-        var parserType = ParserTypes
+        var parserType = this.parserTypes
             .FirstOrDefault(t =>
             {
                 // throwaway instance to check for the supported extensions
