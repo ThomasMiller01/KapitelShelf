@@ -13,7 +13,7 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// Book metadata parser factory.
 /// </summary>
-public class BookParserManager
+public class BookParserManager : IBookParserManager
 {
     private readonly List<Type> parserTypes;
 
@@ -38,11 +38,7 @@ public class BookParserManager
         this.parserTypes = parserTypes;
     }
 
-    /// <summary>
-    /// Parse a book file.
-    /// </summary>
-    /// <param name="file">The book file to parse.</param>
-    /// <returns>The book metadata.</returns>
+    /// <inheritdoc/>
     public async Task<BookParsingResult> Parse(IFormFile file)
     {
         if (file is null)

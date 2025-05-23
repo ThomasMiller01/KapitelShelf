@@ -3,7 +3,6 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
@@ -40,7 +39,7 @@ public class SeriesLogicTests
         this.dbContextFactory.CreateDbContextAsync(Arg.Any<CancellationToken>())
             .Returns(call => Task.FromResult(new KapitelShelfDBContext(this.dbOptions)));
 
-        this.mapper = Substitute.For<IMapper>();
+        this.mapper = Testhelper.CreateMapper();
         this.booksLogic = Substitute.For<IBooksLogic>();
         this.testee = new SeriesLogic(this.dbContextFactory, this.mapper, this.booksLogic);
     }
@@ -67,12 +66,6 @@ public class SeriesLogicTests
             context.Series.Add(series);
             await context.SaveChangesAsync();
         }
-
-        var summaryDto = new SeriesSummaryDTO
-        {
-            Name = series.Name,
-        };
-        this.mapper.Map<SeriesSummaryDTO>(Arg.Any<SeriesModel>()).Returns(summaryDto);
 
         // Execute
         var result = await this.testee.GetSeriesSummaryAsync(1, 10);
@@ -107,13 +100,6 @@ public class SeriesLogicTests
             context.Series.Add(series);
             await context.SaveChangesAsync();
         }
-
-        var dto = new SeriesDTO
-        {
-            Id = series.Id,
-            Name = series.Name,
-        };
-        this.mapper.Map<SeriesDTO>(Arg.Any<SeriesModel>()).Returns(dto);
 
         // Execute
         var result = await this.testee.GetSeriesAsync(1, 10);
@@ -155,13 +141,6 @@ public class SeriesLogicTests
             context.Books.Add(book);
             await context.SaveChangesAsync();
         }
-
-        var dto = new SeriesDTO
-        {
-            Id = id,
-            Name = "FoundSeries",
-        };
-        this.mapper.Map<SeriesDTO>(Arg.Any<SeriesModel>()).Returns(dto);
 
         // Execute
         var result = await this.testee.GetSeriesByIdAsync(id);
@@ -220,12 +199,6 @@ public class SeriesLogicTests
             await context.SaveChangesAsync();
         }
 
-        var bookDto = new BookDTO
-        {
-            Id = book.Id,
-        };
-        this.mapper.Map<BookDTO>(Arg.Any<BookModel>()).Returns(bookDto);
-
         // Execute
         var result = await this.testee.GetBooksBySeriesIdAsync(seriesId, 1, 10);
 
@@ -255,7 +228,7 @@ public class SeriesLogicTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.TotalCount, Is.EqualTo(0));
+            Assert.That(result.TotalCount, Is.Zero);
             Assert.That(result.Items, Is.Empty);
         });
     }
@@ -281,12 +254,6 @@ public class SeriesLogicTests
             await context.SaveChangesAsync();
         }
 
-        var dto = new SeriesDTO
-        {
-            Id = id,
-            Name = "DeleteMe",
-        };
-        this.mapper.Map<SeriesDTO>(Arg.Any<SeriesModel>()).Returns(dto);
         this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
 
         // Execute
@@ -374,7 +341,6 @@ public class SeriesLogicTests
             Id = id,
             Name = "Updated",
         };
-        this.mapper.Map<SeriesDTO>(Arg.Any<SeriesModel>()).Returns(updatedDto);
 
         // Execute
         var result = await this.testee.UpdateSeriesAsync(id, updatedDto);

@@ -39,7 +39,7 @@ public class EPUBParserTests
     [Test]
     public void Parse_ThrowsIfFileIsNull()
     {
-        // Act & Assert
+        // Execute & Assert
         Assert.ThrowsAsync<ArgumentNullException>(() => testee.Parse(null!));
     }
 
@@ -50,7 +50,7 @@ public class EPUBParserTests
     [Test]
     public async Task Parse_ParsesAllMetadata()
     {
-        // Arrange
+        // Setup
         var file = Substitute.For<IFormFile>();
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("dummy data"));
         file.OpenReadStream().Returns(stream);
@@ -67,7 +67,7 @@ public class EPUBParserTests
         var epubBookLoader = new EpubBookLoaderMock(epubBook);
         this.testee.BookLoader = epubBookLoader;
 
-        // Act
+        // Execute
         var result = await testee.Parse(file);
 
         Assert.Multiple(() =>
@@ -89,7 +89,7 @@ public class EPUBParserTests
     [Test]
     public async Task Parse_UsesFallbacks_WhenFieldsMissing()
     {
-        // Arrange
+        // Setup
         var file = Substitute.For<IFormFile>();
         var stream = new MemoryStream();
         file.OpenReadStream().Returns(stream);
@@ -106,7 +106,7 @@ public class EPUBParserTests
         var epubBookLoader = new EpubBookLoaderMock(epubBook);
         this.testee.BookLoader = epubBookLoader;
 
-        // Act
+        // Execute
         var result = await testee.Parse(file);
 
         Assert.Multiple(() =>
@@ -128,7 +128,7 @@ public class EPUBParserTests
     [Test]
     public async Task Parse_ParsesSeriesMetadata()
     {
-        // Arrange
+        // Setup
         var file = Substitute.For<IFormFile>();
         file.OpenReadStream().Returns(new MemoryStream());
 
@@ -149,7 +149,7 @@ public class EPUBParserTests
         var epubBookLoader = new EpubBookLoaderMock(epubBook);
         this.testee.BookLoader = epubBookLoader;
 
-        // Act
+        // Execute
         var result = await testee.Parse(file);
 
         // Assert
@@ -167,7 +167,7 @@ public class EPUBParserTests
     [Test]
     public void ParseReleaseDate_ParsesFromCalibreTimestamp()
     {
-        // Arrange
+        // Setup
         var date = DateTime.UtcNow.AddDays(-10);
         var metaItems = new List<EpubMetadataMeta>
         {
@@ -180,7 +180,7 @@ public class EPUBParserTests
             dates: [],
             metaItems: metaItems);
 
-        // Act
+        // Execute
         var parsed = EPUBParser.ParseReleaseDate(metadata);
 
         Assert.Multiple(() =>
@@ -203,7 +203,7 @@ public class EPUBParserTests
         Assert.Multiple(() =>
         {
             Assert.That(seriesName, Is.Null);
-            Assert.That(seriesNumber, Is.EqualTo(0));
+            Assert.That(seriesNumber, Is.Zero);
         });
     }
 

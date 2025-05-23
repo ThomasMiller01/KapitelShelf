@@ -39,10 +39,10 @@ public class PDFParserTests
     [TestCase(null, "NoTitle", "NoTitle PDF")] // should fallback to filename
     public async Task Parse_ParsesMetadata_FromGeneratedPdf(string? title, string? author, string? subject)
     {
-        // Arrange
+        // Setup
         var pdfFile = CreatePdf(title: title, author: author, subject: subject);
 
-        // Act
+        // Execute
         var result = await parser.Parse(pdfFile);
 
         // Assert
