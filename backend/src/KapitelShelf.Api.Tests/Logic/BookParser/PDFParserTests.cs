@@ -16,7 +16,7 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser;
 [TestFixture]
 public class PDFParserTests
 {
-    private PDFParser parser;
+    private PDFParser testee;
 
     /// <summary>
     /// Sets up a new test instance before each test.
@@ -24,7 +24,7 @@ public class PDFParserTests
     [SetUp]
     public void SetUp()
     {
-        parser = new PDFParser();
+        testee = new PDFParser();
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public class PDFParserTests
         var pdfFile = CreatePdf(title: title, author: author, subject: subject);
 
         // Execute
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -80,7 +80,7 @@ public class PDFParserTests
         var expected = new DateTime(2024, 5, 22, 15, 1, 45, DateTimeKind.Utc);
 
         var pdfFile = CreatePdf(title: "DateTest", author: "Author", subject: "Description", creationDate: dateStr);
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
 
         Assert.That(result.Book.ReleaseDate, Is.Not.Null);
         Assert.Multiple(() =>
@@ -102,7 +102,7 @@ public class PDFParserTests
     public async Task Parse_FallbacksToFilename_WhenTitleIsMissing()
     {
         var pdfFile = CreatePdf(author: "Author", subject: "Description");
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
         Assert.That(result.Book.Title, Is.EqualTo("untitled"));
     }
 
@@ -122,7 +122,7 @@ public class PDFParserTests
     public async Task Parse_ParsesAuthorFields(string author, string expectedFirst, string expectedLast)
     {
         var pdfFile = CreatePdf("TestBook", author, "Description");
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
         Assert.That(result.Book.Author, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -140,7 +140,7 @@ public class PDFParserTests
     {
         var keywords = "MyKeywordDesc";
         var pdfFile = CreatePdf(title: "TestBook", author: "Author", keywords: keywords);
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
         Assert.That(result.Book.Description, Is.EqualTo(keywords));
     }
 
@@ -152,7 +152,7 @@ public class PDFParserTests
     public async Task Parse_DescriptionIsEmpty_IfNoSubjectOrKeywords()
     {
         var pdfFile = CreatePdf(title: "TestBook", author: "Author");
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
         Assert.That(result.Book.Description, Is.EqualTo(string.Empty));
     }
 
@@ -165,7 +165,7 @@ public class PDFParserTests
     {
         var pageCount = 3;
         var pdfFile = CreatePdf(title: "Book", author: "Author", subject: "Description", pageCount: pageCount);
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
         Assert.That(result.Book.PageNumber, Is.EqualTo(pageCount));
     }
 
@@ -177,7 +177,7 @@ public class PDFParserTests
     public async Task Parse_ReturnsNullCover_IfNoImage()
     {
         var pdfFile = CreatePdf(title: "Book", author: "Author", subject: "Description");
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
         Assert.That(result.CoverFile, Is.Null);
     }
 
@@ -189,7 +189,7 @@ public class PDFParserTests
     public async Task Parse_ExtractsCoverImage_IfPresent()
     {
         var pdfFile = CreatePdf(title: "WithImage", author: "Author", subject: "Description", addCover: true);
-        var result = await parser.Parse(pdfFile);
+        var result = await testee.Parse(pdfFile);
 
         // CoverFile is not null, and is a PNG (in your implementation)
         Assert.That(result.CoverFile, Is.Not.Null);

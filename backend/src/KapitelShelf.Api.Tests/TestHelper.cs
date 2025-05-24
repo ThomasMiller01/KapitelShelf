@@ -5,6 +5,8 @@
 using AutoMapper;
 using KapitelShelf.Api.Mappings;
 
+#pragma warning disable IDE0022 // Use expression body for method
+
 namespace KapitelShelf.Api.Tests;
 
 /// <summary>
@@ -12,6 +14,16 @@ namespace KapitelShelf.Api.Tests;
 /// </summary>
 public static class Testhelper
 {
+    /// <summary>
+    /// Gets the path to a resource file in the test project.
+    /// </summary>
+    /// <param name="fileName">The file name.</param>
+    /// <returns>The file path.</returns>
+    public static string GetResourcePath(string fileName)
+    {
+        return Path.Combine(TestContext.CurrentContext.TestDirectory, "Resources", fileName);
+    }
+
     /// <summary>
     /// Creates an auto mapper.
     /// </summary>

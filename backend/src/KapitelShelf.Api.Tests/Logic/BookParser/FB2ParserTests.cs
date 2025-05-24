@@ -20,7 +20,7 @@ namespace KapitelShelf.Api.Tests.Logic.BookParser;
 [TestFixture]
 public class FB2ParserTests
 {
-    private FB2Parser parser;
+    private FB2Parser testee;
 
     /// <summary>
     /// Sets up a new FB2Parser before each test.
@@ -28,7 +28,7 @@ public class FB2ParserTests
     [SetUp]
     public void SetUp()
     {
-        this.parser = new FB2Parser();
+        this.testee = new FB2Parser();
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class FB2ParserTests
     public void Parse_ThrowsArgumentNullException_IfFileIsNull()
     {
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => parser.Parse(null!));
+        Assert.ThrowsAsync<ArgumentNullException>(() => testee.Parse(null!));
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class FB2ParserTests
         var file = CreateFile("not xml content");
 
         // Assert
-        Assert.ThrowsAsync<XmlException>(() => parser.Parse(file));
+        Assert.ThrowsAsync<XmlException>(() => testee.Parse(file));
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class FB2ParserTests
         var file = CreateFile(fb2);
 
         // Execute
-        var result = await parser.Parse(file);
+        var result = await testee.Parse(file);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -118,7 +118,7 @@ public class FB2ParserTests
         var file = CreateFile(fb2);
 
         // Execute
-        var result = await parser.Parse(file);
+        var result = await testee.Parse(file);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -152,7 +152,7 @@ public class FB2ParserTests
         var file = CreateFile(fb2);
 
         // Execute
-        var result = await parser.Parse(file);
+        var result = await testee.Parse(file);
 
         Assert.Multiple(() =>
         {
