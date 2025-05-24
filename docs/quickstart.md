@@ -1,76 +1,82 @@
-# KapitelShelf Quickstart
+# Quickstart Guide
 
-Welcome to KapitelShelf!  
-This quickstart shows you how to begin using the app and manage your book collection.
+**Welcome to KapitelShelf!**
 
-## 1. Sign In / Register
+This quickstart guide shows you how to begin using the app and manage your book collection.
 
-- Open KapitelShelf in your browser.
-- Click **Sign Up** to create a new account or **Sign In** if you already have one.
-- After logging in, you'll see your library dashboard.
+## 1. Access the KapitelShelf frontend
+
+Open your browser and navigate to:
+
+```
+http://localhost:5173
+```
+
+> ℹ️ The url can **vary** based on how you installed it. <br /> **docker-compose** & **Docker**: use the url provided above <br /> **Helm**: navigate to the url configured via the `frontend.ingress` values
 
 ## 2. Add Your First Book
 
-1. Click the **“Add Book”** button (usually at the top right).
-2. Fill out the book details:
-   - **Title** (required)
-   - **Author**
-   - **Series** (optional; can create a new one on the fly)
-   - **Release Date**
-   - **Description**
-   - **Cover Image** (optional; upload a file)
-   - **Book File** (optional; upload EPUB, PDF, etc.)
-3. Click **Save**.
+1. Click the `+` button on the top right.
+
+![Create Dialog](./.attachments/quickstart/create_dialog.png)
+
+2. Click the `Create Book` button _(directly below)_.
+
+![Create Book Button](./.attachments/quickstart/create_book.png)
+
+3. Fill out the book details: _title_, _description_, ...
+4. _**(Optional)**_ Import metadata _(automatically)_, click the button on the bottom left.
+5. Click the `Create Book` button on the bottom right.
 
 Your book now appears in your collection.
 
-## 3. Organize Books
+## 3. Import a Book
 
-- **Series:**  
-  When adding or editing a book, link it to a series to group related books.  
-  View all series via the **Series** tab.
+1. Click the `+` button on the top right as before.
+2. Click the `Import Book` button.
 
-- **Authors:**  
-  Clicking an author name filters your library by books from that author.
+![Import Book Button](./.attachments/quickstart/import_book.png)
 
-- **Tags / Categories:**  
-  Add tags or categories to books for easier searching and organization.
+3. **Drag & Drop** your book files into the dotted area _or_ **click on the dotted area** and select your books to import.
+4. Click on `View` in the success notification to navigate to the newly imported book.
 
-## 4. Browse and Search
+![Successful Import](./.attachments/quickstart/successful_import.png)
 
-- Use the **Search** bar at the top to find books by title, author, or keyword.
-- Filter by series or tags using the sidebar or dropdowns.
-- Sort your collection by title, author, date added, or custom fields.
+## 4. Browse Your Collection
 
-## 5. View Book Details
+> Coming soon
 
-- Click on any book in your library to see full details, cover, and file download options.
-- Download book files or view cover images directly from the details page.
+## 5. View Series Details
 
-## 6. Edit or Delete Books
+> Coming soon
 
-- Click the **edit** (pencil) icon on a book to change its details.
-- Use the **delete** (trash) icon to remove a book from your library.  
-  Confirm the action to prevent accidental deletions.
+## 6. View Book Details
 
-## 7. Import/Export
+> Coming soon
 
-- **Import:**  
-  Use the import feature (if enabled) to add multiple books from an OPDS feed, CSV, or bulk upload.
+## 7. Search Books
 
-- **Export:**  
-  Download your library data or selected books as a CSV or other supported format.
+> Coming soon
 
-## 8. Tips
+## 8. Edit a Series or Book
+
+> Coming soon
+
+## 9. Delete a Series or Book
+
+> Coming soon
+
+## Tips
 
 - **Responsive design:** KapitelShelf works on desktop and mobile.
-- **Book files:** Supported formats include PDF, EPUB, and more.
+- **Book files:** Supported formats include EPUB, FB2, PDF and more.
 
-## 9. Help and Support
+## Help and Support
 
-- For questions or issues, visit the **Help** section or open an issue on GitHub.
-- Check the [References](#) for advanced usage and API info. _(planned)_
+- For questions, visit the [General](https://github.com/ThomasMiller01/KapitelShelf/discussions/categories/general) section of the dicussions on GitHub.
+- For bugs, [open an issue](https://github.com/ThomasMiller01/KapitelShelf/issues) on GitHub.
+- Check the [References](#) for advanced usage and more details. _(planned)_
 
 ---
 
-Enjoy managing your library with KapitelShelf!
+🎉 Enjoy organizing your library with KapitelShelf!
