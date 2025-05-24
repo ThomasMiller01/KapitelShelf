@@ -55,14 +55,14 @@ public class FB2Parser : BookParserBase
 
         // title
         var titleElement = titleInfo?.Element(fb2 + "book-title")?.Value;
-        var title = SanitizeText(titleElement ?? string.Empty);
+        var title = this.ParseTitle(titleElement ?? string.Empty);
 
         // description
         var annotation = titleInfo?.Element(fb2 + "annotation");
         var descriptionElements = annotation?
             .DescendantNodes()
             .OfType<XText>();
-        var description = descriptionElements is not null ? SanitizeText(string.Concat(descriptionElements.Select(x => x.Value))) : string.Empty;
+        var description = descriptionElements is not null ? this.SanitizeText(string.Concat(descriptionElements.Select(x => x.Value))) : string.Empty;
 
         // release date
         var releaseDate = ParseReleaseDate(titleInfo, documentInfo, fb2);
@@ -120,7 +120,7 @@ public class FB2Parser : BookParserBase
 
         if (DateTime.TryParse(dateValue.Value, CultureInfo.InvariantCulture, out var date))
         {
-            return date.ToUniversalTime();
+            return date;
         }
 
         return null;

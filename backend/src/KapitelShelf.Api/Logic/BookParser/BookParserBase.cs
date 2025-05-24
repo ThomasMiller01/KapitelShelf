@@ -79,7 +79,52 @@ public abstract partial class BookParserBase : IBookParser
         return (firstName, lastName);
     }
 
-    // "<.*?>" matches any '<...>' (non-greedy)
-    [GeneratedRegex("<.*?>")]
+    /// <summary>
+    /// Extracts a readable book title from a string.
+    /// </summary>
+    /// <param name="str">The string.</param>
+    /// <returns>The parsed title.</returns>
+    protected string ParseTitle(string str)
+    {
+        // Matches any character NOT a letter, digit, space, hyphen, apostrophe, comma, colon, or period.
+        var cleaned = AllowedTitleCharactersRegex().Replace(str, " ");
+
+        // Collapse multiple spaces into one
+        var collapsedSpaces = MultipleSpacesRegex().Replace(cleaned, " ");
+
+        // Trim leading/trailing spaces
+        var trimmed = collapsedSpaces.Trim();
+
+        return trimmed;
+    }
+
+    /// <summary>
+    /// Parses the title from the file name.
+    /// </summary>
+    /// <param name="fileName">The file name.</param>
+    /// <returns>The parsed title.</returns>
+    protected string ParseTitleFromFile(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            return string.Empty;
+        }
+
+        var parts = fileName.Split('.');
+        var withoutExtension = string.Join(".", parts.Take(parts.Length - 1));
+
+        return this.ParseTitle(withoutExtension);
+    }
+
+    // Matches any character that is NOT a letter, digit, space, hyphen, apostrophe, comma, colon, or period
+    [GeneratedRegex("[^a-zA-Z0-9 ',:.-]", RegexOptions.Compiled)]
+    private static partial Regex AllowedTitleCharactersRegex();
+
+    // Matches one or more consecutive whitespace characters (for collapsing spaces)
+    [GeneratedRegex(@"\s+", RegexOptions.Compiled)]
+    private static partial Regex MultipleSpacesRegex();
+
+    // Matches any '<...>' (non-greedy)
+    [GeneratedRegex("<.*?>", RegexOptions.Compiled)]
     private static partial Regex SanitizeHtmlRegex();
 }

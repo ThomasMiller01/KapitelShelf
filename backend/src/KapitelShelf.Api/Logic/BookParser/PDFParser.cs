@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Xobject;
 using KapitelShelf.Api.DTOs.Author;
@@ -11,6 +12,8 @@ using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Logic.BookParser;
 
@@ -38,7 +41,8 @@ public class PDFParser : BookParserBase
         var info = pdf.GetDocumentInfo();
 
         // title
-        var title = SanitizeText(ParseTitle(info, file.FileName));
+        var titleInfo = info.GetTitle();
+        var title = string.IsNullOrEmpty(titleInfo) ? this.ParseTitleFromFile(file.FileName) : this.ParseTitle(titleInfo);
 
         // description: try Subject, then Keywords
         var description = SanitizeText(info.GetSubject() ?? info.GetMoreInfo("Keywords"));
@@ -75,7 +79,7 @@ public class PDFParser : BookParserBase
         };
     }
 
-    private static DateTime? ParseReleaseDate(PdfDocumentInfo info)
+    internal static DateTime? ParseReleaseDate(PdfDocumentInfo info)
     {
         // PDF dates are often stored as "D:YYYYMMDDHHmmSS"
         var raw = info.GetMoreInfo("CreationDate") ?? info.GetMoreInfo("ModDate");
@@ -104,23 +108,7 @@ public class PDFParser : BookParserBase
         return null;
     }
 
-    private static string ParseTitle(PdfDocumentInfo info, string fileName)
-    {
-        var title = info.GetTitle();
-        if (string.IsNullOrEmpty(title))
-        {
-            // if title is not set, use cleaned filename
-            var withoutExtension = fileName
-                .Split(".")
-                .First();
-
-            title = withoutExtension.Replace("_", " ");
-        }
-
-        return title;
-    }
-
-    private static IFormFile? ParseCover(PdfDocument pdf, string title)
+    internal static IFormFile? ParseCover(PdfDocument pdf, string title)
     {
         // get cover from the first page of the pdf
         var first_page = pdf.GetPage(1);

@@ -27,12 +27,12 @@ public class DocParser : BookParserBase
         await file.OpenReadStream().CopyToAsync(ms);
         ms.Position = 0;
 
-        var hwpf = new HWPFDocument(ms);
+        var hwpf = CreateDocumentFromStream(ms);
         var info = hwpf.SummaryInformation;
         var docInfo = hwpf.DocumentSummaryInformation;
 
         // title
-        var title = string.IsNullOrEmpty(info.Title) ? ParseTitle(file.FileName) : info.Title;
+        var title = string.IsNullOrEmpty(info.Title) ? this.ParseTitleFromFile(file.FileName) : info.Title;
 
         // description
         var description = info.Subject ?? string.Empty;
@@ -71,12 +71,11 @@ public class DocParser : BookParserBase
         };
     }
 
-    private static string ParseTitle(string fileName)
-    {
-        var withoutExtension = fileName
-            .Split(".")
-            .First();
-
-        return withoutExtension.Replace("_", " ");
-    }
+    /// <summary>
+    /// Creates a new instance of <see cref="HWPFDocument"/> from a stream.
+    /// </summary>
+    /// <remarks>Overridable for testing.</remarks>
+    /// <param name="stream">The input stream.</param>
+    /// <returns>The document.</returns>
+    protected virtual HWPFDocument CreateDocumentFromStream(Stream stream) => new(stream);
 }

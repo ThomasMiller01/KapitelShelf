@@ -12,7 +12,7 @@ namespace KapitelShelf.Api.Logic;
 /// Interface with the filesystem to retrieve and store book files.
 /// </summary>
 /// <param name="settings">The settings.</param>
-public class BookStorage(KapitelShelfSettings settings)
+public class BookStorage(KapitelShelfSettings settings) : IBookStorage
 {
     private readonly KapitelShelfSettings settings = settings;
 

@@ -20,15 +20,15 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="mapper">The auto mapper.</param>
 /// <param name="bookParserManager">The book parser manager.</param>
 /// <param name="bookStorage">The book storage.</param>
-public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, BookParserManager bookParserManager, BookStorage bookStorage)
+public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBookParserManager bookParserManager, IBookStorage bookStorage) : IBooksLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
 
-    private readonly BookParserManager bookParserManager = bookParserManager;
+    private readonly IBookParserManager bookParserManager = bookParserManager;
 
-    private readonly BookStorage bookStorage = bookStorage;
+    private readonly IBookStorage bookStorage = bookStorage;
 
     /// <summary>
     /// Get all books.
@@ -287,7 +287,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         // upsert Series (N:1)
         if (bookDto.Series is null)
         {
-            book.Series = null;
+            throw new ArgumentNullException(nameof(bookDto.Series), "Series cannot be null when updating a book.");
         }
         else
         {

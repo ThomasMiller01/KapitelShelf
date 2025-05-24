@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KapitelShelf.Data.Migration
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KapitelShelf.Api", "KapitelShelf.Api\KapitelShelf.Api.csproj", "{578DC7C5-2E67-41F6-C3A0-8A4B98ED1602}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KapitelShelf.Api.Tests", "KapitelShelf.Api.Tests\KapitelShelf.Api.Tests.csproj", "{B514B5CC-E256-4552-8D37-51710A784EF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{578DC7C5-2E67-41F6-C3A0-8A4B98ED1602}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{578DC7C5-2E67-41F6-C3A0-8A4B98ED1602}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{578DC7C5-2E67-41F6-C3A0-8A4B98ED1602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B514B5CC-E256-4552-8D37-51710A784EF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B514B5CC-E256-4552-8D37-51710A784EF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B514B5CC-E256-4552-8D37-51710A784EF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B514B5CC-E256-4552-8D37-51710A784EF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

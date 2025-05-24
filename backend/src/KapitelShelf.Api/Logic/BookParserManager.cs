@@ -2,30 +2,43 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.Logic.BookParser;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Logic;
 
 /// <summary>
 /// Book metadata parser factory.
 /// </summary>
-public class BookParserManager
+public class BookParserManager : IBookParserManager
 {
-    private static readonly List<Type> ParserTypes = [
-        typeof(EPUBParser),
-        typeof(PDFParser),
-        typeof(FB2Parser),
-        typeof(TextParser),
-        typeof(DocxParser),
-        typeof(DocParser),
-    ];
+    private readonly List<Type> parserTypes;
 
     /// <summary>
-    /// Parse a book file.
+    /// Initializes a new instance of the <see cref="BookParserManager"/> class.
     /// </summary>
-    /// <param name="file">The book file to parse.</param>
-    /// <returns>The book metadata.</returns>
+    public BookParserManager()
+        : this([
+            typeof(EPUBParser),
+            typeof(PDFParser),
+            typeof(FB2Parser),
+            typeof(TextParser),
+            typeof(DocxParser),
+            typeof(DocParser),
+        ])
+    {
+    }
+
+    // Needed for unit tests
+    internal BookParserManager(List<Type> parserTypes)
+    {
+        this.parserTypes = parserTypes;
+    }
+
+    /// <inheritdoc/>
     public async Task<BookParsingResult> Parse(IFormFile file)
     {
         if (file is null)
@@ -33,13 +46,18 @@ public class BookParserManager
             throw new ArgumentException("File must be set");
         }
 
+        // extract file extension
         var extension = Path.GetExtension(file.FileName)
             .TrimStart('.')
-            .ToLowerInvariant()
-            ?? throw new ArgumentException("File name must have an extension", nameof(file));
+            .ToLowerInvariant();
+
+        if (string.IsNullOrEmpty(extension))
+        {
+            throw new ArgumentException("File name must have an extension", nameof(file));
+        }
 
         // get parser for this file extension
-        var parserType = ParserTypes
+        var parserType = this.parserTypes
             .FirstOrDefault(t =>
             {
                 // throwaway instance to check for the supported extensions

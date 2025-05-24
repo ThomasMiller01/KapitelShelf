@@ -36,11 +36,11 @@ Refer to the [Installation Guide](docs/installation.md) for instructions.
 
 ### Technologies
 
-|          |                                                                                                                        |
-| -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Frontend | [Vite](https://vitejs.dev/) • [React](https://react.dev/) • [MUI](https://mui.com/)                                    |
-| Backend  | [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/) • [EF Core](https://learn.microsoft.com/en-us/ef/core/) |
-| Database | [PostgreSQL](https://www.postgresql.org/)                                                                              |
+|          |                                                                                                                                                      |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend | [Vite](https://vitejs.dev/) • [React](https://react.dev/) • [MUI](https://mui.com/)                                                                  |
+| Backend  | [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/) • [EF Core](https://learn.microsoft.com/en-us/ef/core/) • [NUnit](https://nunit.org/) |
+| Database | [PostgreSQL](https://www.postgresql.org/)                                                                                                            |
 
 ### Guide
 

@@ -23,7 +23,7 @@ public class TextParser : BookParserBase
         ArgumentNullException.ThrowIfNull(file);
 
         // title
-        var title = ParseTitle(file.FileName);
+        var title = this.ParseTitleFromFile(file.FileName);
 
         var bookDto = new BookDTO
         {
@@ -35,14 +35,5 @@ public class TextParser : BookParserBase
             Book = bookDto,
             CoverFile = null,
         };
-    }
-
-    private static string ParseTitle(string fileName)
-    {
-        var withoutExtension = fileName
-            .Split(".")
-            .First();
-
-        return withoutExtension.Replace("_", " ");
     }
 }

@@ -73,6 +73,9 @@ dotnet_diagnostic.IDE0019.severity = none
 dotnet_diagnostic.SA1206.severity = none
 dotnet_diagnostic.IDE0270.severity = none
 dotnet_diagnostic.CA2208.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.SA1000.severity = none
+dotnet_diagnostic.CA1859.severity = none
 
 #################
 # Formatting

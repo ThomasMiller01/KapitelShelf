@@ -1,0 +1,45 @@
+name: "Quality Gate: API"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/src/KapitelShelf.Api/**'
+      - 'backend/src/KapitelShelf.Api.Tests/**'
+      - 'backend/src/KapitelShelf.Data/**'
+      - '.github/workflows/qualitygate-api.yaml'
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        working-directory: backend/src
+        run: dotnet restore KapitelShelf.Api.Tests/KapitelShelf.Api.Tests.csproj
+
+      - name: Build
+        working-directory: backend/src
+        run: dotnet build KapitelShelf.Api.Tests/KapitelShelf.Api.Tests.csproj --no-restore --configuration Release
+
+      - name: Test
+        working-directory: backend/src
+        run: dotnet test KapitelShelf.Api.Tests/KapitelShelf.Api.Tests.csproj --no-build --configuration Release --logger trx
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/TestResults/*.trx'
