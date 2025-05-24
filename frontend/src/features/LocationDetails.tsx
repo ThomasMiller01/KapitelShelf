@@ -1,5 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import DownloadIcon from "@mui/icons-material/Download";
 import { Button, Link, Stack } from "@mui/material";
 import { type ReactElement } from "react";
 
@@ -76,7 +77,7 @@ const LocationDetails = ({
         </Button>
         <Button
           variant="outlined"
-          startIcon={<AutoStoriesIcon />}
+          startIcon={<DownloadIcon />}
           component={Link}
           href={fileUrl}
           target="_blank"
