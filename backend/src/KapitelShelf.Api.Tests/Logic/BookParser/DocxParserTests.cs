@@ -1,7 +1,8 @@
-﻿// <copyright file="DocParserTests.cs" company="KapitelShelf">
+﻿// <copyright file="DocxParserTests.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.Logic.BookParser;
 using Microsoft.AspNetCore.Http;
 
@@ -10,14 +11,14 @@ using Microsoft.AspNetCore.Http;
 namespace KapitelShelf.Api.Tests.Logic.BookParser;
 
 /// <summary>
-/// Unit tests for the DocParser class using a real .doc file.
+/// Unit tests for the DocxParser class.
 /// </summary>
 [TestFixture]
-public class DocParserTests
+public class DocxParserTests
 {
-    private const string TestDataDirectory = "Doc";
+    private const string TestDataDirectory = "Docx";
 
-    private DocParser testee;
+    private DocxParser testee;
 
     /// <summary>
     /// Initializes the test class.
@@ -25,7 +26,7 @@ public class DocParserTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        // Register legacy code page support (Windows-1252)
+        // Not strictly needed for OpenXML, but good for consistency
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
     }
 
@@ -35,7 +36,7 @@ public class DocParserTests
     [SetUp]
     public void SetUp()
     {
-        this.testee = new DocParser();
+        this.testee = new DocxParser();
     }
 
     /// <summary>
@@ -49,16 +50,16 @@ public class DocParserTests
     }
 
     /// <summary>
-    /// Tests that Parse reads all expected fields from the .doc file.
+    /// Tests that Parse extracts all fields from a real .docx file.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task"/> returning the parsed <see cref="BookParsingResult"/>.</returns>
     [Test]
     public async Task Parse_AllFields()
     {
         // Setup
-        var file = LoadFile("AllFields.doc", subDir: TestDataDirectory);
+        var file = LoadFile("AllFields.docx", TestDataDirectory);
 
-        // Execute
+        // Act
         var result = await this.testee.Parse(file);
 
         // Assert
@@ -68,23 +69,21 @@ public class DocParserTests
         {
             Assert.That(result.Book.Title, Is.EqualTo("Test Title"));
             Assert.That(result.Book.Description, Is.EqualTo("Test Subject"));
-            Assert.That(result.Book.Author!.FirstName, Is.EqualTo("Thomas"));
-            Assert.That(result.Book.Author.LastName, Is.EqualTo("Miller"));
-            Assert.That(result.Book.ReleaseDate, Is.EqualTo(new DateTime(2025, 05, 24, 11, 09, 0, DateTimeKind.Utc)));
-            Assert.That(result.Book.PageNumber, Is.EqualTo(1));
-            Assert.That(result.CoverFile, Is.Null);
+            Assert.That(result.Book.Author?.FirstName, Is.EqualTo("Thomas"));
+            Assert.That(result.Book.Author?.LastName, Is.EqualTo("Miller"));
+            Assert.That(result.Book.ReleaseDate, Is.EqualTo(new DateTime(2025, 5, 24, 11, 25, 0, DateTimeKind.Utc)));
         });
     }
 
     /// <summary>
-    /// Tests that Parse uses file name as title if none set.
+    /// Tests that Parse uses the file name as title when no title is present.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task"/> returning the parsed <see cref="BookParsingResult"/>.</returns>
     [Test]
-    public async Task Parse_UsesFileNameAsTitle_WhenTitleIsEmpty()
+    public async Task Parse_UsesFileNameAsTitle_WhenTitleMissing()
     {
         // Setup
-        var file = LoadFile("NoTitle.doc", subDir: TestDataDirectory);
+        var file = LoadFile("NoTitle.docx", TestDataDirectory);
 
         // Execute
         var result = await this.testee.Parse(file);
@@ -94,14 +93,14 @@ public class DocParserTests
     }
 
     /// <summary>
-    /// Tests that Parse assigns empty author if not set.
+    /// Tests that Parse sets author names to empty when missing.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task"/> returning the parsed <see cref="BookParsingResult"/>.</returns>
     [Test]
     public async Task Parse_EmptyAuthor_WhenNonePresent()
     {
         // Setup
-        var file = LoadFile("NoAuthor.doc", subDir: TestDataDirectory);
+        var file = LoadFile("NoAuthor.docx", TestDataDirectory);
 
         // Execute
         var result = await this.testee.Parse(file);
