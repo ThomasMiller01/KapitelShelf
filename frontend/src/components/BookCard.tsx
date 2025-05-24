@@ -21,6 +21,8 @@ const BookCard = ({
 }: BookCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
+  console.log(book.pageNumber);
+
   return (
     <ItemCardLayout
       title={book.title}
@@ -48,9 +50,11 @@ const BookCard = ({
             <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
               {LocationTypeToString[book.location?.type ?? -1]}
             </MetadataItem>
-            <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
-              {book.pageNumber} pages
-            </MetadataItem>
+            {book.pageNumber && book.pageNumber !== 0 && (
+              <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
+                {book.pageNumber} pages
+              </MetadataItem>
+            )}
           </Stack>
         ) : (
           <React.Fragment key="no-metadata"></React.Fragment>
