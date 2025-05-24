@@ -120,7 +120,7 @@ public class FB2Parser : BookParserBase
 
         if (DateTime.TryParse(dateValue.Value, CultureInfo.InvariantCulture, out var date))
         {
-            return date.ToUniversalTime();
+            return date;
         }
 
         return null;
