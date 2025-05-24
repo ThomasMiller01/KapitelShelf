@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest an idea for KapitelShelf
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+
+        Thank you for taking the time to suggest a new feature for KapitelShelf!
+  - type: textarea
+    id: description
+    attributes:
+      label: What problem are you trying to solve?
+      description: Please provide a clear and concise description of the problem or need.
+      placeholder: I want to be able to...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution or feature
+      description: Describe the solution or feature you'd like to see.
+      placeholder: Add a button to...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered any alternatives or workarounds?
+      placeholder: I have tried...
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots about the feature request here.
+      placeholder: Any other information...
+    validations:
+      required: false

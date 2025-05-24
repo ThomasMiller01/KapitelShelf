@@ -1,0 +1,42 @@
+name: Product Backlog Item (Maintainers Only)
+description: "Maintainers: Use this to track a new feature, enhancement, or technical task."
+title: "[PBI] "
+labels: ["pbi", "internal", "maintainers-only"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ Maintainers Only
+
+        This template is for maintainers and contributors with write access to the KapitelShelf repository.
+        If you are reporting a bug or suggesting a new feature, please use the corresponding template instead.
+
+  # summary
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Short summary of the backlog item.
+      placeholder: Implement authentication...
+    validations:
+      required: true
+
+  # acceptance criteria
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What needs to be true for this to be complete?
+      placeholder: "- [] User can log in with GitHub..."
+    validations:
+      required: true
+
+  # notes
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any extra details, context, or technical notes.
+      placeholder: Related issues, dependencies, or context...
+    validations:
+      required: false
