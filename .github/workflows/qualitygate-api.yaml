@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   build-and-test:
+    name: Build and Test API
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
