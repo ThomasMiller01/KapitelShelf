@@ -9,12 +9,12 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 
 ## Features
 
-- Responsive UI (desktop, tablet, mobile)
-- Browse and search books, series, authors, and tags
 - Manage physical and digital books with file support
+- Responsive UI (desktop, tablet, mobile)
+- Import and sync books with filesystem _(sync planned)_
+- Browse and search books, series, author and tags _(planned)_
 - Full user metadata editing (notes, read status, favorite) _(planned)_
 - Shelves and filtering (tags, categories, series, location) _(planned)_
-- Import and sync books with filesystem _(planned)_
 - OPDS support for eReaders _(planned)_
 
 ## Installation
