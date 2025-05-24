@@ -1,5 +1,5 @@
 ---
-name: "\U0001F680 Feature"
+name: "Feature"
 about: Adds a new feature or enhancement to KapitelShelf
 labels: enhancement, feature
 ---

@@ -23,11 +23,12 @@ Refer to the [Installation Guide](docs/installation.md) for instructions.
 
 ## Quick Start
 
-> Coming soon
+See the [Quickstart Guide](docs/quickstart.md) for an introduction to using KapitelShelf.
 
 ## Documentation
 
 - [Installation Guide](docs/installation.md)
+- [Quickstart Guide](docs/quickstart.md)
 - [Development Guide](docs/development.md)
 - [Helm Chart](helm/kapitelshelf/README.md)
 - [Examples](examples/README.md)
