@@ -1,0 +1,114 @@
+name: Bug report
+description: Report a problem or unexpected behavior in KapitelShelf
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+
+        Please fill out the following to help us resolve your issue faster.
+  # bug description     
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: When I do X, Y happens instead of Z...
+    validations:
+      required: true
+
+  # reproduction steps
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: 1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+
+  # expected behavior
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+      placeholder: I expected...
+    validations:
+      required: true
+
+  # installation method + used browser
+  - type: dropdown
+    id: installationmethod
+    attributes:
+      label: Installation Method
+      description: How did you install KapitelShelf?
+      options:
+        - Helm (Default)
+        - docker-compose
+        - Docker
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+        - Opera
+        - Other (please specify in the relevant info section)
+    validations:
+      required: true
+
+  # frontend version + api version
+  - type: input
+    id: frontendversion
+    attributes:
+      label: KapitelShelf Frontend version
+      description: |
+        Please provide the version of the KapitelShelf Frontend you are using.
+        (You can find this in the footer of the KapitelShelf web interface)
+      placeholder: v0.2.0
+    validations:
+      required: true
+  - type: input
+    id: apiversion
+    attributes:
+      label: KapitelShelf API version
+      description: |
+        Please provide the version of the KapitelShelf API you are using.
+        (You can find this in the footer of the KapitelShelf web interface)
+      placeholder: v0.2.0
+    validations:
+      required: true
+  
+  # relevant info
+  - type: textarea
+    id: relevantinfo
+    attributes:
+      label: Other relevant information
+      description: |
+        Provide any other relevant information that might help us understand the issue.
+      placeholder: Provide other relevant information here...
+    validations:
+      required: false
+  
+  # logs or screenshots
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Add any relevant logs or screenshots.
+      placeholder: Paste logs or drag images here...
+    validations:
+      required: false
