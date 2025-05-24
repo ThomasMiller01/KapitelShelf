@@ -1,5 +1,5 @@
 ---
-name: "\U0001F527 Maintenance"
+name: "Maintenance"
 about: Maintenance, refactor, or dependency update
 labels: chore, maintenance
 ---

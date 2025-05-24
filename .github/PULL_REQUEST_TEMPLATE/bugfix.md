@@ -1,5 +1,5 @@
 ---
-name: "\U0001F41E Bugfix"
+name: "Bugfix"
 about: Fixes a bug or regression in KapitelShelf
 labels: bugfix
 ---

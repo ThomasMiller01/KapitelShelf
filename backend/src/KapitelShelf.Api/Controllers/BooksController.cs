@@ -18,11 +18,11 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="bookStorage">The book storage.</param>
 [ApiController]
 [Route("books")]
-public class BooksController(ILogger<BooksController> logger, BooksLogic logic, IBookStorage bookStorage) : ControllerBase
+public class BooksController(ILogger<BooksController> logger, IBooksLogic logic, IBookStorage bookStorage) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
-    private readonly BooksLogic logic = logic;
+    private readonly IBooksLogic logic = logic;
 
     private readonly IBookStorage bookStorage = bookStorage;
 
