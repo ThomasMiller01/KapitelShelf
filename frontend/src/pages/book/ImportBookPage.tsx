@@ -40,7 +40,7 @@ const ImportBookPage = (): ReactElement => {
       }
 
       triggerNavigate({
-        operation: "Imported the following book",
+        operation: "Imported",
         itemName: createdBook.title,
         url: `/library/books/${createdBook.id}`,
       });
