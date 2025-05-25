@@ -108,6 +108,9 @@ public class FB2Parser : BookParserBase
         };
     }
 
+    /// <inheritdoc/>
+    public override Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
+
     private static DateTime? ParseReleaseDate(XElement? titleInfo, XElement? documentInfo, XNamespace fb2)
     {
         var dateValue = titleInfo?.Element(fb2 + "date")?.Attribute("value")
@@ -120,7 +123,7 @@ public class FB2Parser : BookParserBase
 
         if (DateTime.TryParse(dateValue.Value, CultureInfo.InvariantCulture, out var date))
         {
-            return date;
+            return date.ToUniversalTime();
         }
 
         return null;

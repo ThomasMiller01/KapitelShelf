@@ -108,6 +108,9 @@ public class EPUBParser : BookParserBase
         };
     }
 
+    /// <inheritdoc/>
+    public override Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
+
     internal static DateTime? ParseReleaseDate(EpubMetadata? metadata)
     {
         if (metadata is null)

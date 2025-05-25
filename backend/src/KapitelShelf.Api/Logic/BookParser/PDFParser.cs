@@ -79,6 +79,9 @@ public class PDFParser : BookParserBase
         };
     }
 
+    /// <inheritdoc/>
+    public override Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
+
     internal static DateTime? ParseReleaseDate(PdfDocumentInfo info)
     {
         // PDF dates are often stored as "D:YYYYMMDDHHmmSS"

@@ -1189,37 +1189,195 @@ public class BooksLogicTests
     }
 
     /// <summary>
-    /// Tests ImportBookAsync creates, saves and returns a book DTO.
+    /// Tests single book import works and returns correct DTO.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ImportBookAsync_ImportsAndSavesBook()
+    public async Task ImportBookAsync_ImportsSingleBook()
     {
         // Setup
-        var bookId = Guid.NewGuid();
-
         var file = Substitute.For<IFormFile>();
-        var parsingResult = new BookParsingResult
-        {
-            Book = new BookDTO
-            {
-                Title = "Imported",
-                Description = "Description",
-                Categories = [],
-                Tags = [],
-            },
-        };
+        var parsingResult = CreateParsingResult("SingleBook");
 
+        this.bookParserManager.IsBulkFile(file).Returns(false);
         this.bookParserManager.Parse(file).Returns(Task.FromResult(parsingResult));
-        this.bookStorage.Save(bookId, Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO()));
+
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO()));
 
         // Execute
         var result = await this.testee.ImportBookAsync(file);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Title, Is.EqualTo("Imported"));
-        await this.bookStorage.Received().Save(Arg.Any<Guid>(), file);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsBulkImport, Is.False);
+            Assert.That(result.ImportedBooks, Has.Count.EqualTo(1));
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.ImportedBooks[0].Title, Is.EqualTo("SingleBook"));
+            Assert.That(result.Errors, Is.Empty);
+        });
+    }
+
+    /// <summary>
+    /// Tests bulk import imports multiple books.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookAsync_ImportsBulkBooks()
+    {
+        // Setup
+        var file = Substitute.For<IFormFile>();
+        var parsingResults = new List<BookParsingResult>
+        {
+            CreateParsingResult("BulkBook1"),
+            CreateParsingResult("BulkBook2"),
+        };
+
+        this.bookParserManager.IsBulkFile(file).Returns(true);
+        this.bookParserManager.ParseBulk(file).Returns(Task.FromResult(parsingResults));
+
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO()));
+
+        // Execute
+        var result = await this.testee.ImportBookAsync(file);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsBulkImport, Is.True);
+            Assert.That(result.ImportedBooks, Has.Count.EqualTo(2));
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.ImportedBooks.Any(b => b.Title == "BulkBook1"), Is.True);
+            Assert.That(result.ImportedBooks.Any(b => b.Title == "BulkBook2"), Is.True);
+            Assert.That(result.Errors, Is.Empty);
+        });
+    }
+
+    /// <summary>
+    /// Tests bulk import skips duplicate and adds error.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookAsync_BulkImport_AddsError_OnDuplicate()
+    {
+        // Setup
+        var file = Substitute.For<IFormFile>();
+
+        // Simulate first import is duplicate, second succeeds
+        var parsingResults = new List<BookParsingResult>
+        {
+            CreateParsingResult("DuplicateBook"),
+            CreateParsingResult("AnotherBook"),
+        };
+
+        this.bookParserManager.IsBulkFile(file).Returns(true);
+        this.bookParserManager.ParseBulk(file).Returns(Task.FromResult(parsingResults));
+
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO()));
+
+        // Insert "DuplicateBook" before to cause duplicate
+        await this.testee.CreateBookAsync(new CreateBookDTO
+        {
+            Title = "DuplicateBook",
+            Description = "This is a duplicate book.",
+            Categories = [],
+            Tags = [],
+            Series = new CreateSeriesDTO
+            {
+                Name = "TestSeries",
+            },
+        });
+
+        // Execute
+        var result = await this.testee.ImportBookAsync(file);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsBulkImport, Is.True);
+            Assert.That(result.ImportedBooks.Any(b => b.Title == "AnotherBook"), Is.True);
+            Assert.That(result.ImportedBooks.Any(b => b.Title == "DuplicateBook"), Is.False);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+        });
+        Assert.That(result.Errors[0], Does.Contain("DuplicateBook"));
+    }
+
+    /// <summary>
+    /// Tests single import returns error on duplicate.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookAsync_SingleImport_ReturnsError_OnDuplicate()
+    {
+        // Setup
+        var file = Substitute.For<IFormFile>();
+        var parsingResult = CreateParsingResult("SingleDuplicate");
+
+        this.bookParserManager.IsBulkFile(file).Returns(false);
+        this.bookParserManager.Parse(file).Returns(Task.FromResult(parsingResult));
+
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO()));
+
+        // Insert first to create duplicate
+        await this.testee.CreateBookAsync(new CreateBookDTO
+        {
+            Title = "SingleDuplicate",
+            Description = "This is a duplicate book.",
+            Categories = [],
+            Tags = [],
+            Series = new CreateSeriesDTO
+            {
+                Name = "TestSeries",
+            },
+        });
+
+        // Execute
+        var result = await this.testee.ImportBookAsync(file);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsBulkImport, Is.False);
+            Assert.That(result.ImportedBooks, Is.Empty);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+        });
+        Assert.That(result.Errors[0], Does.Contain("SingleDuplicate"));
+    }
+
+    /// <summary>
+    /// Tests that bulk import handles an empty result gracefully.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookAsync_BulkImport_HandlesEmptyParsingResult()
+    {
+        // Setup
+        var file = Substitute.For<IFormFile>();
+
+        this.bookParserManager.IsBulkFile(file).Returns(true);
+        this.bookParserManager.ParseBulk(file).Returns(Task.FromResult(new List<BookParsingResult>()));
+
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO()));
+
+        // Execute
+        var result = await this.testee.ImportBookAsync(file);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsBulkImport, Is.True);
+            Assert.That(result.ImportedBooks, Is.Empty);
+            Assert.That(result.Errors, Is.Empty);
+        });
     }
 
     /// <summary>
@@ -1300,5 +1458,36 @@ public class BooksLogicTests
                 Assert.That(context.FileInfos.Count(), Is.EqualTo(0));
             });
         }
+    }
+
+    /// <summary>
+    /// Helper for building a parsing result for test.
+    /// </summary>
+    private static BookParsingResult CreateParsingResult(string title, string? description = null)
+    {
+        return new BookParsingResult
+        {
+            Book = new BookDTO
+            {
+                Title = title,
+                Description = description ?? string.Empty,
+                Series = new SeriesDTO
+                {
+                    Name = "TestSeries",
+                },
+                Categories = [
+                    new CategoryDTO
+                    {
+                        Name = "TestCategory",
+                    },
+                ],
+                Tags = [
+                    new TagDTO
+                    {
+                        Name = "TestTag",
+                    },
+                ],
+            },
+        };
     }
 }

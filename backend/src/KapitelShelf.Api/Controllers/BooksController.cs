@@ -59,15 +59,9 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
 
             return CreatedAtAction(nameof(CreateBook), book);
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
         {
-            if (ex.Message == StaticConstants.DuplicateExceptionKey)
-            {
-                return Conflict(new { error = "A book with this title (or location) already exists." });
-            }
-
-            // re-throw exception
-            throw;
+            return Conflict(new { error = "A book with this title (or location) already exists." });
         }
         catch (Exception ex)
         {
@@ -82,23 +76,13 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="bookFile">Thebook file to import.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost("import")]
-    public async Task<ActionResult<BookDTO>> ImportBook(IFormFile bookFile)
+    public async Task<ActionResult<ImportResultDTO>> ImportBook(IFormFile bookFile)
     {
         try
         {
-            var book = await this.logic.ImportBookAsync(bookFile);
+            var importResult = await this.logic.ImportBookAsync(bookFile);
 
-            return CreatedAtAction(nameof(CreateBook), book);
-        }
-        catch (InvalidOperationException ex)
-        {
-            if (ex.Message == StaticConstants.DuplicateExceptionKey)
-            {
-                return Conflict(new { error = "A book with this title (or location) already exists." });
-            }
-
-            // re-throw exception
-            throw;
+            return CreatedAtAction(nameof(CreateBook), importResult);
         }
         catch (Exception ex)
         {
@@ -320,15 +304,9 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
 
             return NoContent();
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
         {
-            if (ex.Message == StaticConstants.DuplicateExceptionKey)
-            {
-                return Conflict(new { error = "A book with this title (or location) already exists." });
-            }
-
-            // re-throw exception
-            throw;
+            return Conflict(new { error = "A book with this title (or location) already exists." });
         }
         catch (Exception ex)
         {

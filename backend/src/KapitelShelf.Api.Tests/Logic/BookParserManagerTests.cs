@@ -30,7 +30,8 @@ public class BookParserManagerTests
         this.testee = new BookParserManager(
         [
             typeof(MockParser)
-        ]);
+        ],
+        []);
     }
 
     /// <summary>
@@ -147,7 +148,8 @@ public class BookParserManagerTests
         [
             typeof(MockParser),
             typeof(AnotherMockParser)
-        ]);
+        ],
+        []);
 
         var formFile = Substitute.For<IFormFile>();
         formFile.FileName.Returns("test.another");
@@ -176,6 +178,7 @@ public class BookParserManagerTests
         public IReadOnlyCollection<string> SupportedExtensions => ["mock"];
 
         public Task<BookParsingResult> Parse(IFormFile file) => Task.FromResult(StaticResult);
+        public Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
     }
 
     private sealed class AnotherMockParser : IBookParser
@@ -191,5 +194,6 @@ public class BookParserManagerTests
         public IReadOnlyCollection<string> SupportedExtensions => ["another"];
 
         public Task<BookParsingResult> Parse(IFormFile file) => Task.FromResult(StaticResult);
+        public Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
     }
 }

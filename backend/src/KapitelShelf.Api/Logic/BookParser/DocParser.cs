@@ -27,7 +27,7 @@ public class DocParser : BookParserBase
         await file.OpenReadStream().CopyToAsync(ms);
         ms.Position = 0;
 
-        var hwpf = CreateDocumentFromStream(ms);
+        var hwpf = new HWPFDocument(ms);
         var info = hwpf.SummaryInformation;
         var docInfo = hwpf.DocumentSummaryInformation;
 
@@ -71,11 +71,6 @@ public class DocParser : BookParserBase
         };
     }
 
-    /// <summary>
-    /// Creates a new instance of <see cref="HWPFDocument"/> from a stream.
-    /// </summary>
-    /// <remarks>Overridable for testing.</remarks>
-    /// <param name="stream">The input stream.</param>
-    /// <returns>The document.</returns>
-    protected virtual HWPFDocument CreateDocumentFromStream(Stream stream) => new(stream);
+    /// <inheritdoc/>
+    public override Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
 }

@@ -125,17 +125,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookDTO"
+                  "$ref": "#/components/schemas/ImportResultDTO"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookDTO"
+                  "$ref": "#/components/schemas/ImportResultDTO"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookDTO"
+                  "$ref": "#/components/schemas/ImportResultDTO"
                 }
               }
             }
@@ -382,19 +382,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/demodata/generate": {
-      "put": {
-        "tags": [
-          "DemoData"
-        ],
-        "summary": "Generates and inserts demodata into the database.",
         "responses": {
           "200": {
             "description": "OK"
@@ -1002,6 +989,50 @@
         "additionalProperties": false,
         "description": "Gets or sets the fileinfo dto."
       },
+      "ImportBookDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the book id.",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "Gets or sets the book title.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The import book dto."
+      },
+      "ImportResultDTO": {
+        "type": "object",
+        "properties": {
+          "isBulkImport": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether it was a bulk import."
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets any errors encountered during the import process.",
+            "nullable": true
+          },
+          "importedBooks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportBookDTO"
+            },
+            "description": "Gets or sets the successfully imported books, containing their IDs and titles.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the result of an import operation, including details about the success or failure of the process."
+      },
       "LocationDTO": {
         "type": "object",
         "properties": {
@@ -1067,7 +1098,8 @@
           "totalBooks": {
             "type": "integer",
             "description": "Gets or sets the total number of books.",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false,

@@ -11,4 +11,5 @@ export const BookFileTypes = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
   "application/vnd.oasis.opendocument.text", // .odt
   "application/rtf", // .rtf
+  "text/csv", // .csv
 ];
