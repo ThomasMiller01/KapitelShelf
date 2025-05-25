@@ -10,7 +10,7 @@ export const UrlToFile = async (url: string): Promise<File> => {
 };
 
 export const CoverUrl = (book: BookDTO | undefined): string | undefined => {
-  if (book === undefined || book?.cover === undefined) {
+  if (book === undefined || book?.cover === undefined || book?.cover === null) {
     return undefined;
   }
 
@@ -21,7 +21,8 @@ export const BookFileUrl = (book: BookDTO | undefined): string | undefined => {
   if (
     book === undefined ||
     book?.location?.type !== 1 ||
-    book?.location?.fileInfo === undefined
+    book?.location?.fileInfo === undefined ||
+    book?.location?.fileInfo === null
   ) {
     return undefined;
   }

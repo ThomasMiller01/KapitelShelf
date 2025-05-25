@@ -57,7 +57,7 @@ const LocationDetails = ({
         </Button>
       </Stack>
     );
-  } else if (LocalTypes.includes(location.type ?? -1)) {
+  } else if (LocalTypes.includes(location.type ?? -1) && location.fileInfo) {
     const fileUrl = FileUrl({
       id: bookId,
       location: {
