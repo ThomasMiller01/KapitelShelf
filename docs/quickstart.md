@@ -30,7 +30,7 @@ http://localhost:5173
 
 Your book now appears in your collection.
 
-## 3. Import a Book
+## 2.1. Import a Book
 
 1. Click the `+` button on the top right as before.
 2. Click the `Import Book` button.
@@ -42,7 +42,45 @@ Your book now appears in your collection.
 
 ![Successful Import](./.attachments/quickstart/successful_import.png)
 
-## 4. Browse Your Collection
+## 2.2. Import in bulk from .csv
+
+KapitelShelf supports importing your entire library from a CSV file, allowing you to quickly add multiple books at once.
+
+1. Go to the `Import Book` dialog as described in [2.1. Import a Book](#21-import-a-book).
+2. Select your prepared `.csv` file.
+3. KapitelShelf will process each row in the file and create a new book for each.
+4. You will receive a summary of the books created and any errors.
+
+> ℹ️ If a row is missing a required property (e.g. Title), it will be skipped.
+
+### Required Format
+
+Your CSV file must have the following columns and structure:
+
+| Title\*  | Description | Author   | ReleaseDate | SeriesName | SeriesNumber | Pages | Tags                | Categories          | LocationType | LocationValue |
+| -------- | ----------- | -------- | ----------- | ---------- | ------------ | ----- | ------------------- | ------------------- | ------------ | ------------- |
+| `string` | `string`    | `string` | `string`    | `string`   | `int`        | `int` | `string,string,...` | `string,string,...` | `enum`       | `string`      |
+
+- **Title**: `string` (required)
+- **Description**: `string`
+- **Author**: `string` (FirstName and LastName, separated by a space)
+- **ReleaseDate**: `string` (UTC format: `YYYY-mm-ddTHH:MM:ss.fffZ`)
+- **SeriesName**: `string`
+- **SeriesNumber**: `int` (>= 0)
+- **Pages**: `int` (>= 0)
+- **Tags**: `string` (comma-separated list)
+- **Categories**: `string` (comma-separated list)
+- **LocationType**: `string` (`Physical`, `KapitelShelf`, `Kindle`, `Skoobe`, `Onleihe`, `Library`)
+- **LocationValue**: `string` (set only if LocationType requires a value)
+
+### Example Rows
+
+| Title      | Description    | Author   | ReleaseDate              | SeriesName | SeriesNumber | Pages | Tags                | Categories                    | LocationType | LocationValue                          |
+| ---------- | -------------- | -------- | ------------------------ | ---------- | ------------ | ----- | ------------------- | ----------------------------- | ------------ | -------------------------------------- |
+| My Title   | My Description | Jane Doe | 2023-04-23T15:20:17.357Z | My Series  | 1            | 100   | Tag1,Tag2           | Category1,Category2           | Skoobe       | https://www.skoobe.de/books/mybook     |
+| My Title 2 | My Description | Jane     | 2023-04-23T15:20:17.357Z | My Series  | 1            | 100   | My Special Tag,Tag2 | My Special Category,Category2 | Kindle       | https://www.amazon.de/mybook/dp/bookid |
+
+## 3. Browse Your Collection
 
 After adding books, you can visit your personal library.
 
@@ -52,13 +90,13 @@ After adding books, you can visit your personal library.
 
 > ℹ️ On the library page, you’ll see all your series listed. <br /> To view the books in a specific series, see [5. View Series Details](#5-view-series-details).
 
-## 5. View Series Details
+## 4. View Series Details
 
 On the library page, click on any series from the list to open its details page.
 
 You'll now see all books that belong to this series, displayed in order.
 
-## 6. View Book Details
+## 4.1. View Book Details
 
 On the series details page, click on any book from the list to open its details page.
 
@@ -74,13 +112,13 @@ If a **file is available** for the book, you can download it using the `Download
 
 ![Download Book File](./.attachments/quickstart/download_book.png)
 
-## 7. Search Books
+## 5. Search Books
 
 Use the **search bar** at the top of the page to find books in your collection by title, author or keyword.
 
 ![Search Bar](./.attachments/quickstart/search_bar.png)
 
-## 8. Edit a Book (or Series)
+## 6. Edit a Book (or Series)
 
 Visit the book (series) details page and click the `Edit` _(pencil icon)_ button.
 
@@ -90,7 +128,7 @@ Now edit the book details: _title_, _description_, ...
 
 Click the `Edit Book` button on the bottom right to save your changes.
 
-## 9. Delete a Book (or Series)
+## 7. Delete a Book (or Series)
 
 > ℹ️ Deleting a **book** will delete **all associated files** (e.g. cover, book file).
 
