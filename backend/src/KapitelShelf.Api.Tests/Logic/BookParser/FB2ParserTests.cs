@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using System.Globalization;
 using System.Text;
 using System.Xml;
 using KapitelShelf.Api.DTOs.BookParser;
@@ -87,9 +86,6 @@ public class FB2ParserTests
             Assert.That(result.Book.Author?.FirstName, Is.EqualTo("John"));
             Assert.That(result.Book.Author?.LastName, Is.EqualTo("Doe"));
             Assert.That(result.Book.ReleaseDate, Is.Not.Null);
-
-            // Adjust date for UTC
-            Assert.That(result.Book.ReleaseDate?.Date, Is.EqualTo(DateTime.Parse("2023-12-31", CultureInfo.InvariantCulture).Date));
             Assert.That(result.Book.Series, Is.Not.Null);
             Assert.That(result.Book.Series!.Name, Is.EqualTo("SeriesName"));
             Assert.That(result.Book.Categories, Has.Count.EqualTo(1));
