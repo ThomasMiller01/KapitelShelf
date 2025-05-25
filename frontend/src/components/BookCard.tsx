@@ -21,8 +21,6 @@ const BookCard = ({
 }: BookCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
-  console.log(book.pageNumber);
-
   return (
     <ItemCardLayout
       title={book.title}
