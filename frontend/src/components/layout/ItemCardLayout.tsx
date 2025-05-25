@@ -103,7 +103,7 @@ const ItemCardLayout = ({
             </Box>
           )}
         </Box>
-        <CardContent sx={{ px: "12px", pt: "10px", pb: "8px" }}>
+        <CardContent sx={{ width: "100%", px: "12px", pt: "10px", pb: "8px" }}>
           <Typography
             variant="h6"
             sx={{
