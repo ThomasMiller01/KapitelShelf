@@ -36,4 +36,7 @@ public class TextParser : BookParserBase
             CoverFile = null,
         };
     }
+
+    /// <inheritdoc/>
+    public override Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
 }

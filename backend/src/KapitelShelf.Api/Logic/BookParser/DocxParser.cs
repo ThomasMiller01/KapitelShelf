@@ -59,4 +59,7 @@ public class DocxParser : BookParserBase
             CoverFile = null,
         };
     }
+
+    /// <inheritdoc/>
+    public override Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
 }

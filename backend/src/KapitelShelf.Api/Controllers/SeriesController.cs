@@ -140,15 +140,9 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
 
             return NoContent();
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
         {
-            if (ex.Message == StaticConstants.DuplicateExceptionKey)
-            {
-                return Conflict(new { error = "A series with this name already exists." });
-            }
-
-            // re-throw exception
-            throw;
+            return Conflict(new { error = "A book with this title (or location) already exists." });
         }
         catch (Exception ex)
         {

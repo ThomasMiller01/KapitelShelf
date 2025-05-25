@@ -7,11 +7,12 @@ import FancyText from "../../components/FancyText";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotification } from "../../hooks/useNotification";
 import { booksApi } from "../../lib/api/KapitelShelf.Api";
+import type { ImportResultDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { BookFileTypes } from "../../utils/FileTypesUtils";
 
 const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();
-  const { triggerNavigate } = useNotification();
+  const { triggerNavigate, triggerError } = useNotification();
 
   const { mutateAsync: mutateImportBook } = useMutation({
     mutationKey: ["import-book"],
@@ -27,25 +28,65 @@ const ImportBookPage = (): ReactElement => {
     },
   });
 
-  const importFile = useCallback(
-    async (file: File): Promise<void> => {
-      const createdBook = await mutateImportBook(file);
-      if (
-        createdBook?.id === undefined ||
-        createdBook.title === undefined ||
-        createdBook.title === null
-      ) {
-        // only continue, if creation was successful
+  const onSingleImportResult = useCallback(
+    async (importResult: ImportResultDTO): Promise<void> => {
+      // only a single book was imported
+
+      // check if the import was sucessful
+      if (importResult.errors && importResult.errors.length > 0) {
+        triggerError({
+          operation: "Importing Book",
+          errorMessage: importResult.errors[0],
+        });
         return;
       }
 
-      triggerNavigate({
-        operation: "Imported",
-        itemName: createdBook.title,
-        url: `/library/books/${createdBook.id}`,
-      });
+      if (importResult.importedBooks && importResult.importedBooks.length > 0) {
+        triggerNavigate({
+          operation: "Imported the following book",
+          itemName: importResult.importedBooks[0].title ?? "",
+          url: `/library/books/${importResult.importedBooks[0].id}`,
+        });
+      }
     },
-    [mutateImportBook, triggerNavigate]
+    [triggerError, triggerNavigate]
+  );
+
+  const onBulkImportResult = useCallback(
+    async (importResult: ImportResultDTO): Promise<void> => {
+      // multiple books were imported
+
+      // check for errors in the import result
+      if (importResult.errors && importResult.errors.length > 0) {
+        triggerError({
+          operation: "Importing Books",
+          errorMessage: `${importResult.errors.length} Error(s) occurred`,
+        });
+      }
+
+      // if there were any books imported, offer navigation to the library
+      if (importResult.importedBooks && importResult.importedBooks.length > 0) {
+        triggerNavigate({
+          operation: "Importing successful",
+          itemName: `${importResult.importedBooks.length} Book(s)`,
+          url: `/library`,
+        });
+      }
+    },
+    [triggerError, triggerNavigate]
+  );
+
+  const importFile = useCallback(
+    async (file: File): Promise<void> => {
+      const importResult = await mutateImportBook(file);
+
+      if (importResult.isBulkImport) {
+        onBulkImportResult(importResult);
+      } else {
+        onSingleImportResult(importResult);
+      }
+    },
+    [mutateImportBook, onSingleImportResult, onBulkImportResult]
   );
 
   const onImport = useCallback(

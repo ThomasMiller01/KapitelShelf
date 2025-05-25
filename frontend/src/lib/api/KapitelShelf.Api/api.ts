@@ -355,6 +355,50 @@ export interface FileInfoDTO {
     'fileName'?: string | null;
 }
 /**
+ * The import book dto.
+ * @export
+ * @interface ImportBookDTO
+ */
+export interface ImportBookDTO {
+    /**
+     * Gets or sets the book id.
+     * @type {string}
+     * @memberof ImportBookDTO
+     */
+    'id'?: string;
+    /**
+     * Gets or sets the book title.
+     * @type {string}
+     * @memberof ImportBookDTO
+     */
+    'title'?: string | null;
+}
+/**
+ * Represents the result of an import operation, including details about the success or failure of the process.
+ * @export
+ * @interface ImportResultDTO
+ */
+export interface ImportResultDTO {
+    /**
+     * Gets or sets a value indicating whether it was a bulk import.
+     * @type {boolean}
+     * @memberof ImportResultDTO
+     */
+    'isBulkImport'?: boolean;
+    /**
+     * Gets or sets any errors encountered during the import process.
+     * @type {Array<string>}
+     * @memberof ImportResultDTO
+     */
+    'errors'?: Array<string> | null;
+    /**
+     * Gets or sets the successfully imported books, containing their IDs and titles.
+     * @type {Array<ImportBookDTO>}
+     * @memberof ImportResultDTO
+     */
+    'importedBooks'?: Array<ImportBookDTO> | null;
+}
+/**
  * The location dto.
  * @export
  * @interface LocationDTO
@@ -446,7 +490,7 @@ export interface SeriesDTO {
      * @type {number}
      * @memberof SeriesDTO
      */
-    'totalBooks'?: number;
+    'totalBooks'?: number | null;
 }
 /**
  * The paginated result.
@@ -1035,7 +1079,7 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
+        async booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImportResultDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.booksImportPost(bookFile, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksImportPost']?.[localVarOperationServerIndex]?.url;
@@ -1153,7 +1197,7 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
+        booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): AxiosPromise<ImportResultDTO> {
             return localVarFp.booksImportPost(bookFile, options).then((request) => request(axios, basePath));
         },
         /**
@@ -1296,107 +1340,6 @@ export class BooksApi extends BaseAPI {
      */
     public booksPost(createBookDTO?: CreateBookDTO, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksPost(createBookDTO, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * DemoDataApi - axios parameter creator
- * @export
- */
-export const DemoDataApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Generates and inserts demodata into the database.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        demodataGeneratePut: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/demodata/generate`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * DemoDataApi - functional programming interface
- * @export
- */
-export const DemoDataApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = DemoDataApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Generates and inserts demodata into the database.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async demodataGeneratePut(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.demodataGeneratePut(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DemoDataApi.demodataGeneratePut']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * DemoDataApi - factory interface
- * @export
- */
-export const DemoDataApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = DemoDataApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Generates and inserts demodata into the database.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        demodataGeneratePut(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.demodataGeneratePut(options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * DemoDataApi - object-oriented interface
- * @export
- * @class DemoDataApi
- * @extends {BaseAPI}
- */
-export class DemoDataApi extends BaseAPI {
-    /**
-     * 
-     * @summary Generates and inserts demodata into the database.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DemoDataApi
-     */
-    public demodataGeneratePut(options?: RawAxiosRequestConfig) {
-        return DemoDataApiFp(this.configuration).demodataGeneratePut(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

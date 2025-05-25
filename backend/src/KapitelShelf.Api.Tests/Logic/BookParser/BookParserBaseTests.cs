@@ -103,6 +103,7 @@ public class BookParserBaseTests
     {
         public override IReadOnlyCollection<string> SupportedExtensions => ["unit"];
         public override Task<BookParsingResult> Parse(IFormFile file) => throw new NotImplementedException();
+        public override Task<List<BookParsingResult>> ParseBulk(IFormFile file) => throw new NotImplementedException();
         public string SanitizeTextPublic(string text) => this.SanitizeText(text);
         public (string firstName, string lastName) ParseAuthorPublic(string author) => this.ParseAuthor(author);
         public string ParseTitlePublic(string str) => this.ParseTitle(str);

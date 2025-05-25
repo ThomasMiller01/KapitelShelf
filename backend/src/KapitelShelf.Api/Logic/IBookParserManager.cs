@@ -17,4 +17,18 @@ public interface IBookParserManager
     /// <param name="file">The book file to parse.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="BookParsingResult"/>.</returns>
     Task<BookParsingResult> Parse(IFormFile file);
+
+    /// <summary>
+    /// Parses a bulk file and extracts metadata for multiple books.
+    /// </summary>
+    /// <param name="file">The bulk file.</param>
+    /// <returns>The list of parsed books.</returns>
+    Task<List<BookParsingResult>> ParseBulk(IFormFile file);
+
+    /// <summary>
+    /// Checks if the given file is a bulk file that can be parsed by a bulk parser.
+    /// </summary>
+    /// <param name="file">The file.</param>
+    /// <returns>True if it is a bulk file, otherwise false.</returns>
+    bool IsBulkFile(IFormFile file);
 }

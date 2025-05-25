@@ -18,6 +18,9 @@ public abstract partial class BookParserBase : IBookParser
     /// <inheritdoc/>
     public abstract Task<BookParsingResult> Parse(IFormFile file);
 
+    /// <inheritdoc/>
+    public abstract Task<List<BookParsingResult>> ParseBulk(IFormFile file);
+
     /// <summary>
     /// Sanitize and remove html-tags and similar from the text.
     /// </summary>
@@ -84,8 +87,13 @@ public abstract partial class BookParserBase : IBookParser
     /// </summary>
     /// <param name="str">The string.</param>
     /// <returns>The parsed title.</returns>
-    protected string ParseTitle(string str)
+    protected string ParseTitle(string? str)
     {
+        if (string.IsNullOrEmpty(str))
+        {
+            return string.Empty;
+        }
+
         // Matches any character NOT a letter, digit, space, hyphen, apostrophe, comma, colon, or period.
         var cleaned = AllowedTitleCharactersRegex().Replace(str, " ");
 
@@ -117,7 +125,8 @@ public abstract partial class BookParserBase : IBookParser
     }
 
     // Matches any character that is NOT a letter, digit, space, hyphen, apostrophe, comma, colon, or period
-    [GeneratedRegex("[^a-zA-Z0-9 ',:.-]", RegexOptions.Compiled)]
+    // Use \p{L] for unicode letters (any alphabet, cyrillic, lating, greek, arabic, etc.)
+    [GeneratedRegex(@"[^\p{L}0-9 ',:\.-]", RegexOptions.Compiled)]
     private static partial Regex AllowedTitleCharactersRegex();
 
     // Matches one or more consecutive whitespace characters (for collapsing spaces)

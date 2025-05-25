@@ -16,30 +16,88 @@ namespace KapitelShelf.Api.Logic;
 public class BookParserManager : IBookParserManager
 {
     private readonly List<Type> parserTypes;
+    private readonly List<Type> bulkParserTypes;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BookParserManager"/> class.
     /// </summary>
     public BookParserManager()
-        : this([
-            typeof(EPUBParser),
-            typeof(PDFParser),
-            typeof(FB2Parser),
-            typeof(TextParser),
-            typeof(DocxParser),
-            typeof(DocParser),
-        ])
+        : this(
+            [ // parser types
+                typeof(EPUBParser),
+                typeof(PDFParser),
+                typeof(FB2Parser),
+                typeof(TextParser),
+                typeof(DocxParser),
+                typeof(DocParser),
+            ],
+            [ // bulk parser types
+                typeof(CSVParser),
+            ])
     {
     }
 
     // Needed for unit tests
-    internal BookParserManager(List<Type> parserTypes)
+    internal BookParserManager(List<Type> parserTypes, List<Type> bulkParserTypes)
     {
         this.parserTypes = parserTypes;
+        this.bulkParserTypes = bulkParserTypes;
+    }
+
+    /// <inheritdoc/>
+    public bool IsBulkFile(IFormFile file)
+    {
+        var extension = ExtractExtension(file);
+        return this.bulkParserTypes
+            .Any(t =>
+            {
+                // throwaway instance to check for the supported extensions
+                var parser = (IBookParser)Activator.CreateInstance(t)!;
+                return parser.SupportedExtensions.Contains(extension);
+            });
     }
 
     /// <inheritdoc/>
     public async Task<BookParsingResult> Parse(IFormFile file)
+    {
+        if (file is null)
+        {
+            throw new ArgumentException("File must be set");
+        }
+
+        // extract file extension
+        var extension = ExtractExtension(file);
+
+        // get new parser foreach file
+        var parser = GetNewParser(extension, this.parserTypes);
+
+        return await parser.Parse(file);
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<BookParsingResult>> ParseBulk(IFormFile file)
+    {
+        if (file is null)
+        {
+            throw new ArgumentException("File must be set");
+        }
+
+        // extract file extension
+        var extension = ExtractExtension(file);
+
+        // get new parser foreach file
+        var parser = GetNewParser(extension, this.bulkParserTypes);
+
+        return await parser.ParseBulk(file);
+    }
+
+    /// <summary>
+    /// Extracts the file extension from the given file.
+    /// </summary>
+    /// <param name="file">The file.</param>
+    /// <returns>The extension.</returns>
+    /// <exception cref="ArgumentException">Extension could not be extracted.</exception>
+    private static string ExtractExtension(IFormFile file)
     {
         if (file is null)
         {
@@ -56,8 +114,20 @@ public class BookParserManager : IBookParserManager
             throw new ArgumentException("File name must have an extension", nameof(file));
         }
 
+        return extension;
+    }
+
+    /// <summary>
+    /// Gets the parser for the given file extension.
+    /// </summary>
+    /// <param name="extension">The file extension.</param>
+    /// <param name="parserTypes">The available parser types.</param>
+    /// <returns>The book parser.</returns>
+    /// <exception cref="ArgumentException">Parser could not be found.</exception>
+    private static IBookParser GetNewParser(string extension, List<Type> parserTypes)
+    {
         // get parser for this file extension
-        var parserType = this.parserTypes
+        var parserType = parserTypes
             .FirstOrDefault(t =>
             {
                 // throwaway instance to check for the supported extensions
@@ -67,7 +137,6 @@ public class BookParserManager : IBookParserManager
 
         // create new parser foreach file
         var parser = Activator.CreateInstance(parserType) as IBookParser ?? throw new ArgumentException("Parser must be set");
-
-        return await parser.Parse(file);
+        return parser;
     }
 }

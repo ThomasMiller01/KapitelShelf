@@ -4,6 +4,8 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.BookParser;
+using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Settings;
@@ -30,10 +32,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
     private readonly IBookStorage bookStorage = bookStorage;
 
-    /// <summary>
-    /// Get all books.
-    /// </summary>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<IList<BookDTO>> GetBooksAsync()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -58,11 +57,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .ToListAsync();
     }
 
-    /// <summary>
-    /// Get a book by id.
-    /// </summary>
-    /// <param name="bookId">The id of the book to fetch.</param>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<BookDTO?> GetBookByIdAsync(Guid bookId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -89,11 +84,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .FirstOrDefaultAsync();
     }
 
-    /// <summary>
-    /// Create a new book.
-    /// </summary>
-    /// <param name="createBookDTO">The create book dto.</param>
-    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<BookDTO?> CreateBookAsync(CreateBookDTO createBookDTO)
     {
         if (createBookDTO is null)
@@ -212,12 +203,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return this.mapper.Map<BookDTO>(book);
     }
 
-    /// <summary>
-    /// Update a book.
-    /// </summary>
-    /// <param name="bookId">The id of the book to update.</param>
-    /// <param name="bookDto">The updated book dto.</param>
-    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<BookDTO?> UpdateBookAsync(Guid bookId, BookDTO bookDto)
     {
         if (bookDto is null)
@@ -375,11 +361,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return this.mapper.Map<BookDTO>(book);
     }
 
-    /// <summary>
-    /// Delete a book.
-    /// </summary>
-    /// <param name="bookId">The id of the book to delete.</param>
-    /// <returns>A <see cref="Task{BookDTO}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<BookDTO?> DeleteBookAsync(Guid bookId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -400,52 +382,21 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return this.mapper.Map<BookDTO>(book);
     }
 
-    /// <summary>
-    /// Import a book from a file.
-    /// </summary>
-    /// <param name="file">The book file to import.</param>
-    /// <returns>The imported book.</returns>
-    public async Task<BookDTO> ImportBookAsync(IFormFile file)
+    /// <inheritdoc/>
+    public async Task<ImportResultDTO> ImportBookAsync(IFormFile file)
     {
-        var parsingResult = await this.bookParserManager.Parse(file);
-
-        // create book
-        var createBookDto = this.mapper.Map<CreateBookDTO>(parsingResult.Book);
-        var bookDto = await this.CreateBookAsync(createBookDto);
-        ArgumentNullException.ThrowIfNull(bookDto);
-
-        // save cover file
-        if (parsingResult.CoverFile is not null)
+        if (this.bookParserManager.IsBulkFile(file))
         {
-            var cover = await this.bookStorage.Save(bookDto.Id, parsingResult.CoverFile);
-            bookDto.Cover = cover;
+            return await this.ImportBulkBookAsync(file);
         }
 
-        // save book file
-        var locationFile = await this.bookStorage.Save(bookDto.Id, file);
-        bookDto.Location = new LocationDTO
-        {
-            Type = LocationTypeDTO.KapitelShelf,
-            Url = null,
-            FileInfo = locationFile,
-        };
-
-        // update book with new cover and file
-        await this.UpdateBookAsync(bookDto.Id, bookDto);
-
-        return bookDto;
+        return await this.ImportSingleBookAsync(file);
     }
 
-    /// <summary>
-    /// Delete all files of a book.
-    /// </summary>
-    /// <param name="bookId">The id of the book.</param>
+    /// <inheritdoc/>
     public void DeleteFiles(Guid bookId) => this.bookStorage.DeleteDirectory(bookId);
 
-    /// <summary>
-    /// Cleanup the database of orphaned entries.
-    /// </summary>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task CleanupDatabase()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -525,5 +476,97 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
                 (url != null && x.Location.Url == url))
             .ToListAsync();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
+    }
+
+    private async Task<BookDTO> CreateBookFromParsingResult(BookParsingResult parsingResult, IFormFile? file)
+    {
+        // create book
+        var createBookDto = this.mapper.Map<CreateBookDTO>(parsingResult.Book);
+        var bookDto = await this.CreateBookAsync(createBookDto);
+        ArgumentNullException.ThrowIfNull(bookDto);
+
+        // save cover file
+        if (parsingResult.CoverFile is not null)
+        {
+            var cover = await this.bookStorage.Save(bookDto.Id, parsingResult.CoverFile);
+            bookDto.Cover = cover;
+        }
+
+        // save book file
+        FileInfoDTO? locationFile = null;
+        if (file is not null)
+        {
+            locationFile = await this.bookStorage.Save(bookDto.Id, file);
+        }
+
+        bookDto.Location = new LocationDTO
+        {
+            Type = LocationTypeDTO.KapitelShelf,
+            Url = null,
+            FileInfo = locationFile,
+        };
+
+        // update book with new cover and file
+        await this.UpdateBookAsync(bookDto.Id, bookDto);
+
+        return bookDto;
+    }
+
+    private async Task<ImportResultDTO> ImportSingleBookAsync(IFormFile file)
+    {
+        var parsingResult = await this.bookParserManager.Parse(file);
+
+        var importResult = new ImportResultDTO
+        {
+            IsBulkImport = false,
+            Errors = [],
+            ImportedBooks = [],
+        };
+
+        try
+        {
+            var bookDto = await this.CreateBookFromParsingResult(parsingResult, null);
+            importResult.ImportedBooks.Add(new ImportBookDTO
+            {
+                Id = bookDto.Id,
+                Title = bookDto.Title,
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
+        {
+            importResult.Errors.Add($"{parsingResult.Book.Title}: A book with this title (or location) already exists");
+        }
+
+        return importResult;
+    }
+
+    private async Task<ImportResultDTO> ImportBulkBookAsync(IFormFile file)
+    {
+        var importResult = new ImportResultDTO
+        {
+            IsBulkImport = true,
+            Errors = [],
+            ImportedBooks = [],
+        };
+
+        var bulkResults = await this.bookParserManager.ParseBulk(file);
+        foreach (var bulkResult in bulkResults)
+        {
+            try
+            {
+                var bookDto = await this.CreateBookFromParsingResult(bulkResult, null);
+                importResult.ImportedBooks.Add(new ImportBookDTO
+                {
+                    Id = bookDto.Id,
+                    Title = bookDto.Title,
+                });
+            }
+            catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
+            {
+                importResult.Errors.Add($"{bulkResult.Book.Title}: A book with this title (or location) already exists");
+            }
+        }
+
+        return importResult;
     }
 }

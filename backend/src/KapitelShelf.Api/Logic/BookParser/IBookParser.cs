@@ -22,4 +22,11 @@ public interface IBookParser
     /// <param name="file">The book file to parse.</param>
     /// <returns>The book parsing result.</returns>
     Task<BookParsingResult> Parse(IFormFile file);
+
+    /// <summary>
+    /// Parse a bulk file stream for metadata of multiple books.
+    /// </summary>
+    /// <param name="file">The book file to parse.</param>
+    /// <returns>The book parsing results.</returns>
+    Task<List<BookParsingResult>> ParseBulk(IFormFile file);
 }

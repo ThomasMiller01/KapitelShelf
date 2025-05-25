@@ -50,8 +50,8 @@ public interface IBooksLogic
     /// Imports a book from a file.
     /// </summary>
     /// <param name="file">The file containing the book to import.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the imported <see cref="BookDTO"/>.</returns>
-    Task<BookDTO> ImportBookAsync(IFormFile file);
+    /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="ImportResultDTO"/>.</returns>
+    Task<ImportResultDTO> ImportBookAsync(IFormFile file);
 
     /// <summary>
     /// Deletes all files associated with a book.
