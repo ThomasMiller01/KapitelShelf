@@ -2,9 +2,9 @@
 
 <!-- What does this PR change? -->
 
-## Related Issue(s)
+## Motivation and Context
 
-<!-- Link to any relevant issues (e.g. Closes #123) -->
+<!-- Why is this change needed? What problem does it solve or what value does it add? -->
 
 ## Type of Change
 
@@ -12,14 +12,14 @@
 - [ ] Feature / Enhancement
 - [ ] Maintenance
 
-## Motivation and Context
-
-<!-- Why is this change needed? What problem does it solve or what value does it add? -->
-
 ## Checklist
 
 - [ ] Tests added/updated
 - [ ] Docs updated (if needed)
+
+## Related Issue(s)
+
+<!-- Link to any relevant issues (e.g. Closes #123) -->
 
 ## Additional Notes
 
