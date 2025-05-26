@@ -178,7 +178,7 @@ const EditableBookDetails = ({
   };
 
   return (
-    <Box mt="15px">
+    <Box my="15px">
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
