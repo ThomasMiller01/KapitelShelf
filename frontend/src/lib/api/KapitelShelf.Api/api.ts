@@ -450,6 +450,88 @@ export type LocationTypeDTO = typeof LocationTypeDTO[keyof typeof LocationTypeDT
 
 
 /**
+ * The metadata DTO class.
+ * @export
+ * @interface MetadataDTO
+ */
+export interface MetadataDTO {
+    /**
+     * Gets or sets the title of the book.
+     * @type {string}
+     * @memberof MetadataDTO
+     */
+    'title'?: string | null;
+    /**
+     * Gets or sets the description of the book.
+     * @type {string}
+     * @memberof MetadataDTO
+     */
+    'description'?: string | null;
+    /**
+     * Gets or sets the name of the series of the book.
+     * @type {string}
+     * @memberof MetadataDTO
+     */
+    'series'?: string | null;
+    /**
+     * Gets or sets the number of the book in the series.
+     * @type {number}
+     * @memberof MetadataDTO
+     */
+    'volume'?: number | null;
+    /**
+     * Gets or sets the authors of the book.
+     * @type {Array<string>}
+     * @memberof MetadataDTO
+     */
+    'authors'?: Array<string> | null;
+    /**
+     * Gets or sets the release date of the book.
+     * @type {string}
+     * @memberof MetadataDTO
+     */
+    'releaseDate'?: string | null;
+    /**
+     * Gets or sets the number of pages of the book.
+     * @type {number}
+     * @memberof MetadataDTO
+     */
+    'pages'?: number | null;
+    /**
+     * Gets or sets the cover url of the book.
+     * @type {string}
+     * @memberof MetadataDTO
+     */
+    'coverUrl'?: string | null;
+    /**
+     * Gets or sets the categories of the book.
+     * @type {Array<string>}
+     * @memberof MetadataDTO
+     */
+    'categories'?: Array<string> | null;
+    /**
+     * Gets or sets the tags of the book.
+     * @type {Array<string>}
+     * @memberof MetadataDTO
+     */
+    'tags'?: Array<string> | null;
+}
+/**
+ * The metadata sources for book metadata scraping.
+ * @export
+ * @enum {number}
+ */
+
+export const MetadataSources = {
+    NUMBER_0: 0,
+    NUMBER_1: 1,
+    NUMBER_2: 2
+} as const;
+
+export type MetadataSources = typeof MetadataSources[keyof typeof MetadataSources];
+
+
+/**
  * The series dto.
  * @export
  * @interface SeriesDTO
@@ -1340,6 +1422,122 @@ export class BooksApi extends BaseAPI {
      */
     public booksPost(createBookDTO?: CreateBookDTO, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksPost(createBookDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * MetadataApi - axios parameter creator
+ * @export
+ */
+export const MetadataApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Fetch the metadata for a book from the specified source.
+         * @param {MetadataSources} source The source from which to fetch the metadata.
+         * @param {string} [title] The title of the book to scrape metadata for.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        metadataSourceGet: async (source: MetadataSources, title?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'source' is not null or undefined
+            assertParamExists('metadataSourceGet', 'source', source)
+            const localVarPath = `/metadata/{source}`
+                .replace(`{${"source"}}`, encodeURIComponent(String(source)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (title !== undefined) {
+                localVarQueryParameter['title'] = title;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * MetadataApi - functional programming interface
+ * @export
+ */
+export const MetadataApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = MetadataApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Fetch the metadata for a book from the specified source.
+         * @param {MetadataSources} source The source from which to fetch the metadata.
+         * @param {string} [title] The title of the book to scrape metadata for.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async metadataSourceGet(source: MetadataSources, title?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<MetadataDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.metadataSourceGet(source, title, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MetadataApi.metadataSourceGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * MetadataApi - factory interface
+ * @export
+ */
+export const MetadataApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = MetadataApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Fetch the metadata for a book from the specified source.
+         * @param {MetadataSources} source The source from which to fetch the metadata.
+         * @param {string} [title] The title of the book to scrape metadata for.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        metadataSourceGet(source: MetadataSources, title?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<MetadataDTO>> {
+            return localVarFp.metadataSourceGet(source, title, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * MetadataApi - object-oriented interface
+ * @export
+ * @class MetadataApi
+ * @extends {BaseAPI}
+ */
+export class MetadataApi extends BaseAPI {
+    /**
+     * 
+     * @summary Fetch the metadata for a book from the specified source.
+     * @param {MetadataSources} source The source from which to fetch the metadata.
+     * @param {string} [title] The title of the book to scrape metadata for.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MetadataApi
+     */
+    public metadataSourceGet(source: MetadataSources, title?: string, options?: RawAxiosRequestConfig) {
+        return MetadataApiFp(this.configuration).metadataSourceGet(source, title, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

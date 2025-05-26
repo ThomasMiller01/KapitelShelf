@@ -389,6 +389,64 @@
         }
       }
     },
+    "/metadata/{source}": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Fetch the metadata for a book from the specified source.",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "path",
+            "description": "The source from which to fetch the metadata.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/MetadataSources"
+            }
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "description": "The title of the book to scrape metadata for.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MetadataDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MetadataDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MetadataDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/series/summary": {
       "get": {
         "tags": [
@@ -1067,6 +1125,84 @@
         ],
         "type": "integer",
         "description": "The location type enum.",
+        "format": "int32"
+      },
+      "MetadataDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Gets or sets the title of the book.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Gets or sets the description of the book.",
+            "nullable": true
+          },
+          "series": {
+            "type": "string",
+            "description": "Gets or sets the name of the series of the book.",
+            "nullable": true
+          },
+          "volume": {
+            "type": "integer",
+            "description": "Gets or sets the number of the book in the series.",
+            "format": "int32",
+            "nullable": true
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the authors of the book.",
+            "nullable": true
+          },
+          "releaseDate": {
+            "type": "string",
+            "description": "Gets or sets the release date of the book.",
+            "nullable": true
+          },
+          "pages": {
+            "type": "integer",
+            "description": "Gets or sets the number of pages of the book.",
+            "format": "int32",
+            "nullable": true
+          },
+          "coverUrl": {
+            "type": "string",
+            "description": "Gets or sets the cover url of the book.",
+            "nullable": true
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the categories of the book.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the tags of the book.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The metadata DTO class."
+      },
+      "MetadataSources": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "The metadata sources for book metadata scraping.",
         "format": "int32"
       },
       "SeriesDTO": {
