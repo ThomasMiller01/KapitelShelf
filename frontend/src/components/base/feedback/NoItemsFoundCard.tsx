@@ -27,14 +27,16 @@ export const NoItemsFoundCard = ({
     <Typography variant="h5" my={4} textTransform="uppercase">
       Looks like you don't have any {itemName} yet
     </Typography>
-    <Typography
-      variant="body1"
-      mb={2}
-      textTransform="uppercase"
-      color="text.secondary"
-    >
-      Try adding your first {itemName} below!
-    </Typography>
+    {onCreate && (
+      <Typography
+        variant="body1"
+        mb={2}
+        textTransform="uppercase"
+        color="text.secondary"
+      >
+        Try adding your first {itemName} below!
+      </Typography>
+    )}
     {onCreate && (
       <Button variant="outlined" onClick={onCreate}>
         Create first {itemName}

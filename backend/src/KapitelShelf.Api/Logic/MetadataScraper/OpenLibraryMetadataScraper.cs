@@ -18,6 +18,7 @@ public class OpenLibraryMetadataScraper : IMetadataScraper
     /// <inheritdoc />
     public async Task<List<MetadataScraperDTO>> Scrape(string title)
     {
+        // TODO: retry handling for httpclient
         var httpClient = new HttpClient();
         var results = new List<MetadataScraperDTO>();
 

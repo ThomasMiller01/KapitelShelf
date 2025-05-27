@@ -32,6 +32,7 @@ import {
 } from "../../utils/FileUtils";
 import { toLocationTypeDTO } from "../../utils/LocationUtils";
 import EditableLocationDetails from "../EditableLocationDetails";
+import MetadataDialog from "../metadata/MetadataDialog";
 
 interface ActionProps {
   name: string;
@@ -177,8 +178,12 @@ const EditableBookDetails = ({
     action.onClick(book, coverFile, bookFile);
   };
 
+  // import metadata
+  const [importMetadataDialogOpen, setImportMetadataDialogOpen] =
+    useState(false);
+
   return (
-    <Box my="15px">
+    <Box margin="15px">
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
@@ -371,8 +376,7 @@ const EditableBookDetails = ({
                       height: "fit-content",
                       whiteSpace: "nowrap",
                     }}
-                    // eslint-disable-next-line no-magic-numbers
-                    onClick={() => trigger(63)}
+                    onClick={() => setImportMetadataDialogOpen(true)}
                   >
                     Import Metadata
                   </Button>
@@ -396,6 +400,20 @@ const EditableBookDetails = ({
               </Stack>
             </Grid>
           </Grid>
+
+          {/* Metadata Import Dialog */}
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => (
+              <MetadataDialog
+                title={field.value}
+                open={importMetadataDialogOpen}
+                onCancel={() => setImportMetadataDialogOpen(false)}
+                onConfirm={() => {}}
+              />
+            )}
+          />
         </form>
       </FormProvider>
     </Box>
