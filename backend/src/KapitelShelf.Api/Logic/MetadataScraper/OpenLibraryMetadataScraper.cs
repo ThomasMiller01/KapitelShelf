@@ -5,6 +5,8 @@
 using System.Text.Json;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Extensions;
+using Polly;
+using Polly.Retry;
 
 namespace KapitelShelf.Api.Logic.MetadataScraper;
 
@@ -15,15 +17,25 @@ public class OpenLibraryMetadataScraper : IMetadataScraper
 {
     private static readonly int Limit = 10;
 
+    // Polly retry policy: 3 retries with exponential backoff (0.5s, 1s, 2s)
+    private static readonly AsyncRetryPolicy RetryPolicy = Policy
+            .Handle<HttpRequestException>()
+            .Or<TaskCanceledException>()
+            .WaitAndRetryAsync(
+            [
+                TimeSpan.FromMilliseconds(500),
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(2),
+            ]);
+
     /// <inheritdoc />
     public async Task<List<MetadataScraperDTO>> Scrape(string title)
     {
-        // TODO: retry handling for httpclient
         var httpClient = new HttpClient();
         var results = new List<MetadataScraperDTO>();
 
         var searchUrl = $"https://openlibrary.org/search.json?title={Uri.EscapeDataString(title)}&limit={Limit}";
-        using var response = await httpClient.GetAsync(searchUrl);
+        using var response = await RetryPolicy.ExecuteAsync(() => httpClient.GetAsync(searchUrl));
         response.EnsureSuccessStatusCode();
 
         using var stream = await response.Content.ReadAsStreamAsync();
@@ -55,7 +67,7 @@ public class OpenLibraryMetadataScraper : IMetadataScraper
                     var workUrl = $"https://openlibrary.org{workKey}.json";
                     try
                     {
-                        var workResp = await httpClient.GetAsync(workUrl);
+                        var workResp = await RetryPolicy.ExecuteAsync(() => httpClient.GetAsync(workUrl));
                         if (workResp.IsSuccessStatusCode)
                         {
                             using var workStream = await workResp.Content.ReadAsStreamAsync();
