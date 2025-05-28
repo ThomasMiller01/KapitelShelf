@@ -12,14 +12,18 @@ import ItemCardLayout, { MetadataItem } from "./layout/ItemCard/ItemCardLayout";
 
 interface MetadataCardProps {
   metadata: MetadataDTO;
+  onClick?: (metadata: MetadataDTO) => void;
 }
 
-const MetadataCard = ({ metadata }: MetadataCardProps): ReactElement => (
+const MetadataCard = ({
+  metadata,
+  onClick,
+}: MetadataCardProps): ReactElement => (
   <ItemCardLayout
     itemVariant="detailed"
     title={metadata.title}
     description={metadata.description}
-    onClick={() => {}}
+    onClick={onClick ? (): void => onClick(metadata) : undefined}
     image={metadata.coverUrl}
     fallbackImage={bookCover}
     badge={

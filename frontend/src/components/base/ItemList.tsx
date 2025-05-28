@@ -15,7 +15,7 @@ type ChipVariant = React.ComponentProps<typeof Chip>["variant"];
 
 interface ItemListProps {
   itemName: string;
-  initial?: string[];
+  items?: string[];
   onChange: (items: string[]) => void;
   width?: string;
   variant?: ChipVariant;
@@ -23,7 +23,7 @@ interface ItemListProps {
 
 const ItemList = ({
   itemName,
-  initial = [],
+  items: initial = [],
   onChange,
   width = "25ch",
   variant = "filled",
@@ -32,6 +32,13 @@ const ItemList = ({
   useEffect(() => {
     onChange(items);
   }, [items, onChange]);
+
+  // keep items in sync with initial
+  useEffect(() => {
+    if (JSON.stringify(items) !== JSON.stringify(initial)) {
+      setItems(initial);
+    }
+  }, [initial]);
 
   const [showAddTextfield, setShowAddTextfield] = useState(false);
   const [addTextfield, setAddTextfield] = useState("");

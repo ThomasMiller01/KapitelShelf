@@ -12,6 +12,7 @@ import {
 import { type ReactElement, useEffect, useState } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
+import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
 import MetadataList from "./MetadataList";
 
 // 400ms after user stops typing
@@ -21,7 +22,7 @@ export interface MetadataDialogProps {
   open: boolean;
   title: string;
   onCancel: () => void;
-  onConfirm: () => void;
+  onConfirm: (metadata: MetadataDTO) => void;
 }
 
 const MetadataDialog = ({
@@ -78,7 +79,7 @@ const MetadataDialog = ({
       <DialogContent
         sx={{ minHeight: "400px", px: isMobile ? "10px" : "24px" }}
       >
-        <MetadataList title={lockedInTitle} />
+        <MetadataList title={lockedInTitle} onClick={onConfirm} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
