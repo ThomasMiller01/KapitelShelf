@@ -8,13 +8,36 @@ import { useMetadataSource } from "../../hooks/useMetadataSource";
 import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { MetadataSources } from "../../lib/api/KapitelShelf.Api/api";
 
+interface MetadataListItem extends MetadataDTO {
+  source: MetadataSources;
+}
+
 interface MetadataListProps {
   title: string;
   onClick?: (metadata: MetadataDTO) => void;
+  sources?: number[];
 }
 
-const MetadataList = ({ title, onClick }: MetadataListProps): ReactElement => {
-  const [metadata, setMetadata] = useState<MetadataDTO[]>([]);
+const MetadataList = ({
+  title,
+  onClick,
+  sources,
+}: MetadataListProps): ReactElement => {
+  const [metadata, setMetadata] = useState<MetadataListItem[]>([]);
+  const [filteredMetadata, setFilteredMetadata] = useState<MetadataListItem[]>(
+    []
+  );
+
+  useEffect(() => {
+    // filter metadata based on selected sources
+    if (sources) {
+      setFilteredMetadata(
+        metadata.filter((item) => sources.includes(item.source))
+      );
+    } else {
+      setFilteredMetadata(metadata);
+    }
+  }, [metadata, sources]);
 
   // keep track of added sources to avoid duplicates
   const addedSources = useRef<Set<number>>(new Set());
@@ -33,7 +56,13 @@ const MetadataList = ({ title, onClick }: MetadataListProps): ReactElement => {
       openLibraryMetadata &&
       !addedSources.current.has(MetadataSources.NUMBER_0)
     ) {
-      setMetadata((m) => [...m, ...openLibraryMetadata]);
+      setMetadata((m) => [
+        ...m,
+        ...openLibraryMetadata.map((item) => ({
+          ...item,
+          source: MetadataSources.NUMBER_0,
+        })),
+      ]);
       addedSources.current.add(MetadataSources.NUMBER_0);
     }
   }, [openLibraryMetadata, title]);
@@ -42,15 +71,19 @@ const MetadataList = ({ title, onClick }: MetadataListProps): ReactElement => {
     return <LoadingCard delayed small itemName="Metadata" />;
   }
 
-  if (metadata.length === 0) {
+  if (filteredMetadata.length === 0) {
     return <NoItemsFoundCard itemName="Metadata" useLogo />;
   }
 
   return (
     <Grid container spacing={2}>
-      {metadata.map((item, index) => (
+      {filteredMetadata.map((item, index) => (
         <Grid key={index} size={{ xs: 12, lg: 8, xl: 6 }}>
-          <MetadataCard metadata={item} onClick={onClick} />
+          <MetadataCard
+            metadata={item}
+            onClick={onClick}
+            source={item.source}
+          />
         </Grid>
       ))}
     </Grid>
