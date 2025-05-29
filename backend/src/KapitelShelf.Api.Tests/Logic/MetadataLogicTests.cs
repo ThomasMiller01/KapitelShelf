@@ -5,7 +5,6 @@
 using AutoMapper;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Logic;
-using KapitelShelf.Api.Logic.MetadataScraper;
 using NSubstitute;
 
 namespace KapitelShelf.Api.Tests.Logic;
@@ -16,9 +15,9 @@ namespace KapitelShelf.Api.Tests.Logic;
 [TestFixture]
 public class MetadataLogicTests
 {
-    private IMetadataScraper mockScraper;
     private IMapper mapper;
-    private MetadataLogic testee;
+    private IMetadataScraperManager scraperManager;
+    private MetadataLogic logic;
 
     /// <summary>
     /// Sets up before each test.
@@ -26,119 +25,101 @@ public class MetadataLogicTests
     [SetUp]
     public void SetUp()
     {
-        this.mockScraper = Substitute.For<IMetadataScraper>();
         this.mapper = Testhelper.CreateMapper();
-
-        // Setup: testee with dictionary containing our mock scraper
-        var scrapers = new Dictionary<MetadataSources, IMetadataScraper>
-        {
-            { MetadataSources.OpenLibrary, this.mockScraper },
-        };
-        this.testee = new MetadataLogic(scrapers, this.mapper);
+        this.scraperManager = Substitute.For<IMetadataScraperManager>();
+        this.logic = new MetadataLogic(this.mapper, this.scraperManager);
     }
 
     /// <summary>
-    /// Tests ScrapeFromSourceAsnyc returns mapped and sorted metadata.
+    /// Tests that ScrapeFromSourceAsnyc sorts and maps metadata as expected.
     /// </summary>
-    /// <returns>A task.</returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous test.</returns>
     [Test]
-    public async Task ScrapeFromSourceAsync_ReturnsMappedAndSorted()
+    public async Task ScrapeFromSourceAsnyc_ReturnsSortedAndMappedResults()
     {
         // Setup
-        var inputTitle = "Test Book";
-        var resultList = new List<MetadataScraperDTO>
+        var inputList = new List<MetadataScraperDTO>
         {
             new()
             {
-                Title = "Test Book",
-                Description = "Description_1",
+                Title = "B",
+                TitleMatchScore = 50,
+                CompletenessScore = 1,
             },
             new()
             {
-                Title = "Tst Bok",
-                Description = "Description 2",
+                Title = "A",
+                TitleMatchScore = 90,
+                CompletenessScore = 3,
+            },
+            new()
+            {
+                Title = "C",
+                TitleMatchScore = 90,
+                CompletenessScore = 2,
             },
         };
-        this.mockScraper.Scrape(inputTitle).Returns(resultList);
+        this.scraperManager.Scrape(MetadataSources.OpenLibrary, "title").Returns(inputList);
 
         // Execute
-        var results = await this.testee.ScrapeFromSourceAsnyc(MetadataSources.OpenLibrary, inputTitle);
+        var result = await this.logic.ScrapeFromSourceAsnyc(MetadataSources.OpenLibrary, "title");
 
         // Assert
-        Assert.That(results, Has.Count.EqualTo(2));
+        Assert.That(result, Has.Count.EqualTo(3));
         Assert.Multiple(() =>
         {
-            Assert.That(results[0].Title, Is.EqualTo("Test Book")); // best match first
-            Assert.That(results[1].Title, Is.EqualTo("Tst Bok"));
+            Assert.That(result[0].Title, Is.EqualTo("A")); // best TitleMatchScore, best CompletenessScore
+            Assert.That(result[1].Title, Is.EqualTo("C")); // same TitleMatchScore, lower CompletenessScore
+            Assert.That(result[2].Title, Is.EqualTo("B")); // lower TitleMatchScore
         });
     }
 
     /// <summary>
-    /// Tests ScrapeFromSourceAsnyc throws if source is not present.
+    /// Tests that ScrapeFromSourceAsnyc returns an empty list if manager returns none.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous test.</returns>
     [Test]
-    public void ScrapeFromSourceAsync_ThrowsArgumentException_IfNoScraper()
+    public async Task ScrapeFromSourceAsnyc_ReturnsEmpty_IfManagerReturnsNone()
     {
         // Setup
-        var newLogic = new MetadataLogic([], this.mapper);
+        this.scraperManager.Scrape(Arg.Any<MetadataSources>(), Arg.Any<string>())
+            .Returns([]);
 
-        // Execute and Assert
-        Assert.ThrowsAsync<ArgumentException>(async () =>
-        {
-            await newLogic.ScrapeFromSourceAsnyc(MetadataSources.OpenLibrary, "Some Book");
-        });
+        // Execute
+        var result = await this.logic.ScrapeFromSourceAsnyc(MetadataSources.OpenLibrary, "title");
+
+        // Assert
+        Assert.That(result, Is.Empty);
     }
 
     /// <summary>
-    /// Tests ScrapeFromSourceAsnyc sets TitleMatchScore and CompletenessScore.
+    /// Tests that ScrapeFromSourceAsnyc maps all items using the mapper.
     /// </summary>
-    /// <returns>A task.</returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous test.</returns>
     [Test]
-    public async Task ScrapeFromSourceAsync_SetsScores()
+    public async Task ScrapeFromSourceAsnyc_MapsAllItems()
     {
         // Setup
-        var inputTitle = "Exact Title";
-        var dto = new MetadataScraperDTO
+        var inputList = new List<MetadataScraperDTO>
         {
-            Title = "Exact Title",
-            Authors = ["Author"],
-            Description = "Desc",
-            ReleaseDate = "2024-01-01",
-            Series = "Series",
-            Volume = 1,
-            Pages = 300,
-            CoverUrl = "http://cover.com/cover.png",
-            Categories = ["Fiction"],
-            Tags = ["Tag1"],
+            new()
+            {
+                Title = "A",
+            },
+            new()
+            {
+                Title = "B",
+            },
         };
-        this.mockScraper.Scrape(inputTitle).Returns([dto]);
+        this.scraperManager.Scrape(Arg.Any<MetadataSources>(), Arg.Any<string>()).Returns(inputList);
 
         // Execute
-        var results = await this.testee.ScrapeFromSourceAsnyc(MetadataSources.OpenLibrary, inputTitle);
+        var result = await this.logic.ScrapeFromSourceAsnyc(MetadataSources.OpenLibrary, "title");
 
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(results, Has.Count.EqualTo(1));
-            Assert.That(dto.TitleMatchScore, Is.EqualTo(100)); // perfect match with Fuzz.Ratio
-            Assert.That(dto.CompletenessScore, Is.GreaterThan(0)); // all fields filled
+            Assert.That(result, Has.Count.EqualTo(2));
         });
-    }
-
-    /// <summary>
-    /// Tests ScrapeFromSourceAsnyc returns empty list if scraper returns none.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task ScrapeFromSourceAsync_EmptyListIfNoResults()
-    {
-        // Setup
-        this.mockScraper.Scrape(Arg.Any<string>()).Returns([]);
-
-        // Execute
-        var results = await this.testee.ScrapeFromSourceAsnyc(MetadataSources.OpenLibrary, "Whatever");
-
-        // Assert
-        Assert.That(results, Is.Empty);
     }
 }

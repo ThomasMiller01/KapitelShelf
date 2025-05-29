@@ -13,7 +13,12 @@ namespace KapitelShelf.Api.Logic.MetadataScraper;
 /// <summary>
 /// The OpenLibrary metadata scraper.
 /// </summary>
-public class OpenLibraryMetadataScraper : IMetadataScraper
+/// <remarks>
+/// Initializes a new instance of the <see cref="OpenLibraryMetadataScraper"/> class.
+/// </remarks>
+/// <param name="httpClient">The http client.</param>
+/// <remarks>Add dependency injection for unitests.</remarks>
+public class OpenLibraryMetadataScraper(HttpClient? httpClient = null) : IMetadataScraper
 {
     private static readonly int Limit = 10;
 
@@ -28,14 +33,15 @@ public class OpenLibraryMetadataScraper : IMetadataScraper
                 TimeSpan.FromSeconds(2),
             ]);
 
+    private readonly HttpClient httpClient = httpClient ?? new HttpClient();
+
     /// <inheritdoc />
     public async Task<List<MetadataScraperDTO>> Scrape(string title)
     {
-        var httpClient = new HttpClient();
         var results = new List<MetadataScraperDTO>();
 
         var searchUrl = $"https://openlibrary.org/search.json?title={Uri.EscapeDataString(title)}&limit={Limit}";
-        using var response = await RetryPolicy.ExecuteAsync(() => httpClient.GetAsync(searchUrl));
+        using var response = await RetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(searchUrl));
         response.EnsureSuccessStatusCode();
 
         using var stream = await response.Content.ReadAsStreamAsync();
@@ -67,7 +73,7 @@ public class OpenLibraryMetadataScraper : IMetadataScraper
                     var workUrl = $"https://openlibrary.org{workKey}.json";
                     try
                     {
-                        var workResp = await RetryPolicy.ExecuteAsync(() => httpClient.GetAsync(workUrl));
+                        var workResp = await RetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(workUrl));
                         if (workResp.IsSuccessStatusCode)
                         {
                             using var workStream = await workResp.Content.ReadAsStreamAsync();

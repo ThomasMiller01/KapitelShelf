@@ -76,6 +76,7 @@ builder.Services.AddSingleton<SeriesLogic>();
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<IBookParserManager, BookParserManager>();
 builder.Services.AddSingleton<MetadataLogic>();
+builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
 
 var app = builder.Build();
 
