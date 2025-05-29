@@ -25,7 +25,7 @@ public class MetadataScraperManager : IMetadataScraperManager
         : this(
             new Dictionary<MetadataSources, Type>
             {
-                { MetadataSources.OpenLibrary, typeof(OpenLibraryMetadataScraper) },
+                { MetadataSources.OpenLibrary, typeof(OpenLibraryScraper) },
             })
     {
     }

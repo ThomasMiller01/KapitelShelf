@@ -1,4 +1,4 @@
-﻿// <copyright file="OpenLibraryMetadataScraper.cs" company="KapitelShelf">
+﻿// <copyright file="OpenLibraryScraper.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
@@ -14,11 +14,11 @@ namespace KapitelShelf.Api.Logic.MetadataScraper;
 /// The OpenLibrary metadata scraper.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="OpenLibraryMetadataScraper"/> class.
+/// Initializes a new instance of the <see cref="OpenLibraryScraper"/> class.
 /// </remarks>
 /// <param name="httpClient">The http client.</param>
 /// <remarks>Add dependency injection for unitests.</remarks>
-public class OpenLibraryMetadataScraper(HttpClient? httpClient = null) : IMetadataScraper
+public class OpenLibraryScraper(HttpClient? httpClient = null) : IMetadataScraper
 {
     private static readonly int Limit = 10;
 
