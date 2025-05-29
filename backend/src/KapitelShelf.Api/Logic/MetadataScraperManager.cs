@@ -55,25 +55,11 @@ public class MetadataScraperManager : IMetadataScraperManager
     }
 
     /// <summary>
-    /// Gets the scraper for the given source.
+    /// Compute the completeness score of the metadata.
     /// </summary>
-    /// <param name="source">The metadata source.</param>
-    /// <returns>The metadata scraper.</returns>
-    /// <exception cref="ArgumentException">Scraper could not be found.</exception>
-    private IMetadataScraper GetNewScraper(MetadataSources source)
-    {
-        // get scraper for this source
-        var scraperType = this.metadataScraper
-            .FirstOrDefault(x => x.Key == source).Value
-            ?? throw new ArgumentException("Unsupported file extension", source.ToString());
-
-        // create new scraper foreach request
-        var scraper = Activator.CreateInstance(scraperType) as IMetadataScraper ?? throw new ArgumentException("Scraper must be set");
-        return scraper;
-    }
-
-    // Calculate how complete the metadata is.
-    private static int GetCompletenessScore(MetadataScraperDTO metadata)
+    /// <param name="metadata">The metadata.</param>
+    /// <returns>The completeness score.</returns>
+    internal static int GetCompletenessScore(MetadataScraperDTO metadata)
     {
         int score = 0;
 
@@ -128,5 +114,23 @@ public class MetadataScraperManager : IMetadataScraperManager
         }
 
         return score;
+    }
+
+    /// <summary>
+    /// Gets the scraper for the given source.
+    /// </summary>
+    /// <param name="source">The metadata source.</param>
+    /// <returns>The metadata scraper.</returns>
+    /// <exception cref="ArgumentException">Scraper could not be found.</exception>
+    private IMetadataScraper GetNewScraper(MetadataSources source)
+    {
+        // get scraper for this source
+        var scraperType = this.metadataScraper
+            .FirstOrDefault(x => x.Key == source).Value
+            ?? throw new ArgumentException("Unsupported metadata source", source.ToString());
+
+        // create new scraper foreach request
+        var scraper = Activator.CreateInstance(scraperType) as IMetadataScraper ?? throw new ArgumentException("Scraper must be set");
+        return scraper;
     }
 }
