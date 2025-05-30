@@ -13,12 +13,7 @@ namespace KapitelShelf.Api.Logic.MetadataScraper;
 /// <summary>
 /// The OpenLibrary metadata scraper.
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="OpenLibraryScraper"/> class.
-/// </remarks>
-/// <param name="httpClient">The http client.</param>
-/// <remarks>Add dependency injection for unitests.</remarks>
-public class OpenLibraryScraper(HttpClient? httpClient = null) : IMetadataScraper
+public class OpenLibraryScraper(HttpClient httpClient) : IMetadataScraper
 {
     private static readonly int Limit = 10;
 
@@ -33,7 +28,15 @@ public class OpenLibraryScraper(HttpClient? httpClient = null) : IMetadataScrape
                 TimeSpan.FromSeconds(2),
             ]);
 
-    private readonly HttpClient httpClient = httpClient ?? new HttpClient();
+    private readonly HttpClient httpClient = httpClient;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OpenLibraryScraper"/> class.
+    /// </summary>
+    public OpenLibraryScraper()
+        : this(new HttpClient())
+    {
+    }
 
     /// <inheritdoc />
     public async Task<List<MetadataScraperDTO>> Scrape(string title)
