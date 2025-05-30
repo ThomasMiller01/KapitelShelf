@@ -14,6 +14,7 @@ import FileUploadButton from "../../components/base/FileUploadButton";
 import ItemList from "../../components/base/ItemList";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotImplemented } from "../../hooks/useNotImplemented";
+import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
 import {
   type AuthorDTO,
   type BookDTO,
@@ -32,6 +33,7 @@ import {
 } from "../../utils/FileUtils";
 import { toLocationTypeDTO } from "../../utils/LocationUtils";
 import EditableLocationDetails from "../EditableLocationDetails";
+import MetadataDialog from "../metadata/MetadataDialog";
 
 interface ActionProps {
   name: string;
@@ -177,8 +179,61 @@ const EditableBookDetails = ({
     action.onClick(book, coverFile, bookFile);
   };
 
+  // import metadata
+  const [importMetadataDialogOpen, setImportMetadataDialogOpen] =
+    useState(false);
+  const handleImportMetadata = (metadata: MetadataDTO): void => {
+    setImportMetadataDialogOpen(false);
+
+    let author = methods.getValues("author");
+    if (metadata.authors && metadata.authors.length > 0) {
+      author = metadata.authors[0];
+    }
+
+    let categories = methods.getValues("categories");
+    if (metadata.categories && metadata.categories.length > 0) {
+      categories = metadata.categories;
+    }
+
+    let tags = methods.getValues("tags");
+    if (metadata.tags && metadata.tags.length > 0) {
+      tags = metadata.tags;
+    }
+
+    // update the form values with the imported metadata
+    methods.reset({
+      title: metadata.title ?? methods.getValues("title"),
+      description: metadata.description ?? methods.getValues("description"),
+      author,
+      releaseDate: metadata.releaseDate
+        ? dayjs(metadata.releaseDate)
+        : methods.getValues("releaseDate"),
+      pageNumber: metadata.pages ?? methods.getValues("pageNumber"),
+      categories,
+      tags,
+      series: metadata.series ?? methods.getValues("series"),
+      seriesNumber: metadata.volume ?? methods.getValues("seriesNumber"),
+      locationType: methods.getValues("locationType"),
+      locationUrl: methods.getValues("locationUrl"),
+    });
+
+    // cover
+    if (metadata.coverUrl) {
+      UrlToFile(metadata.coverUrl).then((file) => {
+        const renamedFile = RenameFile(
+          file,
+          metadata.coverUrl?.split("/")[-1] ?? "cover.png"
+        );
+        setCoverFile(renamedFile);
+        setCoverPreview(URL.createObjectURL(renamedFile));
+      });
+    } else {
+      // no cover is set, leave current cover
+    }
+  };
+
   return (
-    <Box mt="15px">
+    <Box margin="15px">
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={{ xs: 1, md: 4 }} columns={11}>
@@ -322,6 +377,7 @@ const EditableBookDetails = ({
                   onFileChange={setBookFile}
                 />
 
+                {/* Categories */}
                 <Stack direction="row" spacing={1} alignItems="start">
                   <CategoryIcon sx={{ mr: "5px !important" }} />
                   <Controller
@@ -330,13 +386,14 @@ const EditableBookDetails = ({
                     render={({ field }) => (
                       <ItemList
                         itemName="Category"
-                        initial={field.value?.map((x) => x ?? "")}
+                        items={field.value?.map((x) => x ?? "")}
                         onChange={field.onChange}
                       />
                     )}
                   />
                 </Stack>
 
+                {/* Tags */}
                 <Stack direction="row" spacing={1} alignItems="start">
                   <LocalOfferIcon sx={{ mr: "5px !important" }} />
                   <Controller
@@ -345,7 +402,7 @@ const EditableBookDetails = ({
                     render={({ field }) => (
                       <ItemList
                         itemName="Tag"
-                        initial={field.value?.map((x) => x ?? "")}
+                        items={field.value?.map((x) => x ?? "")}
                         onChange={field.onChange}
                         variant="outlined"
                       />
@@ -371,8 +428,7 @@ const EditableBookDetails = ({
                       height: "fit-content",
                       whiteSpace: "nowrap",
                     }}
-                    // eslint-disable-next-line no-magic-numbers
-                    onClick={() => trigger(63)}
+                    onClick={() => setImportMetadataDialogOpen(true)}
                   >
                     Import Metadata
                   </Button>
@@ -396,6 +452,20 @@ const EditableBookDetails = ({
               </Stack>
             </Grid>
           </Grid>
+
+          {/* Metadata Import Dialog */}
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => (
+              <MetadataDialog
+                title={field.value}
+                open={importMetadataDialogOpen}
+                onCancel={() => setImportMetadataDialogOpen(false)}
+                onConfirm={handleImportMetadata}
+              />
+            )}
+          />
         </form>
       </FormProvider>
     </Box>

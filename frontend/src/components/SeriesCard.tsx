@@ -4,7 +4,7 @@ import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { SeriesDTO } from "../lib/api/KapitelShelf.Api/api";
 import { CoverUrl } from "../utils/FileUtils";
-import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
+import ItemCardLayout, { MetadataItem } from "./layout/ItemCard/ItemCardLayout";
 
 interface SeriesCardProps {
   series: SeriesDTO;

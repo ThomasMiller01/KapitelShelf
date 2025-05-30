@@ -1,4 +1,3 @@
-import type { TypographyProps } from "@mui/material";
 import {
   Avatar,
   Box,
@@ -9,37 +8,22 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import type { ReactNode } from "react";
 import { type ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useMobile } from "../../hooks/useMobile";
+import { useMobile } from "../../../hooks/useMobile";
+import type { ItemCardLayoutProps } from "./ItemCardLayout";
 
-interface MetadataItemProps extends TypographyProps {
-  isMobile?: boolean;
-}
-
-export const MetadataItem = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== "isMobile",
-})<MetadataItemProps>(({ theme, isMobile }) => ({
-  fontSize: isMobile ? "0.7rem" : "0.9rem",
+export const NormalMetadataItem = styled(Typography)(({ theme }) => ({
+  fontSize: "0.9rem",
   color: theme.palette.text.secondary,
   marginTop: "5px",
 }));
 
-interface ItemCardLayoutProps {
-  title: string | null | undefined;
-  link?: string | null | undefined;
-  image?: string | null | undefined;
-  fallbackImage?: string | null | undefined;
-  badge?: string | null | undefined;
-  squareBadge?: boolean;
-  metadata: ReactNode[];
-}
-
-const ItemCardLayout = ({
+const NormalItemCardLayout = ({
   title,
   link,
+  onClick,
   image,
   fallbackImage,
   badge,
@@ -51,6 +35,19 @@ const ItemCardLayout = ({
   const { isMobile } = useMobile();
 
   const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
+
+  const isClickable = Boolean(link || onClick);
+  const handleClick = (): void => {
+    if (!isClickable) {
+      return;
+    }
+
+    if (onClick) {
+      onClick();
+    } else if (link) {
+      navigate(link);
+    }
+  };
 
   return (
     <Card
@@ -64,10 +61,10 @@ const ItemCardLayout = ({
         maxWidth: 200,
         height: "100%",
       }}
-      onClick={() => link && navigate(link)}
+      onClick={handleClick}
     >
       <Box
-        component={link ? CardActionArea : "div"}
+        component={isClickable ? CardActionArea : "div"}
         height="100%"
         sx={{
           display: "flex",
@@ -77,6 +74,7 @@ const ItemCardLayout = ({
         }}
       >
         <Box position="relative">
+          {/* Image */}
           <CardMedia
             component="img"
             image={imageSrc ?? undefined}
@@ -88,6 +86,8 @@ const ItemCardLayout = ({
               objectFit: "cover",
             }}
           />
+
+          {/* Badge */}
           {badge && (
             <Box position="absolute" bottom="5px" right="5px">
               <Avatar
@@ -104,6 +104,7 @@ const ItemCardLayout = ({
           )}
         </Box>
         <CardContent sx={{ width: "100%", px: "12px", pt: "10px", pb: "8px" }}>
+          {/* Title */}
           <Typography
             variant="h6"
             sx={{
@@ -120,6 +121,8 @@ const ItemCardLayout = ({
           >
             {title}
           </Typography>
+
+          {/* Metadata */}
           {metadata}
         </CardContent>
       </Box>
@@ -127,4 +130,4 @@ const ItemCardLayout = ({
   );
 };
 
-export default ItemCardLayout;
+export default NormalItemCardLayout;

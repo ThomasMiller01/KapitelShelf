@@ -6,7 +6,7 @@ import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 import { CoverUrl } from "../utils/FileUtils";
 import { LocationTypeToString } from "../utils/LocationUtils";
-import ItemCardLayout, { MetadataItem } from "./layout/ItemCardLayout";
+import ItemCardLayout, { MetadataItem } from "./layout/ItemCard/ItemCardLayout";
 
 interface BookCardProps {
   book: BookDTO;
@@ -36,7 +36,7 @@ const BookCard = ({
             {book.author?.firstName} {book.author?.lastName}
           </MetadataItem>
         ) : (
-          <React.Fragment key="no-author"></React.Fragment>
+          <React.Fragment key="no-author" />
         ),
         showMetadata ? (
           <Stack
@@ -55,7 +55,7 @@ const BookCard = ({
             )}
           </Stack>
         ) : (
-          <React.Fragment key="no-metadata"></React.Fragment>
+          <React.Fragment key="no-metadata" />
         ),
       ]}
     />

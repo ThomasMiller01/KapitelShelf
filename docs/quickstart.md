@@ -25,7 +25,7 @@ http://localhost:5173
 ![Create Book Button](./.attachments/quickstart/create_book.png)
 
 3. Fill out the book details: _title_, _description_, ...
-4. _**[Optional]**_ Import metadata _(automatically)_, click the button on the bottom left.
+4. _**[Optional]**_ Import metadata as described in [2.3. Import Metadata](#23-import-metadata).
 5. Click the `Create Book` button on the bottom right.
 
 Your book now appears in your collection.
@@ -79,6 +79,28 @@ Your CSV file must have the following columns and structure:
 | ---------- | -------------- | -------- | ------------------------ | ---------- | ------------ | ----- | ------------------- | ----------------------------- | ------------ | -------------------------------------- |
 | My Title   | My Description | Jane Doe | 2023-04-23T15:20:17.357Z | My Series  | 1            | 100   | Tag1,Tag2           | Category1,Category2           | Skoobe       | https://www.skoobe.de/books/mybook     |
 | My Title 2 | My Description | Jane     | 2023-04-23T15:20:17.357Z | My Series  | 1            | 100   | My Special Tag,Tag2 | My Special Category,Category2 | Kindle       | https://www.amazon.de/mybook/dp/bookid |
+
+## 2.3. Import metadata
+
+1. Click the "Import Metadata" button
+
+![Import metadata button](./.attachments/quickstart/import_metadata_button.png)
+
+KapitelShelf will automatically look for book metadata from the available sources.
+
+> The book **title** will be used as the search key.
+
+![Import metadata dialog](./.attachments/quickstart/import_metadata_dialog.png)
+
+2. Click on a book to import the shown metadata
+
+> The metadata will overwrite existing values.
+
+### Filter sources
+
+You can exclude/include metadata sources by clicking on them.
+
+![Metadata sources](./.attachments/quickstart/import_metadata_sources.png)
 
 ## 3. Browse Your Collection
 
