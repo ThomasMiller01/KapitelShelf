@@ -58,4 +58,14 @@ public class MetadataDTO
     /// Gets or sets the tags of the book.
     /// </summary>
     public List<string> Tags { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the score for how well the title matches the search query.
+    /// </summary>
+    public int TitleMatchScore { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the score for how complete the metadata is.
+    /// </summary>
+    public int CompletenessScore { get; set; } = 0;
 }

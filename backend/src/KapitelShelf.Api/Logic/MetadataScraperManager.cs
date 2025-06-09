@@ -26,6 +26,7 @@ public class MetadataScraperManager : IMetadataScraperManager
             new Dictionary<MetadataSources, Type>
             {
                 { MetadataSources.OpenLibrary, typeof(OpenLibraryScraper) },
+                { MetadataSources.Amazon, typeof(AmazonScraper) },
             })
     {
     }
@@ -37,7 +38,7 @@ public class MetadataScraperManager : IMetadataScraperManager
     }
 
     /// <inheritdoc/>
-    public async Task<List<MetadataScraperDTO>> Scrape(MetadataSources source, string title)
+    public async Task<List<MetadataDTO>> Scrape(MetadataSources source, string title)
     {
         // get new parser foreach file
         var scraper = GetNewScraper(source);
@@ -59,7 +60,7 @@ public class MetadataScraperManager : IMetadataScraperManager
     /// </summary>
     /// <param name="metadata">The metadata.</param>
     /// <returns>The completeness score.</returns>
-    internal static int GetCompletenessScore(MetadataScraperDTO metadata)
+    internal static int GetCompletenessScore(MetadataDTO metadata)
     {
         int score = 0;
 

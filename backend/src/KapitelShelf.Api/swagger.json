@@ -1190,6 +1190,16 @@
             },
             "description": "Gets or sets the tags of the book.",
             "nullable": true
+          },
+          "titleMatchScore": {
+            "type": "integer",
+            "description": "Gets or sets the score for how well the title matches the search query.",
+            "format": "int32"
+          },
+          "completenessScore": {
+            "type": "integer",
+            "description": "Gets or sets the score for how complete the metadata is.",
+            "format": "int32"
           }
         },
         "additionalProperties": false,

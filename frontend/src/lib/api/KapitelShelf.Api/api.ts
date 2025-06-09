@@ -515,6 +515,18 @@ export interface MetadataDTO {
      * @memberof MetadataDTO
      */
     'tags'?: Array<string> | null;
+    /**
+     * Gets or sets the score for how well the title matches the search query.
+     * @type {number}
+     * @memberof MetadataDTO
+     */
+    'titleMatchScore'?: number;
+    /**
+     * Gets or sets the score for how complete the metadata is.
+     * @type {number}
+     * @memberof MetadataDTO
+     */
+    'completenessScore'?: number;
 }
 /**
  * The metadata sources for book metadata scraping.

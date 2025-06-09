@@ -15,7 +15,7 @@ namespace KapitelShelf.Api.Tests.Logic;
 public class MetadataScraperManagerTests
 {
     private MetadataScraperManager testee;
-    private static List<MetadataScraperDTO> scraperReturnList;
+    private static List<MetadataDTO> scraperReturnList;
 
     /// <summary>
     /// Setup: Use a dictionary that points to our fake/mock scraper type.
@@ -41,7 +41,7 @@ public class MetadataScraperManagerTests
         // Setup
         scraperReturnList =
         [
-            new MetadataScraperDTO
+            new MetadataDTO
             {
                 Title = "Match",
                 Authors = ["A"],
@@ -54,7 +54,7 @@ public class MetadataScraperManagerTests
                 Categories = ["category"],
                 Tags = ["tag"],
             },
-            new MetadataScraperDTO
+            new MetadataDTO
             {
                 Title = "Other",
                 Authors = [],
@@ -123,6 +123,6 @@ public class MetadataScraperManagerTests
     /// </summary>
     private sealed class FakeScraper : IMetadataScraper
     {
-        public Task<List<MetadataScraperDTO>> Scrape(string title) => Task.FromResult(scraperReturnList ?? []);
+        public Task<List<MetadataDTO>> Scrape(string title) => Task.FromResult(scraperReturnList ?? []);
     }
 }
