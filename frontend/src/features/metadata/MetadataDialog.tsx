@@ -112,6 +112,13 @@ const MetadataDialog = ({
           />
         </Stack>
         <Grid container spacing={1} mb="10px">
+          {/* Amazon */}
+          <MetadataSourceItem
+            source={MetadataSources.NUMBER_2}
+            selected={selectedSources.includes(MetadataSources.NUMBER_2)}
+            onClick={() => handleSourceClick(MetadataSources.NUMBER_2)}
+          />
+
           {/* OpenLibrary */}
           <MetadataSourceItem
             source={MetadataSources.NUMBER_0}

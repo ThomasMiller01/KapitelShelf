@@ -16,5 +16,5 @@ public interface IMetadataScraper
     /// </summary>
     /// <param name="title">The title of the book.</param>
     /// <returns>A task representing the asynchronous operation, containing the scraped metadata.</returns>
-    Task<List<MetadataScraperDTO>> Scrape(string title);
+    Task<List<MetadataDTO>> Scrape(string title);
 }

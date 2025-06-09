@@ -18,5 +18,10 @@ namespace KapitelShelf.Api.Settings
         /// The key for the duplicate item exception.
         /// </summary>
         public static readonly string DuplicateExceptionKey = "DUPLICATE";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string MetadataScrapingBlockedKey = "METADATA_SCRAPING_BLOCKED";
     }
 }

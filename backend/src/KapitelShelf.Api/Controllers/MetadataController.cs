@@ -3,7 +3,9 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
@@ -34,6 +36,10 @@ public class MetadataController(ILogger<MetadataController> logger, MetadataLogi
         {
             var metadata = await this.logic.ScrapeFromSourceAsnyc(source, title);
             return Ok(metadata);
+        }
+        catch (HttpRequestException ex) when (ex.Message == StaticConstants.MetadataScrapingBlockedKey)
+        {
+            return StatusCode(403, new { error = $"Access to {source.ToSourceName()} was blocked, possibly due to bot detection." });
         }
         catch (Exception ex)
         {

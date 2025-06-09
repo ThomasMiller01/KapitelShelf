@@ -27,6 +27,7 @@ const MetadataList = ({
   const [filteredMetadata, setFilteredMetadata] = useState<MetadataListItem[]>(
     []
   );
+  const [sortedMetadata, setSortedMetadata] = useState<MetadataListItem[]>([]);
 
   useEffect(() => {
     // filter metadata based on selected sources
@@ -39,6 +40,27 @@ const MetadataList = ({
     }
   }, [metadata, sources]);
 
+  useEffect(() => {
+    // sort filteredMetadata
+    // 1. by titleMatchScore
+    // 2. by completenessScore´
+    const sorted = [...filteredMetadata].sort((a, b) => {
+      const aTitleScore = a.titleMatchScore ?? Number.NEGATIVE_INFINITY;
+      const bTitleScore = b.titleMatchScore ?? Number.NEGATIVE_INFINITY;
+
+      if (aTitleScore !== bTitleScore) {
+        return bTitleScore - aTitleScore; // Descending
+      }
+
+      const aComp = a.completenessScore ?? Number.NEGATIVE_INFINITY;
+      const bComp = b.completenessScore ?? Number.NEGATIVE_INFINITY;
+
+      return bComp - aComp; // Descending
+    });
+
+    setSortedMetadata(sorted);
+  }, [filteredMetadata]);
+
   // keep track of added sources to avoid duplicates
   const addedSources = useRef<Set<number>>(new Set());
 
@@ -50,7 +72,11 @@ const MetadataList = ({
 
   // OpenLibrary
   const { data: openLibraryMetadata, isLoading: openLibraryLoading } =
-    useMetadataSource({ source: MetadataSources.NUMBER_0, title });
+    useMetadataSource({
+      source: MetadataSources.NUMBER_0,
+      title,
+      enabled: sources?.includes(MetadataSources.NUMBER_0),
+    });
   useEffect(() => {
     if (
       openLibraryMetadata &&
@@ -67,17 +93,36 @@ const MetadataList = ({
     }
   }, [openLibraryMetadata, title]);
 
-  if (openLibraryLoading) {
+  // Amazon
+  const { data: amazonMetadata, isLoading: amazonLoading } = useMetadataSource({
+    source: MetadataSources.NUMBER_2,
+    title,
+    enabled: sources?.includes(MetadataSources.NUMBER_2),
+  });
+  useEffect(() => {
+    if (amazonMetadata && !addedSources.current.has(MetadataSources.NUMBER_2)) {
+      setMetadata((m) => [
+        ...m,
+        ...amazonMetadata.map((item) => ({
+          ...item,
+          source: MetadataSources.NUMBER_2,
+        })),
+      ]);
+      addedSources.current.add(MetadataSources.NUMBER_2);
+    }
+  }, [amazonMetadata, title]);
+
+  if (openLibraryLoading && amazonLoading) {
     return <LoadingCard delayed small itemName="Metadata" />;
   }
 
-  if (filteredMetadata.length === 0) {
+  if (sortedMetadata.length === 0 && !openLibraryLoading && !amazonLoading) {
     return <NoItemsFoundCard itemName="Metadata" useLogo />;
   }
 
   return (
     <Grid container spacing={2}>
-      {filteredMetadata.map((item, index) => (
+      {sortedMetadata.map((item, index) => (
         <Grid key={index} size={{ xs: 12, lg: 8, xl: 6 }}>
           <MetadataCard
             metadata={item}

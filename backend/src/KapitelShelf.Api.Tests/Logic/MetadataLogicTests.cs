@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Logic;
 using NSubstitute;
@@ -15,7 +14,6 @@ namespace KapitelShelf.Api.Tests.Logic;
 [TestFixture]
 public class MetadataLogicTests
 {
-    private IMapper mapper;
     private IMetadataScraperManager scraperManager;
     private MetadataLogic logic;
 
@@ -25,9 +23,8 @@ public class MetadataLogicTests
     [SetUp]
     public void SetUp()
     {
-        this.mapper = Testhelper.CreateMapper();
         this.scraperManager = Substitute.For<IMetadataScraperManager>();
-        this.logic = new MetadataLogic(this.mapper, this.scraperManager);
+        this.logic = new MetadataLogic(this.scraperManager);
     }
 
     /// <summary>
@@ -38,7 +35,7 @@ public class MetadataLogicTests
     public async Task ScrapeFromSourceAsnyc_ReturnsSortedAndMappedResults()
     {
         // Setup
-        var inputList = new List<MetadataScraperDTO>
+        var inputList = new List<MetadataDTO>
         {
             new()
             {
@@ -100,7 +97,7 @@ public class MetadataLogicTests
     public async Task ScrapeFromSourceAsnyc_MapsAllItems()
     {
         // Setup
-        var inputList = new List<MetadataScraperDTO>
+        var inputList = new List<MetadataDTO>
         {
             new()
             {

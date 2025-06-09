@@ -5,29 +5,14 @@
 using System.Text.Json;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Extensions;
-using Polly;
-using Polly.Retry;
 
 namespace KapitelShelf.Api.Logic.MetadataScraper;
 
 /// <summary>
 /// The OpenLibrary metadata scraper.
 /// </summary>
-public class OpenLibraryScraper(HttpClient httpClient) : IMetadataScraper
+public class OpenLibraryScraper(HttpClient httpClient) : MetadataScraperBase
 {
-    private static readonly int Limit = 10;
-
-    // Polly retry policy: 3 retries with exponential backoff (0.5s, 1s, 2s)
-    private static readonly AsyncRetryPolicy RetryPolicy = Policy
-            .Handle<HttpRequestException>()
-            .Or<TaskCanceledException>()
-            .WaitAndRetryAsync(
-            [
-                TimeSpan.FromMilliseconds(500),
-                TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(2),
-            ]);
-
     private readonly HttpClient httpClient = httpClient;
 
     /// <summary>
@@ -39,12 +24,12 @@ public class OpenLibraryScraper(HttpClient httpClient) : IMetadataScraper
     }
 
     /// <inheritdoc />
-    public async Task<List<MetadataScraperDTO>> Scrape(string title)
+    public override async Task<List<MetadataDTO>> Scrape(string title)
     {
-        var results = new List<MetadataScraperDTO>();
+        var results = new List<MetadataDTO>();
 
         var searchUrl = $"https://openlibrary.org/search.json?title={Uri.EscapeDataString(title)}&limit={Limit}";
-        using var response = await RetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(searchUrl));
+        using var response = await ScrapeRetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(searchUrl));
         response.EnsureSuccessStatusCode();
 
         using var stream = await response.Content.ReadAsStreamAsync();
@@ -54,7 +39,7 @@ public class OpenLibraryScraper(HttpClient httpClient) : IMetadataScraper
         foreach (var item in docs.EnumerateArray())
         {
             // Basic book data
-            var metadata = new MetadataScraperDTO
+            var metadata = new MetadataDTO
             {
                 Title = item.GetPropertyOrDefault("title") ?? title,
                 Authors = item.GetArrayOrDefault("author_name"),
@@ -76,7 +61,7 @@ public class OpenLibraryScraper(HttpClient httpClient) : IMetadataScraper
                     var workUrl = $"https://openlibrary.org{workKey}.json";
                     try
                     {
-                        var workResp = await RetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(workUrl));
+                        var workResp = await ScrapeRetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(workUrl));
                         if (workResp.IsSuccessStatusCode)
                         {
                             using var workStream = await workResp.Content.ReadAsStreamAsync();

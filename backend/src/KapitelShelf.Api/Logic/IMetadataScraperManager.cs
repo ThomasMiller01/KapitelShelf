@@ -17,5 +17,5 @@ public interface IMetadataScraperManager
     /// <param name="source">The metadata source.</param>
     /// <param name="title">The title to filter for.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task<List<MetadataScraperDTO>> Scrape(MetadataSources source, string title);
+    Task<List<MetadataDTO>> Scrape(MetadataSources source, string title);
 }
