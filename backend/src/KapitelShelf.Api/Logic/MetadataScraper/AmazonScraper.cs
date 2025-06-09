@@ -223,7 +223,7 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
             return null;
         }
 
-        var releaseDateValueNode = releaseDateNode.SelectSingleNode(".//span[contains(@class, 'rpi-attribute-value')]");
+        var releaseDateValueNode = releaseDateNode.SelectSingleNode(".//div[contains(@class, 'rpi-attribute-value')]");
         if (releaseDateValueNode is null)
         {
             return null;
@@ -232,7 +232,7 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
         var releaseDateText = releaseDateValueNode.InnerText.Trim();
         if (DateTime.TryParse(releaseDateText, CultureInfo.InvariantCulture, out var dt))
         {
-            return dt.ToUniversalTime().ToString(CultureInfo.InvariantCulture);
+            return dt.ToString(CultureInfo.InvariantCulture);
         }
         else
         {
@@ -242,15 +242,15 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
 
     private static int? ParsePages(HtmlDocument document)
     {
-        var pagesNode = document.DocumentNode
-            .SelectSingleNode("//div[@data-rpi-attribute-name='book_details-publication_date']");
+        var pagesNode = document.DocumentNode.SelectSingleNode("//div[@data-rpi-attribute-name='book_details-ebook_pages']")
+            ?? document.DocumentNode.SelectSingleNode("//div[@data-rpi-attribute-name='book_details-fiona_pages']");
 
         if (pagesNode is null)
         {
             return null;
         }
 
-        var pagesValueNode = pagesNode.SelectSingleNode(".//span[contains(@class, 'book_details-ebook_pages')]");
+        var pagesValueNode = pagesNode.SelectSingleNode(".//div[contains(@class, 'rpi-attribute-value')]");
         if (pagesValueNode is null)
         {
             return null;
