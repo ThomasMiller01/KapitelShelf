@@ -2,7 +2,8 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CollectionsBookmarkIcon from "@mui/icons-material/CollectionsBookmark";
 import DescriptionIcon from "@mui/icons-material/Description";
 import PersonIcon from "@mui/icons-material/Person";
-import { Box, Chip, Grid, Stack } from "@mui/material";
+import type { TooltipProps } from "@mui/material";
+import { Box, Chip, Grid, Stack, styled, tooltipClasses } from "@mui/material";
 import { Tooltip } from "@mui/material";
 import { type ReactElement } from "react";
 
@@ -14,6 +15,17 @@ import type {
 } from "../lib/api/KapitelShelf.Api/api";
 import { MetadataSourceToString } from "../utils/MetadataUtils";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCard/ItemCardLayout";
+
+const MissingItemsTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 500,
+    backgroundColor: theme.palette.background.paper,
+    backgroundImage:
+      "linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03))",
+  },
+}));
 
 interface MetadataCardProps {
   metadata: MetadataDTO;
@@ -218,7 +230,17 @@ const ItemsMetadata = ({
         />
       ))}
       {items.length > maxItems && (
-        <Tooltip title="test">
+        <MissingItemsTooltip
+          title={
+            <MissingItems
+              missingItems={items.slice(maxItems)}
+              variant={variant}
+              color={color}
+            />
+          }
+          arrow
+          placement="top"
+        >
           <Chip
             label="..."
             variant={variant}
@@ -226,10 +248,35 @@ const ItemsMetadata = ({
             size="small"
             sx={{ my: "4px !important" }}
           />
-        </Tooltip>
+        </MissingItemsTooltip>
       )}
     </Stack>
   </Grid>
+);
+
+interface MissingItemsProps {
+  missingItems: string[];
+  variant?: "outlined" | "filled";
+  color?: "default" | "primary";
+}
+
+const MissingItems = ({
+  missingItems,
+  variant,
+  color,
+}: MissingItemsProps): ReactElement => (
+  <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
+    {missingItems.map((missingItem, index) => (
+      <Chip
+        key={index}
+        label={missingItem}
+        variant={variant}
+        color={color}
+        size="small"
+        sx={{ my: "4px !important" }}
+      />
+    ))}
+  </Stack>
 );
 
 export default MetadataCard;
