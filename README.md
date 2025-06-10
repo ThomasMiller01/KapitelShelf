@@ -15,7 +15,7 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
   - Bulk import from CSV ([see Guide](docs/quickstart.md#22-import-in-bulk-from-csv))
 - Browse and search books, series, author and tags _(planned)_
 - Full user metadata editing (notes, read status, favorite) _(planned)_
-  - Import metadata from OpenLibrary ([see Guide](docs/quickstart.md#23-import-metadata))
+  - Import metadata from Amazon, Google and OpenLibrary ([see Guide](docs/quickstart.md#23-import-metadata))
 - Shelves and filtering (tags, categories, series, location) _(planned)_
 - OPDS support for eReaders _(planned)_
 
