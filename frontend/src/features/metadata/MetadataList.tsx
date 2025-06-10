@@ -1,5 +1,6 @@
 import { Grid } from "@mui/material";
 import { type ReactElement, useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
@@ -10,6 +11,7 @@ import { MetadataSources } from "../../lib/api/KapitelShelf.Api/api";
 
 interface MetadataListItem extends MetadataDTO {
   source: MetadataSources;
+  id: string;
 }
 
 interface MetadataListProps {
@@ -87,6 +89,7 @@ const MetadataList = ({
         ...openLibraryMetadata.map((item) => ({
           ...item,
           source: MetadataSources.NUMBER_0,
+          id: uuidv4(),
         })),
       ]);
       addedSources.current.add(MetadataSources.NUMBER_0);
@@ -106,6 +109,7 @@ const MetadataList = ({
         ...amazonMetadata.map((item) => ({
           ...item,
           source: MetadataSources.NUMBER_2,
+          id: uuidv4(),
         })),
       ]);
       addedSources.current.add(MetadataSources.NUMBER_2);
@@ -125,6 +129,7 @@ const MetadataList = ({
         ...googleMetadata.map((item) => ({
           ...item,
           source: MetadataSources.NUMBER_1,
+          id: uuidv4(),
         })),
       ]);
       addedSources.current.add(MetadataSources.NUMBER_1);
@@ -149,8 +154,8 @@ const MetadataList = ({
 
   return (
     <Grid container spacing={2}>
-      {sortedMetadata.map((item, index) => (
-        <Grid key={index} size={{ xs: 12, lg: 8, xl: 6 }}>
+      {sortedMetadata.map((item) => (
+        <Grid key={item.id} size={{ xs: 12, lg: 8, xl: 6 }}>
           <MetadataCard
             metadata={item}
             onClick={onClick}
