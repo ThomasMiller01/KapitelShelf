@@ -15,6 +15,14 @@ namespace KapitelShelf.Api.Logic.MetadataScraper;
 /// </summary>
 public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
 {
+    /// <summary>
+    /// Override the limit for amazon.
+    /// </summary>
+    /// <remarks>
+    /// Amazon blocks scraping requests fairly quickly.
+    /// </remarks>
+    protected static new readonly int Limit = 5;
+
     private readonly HttpClient httpClient = httpClient;
 
     /// <summary>

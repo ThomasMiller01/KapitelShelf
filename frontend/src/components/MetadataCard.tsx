@@ -3,6 +3,7 @@ import CollectionsBookmarkIcon from "@mui/icons-material/CollectionsBookmark";
 import DescriptionIcon from "@mui/icons-material/Description";
 import PersonIcon from "@mui/icons-material/Person";
 import { Box, Chip, Grid, Stack } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
@@ -167,19 +168,12 @@ const CategoriesMetadata = ({ metadata }: MetadataProps): ReactElement => {
   }
 
   return (
-    <Grid size={12}>
-      <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
-        {metadata.categories.map((category, index) => (
-          <Chip
-            key={index}
-            label={category}
-            color="primary"
-            size="small"
-            sx={{ my: "4px !important" }}
-          />
-        ))}
-      </Stack>
-    </Grid>
+    <ItemsMetadata
+      items={metadata.categories}
+      maxItems={3}
+      variant="filled"
+      color="primary"
+    />
   );
 };
 
@@ -189,20 +183,53 @@ const TagsMetadata = ({ metadata }: MetadataProps): ReactElement => {
   }
 
   return (
-    <Grid size={12}>
-      <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
-        {metadata.tags.map((tag, index) => (
+    <ItemsMetadata
+      items={metadata.tags}
+      maxItems={3}
+      variant="outlined"
+      color="default"
+    />
+  );
+};
+
+interface ItemsMetadataProps {
+  items: string[];
+  maxItems?: number;
+  variant?: "outlined" | "filled";
+  color?: "default" | "primary";
+}
+
+const ItemsMetadata = ({
+  items,
+  maxItems = 3,
+  variant = "outlined",
+  color = "default",
+}: ItemsMetadataProps): ReactElement => (
+  <Grid size={12}>
+    <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
+      {items.slice(0, maxItems).map((item, index) => (
+        <Chip
+          key={index}
+          label={item}
+          variant={variant}
+          color={color}
+          size="small"
+          sx={{ my: "4px !important" }}
+        />
+      ))}
+      {items.length > maxItems && (
+        <Tooltip title="test">
           <Chip
-            key={index}
-            label={tag}
-            variant="outlined"
+            label="..."
+            variant={variant}
+            color={color}
             size="small"
             sx={{ my: "4px !important" }}
           />
-        ))}
-      </Stack>
-    </Grid>
-  );
-};
+        </Tooltip>
+      )}
+    </Stack>
+  </Grid>
+);
 
 export default MetadataCard;

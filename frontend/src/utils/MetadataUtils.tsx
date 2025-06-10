@@ -6,6 +6,6 @@ interface MetadataSourceToStringResult {
 
 export const MetadataSourceToString: MetadataSourceToStringResult = {
   [MetadataSources.NUMBER_0]: "OpenLibrary",
-  [MetadataSources.NUMBER_1]: "GoogleBooks",
+  [MetadataSources.NUMBER_1]: "Google",
   [MetadataSources.NUMBER_2]: "Amazon",
 };

@@ -41,6 +41,10 @@ public class MetadataController(ILogger<MetadataController> logger, MetadataLogi
         {
             return StatusCode(403, new { error = $"Access to {source.ToSourceName()} was blocked, possibly due to bot detection." });
         }
+        catch (HttpRequestException)
+        {
+            return StatusCode(403, new { error = $"Could not fetch metadata from {source.ToSourceName()}." });
+        }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error scraping metadata from: '{Source}'", source);

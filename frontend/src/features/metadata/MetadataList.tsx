@@ -112,11 +112,38 @@ const MetadataList = ({
     }
   }, [amazonMetadata, title]);
 
-  if (openLibraryLoading && amazonLoading) {
+  // Google
+  const { data: googleMetadata, isLoading: googleLoading } = useMetadataSource({
+    source: MetadataSources.NUMBER_1,
+    title,
+    enabled: sources?.includes(MetadataSources.NUMBER_1),
+  });
+  useEffect(() => {
+    if (googleMetadata && !addedSources.current.has(MetadataSources.NUMBER_1)) {
+      setMetadata((m) => [
+        ...m,
+        ...googleMetadata.map((item) => ({
+          ...item,
+          source: MetadataSources.NUMBER_1,
+        })),
+      ]);
+      addedSources.current.add(MetadataSources.NUMBER_1);
+    }
+  }, [googleMetadata, title]);
+
+  if (
+    sortedMetadata.length === 0 &&
+    (openLibraryLoading || amazonLoading || googleLoading)
+  ) {
     return <LoadingCard delayed small itemName="Metadata" />;
   }
 
-  if (sortedMetadata.length === 0 && !openLibraryLoading && !amazonLoading) {
+  if (
+    sortedMetadata.length === 0 &&
+    !openLibraryLoading &&
+    !amazonLoading &&
+    !googleLoading
+  ) {
     return <NoItemsFoundCard itemName="Metadata" useLogo />;
   }
 
