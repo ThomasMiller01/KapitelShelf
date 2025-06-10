@@ -45,11 +45,6 @@ const MetadataCard = ({
     onClick={onClick ? (): void => onClick(metadata) : undefined}
     image={metadata.coverUrl}
     fallbackImage={bookCover}
-    badge={
-      metadata.volume !== null && metadata.volume !== 0
-        ? metadata.volume?.toString()
-        : ""
-    }
     squareBadge={true}
     metadata={[
       <AuthorMetadata key="author" metadata={metadata} />,
