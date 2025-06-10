@@ -119,6 +119,13 @@ const MetadataDialog = ({
             onClick={() => handleSourceClick(MetadataSources.NUMBER_2)}
           />
 
+          {/* Google */}
+          <MetadataSourceItem
+            source={MetadataSources.NUMBER_1}
+            selected={selectedSources.includes(MetadataSources.NUMBER_1)}
+            onClick={() => handleSourceClick(MetadataSources.NUMBER_1)}
+          />
+
           {/* OpenLibrary */}
           <MetadataSourceItem
             source={MetadataSources.NUMBER_0}

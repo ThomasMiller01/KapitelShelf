@@ -27,6 +27,7 @@ public class MetadataScraperManager : IMetadataScraperManager
             {
                 { MetadataSources.OpenLibrary, typeof(OpenLibraryScraper) },
                 { MetadataSources.Amazon, typeof(AmazonScraper) },
+                { MetadataSources.GoogleBooks, typeof(GoogleScraper) },
             })
     {
     }
