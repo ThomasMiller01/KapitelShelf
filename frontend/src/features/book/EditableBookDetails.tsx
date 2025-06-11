@@ -13,7 +13,6 @@ import bookCover from "../../assets/books/nocover.png";
 import FileUploadButton from "../../components/base/FileUploadButton";
 import ItemList from "../../components/base/ItemList";
 import { useMobile } from "../../hooks/useMobile";
-import { useNotImplemented } from "../../hooks/useNotImplemented";
 import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
 import {
   type AuthorDTO,
@@ -51,7 +50,6 @@ const EditableBookDetails = ({
   action,
 }: EditableBookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
-  const trigger = useNotImplemented();
 
   let initialAuthor = initial?.author?.firstName ?? "";
   if (initial?.author?.lastName) {
