@@ -94,7 +94,7 @@ const LocationSettings = ({
   const locationType = useWatch({
     control,
     name: "locationType",
-    defaultValue: "1",
+    defaultValue: initial?.location?.type,
   });
   const { setValue } = useFormContext<BookFormValues>();
 
