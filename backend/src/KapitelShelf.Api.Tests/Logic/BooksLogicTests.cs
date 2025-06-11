@@ -1202,7 +1202,13 @@ public class BooksLogicTests
         this.bookParserManager.IsBulkFile(file).Returns(false);
         this.bookParserManager.Parse(file).Returns(Task.FromResult(parsingResult));
 
-        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO()));
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO
+        {
+            FilePath = "/path/to/singlebook.pdf",
+            FileSizeBytes = 123456,
+            MimeType = "application/pdf",
+            Sha256 = "sha256",
+        }));
 
         // Execute
         var result = await this.testee.ImportBookAsync(file);
@@ -1219,6 +1225,7 @@ public class BooksLogicTests
             Assert.That(result.ImportedBooks[0].Title, Is.EqualTo("SingleBook"));
             Assert.That(result.Errors, Is.Empty);
         });
+        await this.bookStorage.Received().Save(Arg.Any<Guid>(), file);
     }
 
     /// <summary>
