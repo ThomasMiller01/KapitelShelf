@@ -50,7 +50,10 @@ public class GoogleScraper(HttpClient httpClient) : MetadataScraperBase
             string? coverUrl = null;
             if (info.TryGetProperty("imageLinks", out var imgLinks) && imgLinks.TryGetProperty("thumbnail", out var thumbnail))
             {
-                coverUrl = thumbnail.GetString();
+                var httpCoverUrl = thumbnail.GetString();
+                var httpsCoverUrl = httpCoverUrl?.Replace("http://", "https://", StringComparison.OrdinalIgnoreCase);
+
+                coverUrl = httpCoverUrl;
             }
 
             var metadata = new MetadataDTO
