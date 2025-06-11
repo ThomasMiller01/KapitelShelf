@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.2.0...helm@0.2.1) (2025-06-11)
+
+### Features
+
+* new kapitelshelf release ([#110](https://github.com/ThomasMiller01/KapitelShelf/issues/110)) ([7661a84](https://github.com/ThomasMiller01/KapitelShelf/commit/7661a847d2b5c512dac4ed39270b7b13ec48c5e4))
+
 ## [0.2.0](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.1.5...helm@0.2.0) (2025-05-09)
 
 

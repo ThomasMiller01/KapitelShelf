@@ -2,7 +2,7 @@
 
 KapitelShelf helm chart for deploying the KapitelShelf application stack, including optional PostgreSQL database support. Provides a flexible setup for both self-contained and external database configurations.
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) 
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) 
 
 **Homepage:** <https://github.com/ThomasMiller01/KapitelShelf>
 
@@ -44,7 +44,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | api.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | api.image.repository | string | `"thomasmiller01/kapitelshelf-api"` | Docker image repository |
-| api.image.tag | string | `"0.2.0"` | Docker image tag |
+| api.image.tag | string | `"0.2.1"` | Docker image tag |
 | api.ingress.annotations | object | `{}` | Additional annotations<br /> e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"` |
 | api.ingress.enabled | bool | `false` | Whether to enable an ingress resource for the api |
 | api.ingress.host | string | `nil` | Hostname for the api ingress<br /> e.g. `"api.example.com"` |
@@ -60,7 +60,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | frontend.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | frontend.image.repository | string | `"thomasmiller01/kapitelshelf-frontend"` | Docker image repository |
-| frontend.image.tag | string | `"0.2.0"` | Docker image tag |
+| frontend.image.tag | string | `"0.2.2"` | Docker image tag |
 | frontend.ingress.annotations | object | `{}` | Additional annotations<br /> e.g. `cert-manager.io/cluster-issuer: "letsencrypt-prod"` |
 | frontend.ingress.enabled | bool | `false` | Whether to enable an ingress resource for the frontend |
 | frontend.ingress.host | string | `nil` | Hostname for the frontend ingress<br /> e.g. `"frontend.example.com"` |
@@ -84,7 +84,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 |-----|------|---------|-------------|
 | migrator.image.pullPolicy | string | `"IfNotPresent"` | Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images) |
 | migrator.image.repository | string | `"thomasmiller01/kapitelshelf-migrator"` | Docker image repository |
-| migrator.image.tag | string | `"0.1.1"` | Docker image tag |
+| migrator.image.tag | string | `"0.1.2"` | Docker image tag |
 | migrator.resources.limits | object | `{"cpu":"200m","memory":"256Mi"}` | Sets the migrator container resources limits |
 | migrator.resources.requests | object | `{"cpu":"100m","memory":"128Mi"}` | Sets the migrator container resources limits |
 
