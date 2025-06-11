@@ -1,10 +1,12 @@
 import { Button, Link, Stack, Typography } from "@mui/material";
+import Divider from "@mui/material/Divider";
 import type { SnackbarKey } from "notistack";
 import { useSnackbar } from "notistack";
 import type { ReactElement } from "react";
 import { useCallback, useRef, useState } from "react";
 
 import { DotsProgress } from "../components/base/feedback/DotsProgress";
+import { useMobile } from "./useMobile";
 
 interface triggerApiProps {
   operation: string | undefined;
@@ -119,12 +121,32 @@ const LoadingMessage = ({ operation }: triggerLoadingProps): ReactElement => (
 const ErrorMessage = ({
   operation,
   errorMessage,
-}: triggerErrorProps): ReactElement => (
-  <Stack direction="row" spacing={0.5} alignItems="center">
-    <Typography>{operation} failed:</Typography>
-    <Typography>{errorMessage}</Typography>
-  </Stack>
-);
+}: triggerErrorProps): ReactElement => {
+  const { isMobile } = useMobile();
+  return (
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={{ xs: 0, md: 0.5 }}
+      alignItems={{ xs: "left", md: "center" }}
+      divider={
+        isMobile ? (
+          <Divider
+            sx={{
+              borderColor: "white",
+              opacity: "0.85",
+              mb: "6px !important",
+            }}
+          />
+        ) : undefined
+      }
+    >
+      <Typography>{operation} failed:</Typography>
+      <Typography fontSize={isMobile ? "0.85rem" : "1rem"}>
+        {errorMessage}
+      </Typography>
+    </Stack>
+  );
+};
 
 const SuccessMessage = ({ operation }: triggerApiProps): ReactElement => (
   <Stack direction="row" spacing={0.5} alignItems="center">
