@@ -525,7 +525,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         try
         {
-            var bookDto = await this.CreateBookFromParsingResult(parsingResult, null);
+            var bookDto = await this.CreateBookFromParsingResult(parsingResult, file);
             importResult.ImportedBooks.Add(new ImportBookDTO
             {
                 Id = bookDto.Id,
