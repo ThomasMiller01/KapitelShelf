@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.2.1...frontend@0.2.2) (2025-06-11)
+
+
+### Bug Fixes
+
+* frontend build error ([c3b8884](https://github.com/ThomasMiller01/KapitelShelf/commit/c3b88842d0f2b8f6c631c02a7ca68867c786255b))
+
 ## [0.2.1](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.2.0...frontend@0.2.1) (2025-06-11)
 
 ### Features
