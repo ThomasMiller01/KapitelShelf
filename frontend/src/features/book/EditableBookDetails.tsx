@@ -4,15 +4,17 @@ import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { Box, Button, Divider, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
+import { useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-import bookCover from "../../assets/books/nocover.png";
 import FileUploadButton from "../../components/base/FileUploadButton";
 import ItemList from "../../components/base/ItemList";
+import { useCoverImage } from "../../hooks/useCoverImage";
 import { useMobile } from "../../hooks/useMobile";
+import { metadataApi } from "../../lib/api/KapitelShelf.Api";
 import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
 import {
   type AuthorDTO,
@@ -24,14 +26,9 @@ import {
 import type { BookFormValues } from "../../lib/schemas/BookSchema";
 import { BookSchema } from "../../lib/schemas/BookSchema";
 import { ImageTypes } from "../../utils/FileTypesUtils";
-import {
-  BookFileUrl,
-  CoverUrl,
-  RenameFile,
-  UrlToFile,
-} from "../../utils/FileUtils";
+import { BookFileUrl, RenameFile, UrlToFile } from "../../utils/FileUtils";
 import { toLocationTypeDTO } from "../../utils/LocationUtils";
-import EditableLocationDetails from "../EditableLocationDetails";
+import EditableLocationDetails from "../location/EditableLocationDetails";
 import MetadataDialog from "../metadata/MetadataDialog";
 
 interface ActionProps {
@@ -83,21 +80,6 @@ const EditableBookDetails = ({
   } = methods;
 
   useEffect(() => {
-    // set initial cover
-    const coverUrl = CoverUrl(initial);
-    if (coverUrl !== undefined) {
-      UrlToFile(coverUrl).then((file) => {
-        const renamedFile = RenameFile(
-          file,
-          initial?.cover?.fileName ?? "cover.png"
-        );
-        setCoverFile(renamedFile);
-      });
-    } else {
-      // no cover is set, use default bookCover
-      UrlToFile(bookCover).then((file) => setCoverFile(file));
-    }
-
     const bookFileUrl = BookFileUrl(initial);
     if (bookFileUrl !== undefined) {
       UrlToFile(bookFileUrl).then((file) => {
@@ -113,21 +95,11 @@ const EditableBookDetails = ({
     triggerValidation();
   }, [triggerValidation, initial]);
 
-  const [coverFile, setCoverFile] = useState<File>();
+  const { coverImage, coverFile, updateCoverFromFile, onLoadingError } =
+    useCoverImage({
+      initial,
+    });
   const [bookFile, setBookFile] = useState<File>();
-
-  const [coverPreview, setCoverPreview] = useState<string>(bookCover);
-
-  // preview the cover
-  useEffect(() => {
-    if (coverFile === undefined) {
-      return;
-    }
-
-    const url = URL.createObjectURL(coverFile);
-    setCoverPreview(url);
-    return (): void => URL.revokeObjectURL(url);
-  }, [coverFile, setCoverPreview]);
 
   const onSubmit = (data: BookFormValues): void => {
     if (action === undefined || coverFile === undefined) {
@@ -177,6 +149,12 @@ const EditableBookDetails = ({
     action.onClick(book, coverFile, bookFile);
   };
 
+  const { mutateAsync: mutateProxyCover } = useMutation({
+    mutationKey: ["proxy-cover"],
+    mutationFn: async (coverUrl: string) =>
+      metadataApi.metadataProxyCoverGet(coverUrl, { responseType: "blob" }),
+  });
+
   // import metadata
   const [importMetadataDialogOpen, setImportMetadataDialogOpen] =
     useState(false);
@@ -189,13 +167,15 @@ const EditableBookDetails = ({
     }
 
     let categories = methods.getValues("categories");
-    if (metadata.categories && metadata.categories.length > 0) {
-      categories = metadata.categories;
+    const { categories: importedCategories } = metadata;
+    if (importedCategories && importedCategories.length > 0) {
+      categories = importedCategories;
     }
 
     let tags = methods.getValues("tags");
-    if (metadata.tags && metadata.tags.length > 0) {
-      tags = metadata.tags;
+    const { tags: importedTags } = metadata;
+    if (importedTags && importedTags.length > 0) {
+      tags = importedTags;
     }
 
     // update the form values with the imported metadata
@@ -217,13 +197,9 @@ const EditableBookDetails = ({
 
     // cover
     if (metadata.coverUrl) {
-      UrlToFile(metadata.coverUrl).then((file) => {
-        const renamedFile = RenameFile(
-          file,
-          metadata.coverUrl?.split("/")[-1] ?? "cover.png"
-        );
-        setCoverFile(renamedFile);
-        setCoverPreview(URL.createObjectURL(renamedFile));
+      // use proxy-cover endpoint to prevent CORS issues from google
+      mutateProxyCover(metadata.coverUrl).then((response) => {
+        updateCoverFromFile(response.data);
       });
     } else {
       // no cover is set, leave current cover
@@ -240,8 +216,8 @@ const EditableBookDetails = ({
             <Grid size={{ xs: 11, md: 2.5 }}>
               <Stack spacing={1} alignItems="center">
                 <img
-                  src={coverPreview}
-                  alt={"Book Cover"}
+                  src={coverImage}
+                  onError={onLoadingError}
                   style={{
                     width: "100%",
                     borderRadius: 2,
@@ -250,8 +226,9 @@ const EditableBookDetails = ({
                     marginRight: isMobile ? "auto" : 0,
                   }}
                 />
+
                 <FileUploadButton
-                  onFileChange={setCoverFile}
+                  onFileChange={updateCoverFromFile}
                   accept={ImageTypes}
                 >
                   Upload Cover

@@ -6,13 +6,12 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PersonIcon from "@mui/icons-material/Person";
 import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
 import type { ReactNode } from "react";
-import { type ReactElement, useState } from "react";
+import { type ReactElement } from "react";
 
-import bookCover from "../../assets/books/nocover.png";
+import { useCoverImage } from "../../hooks/useCoverImage";
 import { useMobile } from "../../hooks/useMobile";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { CoverUrl } from "../../utils/FileUtils";
-import LocationDetails from "../LocationDetails";
+import LocationDetails from "../location/LocationDetails";
 
 interface MetadataItemProps {
   icon: ReactNode;
@@ -39,8 +38,7 @@ interface BookDetailsProps {
 
 const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
-
-  const [imageSrc, setImageSrc] = useState(CoverUrl(book) ?? bookCover);
+  const { coverImage, onLoadingError } = useCoverImage({ initial: book });
 
   return (
     <Box p={3}>
@@ -50,9 +48,8 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
         <Grid size={{ xs: 11, md: 2.5 }}>
           <Stack>
             <img
-              src={imageSrc ?? undefined}
-              onError={() => setImageSrc(bookCover)}
-              alt={book.title ?? "Book Cover"}
+              src={coverImage}
+              onError={onLoadingError}
               style={{
                 width: "100%",
                 borderRadius: 2,

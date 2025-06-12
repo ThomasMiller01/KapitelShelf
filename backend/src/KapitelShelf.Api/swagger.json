@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "KapitelShelf.Api, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null",
+    "title": "KapitelShelf.Api, Version=0.2.1.0, Culture=neutral, PublicKeyToken=null",
     "version": "1.0"
   },
   "paths": {
@@ -440,6 +440,49 @@
                   "items": {
                     "$ref": "#/components/schemas/MetadataDTO"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metadata/proxy-cover": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Download images server-side as a proxy for the client.",
+        "parameters": [
+          {
+            "name": "coverUrl",
+            "in": "query",
+            "description": "The url of the cover to proxy.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }

@@ -51,4 +51,24 @@ public class MetadataController(ILogger<MetadataController> logger, MetadataLogi
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
+
+    /// <summary>
+    /// Download images server-side as a proxy for the client.
+    /// </summary>
+    /// <param name="coverUrl">The url of the cover to proxy.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("proxy-cover")]
+    public async Task<ActionResult<IFormFile>> ProxyCover([FromQuery] string coverUrl)
+    {
+        try
+        {
+            var (data, contentType) = await this.logic.ProxyCover(coverUrl);
+            return File(data, contentType);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error prroxy-fetching cover from: '{CoverUrl}'", coverUrl);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
 }
