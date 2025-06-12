@@ -31,7 +31,7 @@ import {
   UrlToFile,
 } from "../../utils/FileUtils";
 import { toLocationTypeDTO } from "../../utils/LocationUtils";
-import EditableLocationDetails from "../EditableLocationDetails";
+import EditableLocationDetails from "../location/EditableLocationDetails";
 import MetadataDialog from "../metadata/MetadataDialog";
 
 interface ActionProps {

@@ -4,18 +4,18 @@ import DownloadIcon from "@mui/icons-material/Download";
 import { Button, Link, Stack } from "@mui/material";
 import { type ReactElement } from "react";
 
-import { useNotImplemented } from "../hooks/useNotImplemented";
+import { useNotImplemented } from "../../hooks/useNotImplemented";
 import type {
   LocationDTO,
   LocationTypeDTO,
-} from "../lib/api/KapitelShelf.Api/api";
+} from "../../lib/api/KapitelShelf.Api/api";
 import {
   FileUrl,
   LocalTypes,
   LocationTypeToString,
   RealWorldTypes,
   UrlTypes,
-} from "../utils/LocationUtils";
+} from "../../utils/LocationUtils";
 
 const RealWorldTypeToText = (type: LocationTypeDTO | undefined): string => {
   switch (type) {

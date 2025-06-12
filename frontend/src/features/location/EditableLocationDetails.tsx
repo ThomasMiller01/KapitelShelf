@@ -18,16 +18,16 @@ import {
   useWatch,
 } from "react-hook-form";
 
-import FileUploadButton from "../components/base/FileUploadButton";
-import { useMobile } from "../hooks/useMobile";
-import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
-import type { BookFormValues } from "../lib/schemas/BookSchema";
-import { BookFileUrl, RenameFile, UrlToFile } from "../utils/FileUtils";
+import FileUploadButton from "../../components/base/FileUploadButton";
+import { useMobile } from "../../hooks/useMobile";
+import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
+import type { BookFormValues } from "../../lib/schemas/BookSchema";
+import { BookFileUrl, RenameFile, UrlToFile } from "../../utils/FileUtils";
 import {
   LocalTypes,
   LocationTypeToString,
   UrlTypes,
-} from "../utils/LocationUtils";
+} from "../../utils/LocationUtils";
 
 interface EditableLocationDetailsProps {
   initial?: BookDTO;

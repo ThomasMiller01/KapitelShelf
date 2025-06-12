@@ -12,7 +12,7 @@ import bookCover from "../../assets/books/nocover.png";
 import { useMobile } from "../../hooks/useMobile";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CoverUrl } from "../../utils/FileUtils";
-import LocationDetails from "../LocationDetails";
+import LocationDetails from "../location/LocationDetails";
 
 interface MetadataItemProps {
   icon: ReactNode;
