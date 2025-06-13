@@ -69,6 +69,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     public DbSet<UserBookMetadataModel> UserBookMetadata => Set<UserBookMetadataModel>();
 
     /// <summary>
+    /// Gets the book search view.
+    /// </summary>
+    public DbSet<BookSearchView> BookSearchView => Set<BookSearchView>();
+
+    /// <summary>
     /// On model creating.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -87,6 +92,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .WithMany(s => s.Books)
             .HasForeignKey(b => b.SeriesId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Book Search View
+        modelBuilder.Entity<BookSearchView>()
+            .HasNoKey()
+            .ToView("BookSearchView");
 
         // Categories
         modelBuilder.Entity<BookCategoryModel>()

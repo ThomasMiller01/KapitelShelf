@@ -48,5 +48,7 @@ public class BookMappingProfile : Profile
             .ForMember(dest => dest.Cover, opt => opt.Ignore());
 
         CreateMap<BookDTO, CreateBookDTO>();
+
+        CreateMap<BookSearchView, BookDTO>();
     }
 }
