@@ -38,6 +38,18 @@ public class SearchLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
         var query = context.BookSearchView
             .AsNoTracking()
+
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Cover)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Series)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Location)
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
             .Where(x => x.SearchVector.Matches(
                 EF.Functions.PlainToTsQuery("english", searchterm)));
 
@@ -48,7 +60,7 @@ public class SearchLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.Map<BookDTO>(x))
+            .Select(x => this.mapper.Map<BookDTO>(x.BookModel))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();

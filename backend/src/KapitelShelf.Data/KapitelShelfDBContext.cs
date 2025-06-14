@@ -96,7 +96,12 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
         // Book Search View
         modelBuilder.Entity<BookSearchView>()
             .HasNoKey()
-            .ToView("BookSearchView");
+            .ToView("BookSearchView")
+
+            .HasOne(v => v.BookModel)
+            .WithMany()
+            .HasForeignKey(v => v.Id)
+            .HasPrincipalKey(b => b.Id);
 
         // Categories
         modelBuilder.Entity<BookCategoryModel>()
