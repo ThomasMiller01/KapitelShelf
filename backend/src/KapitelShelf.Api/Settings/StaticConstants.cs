@@ -23,5 +23,10 @@ namespace KapitelShelf.Api.Settings
         /// The text for the exception, when amazon blocked us.
         /// </summary>
         public static readonly string MetadataScrapingBlockedKey = "METADATA_SCRAPING_BLOCKED";
+
+        /// <summary>
+        /// The maximum number of search suggestions to return.
+        /// </summary>
+        public static readonly int MaxSearchSuggestions = 10;
     }
 }
