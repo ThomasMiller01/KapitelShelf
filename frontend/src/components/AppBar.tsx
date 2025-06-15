@@ -1,19 +1,14 @@
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import {
-  Avatar,
-  Box,
-  SpeedDial,
-  SpeedDialAction,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Avatar, Box, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useMobile } from "../hooks/useMobile";
 import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
+import { SearchBar } from "./search/SearchBar";
+
 interface TopAppBarProps {
   open: boolean;
   toggle: () => void;
@@ -32,7 +27,7 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
           alignItems: "center",
         }}
       >
-        <TextField label="Search" variant="outlined" size="small" fullWidth />
+        <SearchBar />
         <Stack
           direction="row"
           spacing={{ xs: 2, md: 3 }}

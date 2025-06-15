@@ -24,7 +24,7 @@ import {
 import { MetadataSourceToString } from "../../utils/MetadataUtils";
 import MetadataList from "./MetadataList";
 
-// 400ms after user stops typing
+// 600ms after user stops typing
 const TITLE_REST_MS = 600;
 
 const STORAGE_KEY = "metadata.selected.sources";

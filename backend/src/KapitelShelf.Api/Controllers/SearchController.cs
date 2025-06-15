@@ -23,26 +23,6 @@ public class SearchController(ILogger<SearchController> logger, SearchLogic logi
     private readonly SearchLogic logic = logic;
 
     /// <summary>
-    /// Search suggestions with a search term.
-    /// </summary>
-    /// <param name="searchterm">The search term.</param>
-    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpGet("suggestions")]
-    public async Task<ActionResult<PagedResult<BookDTO>>> GetSeriesSummary([FromQuery] string searchterm)
-    {
-        try
-        {
-            var result = await this.logic.SearchSuggestionsBySearchterm(searchterm);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error fetching suggestions by searchterm: {SearchTerm}", searchterm);
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
-
-    /// <summary>
     /// Search books with a search term.
     /// </summary>
     /// <param name="searchterm">The search term.</param>
@@ -50,7 +30,7 @@ public class SearchController(ILogger<SearchController> logger, SearchLogic logi
     /// <param name="pageSize">The page size.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
-    public async Task<ActionResult<PagedResult<BookDTO>>> GetSeriesSummary(
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetSearchResult(
         [FromQuery] string searchterm,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 24)
@@ -63,6 +43,26 @@ public class SearchController(ILogger<SearchController> logger, SearchLogic logi
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error searching books by searchterm: {SearchTerm}", searchterm);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Search suggestions with a search term.
+    /// </summary>
+    /// <param name="searchterm">The search term.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("suggestions")]
+    public async Task<ActionResult<List<string>>> GetSearchSuggestions([FromQuery] string searchterm)
+    {
+        try
+        {
+            var result = await this.logic.SearchSuggestionsBySearchterm(searchterm);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching suggestions by searchterm: {SearchTerm}", searchterm);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
