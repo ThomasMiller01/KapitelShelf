@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
@@ -37,9 +38,8 @@ public class SearchLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         return await context.BookSearchView
             .AsNoTracking()
 
-            .Where(x => x.SearchVector.Matches(
-                EF.Functions.PlainToTsQuery("english", searchterm)))
-            .OrderByDescending(x => x.SearchVector.Rank(EF.Functions.PlainToTsQuery("english", searchterm)))
+            .FilterBySearchtermQuery(searchterm)
+            .SortBySearchtermQuery(searchterm)
 
             .Take(StaticConstants.MaxSearchSuggestions)
             .Select(x => x.Title)
@@ -56,6 +56,11 @@ public class SearchLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
     public async Task<PagedResult<BookDTO>> SearchBySearchterm(string searchterm, int page, int pageSize)
     {
+        if (string.IsNullOrWhiteSpace(searchterm))
+        {
+            return new PagedResult<BookDTO> { Items = [], TotalCount = 0 };
+        }
+
         using var context = await this.dbContextFactory.CreateDbContextAsync();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
@@ -73,12 +78,10 @@ public class SearchLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
                 .ThenInclude(x => x.Location)
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-            .Where(x => x.SearchVector.Matches(
-                EF.Functions.PlainToTsQuery("english", searchterm)));
+            .FilterBySearchtermQuery(searchterm);
 
         var items = await query
-            .OrderByDescending(x => x.SearchVector.Rank(
-                EF.Functions.PlainToTsQuery("english", searchterm)))
+            .SortBySearchtermQuery(searchterm)
 
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

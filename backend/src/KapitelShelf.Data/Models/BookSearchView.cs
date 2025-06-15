@@ -52,6 +52,11 @@ public class BookSearchView
     public NpgsqlTsVector SearchVector { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the search vector.
+    /// </summary>
+    public string SearchText { get; set; } = null!;
+
+    /// <summary>
     /// Gets or sets the location.
     /// </summary>
     public virtual BookModel? BookModel { get; set; }
