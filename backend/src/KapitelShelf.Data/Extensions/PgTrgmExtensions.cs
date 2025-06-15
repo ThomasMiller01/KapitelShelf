@@ -4,7 +4,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace KapitelShelf.Api.Extensions.PostgreSQL;
+namespace KapitelShelf.Data.Extensions;
 
 /// <summary>
 /// PostgreSQL Trigram Extension.
@@ -19,5 +19,5 @@ public static class PgTrgmExtensions
     /// <returns>The similarity.</returns>
     /// <exception cref="NotImplementedException">Has to be invoked as a PostgreSQL extension.</exception>
     [DbFunction("similarity", IsBuiltIn = true)]
-    public static double Similarity(string a, string b) => throw new NotImplementedException();
+    public static double Similarity(string a, string b) => throw new NotImplementedException("This method is intended for use in LINQ-to-SQL only.");
 }

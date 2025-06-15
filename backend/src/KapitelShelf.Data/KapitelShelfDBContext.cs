@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -168,5 +169,8 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
 #pragma warning restore CA1062 // Validate arguments of public methods
 
         base.OnModelCreating(modelBuilder);
+
+        // register extension methods
+        modelBuilder.HasDbFunction(() => PgTrgmExtensions.Similarity(default!, default!));
     }
 }

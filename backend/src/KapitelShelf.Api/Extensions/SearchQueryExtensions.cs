@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.Extensions.PostgreSQL;
+using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,12 +49,12 @@ public static class SearchQueryExtensions
                 // partial matches
 
                 // boost for title matches
-                (x.Title.Contains(searchterm, StringComparison.CurrentCultureIgnoreCase) ? 0.5f : 0.0f) +
+                (EF.Functions.ILike(x.Title, $"%{searchterm}%") ? 0.5f : 0.0f) +
 
                 // soft boost for substring matches
-                (EF.Functions.ILike(x.SearchText, $"%{searchterm}%") ? 0.1 : 0.0) +
+                (EF.Functions.ILike(x.SearchText, $"%{searchterm}%") ? 0.1f : 0.0f) +
 
-                // small bump for trigram similarity
+                // trigram fuzzy match
                 ((float)PgTrgmExtensions.Similarity(x.SearchText, searchterm) * 0.3f));
     }
 }

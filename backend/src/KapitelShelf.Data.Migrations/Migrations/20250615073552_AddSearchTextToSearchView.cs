@@ -50,19 +50,11 @@ namespace KapitelShelf.Data.Migrations.Migrations
                 GROUP BY
                     b.""Id"", b.""Title"", b.""Description"", s.""Name"";
             ");
-
-            // index for fuzzy search performance
-            migrationBuilder.Sql(@"
-                CREATE INDEX IF NOT EXISTS ""BookSearchView_SearchText_trgm""
-                ON ""BookSearchView""
-                USING gin (""SearchText"" gin_trgm_ops);
-            ");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DROP INDEX IF EXISTS \"BookSearchView_SearchText_trgm\";");
             migrationBuilder.Sql("DROP VIEW IF EXISTS \"BookSearchView\";");
         }
     }
