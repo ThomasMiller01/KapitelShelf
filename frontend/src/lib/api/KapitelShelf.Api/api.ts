@@ -1743,7 +1743,7 @@ export const SearchApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async searchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+        async searchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BookDTO>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.searchSuggestionsGet(searchterm, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SearchApi.searchSuggestionsGet']?.[localVarOperationServerIndex]?.url;
@@ -1778,7 +1778,7 @@ export const SearchApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+        searchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
             return localVarFp.searchSuggestionsGet(searchterm, options).then((request) => request(axios, basePath));
         },
     };

@@ -5,6 +5,7 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
@@ -53,12 +54,12 @@ public class SearchController(ILogger<SearchController> logger, SearchLogic logi
     /// <param name="searchterm">The search term.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("suggestions")]
-    public async Task<ActionResult<List<string>>> GetSearchSuggestions([FromQuery] string searchterm)
+    public async Task<ActionResult<List<BookDTO>>> GetSearchSuggestions([FromQuery] string searchterm)
     {
         try
         {
-            var result = await this.logic.SearchSuggestionsBySearchterm(searchterm);
-            return Ok(result);
+            var result = await this.logic.SearchBySearchterm(searchterm, page: 1, pageSize: StaticConstants.MaxSearchSuggestions);
+            return Ok(result.Items);
         }
         catch (Exception ex)
         {

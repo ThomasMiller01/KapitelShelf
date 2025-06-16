@@ -574,7 +574,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/BookDTO"
                   }
                 }
               },
@@ -582,7 +582,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/BookDTO"
                   }
                 }
               },
@@ -590,7 +590,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/BookDTO"
                   }
                 }
               }

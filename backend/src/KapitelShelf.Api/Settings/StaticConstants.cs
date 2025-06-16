@@ -27,6 +27,6 @@ namespace KapitelShelf.Api.Settings
         /// <summary>
         /// The maximum number of search suggestions to return.
         /// </summary>
-        public static readonly int MaxSearchSuggestions = 10;
+        public static readonly int MaxSearchSuggestions = 12;
     }
 }

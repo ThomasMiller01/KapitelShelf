@@ -7,7 +7,6 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.Extensions;
-using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,27 +24,6 @@ public class SearchLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
-
-    /// <summary>
-    /// Search suggestions by search term.
-    /// </summary>
-    /// <param name="searchterm">The search term.</param>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<List<string>> SearchSuggestionsBySearchterm(string searchterm)
-    {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.BookSearchView
-            .AsNoTracking()
-
-            .FilterBySearchtermQuery(searchterm)
-            .SortBySearchtermQuery(searchterm)
-
-            .Take(StaticConstants.MaxSearchSuggestions)
-            .Select(x => x.Title)
-
-            .ToListAsync();
-    }
 
     /// <summary>
     /// Search all books by search term.

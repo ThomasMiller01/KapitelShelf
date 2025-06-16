@@ -9,7 +9,7 @@ import NormalItemCardLayout, {
   NormalMetadataItem,
 } from "./NormalItemCardLayout";
 
-type ItemCardType = "normal" | "detailed";
+export type ItemCardType = "normal" | "detailed";
 
 export interface MetadataItemProps extends TypographyProps {
   icon?: ReactNode;
@@ -41,7 +41,7 @@ export interface ItemCardLayoutProps {
   squareBadge?: boolean;
   metadata: ReactNode[];
 
-  itemVariant?: "normal" | "detailed";
+  itemVariant?: ItemCardType;
 }
 
 const ItemCardLayout = ({

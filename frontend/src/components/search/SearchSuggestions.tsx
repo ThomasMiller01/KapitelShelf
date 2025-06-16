@@ -1,8 +1,11 @@
-import { Box, Stack } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useState } from "react";
 
+import { useMobile } from "../../hooks/useMobile";
 import { searchApi } from "../../lib/api/KapitelShelf.Api";
+import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
+import BookCard from "../BookCard";
 
 // 600ms after user stops typing
 const SEARCHTERM_REST_MS = 600;
@@ -14,19 +17,20 @@ interface SearchSuggestionsProps {
 export const SearchSuggestions = ({
   searchterm,
 }: SearchSuggestionsProps): ReactElement => {
+  const { isMobile } = useMobile();
   const { mutateAsync: mutateGetSearchSuggestions } = useMutation({
     mutationKey: ["search-suggestions", searchterm],
-    mutationFn: async (st: string) => {
-      if (st === "") {
+    mutationFn: async (term: string) => {
+      if (term === "") {
         return [];
       }
 
-      const { data } = await searchApi.searchSuggestionsGet(st);
+      const { data } = await searchApi.searchSuggestionsGet(term);
       return data;
     },
   });
 
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<BookDTO[]>([]);
   useEffect(() => {
     const handle = setTimeout(
       () =>
@@ -47,13 +51,21 @@ export const SearchSuggestions = ({
       sx={{
         position: "absolute",
         bgcolor: "background.paper",
+        padding: "10px 15px",
+        overflow: "auto",
       }}
     >
-      <Stack>
+      <Grid container spacing={2}>
         {suggestions.map((suggestion) => (
-          <Box>{suggestion}</Box>
+          <Grid key={suggestion.id} size={{ xs: 12, md: 6, lg: 4, xl: 3 }}>
+            <BookCard
+              book={suggestion}
+              showAuthor
+              itemVariant={isMobile ? "normal" : "detailed"}
+            />
+          </Grid>
         ))}
-      </Stack>
+      </Grid>
     </Box>
   );
 };

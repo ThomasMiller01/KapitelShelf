@@ -6,23 +6,27 @@ import { useMobile } from "../hooks/useMobile";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 import { CoverUrl } from "../utils/FileUtils";
 import { LocationTypeToString } from "../utils/LocationUtils";
+import type { ItemCardType } from "./layout/ItemCard/ItemCardLayout";
 import ItemCardLayout, { MetadataItem } from "./layout/ItemCard/ItemCardLayout";
 
 interface BookCardProps {
   book: BookDTO;
   showAuthor?: boolean;
   showMetadata?: boolean;
+  itemVariant?: ItemCardType;
 }
 
 const BookCard = ({
   book,
   showAuthor = false,
   showMetadata = true,
+  itemVariant = "normal",
 }: BookCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
   return (
     <ItemCardLayout
+      itemVariant={itemVariant}
       title={book.title}
       link={`/library/books/${book.id}`}
       image={CoverUrl(book)}
