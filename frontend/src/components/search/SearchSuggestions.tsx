@@ -49,15 +49,15 @@ export const SearchSuggestions = ({
   return (
     <Box
       sx={{
-        position: "absolute",
-        bgcolor: "background.paper",
-        padding: "10px 15px",
-        overflow: "auto",
+        padding: "15px",
       }}
     >
       <Grid container spacing={2}>
         {suggestions.map((suggestion) => (
-          <Grid key={suggestion.id} size={{ xs: 12, md: 6, lg: 4, xl: 3 }}>
+          <Grid
+            key={suggestion.id}
+            size={{ xs: 6, sm: 12, md: 6, lg: 4, xl: 3 }}
+          >
             <BookCard
               book={suggestion}
               showAuthor
