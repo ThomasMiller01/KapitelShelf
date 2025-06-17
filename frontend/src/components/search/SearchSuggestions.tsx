@@ -50,6 +50,7 @@ export const SearchSuggestions = ({
     <Box
       sx={{
         padding: "15px",
+        paddingBottom: "10px",
       }}
     >
       <Grid container spacing={2}>

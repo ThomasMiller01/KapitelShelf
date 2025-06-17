@@ -72,9 +72,17 @@ export const SearchBar = (): ReactElement => {
             marginLeft: isMobile ? "-10px !important" : "auto",
             maxHeight: "75%",
             overflowY: "auto",
+            borderBottom: "5px solid",
+            borderBottomColor: "background.paper",
+            borderRadius: "15px",
           }}
         >
-          <Paper sx={{ width: "100%" }}>
+          <Paper
+            sx={{
+              width: "100%",
+              bgcolor: "background.default",
+            }}
+          >
             <SearchSuggestions searchterm={searchterm} />
           </Paper>
         </Popper>
