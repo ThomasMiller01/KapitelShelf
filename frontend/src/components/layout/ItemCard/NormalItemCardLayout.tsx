@@ -44,7 +44,9 @@ const NormalItemCardLayout = ({
 
     if (onClick) {
       onClick();
-    } else if (link) {
+    }
+
+    if (link) {
       navigate(link);
     }
   };

@@ -2,7 +2,7 @@ import { Grid } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import LoadingCard from "../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../components/base/feedback/NoItemsFoundCard";
@@ -13,20 +13,17 @@ import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 
 const PAGE_SIZE = 24;
 
-const SearchResults = (): ReactElement => {
-  const [searchParams] = useSearchParams();
-  const searchterm = searchParams.get("q");
+interface SearchResultsProps {
+  searchterm: string;
+}
 
+const SearchResults = ({ searchterm }: SearchResultsProps): ReactElement => {
   const navigate = useNavigate();
 
   const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
     useInfiniteQuery({
       queryKey: ["search-results", searchterm],
       queryFn: async ({ pageParam = 1 }) => {
-        if (searchterm === "" || searchterm === null) {
-          return null;
-        }
-
         const { data } = await searchApi.searchGet(
           searchterm,
           pageParam,
@@ -51,9 +48,8 @@ const SearchResults = (): ReactElement => {
   }
 
   if (
-    data === null ||
-    data?.pages[0]?.totalCount === 0 ||
-    data?.pages[0]?.totalCount === undefined
+    data?.pages[0].totalCount === 0 ||
+    data?.pages[0].totalCount === undefined
   ) {
     return (
       <NoItemsFoundCard
@@ -66,14 +62,14 @@ const SearchResults = (): ReactElement => {
 
   return (
     <InfiniteScroll
-      dataLength={data?.pages.flatMap((p) => p?.items).length ?? 0}
+      dataLength={data.pages.flatMap((p) => p.items).length}
       next={fetchNextPage}
       hasMore={hasNextPage}
       loader={<LoadingCard itemName="more" />}
     >
       <Grid container spacing={2}>
         {data?.pages
-          .flatMap((p) => p?.items)
+          .flatMap((p) => p.items)
           .filter((book): book is BookDTO => Boolean(book))
           .map((book) => (
             <Grid key={book.id}>

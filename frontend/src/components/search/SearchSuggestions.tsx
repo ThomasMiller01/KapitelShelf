@@ -13,10 +13,12 @@ const SEARCHTERM_REST_MS = 600;
 
 interface SearchSuggestionsProps {
   searchterm: string;
+  onClick?: () => void;
 }
 
 export const SearchSuggestions = ({
   searchterm,
+  onClick,
 }: SearchSuggestionsProps): ReactElement => {
   const { isMobile } = useMobile();
   const { mutateAsync: mutateGetSearchSuggestions, isSuccess } = useMutation({
@@ -68,6 +70,7 @@ export const SearchSuggestions = ({
               book={suggestion}
               showAuthor
               itemVariant={isMobile ? "normal" : "detailed"}
+              onClick={onClick}
             />
           </Grid>
         ))}

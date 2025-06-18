@@ -18,6 +18,8 @@ export const SearchBar = (): ReactElement => {
   const { isMobile } = useMobile();
   const navigate = useNavigate();
 
+  const [searchterm, setSearchterm] = useState("");
+
   const suggestionsAnchorRef = useRef<HTMLInputElement>(null);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
 
@@ -25,7 +27,10 @@ export const SearchBar = (): ReactElement => {
     setSuggestionsOpen(false);
   };
 
-  const [searchterm, setSearchterm] = useState("");
+  const handleSuggestionsClick = (): void => {
+    handleSuggestionsClose();
+    setSearchterm("");
+  };
 
   const handleSearchClick = (): void => {
     handleSuggestionsClose();
@@ -60,9 +65,11 @@ export const SearchBar = (): ReactElement => {
             label="Search"
             variant="outlined"
             size="small"
+            autoComplete="off"
             fullWidth
             slotProps={{
               input: {
+                autoComplete: "off",
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton edge="end" onClick={handleSearchClick}>
@@ -99,7 +106,10 @@ export const SearchBar = (): ReactElement => {
               bgcolor: "background.default",
             }}
           >
-            <SearchSuggestions searchterm={searchterm} />
+            <SearchSuggestions
+              searchterm={searchterm}
+              onClick={handleSuggestionsClick}
+            />
           </Paper>
         </Popper>
       </Box>

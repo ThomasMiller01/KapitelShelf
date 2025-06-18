@@ -14,6 +14,7 @@ interface BookCardProps {
   showAuthor?: boolean;
   showMetadata?: boolean;
   itemVariant?: ItemCardType;
+  onClick?: () => void;
 }
 
 const BookCard = ({
@@ -21,6 +22,7 @@ const BookCard = ({
   showAuthor = false,
   showMetadata = true,
   itemVariant = "normal",
+  onClick,
 }: BookCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
@@ -30,6 +32,7 @@ const BookCard = ({
       title={book.title}
       link={`/library/books/${book.id}`}
       image={CoverUrl(book)}
+      onClick={onClick}
       fallbackImage={bookCover}
       badge={
         book.seriesNumber !== 0 ? book.seriesNumber?.toString() : undefined

@@ -7,14 +7,13 @@ import SearchResults from "../features/SearchResults";
 
 const SearchResultsPage = (): ReactElement => {
   const [searchParams] = useSearchParams();
-
   const searchterm = searchParams.get("q");
 
   return (
     <Box>
       <ItemAppBar title={`Search results for "${searchterm}"`} />
       <Box padding="24px">
-        <SearchResults />
+        <SearchResults searchterm={searchterm ?? ""} />
       </Box>
     </Box>
   );
