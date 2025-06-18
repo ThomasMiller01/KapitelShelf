@@ -19,7 +19,7 @@ public class OpenLibraryScraper(HttpClient httpClient) : MetadataScraperBase
     /// Initializes a new instance of the <see cref="OpenLibraryScraper"/> class.
     /// </summary>
     public OpenLibraryScraper()
-        : this(new HttpClient())
+        : this(CreateHttpClient())
     {
     }
 
