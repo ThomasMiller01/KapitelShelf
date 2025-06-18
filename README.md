@@ -13,7 +13,7 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 - Responsive UI (desktop, tablet, mobile)
 - Import and sync books with filesystem _(sync planned)_
   - Bulk import from CSV ([see Guide](docs/quickstart.md#22-import-in-bulk-from-csv))
-- Browse and search books, series, author and tags _(authors & tags planned)_
+- Browse and search books, series, author and tags
 - Full user metadata editing (notes, read status, favorite) _(planned)_
   - Import metadata from Amazon, Google and OpenLibrary ([see Guide](docs/quickstart.md#23-import-metadata))
 - Shelves and filtering (tags, categories, series, location) _(planned)_
