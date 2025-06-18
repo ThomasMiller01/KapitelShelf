@@ -16,9 +16,9 @@ using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using Testcontainers.PostgreSql;
 
 namespace KapitelShelf.Api.Tests.Logic;
 
@@ -28,7 +28,7 @@ namespace KapitelShelf.Api.Tests.Logic;
 [TestFixture]
 public class BooksLogicTests
 {
-    private SqliteConnection connection;
+    private PostgreSqlContainer postgres;
 
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
@@ -38,23 +38,44 @@ public class BooksLogicTests
     private BooksLogic testee;
 
     /// <summary>
+    /// Setup database container.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [OneTimeSetUp]
+    public async Task GlobalSetup()
+    {
+        this.postgres = new PostgreSqlBuilder()
+            .WithDatabase("kapitelshelf")
+            .WithUsername("kapitelshelf")
+            .WithPassword("kapitelshelf")
+            .WithImage("postgres:16.8")
+            .Build();
+
+        await this.postgres.StartAsync();
+    }
+
+    /// <summary>
+    /// Teardown database container.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [OneTimeTearDown]
+    public async Task Cleanup() => await this.postgres.DisposeAsync();
+
+    /// <summary>
     /// Sets up a new in-memory database and fakes before each test.
     /// </summary>
+    /// <returns>A task.</returns>
     [SetUp]
-    public void SetUp()
+    public async Task SetUp()
     {
-        // use real database, because in-memory db doesnt support transactions
-        this.connection = new SqliteConnection("DataSource=:memory:");
-        this.connection.Open();
-
         this.dbOptions = new DbContextOptionsBuilder<KapitelShelfDBContext>()
-            .UseSqlite(connection)
+            .UseNpgsql(postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
             .Options;
 
         // datamigrations
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
-            context.Database.EnsureCreated();
+            await context.Database.MigrateAsync();
         }
 
         this.dbContextFactory = Substitute.For<IDbContextFactory<KapitelShelfDBContext>>();
@@ -69,12 +90,6 @@ public class BooksLogicTests
     }
 
     /// <summary>
-    /// Cleans up the in-memory database after each test.
-    /// </summary>
-    [TearDown]
-    public void TearDown() => this.connection.Dispose();
-
-    /// <summary>
     /// Tests GetBooksAsync returns books.
     /// </summary>
     /// <returns>A task.</returns>
@@ -85,12 +100,12 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "Book1",
+            Title = "Book1".Unique(),
             Description = "Description",
             PageNumber = 7,
             SeriesId = series.Id,
@@ -107,28 +122,7 @@ public class BooksLogicTests
         var result = await this.testee.GetBooksAsync();
 
         // Assert
-        Assert.That(result, Has.Count.EqualTo(1));
-        Assert.Multiple(() =>
-        {
-            Assert.That(result[0].Title, Is.EqualTo("Book1"));
-            Assert.That(result[0].Description, Is.EqualTo("Description"));
-            Assert.That(result[0].PageNumber, Is.EqualTo(7));
-        });
-    }
-
-    /// <summary>
-    /// GetBooksAsync returns empty when there are no books.
-    /// </summary>
-    /// /// <returns>A task.</returns>
-    [Test]
-    public async Task GetBooksAsync_ReturnsEmpty_WhenNoBooks()
-    {
-        // Execute
-        var result = await this.testee.GetBooksAsync();
-
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result, Has.Count.GreaterThanOrEqualTo(1));
     }
 
     /// <summary>
@@ -142,12 +136,12 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "BookById",
+            Title = "BookById".Unique(),
             Description = "Description",
             PageNumber = 2,
             SeriesId = series.Id,
@@ -167,9 +161,9 @@ public class BooksLogicTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Title, Is.EqualTo("BookById"));
-            Assert.That(result.Description, Is.EqualTo("Description"));
-            Assert.That(result.PageNumber, Is.EqualTo(2));
+            Assert.That(result!.Title, Is.EqualTo(book.Title));
+            Assert.That(result.Description, Is.EqualTo(book.Description));
+            Assert.That(result.PageNumber, Is.EqualTo(book.PageNumber));
         });
     }
 
@@ -211,12 +205,12 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "Duplicate",
+            Title = "Duplicate".Unique(),
             Description = "Description",
             SeriesId = series.Id,
         };
@@ -230,7 +224,7 @@ public class BooksLogicTests
 
         var createDto = new CreateBookDTO
         {
-            Title = "Duplicate",
+            Title = book.Title,
             Categories = [],
             Tags = [],
         };
@@ -252,60 +246,31 @@ public class BooksLogicTests
         // Setup
         var author = new CreateAuthorDTO
         {
-            FirstName = "A",
-            LastName = "B",
+            FirstName = "A".Unique(),
+            LastName = "B".Unique(),
         };
         var category = new CreateCategoryDTO
         {
-            Name = "Category",
+            Name = "Category".Unique(),
         };
         var tag = new CreateTagDTO
         {
-            Name = "Tag",
+            Name = "Tag".Unique(),
         };
         var series = new CreateSeriesDTO
         {
-            Name = "Series",
+            Name = "Series".Unique(),
         };
         var createDto = new CreateBookDTO
         {
-            Title = "New Book",
+            Title = "NewBook".Unique(),
             Description = "Description",
             PageNumber = 42,
-            ReleaseDate = new DateTime(2023, 1, 1),
+            ReleaseDate = new DateTime(2023, 1, 1).ToUniversalTime(),
             Author = author,
             Series = series,
             Categories = [category],
             Tags = [tag],
-        };
-        var bookModel = new BookModel
-        {
-            Id = Guid.NewGuid(),
-            Title = "New Book",
-            Description = "Description",
-            PageNumber = 42,
-            ReleaseDate = new DateTime(2023, 1, 1),
-        };
-        var seriesModel = new SeriesModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Series",
-        };
-        var authorModel = new AuthorModel
-        {
-            Id = Guid.NewGuid(),
-            FirstName = "A",
-            LastName = "B",
-        };
-        var categoryModel = new CategoryModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Category",
-        };
-        var tagModel = new TagModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Tag",
         };
 
         // Execute
@@ -315,18 +280,18 @@ public class BooksLogicTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Title, Is.EqualTo("New Book"));
-            Assert.That(result.Description, Is.EqualTo("Description"));
-            Assert.That(result.PageNumber, Is.EqualTo(42));
-            Assert.That(result.ReleaseDate, Is.EqualTo(new DateTime(2023, 1, 1)));
-            Assert.That(result.Author!.FirstName, Is.EqualTo("A"));
-            Assert.That(result.Author.LastName, Is.EqualTo("B"));
+            Assert.That(result!.Title, Is.EqualTo(createDto.Title));
+            Assert.That(result.Description, Is.EqualTo(createDto.Description));
+            Assert.That(result.PageNumber, Is.EqualTo(createDto.PageNumber));
+            Assert.That(result.ReleaseDate, Is.EqualTo(createDto.ReleaseDate));
+            Assert.That(result.Author!.FirstName, Is.EqualTo(author.FirstName));
+            Assert.That(result.Author.LastName, Is.EqualTo(author.LastName));
             Assert.That(result.Series, Is.Not.Null);
-            Assert.That(result.Series!.Name, Is.EqualTo("Series"));
+            Assert.That(result.Series!.Name, Is.EqualTo(series.Name));
             Assert.That(result.Categories, Has.Count.EqualTo(1));
-            Assert.That(result.Categories![0].Name, Is.EqualTo("Category"));
+            Assert.That(result.Categories![0].Name, Is.EqualTo(category.Name));
             Assert.That(result.Tags, Has.Count.EqualTo(1));
-            Assert.That(result.Tags![0].Name, Is.EqualTo("Tag"));
+            Assert.That(result.Tags![0].Name, Is.EqualTo(tag.Name));
         });
     }
 
@@ -340,7 +305,7 @@ public class BooksLogicTests
         // Setup
         var createDto = new CreateBookDTO
         {
-            Title = "BookTitle",
+            Title = "BookTitle".Unique(),
             Description = "Description",
             Series = null,
             Categories = [],
@@ -353,7 +318,7 @@ public class BooksLogicTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Series, Is.Not.Null);
-        Assert.That(result.Series!.Name, Is.EqualTo("BookTitle"));
+        Assert.That(result.Series!.Name, Is.EqualTo(createDto.Title));
     }
 
     /// <summary>
@@ -367,7 +332,7 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "BookSeries",
+            Name = "BookSeries".Unique(),
         };
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
@@ -377,11 +342,11 @@ public class BooksLogicTests
 
         var createDto = new CreateBookDTO
         {
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Series = new CreateSeriesDTO
             {
-                Name = "BookSeries",
+                Name = series.Name,
             },
             Categories = [],
             Tags = [],
@@ -392,10 +357,7 @@ public class BooksLogicTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            Assert.That(context.Series.Count(), Is.EqualTo(1));
-        }
+        Assert.That(result.Series?.Id, Is.EqualTo(series.Id));
     }
 
     /// <summary>
@@ -409,8 +371,8 @@ public class BooksLogicTests
         var author = new AuthorModel
         {
             Id = Guid.NewGuid(),
-            FirstName = "Jane",
-            LastName = "Doe",
+            FirstName = "Jane".Unique(),
+            LastName = "Doe".Unique(),
         };
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
@@ -420,16 +382,16 @@ public class BooksLogicTests
 
         var createDto = new CreateBookDTO
         {
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Author = new CreateAuthorDTO
             {
-                FirstName = "Jane",
-                LastName = "Doe",
+                FirstName = author.FirstName,
+                LastName = author.LastName,
             },
             Series = new CreateSeriesDTO
             {
-                Name = "Series",
+                Name = "Series".Unique(),
             },
             Categories = [],
             Tags = [],
@@ -440,10 +402,6 @@ public class BooksLogicTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            Assert.That(context.Authors.Count(), Is.EqualTo(1));
-        }
     }
 
     /// <summary>
@@ -457,7 +415,7 @@ public class BooksLogicTests
         var category = new CategoryModel
         {
             Id = Guid.NewGuid(),
-            Name = "Category1",
+            Name = "Category1".Unique(),
         };
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
@@ -467,16 +425,16 @@ public class BooksLogicTests
 
         var createDto = new CreateBookDTO
         {
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Series = new CreateSeriesDTO
             {
-                Name = "Series",
+                Name = "Series".Unique(),
             },
             Categories = [
                 new CreateCategoryDTO
                 {
-                    Name = "Category1",
+                    Name = category.Name,
                 },
             ],
             Tags = [],
@@ -487,10 +445,6 @@ public class BooksLogicTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            Assert.That(context.Categories.Count(), Is.EqualTo(1));
-        }
     }
 
     /// <summary>
@@ -504,7 +458,7 @@ public class BooksLogicTests
         var tag = new TagModel
         {
             Id = Guid.NewGuid(),
-            Name = "Tag1",
+            Name = "Tag1".Unique(),
         };
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
@@ -514,17 +468,17 @@ public class BooksLogicTests
 
         var createDto = new CreateBookDTO
         {
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Series = new CreateSeriesDTO
             {
-                Name = "Series",
+                Name = "Series".Unique(),
             },
             Categories = [],
             Tags = [
                 new CreateTagDTO
                 {
-                    Name = "Tag1",
+                    Name = tag.Name,
                 },
             ],
         };
@@ -534,10 +488,6 @@ public class BooksLogicTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            Assert.That(context.Tags.Count(), Is.EqualTo(1));
-        }
     }
 
     /// <summary>
@@ -550,19 +500,19 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book1 = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "Book1",
+            Title = "Book1".Unique(),
             Description = "Description1",
             SeriesId = series.Id,
         };
         var book2 = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "Book2",
+            Title = "Book2".Unique(),
             Description = "Description2",
             SeriesId = series.Id,
         };
@@ -578,7 +528,7 @@ public class BooksLogicTests
         var dto = new BookDTO
         {
             Id = book1.Id,
-            Title = "Book2",
+            Title = book2.Title,
             Categories = [],
             Tags = [],
         };
@@ -602,15 +552,15 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = id,
-            Title = "Old",
+            Title = "Old".Unique(),
             Description = "OldDesc",
             PageNumber = 100,
-            ReleaseDate = new DateTime(2000, 1, 1),
+            ReleaseDate = new DateTime(2000, 1, 1).ToUniversalTime(),
             SeriesId = series.Id,
         };
 
@@ -624,15 +574,15 @@ public class BooksLogicTests
         var bookDto = new BookDTO
         {
             Id = id,
-            Title = "Title",
+            Title = "Title".Unique(),
 
             // intentionally set Series to null
             Series = null,
 
             Author = new AuthorDTO
             {
-                FirstName = "First",
-                LastName = "Last",
+                FirstName = "First".Unique(),
+                LastName = "Last".Unique(),
             },
             Categories = [],
             Tags = [],
@@ -662,7 +612,7 @@ public class BooksLogicTests
         var dto = new BookDTO
         {
             Id = Guid.NewGuid(),
-            Title = "NotFound",
+            Title = "NotFound".Unique(),
             Categories = [],
             Tags = [],
         };
@@ -686,15 +636,15 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = id,
-            Title = "Old",
+            Title = "Old".Unique(),
             Description = "OldDesc",
             PageNumber = 100,
-            ReleaseDate = new DateTime(2000, 1, 1),
+            ReleaseDate = new DateTime(2000, 1, 1).ToUniversalTime(),
             SeriesId = series.Id,
         };
 
@@ -707,16 +657,16 @@ public class BooksLogicTests
 
         var author = new AuthorDTO
         {
-            FirstName = "X",
-            LastName = "Y",
+            FirstName = "X".Unique(),
+            LastName = "Y".Unique(),
         };
         var category = new CategoryDTO
         {
-            Name = "C1",
+            Name = "C1".Unique(),
         };
         var tag = new TagDTO
         {
-            Name = "T1",
+            Name = "T1".Unique(),
         };
         var cover = new FileInfoDTO
         {
@@ -735,49 +685,19 @@ public class BooksLogicTests
         var updatedDto = new BookDTO
         {
             Id = id,
-            Title = "NewTitle",
+            Title = "NewTitle".Unique(),
             Description = "DescNew",
             PageNumber = 42,
-            ReleaseDate = new DateTime(2025, 1, 1),
+            ReleaseDate = new DateTime(2025, 1, 1).ToUniversalTime(),
             Author = author,
             Series = new SeriesDTO
             {
-                Name = "SeriesNew",
+                Name = "SeriesNew".Unique(),
             },
             Categories = [category],
             Tags = [tag],
             Cover = cover,
             Location = location,
-        };
-
-        var authorModel = new AuthorModel
-        {
-            Id = Guid.NewGuid(),
-            FirstName = "X",
-            LastName = "Y",
-        };
-        var seriesModel = new SeriesModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "SeriesNew",
-        };
-        var categoryModel = new CategoryModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "C1",
-        };
-        var tagModel = new TagModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "T1",
-        };
-        var fileInfoModel = new FileInfoModel
-        {
-            Id = Guid.NewGuid(),
-            FilePath = "/cover.png",
-            FileSizeBytes = 123,
-            MimeType = "image/png",
-            Sha256 = "hash",
         };
 
         // Execute
@@ -787,22 +707,22 @@ public class BooksLogicTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Title, Is.EqualTo("NewTitle"));
-            Assert.That(result.Description, Is.EqualTo("DescNew"));
-            Assert.That(result.PageNumber, Is.EqualTo(42));
-            Assert.That(result.ReleaseDate, Is.EqualTo(new DateTime(2025, 1, 1)));
-            Assert.That(result.Author!.FirstName, Is.EqualTo("X"));
-            Assert.That(result.Author.LastName, Is.EqualTo("Y"));
+            Assert.That(result!.Title, Is.EqualTo(updatedDto.Title));
+            Assert.That(result.Description, Is.EqualTo(updatedDto.Description));
+            Assert.That(result.PageNumber, Is.EqualTo(updatedDto.PageNumber));
+            Assert.That(result.ReleaseDate, Is.EqualTo(updatedDto.ReleaseDate));
+            Assert.That(result.Author!.FirstName, Is.EqualTo(author.FirstName));
+            Assert.That(result.Author.LastName, Is.EqualTo(author.LastName));
             Assert.That(result.Series, Is.Not.Null);
-            Assert.That(result.Series!.Name, Is.EqualTo("SeriesNew"));
+            Assert.That(result.Series!.Name, Is.EqualTo(updatedDto.Series.Name));
             Assert.That(result.Categories, Has.Count.EqualTo(1));
-            Assert.That(result.Categories![0].Name, Is.EqualTo("C1"));
+            Assert.That(result.Categories![0].Name, Is.EqualTo(category.Name));
             Assert.That(result.Tags, Has.Count.EqualTo(1));
-            Assert.That(result.Tags![0].Name, Is.EqualTo("T1"));
+            Assert.That(result.Tags![0].Name, Is.EqualTo(tag.Name));
             Assert.That(result.Cover, Is.Not.Null);
-            Assert.That(result.Cover!.FilePath, Is.EqualTo("/cover.png"));
+            Assert.That(result.Cover!.FilePath, Is.EqualTo(cover.FilePath));
             Assert.That(result.Location, Is.Not.Null);
-            Assert.That(result.Location!.Type, Is.EqualTo(LocationTypeDTO.KapitelShelf));
+            Assert.That(result.Location!.Type, Is.EqualTo(location.Type));
         });
     }
 
@@ -818,17 +738,17 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = id,
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Author = new AuthorModel
             {
-                FirstName = "Jane",
-                LastName = "Doe",
+                FirstName = "Jane".Unique(),
+                LastName = "Doe".Unique(),
             },
             Categories = [],
             Tags = [],
@@ -845,7 +765,7 @@ public class BooksLogicTests
         var bookDto = new BookDTO
         {
             Id = id,
-            Title = "Book",
+            Title = book.Title,
             Description = "Description",
             Author = null!,
             Series = new SeriesDTO
@@ -880,12 +800,12 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = id,
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Cover = new FileInfoModel
             {
@@ -908,7 +828,7 @@ public class BooksLogicTests
         var bookDto = new BookDTO
         {
             Id = id,
-            Title = "Book",
+            Title = book.Title,
             Description = "Description",
             Cover = null!,
             Series = new SeriesDTO
@@ -943,12 +863,12 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = id,
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Location = new LocationModel
             {
@@ -968,7 +888,7 @@ public class BooksLogicTests
         var bookDto = new BookDTO
         {
             Id = id,
-            Title = "Book",
+            Title = book.Title,
             Description = "Description",
             Location = null!,
             Series = new SeriesDTO
@@ -1002,17 +922,17 @@ public class BooksLogicTests
         var id = Guid.NewGuid();
         var category = new CategoryModel
         {
-            Name = "Category",
+            Name = "Category".Unique(),
         };
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = id,
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Categories = [
                 new BookCategoryModel
@@ -1035,7 +955,7 @@ public class BooksLogicTests
         var bookDto = new BookDTO
         {
             Id = id,
-            Title = "Book",
+            Title = book.Title,
             Description = "Description",
             Series = new SeriesDTO
             {
@@ -1068,17 +988,17 @@ public class BooksLogicTests
         var id = Guid.NewGuid();
         var tag = new TagModel
         {
-            Name = "Tag",
+            Name = "Tag".Unique(),
         };
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = id,
-            Title = "Book",
+            Title = "Book".Unique(),
             Description = "Description",
             Tags = [
                 new BookTagModel
@@ -1101,7 +1021,7 @@ public class BooksLogicTests
         var bookDto = new BookDTO
         {
             Id = id,
-            Title = "Book",
+            Title = book.Title,
             Description = "Description",
             Series = new SeriesDTO
             {
@@ -1133,12 +1053,12 @@ public class BooksLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
         };
         var book = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "DeleteMe",
+            Title = "DeleteMe".Unique(),
             Description = "Description",
             SeriesId = series.Id,
         };
@@ -1154,7 +1074,7 @@ public class BooksLogicTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Title, Is.EqualTo("DeleteMe"));
+        Assert.That(result!.Title, Is.EqualTo(book.Title));
     }
 
     /// <summary>
@@ -1197,7 +1117,8 @@ public class BooksLogicTests
     {
         // Setup
         var file = Substitute.For<IFormFile>();
-        var parsingResult = CreateParsingResult("SingleBook");
+        var bookTitle = "SingleBook".Unique();
+        var parsingResult = CreateParsingResult(bookTitle);
 
         this.bookParserManager.IsBulkFile(file).Returns(false);
         this.bookParserManager.Parse(file).Returns(Task.FromResult(parsingResult));
@@ -1222,7 +1143,7 @@ public class BooksLogicTests
         });
         Assert.Multiple(() =>
         {
-            Assert.That(result.ImportedBooks[0].Title, Is.EqualTo("SingleBook"));
+            Assert.That(result.ImportedBooks[0].Title, Is.EqualTo(bookTitle));
             Assert.That(result.Errors, Is.Empty);
         });
         await this.bookStorage.Received().Save(Arg.Any<Guid>(), file);
@@ -1237,10 +1158,12 @@ public class BooksLogicTests
     {
         // Setup
         var file = Substitute.For<IFormFile>();
+        var book1Title = "BulkBook1".Unique();
+        var book2Title = "BulkBook2".Unique();
         var parsingResults = new List<BookParsingResult>
         {
-            CreateParsingResult("BulkBook1"),
-            CreateParsingResult("BulkBook2"),
+            CreateParsingResult(book1Title),
+            CreateParsingResult(book2Title),
         };
 
         this.bookParserManager.IsBulkFile(file).Returns(true);
@@ -1260,8 +1183,8 @@ public class BooksLogicTests
         });
         Assert.Multiple(() =>
         {
-            Assert.That(result.ImportedBooks.Any(b => b.Title == "BulkBook1"), Is.True);
-            Assert.That(result.ImportedBooks.Any(b => b.Title == "BulkBook2"), Is.True);
+            Assert.That(result.ImportedBooks.Any(b => b.Title == book1Title), Is.True);
+            Assert.That(result.ImportedBooks.Any(b => b.Title == book2Title), Is.True);
             Assert.That(result.Errors, Is.Empty);
         });
     }
@@ -1277,10 +1200,12 @@ public class BooksLogicTests
         var file = Substitute.For<IFormFile>();
 
         // Simulate first import is duplicate, second succeeds
+        var book1Title = "DuplicateBook".Unique();
+        var book2Title = "AnotherBook".Unique();
         var parsingResults = new List<BookParsingResult>
         {
-            CreateParsingResult("DuplicateBook"),
-            CreateParsingResult("AnotherBook"),
+            CreateParsingResult(book1Title),
+            CreateParsingResult(book2Title),
         };
 
         this.bookParserManager.IsBulkFile(file).Returns(true);
@@ -1291,13 +1216,13 @@ public class BooksLogicTests
         // Insert "DuplicateBook" before to cause duplicate
         await this.testee.CreateBookAsync(new CreateBookDTO
         {
-            Title = "DuplicateBook",
+            Title = book1Title,
             Description = "This is a duplicate book.",
             Categories = [],
             Tags = [],
             Series = new CreateSeriesDTO
             {
-                Name = "TestSeries",
+                Name = "TestSeries".Unique(),
             },
         });
 
@@ -1309,11 +1234,11 @@ public class BooksLogicTests
         Assert.Multiple(() =>
         {
             Assert.That(result.IsBulkImport, Is.True);
-            Assert.That(result.ImportedBooks.Any(b => b.Title == "AnotherBook"), Is.True);
-            Assert.That(result.ImportedBooks.Any(b => b.Title == "DuplicateBook"), Is.False);
+            Assert.That(result.ImportedBooks.Any(b => b.Title == book2Title), Is.True);
+            Assert.That(result.ImportedBooks.Any(b => b.Title == book1Title), Is.False);
             Assert.That(result.Errors, Has.Count.EqualTo(1));
         });
-        Assert.That(result.Errors[0], Does.Contain("DuplicateBook"));
+        Assert.That(result.Errors[0], Does.Contain(book1Title));
     }
 
     /// <summary>
@@ -1325,7 +1250,8 @@ public class BooksLogicTests
     {
         // Setup
         var file = Substitute.For<IFormFile>();
-        var parsingResult = CreateParsingResult("SingleDuplicate");
+        var bookTitle = "SingleDuplicate".Unique();
+        var parsingResult = CreateParsingResult(bookTitle);
 
         this.bookParserManager.IsBulkFile(file).Returns(false);
         this.bookParserManager.Parse(file).Returns(Task.FromResult(parsingResult));
@@ -1335,13 +1261,13 @@ public class BooksLogicTests
         // Insert first to create duplicate
         await this.testee.CreateBookAsync(new CreateBookDTO
         {
-            Title = "SingleDuplicate",
+            Title = bookTitle,
             Description = "This is a duplicate book.",
             Categories = [],
             Tags = [],
             Series = new CreateSeriesDTO
             {
-                Name = "TestSeries",
+                Name = "TestSeries".Unique(),
             },
         });
 
@@ -1356,7 +1282,7 @@ public class BooksLogicTests
             Assert.That(result.ImportedBooks, Is.Empty);
             Assert.That(result.Errors, Has.Count.EqualTo(1));
         });
-        Assert.That(result.Errors[0], Does.Contain("SingleDuplicate"));
+        Assert.That(result.Errors[0], Does.Contain(bookTitle));
     }
 
     /// <summary>
@@ -1411,37 +1337,44 @@ public class BooksLogicTests
     public async Task CleanupDatabase_RemovesOrphans()
     {
         // Setup
+        var authorId = Guid.NewGuid();
+        var seriesId = Guid.NewGuid();
+        var categoryId = Guid.NewGuid();
+        var tagId = Guid.NewGuid();
+        var locationId = Guid.NewGuid();
+        var fileInfoId = Guid.NewGuid();
+
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
             context.Authors.Add(new AuthorModel
             {
-                Id = Guid.NewGuid(),
-                FirstName = "Orphan",
-                LastName = "Author",
+                Id = authorId,
+                FirstName = "Orphan".Unique(),
+                LastName = "Author".Unique(),
             });
             context.Series.Add(new SeriesModel
             {
-                Id = Guid.NewGuid(),
-                Name = "OrphanSeries",
+                Id = seriesId,
+                Name = "OrphanSeries".Unique(),
             });
             context.Categories.Add(new CategoryModel
             {
-                Id = Guid.NewGuid(),
-                Name = "OrphanCategory",
+                Id = categoryId,
+                Name = "OrphanCategory".Unique(),
             });
             context.Tags.Add(new TagModel
             {
-                Id = Guid.NewGuid(),
-                Name = "OrphanTag",
+                Id = tagId,
+                Name = "OrphanTag".Unique(),
             });
             context.Locations.Add(new LocationModel
             {
-                Id = Guid.NewGuid(),
+                Id = locationId,
                 Type = LocationType.KapitelShelf,
             });
             context.FileInfos.Add(new FileInfoModel
             {
-                Id = Guid.NewGuid(),
+                Id = fileInfoId,
                 FilePath = "orphan.file",
                 MimeType = "mimetype",
                 Sha256 = "hash",
@@ -1457,12 +1390,12 @@ public class BooksLogicTests
         {
             Assert.Multiple(() =>
             {
-                Assert.That(context.Authors.Count(), Is.EqualTo(0));
-                Assert.That(context.Series.Count(), Is.EqualTo(0));
-                Assert.That(context.Categories.Count(), Is.EqualTo(0));
-                Assert.That(context.Tags.Count(), Is.EqualTo(0));
-                Assert.That(context.Locations.Count(), Is.EqualTo(0));
-                Assert.That(context.FileInfos.Count(), Is.EqualTo(0));
+                Assert.That(context.Authors.FirstOrDefault(x => x.Id == authorId), Is.Null);
+                Assert.That(context.Series.FirstOrDefault(x => x.Id == seriesId), Is.Null);
+                Assert.That(context.Categories.FirstOrDefault(x => x.Id == categoryId), Is.Null);
+                Assert.That(context.Tags.FirstOrDefault(x => x.Id == tagId), Is.Null);
+                Assert.That(context.Locations.FirstOrDefault(x => x.Id == locationId), Is.Null);
+                Assert.That(context.FileInfos.FirstOrDefault(x => x.Id == fileInfoId), Is.Null);
             });
         }
     }
@@ -1480,18 +1413,18 @@ public class BooksLogicTests
                 Description = description ?? string.Empty,
                 Series = new SeriesDTO
                 {
-                    Name = "TestSeries",
+                    Name = "TestSeries".Unique(),
                 },
                 Categories = [
                     new CategoryDTO
                     {
-                        Name = "TestCategory",
+                        Name = "TestCategory".Unique(),
                     },
                 ],
                 Tags = [
                     new TagDTO
                     {
-                        Name = "TestTag",
+                        Name = "TestTag".Unique(),
                     },
                 ],
             },

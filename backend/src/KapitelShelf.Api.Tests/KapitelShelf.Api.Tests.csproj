@@ -44,10 +44,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KapitelShelf.Api\KapitelShelf.Api.csproj" />
+    <ProjectReference Include="..\KapitelShelf.Data.Migrations\KapitelShelf.Data.Migrations.csproj" />
   </ItemGroup>
 
   <ItemGroup>
