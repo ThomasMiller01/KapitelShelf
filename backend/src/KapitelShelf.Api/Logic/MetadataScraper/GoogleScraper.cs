@@ -19,7 +19,7 @@ public class GoogleScraper(HttpClient httpClient) : MetadataScraperBase
     /// Initializes a new instance of the <see cref="GoogleScraper"/> class.
     /// </summary>
     public GoogleScraper()
-        : this(new HttpClient())
+        : this(CreateHttpClient())
     {
     }
 

@@ -29,7 +29,7 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
     /// Initializes a new instance of the <see cref="AmazonScraper"/> class.
     /// </summary>
     public AmazonScraper()
-        : this(new HttpClient())
+        : this(CreateHttpClient())
     {
     }
 

@@ -49,4 +49,19 @@ public abstract partial class MetadataScraperBase : IMetadataScraper
 
     /// <inheritdoc/>
     public abstract Task<List<MetadataDTO>> Scrape(string title);
+
+    /// <summary>
+    /// Create a new http client.
+    /// </summary>
+    /// <returns>The http client.</returns>
+    protected static HttpClient CreateHttpClient()
+    {
+        var handler = new HttpClientHandler
+        {
+            AutomaticDecompression = System.Net.DecompressionMethods.GZip |
+                                         System.Net.DecompressionMethods.Deflate |
+                                         System.Net.DecompressionMethods.Brotli,
+        };
+        return new HttpClient(handler);
+    }
 }
