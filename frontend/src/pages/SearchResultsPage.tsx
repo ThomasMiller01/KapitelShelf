@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import ItemAppBar from "../components/base/ItemAppBar";
+import SearchResults from "../features/SearchResults";
 
 const SearchResultsPage = (): ReactElement => {
   const [searchParams] = useSearchParams();
@@ -12,7 +13,9 @@ const SearchResultsPage = (): ReactElement => {
   return (
     <Box>
       <ItemAppBar title={`Search results for "${searchterm}"`} />
-      <Box padding="24px">TODO</Box>
+      <Box padding="24px">
+        <SearchResults />
+      </Box>
     </Box>
   );
 };
