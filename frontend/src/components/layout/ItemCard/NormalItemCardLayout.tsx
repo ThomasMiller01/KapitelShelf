@@ -75,7 +75,7 @@ const NormalItemCardLayout = ({
           alignItems: "flex-start",
         }}
       >
-        <Box position="relative">
+        <Box position="relative" width="100%">
           {/* Image */}
           <CardMedia
             component="img"
