@@ -4,12 +4,14 @@ interface NoItemsFoundCardProps {
   itemName: string;
   useLogo?: boolean;
   onCreate?: () => void;
+  small?: boolean;
 }
 
 export const NoItemsFoundCard = ({
   itemName,
   useLogo = false,
   onCreate,
+  small = false,
 }: NoItemsFoundCardProps): ReactElement => (
   <Box
     sx={{
@@ -24,7 +26,11 @@ export const NoItemsFoundCard = ({
     {useLogo && (
       <img src="/kapitelshelf.png" alt="KapitelShelf Logo" width={120} />
     )}
-    <Typography variant="h5" my={4} textTransform="uppercase">
+    <Typography
+      variant={small ? "h6" : "h5"}
+      my={small ? 0 : 4}
+      textTransform="uppercase"
+    >
       Looks like you don't have any {itemName} yet
     </Typography>
     {onCreate && (

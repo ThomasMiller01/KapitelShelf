@@ -9,12 +9,14 @@ import {
   TextField,
 } from "@mui/material";
 import { type ReactElement, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useMobile } from "../../hooks/useMobile";
 import { SearchSuggestions } from "./SearchSuggestions";
 
 export const SearchBar = (): ReactElement => {
   const { isMobile } = useMobile();
+  const navigate = useNavigate();
 
   const suggestionsAnchorRef = useRef<HTMLInputElement>(null);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -24,6 +26,18 @@ export const SearchBar = (): ReactElement => {
   };
 
   const [searchterm, setSearchterm] = useState("");
+
+  const handleSearchClick = (): void => {
+    handleSuggestionsClose();
+
+    navigate(`/search?q=${searchterm}`);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent): void => {
+    if (e.key === "Enter") {
+      handleSearchClick();
+    }
+  };
 
   return (
     <ClickAwayListener onClickAway={handleSuggestionsClose}>
@@ -41,6 +55,7 @@ export const SearchBar = (): ReactElement => {
             onChange={(e) => setSearchterm(e.target.value)}
             inputRef={suggestionsAnchorRef}
             onFocus={() => setSuggestionsOpen(true)}
+            onKeyDown={handleSearchKeyDown}
             label="Search"
             variant="outlined"
             size="small"
@@ -49,7 +64,7 @@ export const SearchBar = (): ReactElement => {
               input: {
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton edge="end">
+                    <IconButton edge="end" onClick={handleSearchClick}>
                       <SearchIcon />
                     </IconButton>
                   </InputAdornment>
@@ -72,7 +87,7 @@ export const SearchBar = (): ReactElement => {
             marginLeft: isMobile ? "-10px !important" : "auto",
             maxHeight: "75%",
             overflowY: "auto",
-            borderBottom: "5px solid",
+            borderBottom: searchterm !== "" ? "5px solid" : "",
             borderBottomColor: "background.paper",
             borderRadius: "15px",
           }}

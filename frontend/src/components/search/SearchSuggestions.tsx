@@ -5,6 +5,7 @@ import { type ReactElement, useEffect, useState } from "react";
 import { useMobile } from "../../hooks/useMobile";
 import { searchApi } from "../../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { NoItemsFoundCard } from "../base/feedback/NoItemsFoundCard";
 import BookCard from "../BookCard";
 
 // 600ms after user stops typing
@@ -18,7 +19,7 @@ export const SearchSuggestions = ({
   searchterm,
 }: SearchSuggestionsProps): ReactElement => {
   const { isMobile } = useMobile();
-  const { mutateAsync: mutateGetSearchSuggestions } = useMutation({
+  const { mutateAsync: mutateGetSearchSuggestions, isSuccess } = useMutation({
     mutationKey: ["search-suggestions", searchterm],
     mutationFn: async (term: string) => {
       if (term === "") {
@@ -41,6 +42,10 @@ export const SearchSuggestions = ({
     );
     return (): void => clearTimeout(handle);
   }, [searchterm, mutateGetSearchSuggestions]);
+
+  if (searchterm !== "" && suggestions.length === 0 && isSuccess) {
+    return <NoItemsFoundCard itemName="Books" small />;
+  }
 
   if (searchterm === "" || suggestions.length === 0) {
     return <></>;
