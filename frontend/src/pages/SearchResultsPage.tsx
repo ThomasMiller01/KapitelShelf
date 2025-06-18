@@ -9,11 +9,9 @@ const SearchResultsPage = (): ReactElement => {
 
   const searchterm = searchParams.get("q");
 
-  console.log(searchterm);
-
   return (
     <Box>
-      <ItemAppBar title={`Search Results for "${searchterm}"`} />
+      <ItemAppBar title={`Search results for "${searchterm}"`} />
       <Box padding="24px">TODO</Box>
     </Box>
   );

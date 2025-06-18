@@ -29,6 +29,7 @@ export const SearchBar = (): ReactElement => {
 
   const handleSearchClick = (): void => {
     handleSuggestionsClose();
+    setSearchterm("");
 
     navigate(`/search?q=${searchterm}`);
   };
