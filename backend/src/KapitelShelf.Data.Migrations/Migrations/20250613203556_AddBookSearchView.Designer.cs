@@ -3,18 +3,20 @@ using System;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using NpgsqlTypes;
 
 #nullable disable
 
 namespace KapitelShelf.Data.Migrations.Migrations
 {
     [DbContext(typeof(KapitelShelfDBContext))]
-    partial class KapitelShelfDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250613203556_AddBookSearchView")]
+    partial class AddBookSearchView
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,46 +108,6 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.HasIndex("SeriesId");
 
                     b.ToTable("Books");
-                });
-
-            modelBuilder.Entity("KapitelShelf.Data.Models.BookSearchView", b =>
-                {
-                    b.Property<string>("AuthorNames")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CategoryNames")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<NpgsqlTsVector>("SearchVector")
-                        .IsRequired()
-                        .HasColumnType("tsvector");
-
-                    b.Property<string>("SeriesName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TagNames")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasIndex("Id");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("BookSearchView", (string)null);
                 });
 
             modelBuilder.Entity("KapitelShelf.Data.Models.BookTagModel", b =>
@@ -371,17 +333,6 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("Location");
 
                     b.Navigation("Series");
-                });
-
-            modelBuilder.Entity("KapitelShelf.Data.Models.BookSearchView", b =>
-                {
-                    b.HasOne("KapitelShelf.Data.Models.BookModel", "BookModel")
-                        .WithMany()
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BookModel");
                 });
 
             modelBuilder.Entity("KapitelShelf.Data.Models.BookTagModel", b =>

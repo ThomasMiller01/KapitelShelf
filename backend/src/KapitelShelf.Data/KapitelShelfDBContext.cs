@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,6 +70,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     public DbSet<UserBookMetadataModel> UserBookMetadata => Set<UserBookMetadataModel>();
 
     /// <summary>
+    /// Gets the book search view.
+    /// </summary>
+    public DbSet<BookSearchView> BookSearchView => Set<BookSearchView>();
+
+    /// <summary>
     /// On model creating.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -87,6 +93,16 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .WithMany(s => s.Books)
             .HasForeignKey(b => b.SeriesId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Book Search View
+        modelBuilder.Entity<BookSearchView>()
+            .HasNoKey()
+            .ToView("BookSearchView")
+
+            .HasOne(v => v.BookModel)
+            .WithMany()
+            .HasForeignKey(v => v.Id)
+            .HasPrincipalKey(b => b.Id);
 
         // Categories
         modelBuilder.Entity<BookCategoryModel>()
@@ -153,5 +169,8 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
 #pragma warning restore CA1062 // Validate arguments of public methods
 
         base.OnModelCreating(modelBuilder);
+
+        // register extension methods
+        modelBuilder.HasDbFunction(() => PgTrgmExtensions.Similarity(default!, default!));
     }
 }

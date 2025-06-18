@@ -79,6 +79,7 @@ const ItemAppBar = ({
           noWrap={false}
           sx={{
             textAlign: "left",
+            alignContent: "center",
             ml: "10px !important",
             mr: "10px !important",
             // dont wrap title too early
@@ -93,6 +94,7 @@ const ItemAppBar = ({
           direction="row"
           spacing={2}
           justifyContent="space-between"
+          alignItems="center"
           sx={{
             flexGrow: 1, // fill remaining space
             flexShrink: 1, // allow it to shrink if the title needs more

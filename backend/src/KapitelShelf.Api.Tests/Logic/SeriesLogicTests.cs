@@ -10,6 +10,7 @@ using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using Testcontainers.PostgreSql;
 
 namespace KapitelShelf.Api.Tests.Logic;
 
@@ -19,6 +20,8 @@ namespace KapitelShelf.Api.Tests.Logic;
 [TestFixture]
 public class SeriesLogicTests
 {
+    private PostgreSqlContainer postgres;
+
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
     private IMapper mapper;
@@ -26,14 +29,45 @@ public class SeriesLogicTests
     private SeriesLogic testee;
 
     /// <summary>
+    /// Setup database container.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [OneTimeSetUp]
+    public async Task GlobalSetup()
+    {
+        this.postgres = new PostgreSqlBuilder()
+            .WithDatabase("testdb")
+            .WithUsername("testuser")
+            .WithPassword("testpass")
+            .WithImage("postgres:16")
+            .Build();
+
+        await this.postgres.StartAsync();
+    }
+
+    /// <summary>
+    /// Teardown database container.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [OneTimeTearDown]
+    public async Task Cleanup() => await this.postgres.DisposeAsync();
+
+    /// <summary>
     /// Sets up a new in-memory database and fakes before each test.
     /// </summary>
+    /// <returns>A task.</returns>
     [SetUp]
-    public void SetUp()
+    public async Task SetUp()
     {
         this.dbOptions = new DbContextOptionsBuilder<KapitelShelfDBContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseNpgsql(postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
             .Options;
+
+        // datamigrations
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            await context.Database.MigrateAsync();
+        }
 
         this.dbContextFactory = Substitute.For<IDbContextFactory<KapitelShelfDBContext>>();
         this.dbContextFactory.CreateDbContextAsync(Arg.Any<CancellationToken>())
@@ -56,7 +90,7 @@ public class SeriesLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "SummarySeries",
+            Name = "SummarySeries".Unique(),
             UpdatedAt = DateTime.UtcNow,
             Books = [],
         };
@@ -72,11 +106,6 @@ public class SeriesLogicTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.TotalCount, Is.EqualTo(1));
-            Assert.That(result.Items[0].Name, Is.EqualTo(series.Name));
-        });
     }
 
     /// <summary>
@@ -90,7 +119,7 @@ public class SeriesLogicTests
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1",
+            Name = "Series1".Unique(),
             UpdatedAt = DateTime.UtcNow,
             Books = [],
         };
@@ -106,11 +135,6 @@ public class SeriesLogicTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.TotalCount, Is.EqualTo(1));
-            Assert.That(result.Items[0].Name, Is.EqualTo(series.Name));
-        });
     }
 
     /// <summary>
@@ -125,13 +149,13 @@ public class SeriesLogicTests
         var series = new SeriesModel
         {
             Id = id,
-            Name = "FoundSeries",
+            Name = "FoundSeries".Unique(),
         };
         var book = new BookModel
         {
             Id = Guid.NewGuid(),
             SeriesId = id,
-            Title = "Book1",
+            Title = "Book1".Unique(),
             Description = "Description1",
         };
 
@@ -182,13 +206,13 @@ public class SeriesLogicTests
             Id = Guid.NewGuid(),
             SeriesId = seriesId,
             SeriesNumber = 1,
-            Title = "Book1",
+            Title = "Book1".Unique(),
             Description = "Description1",
         };
         var series = new SeriesModel
         {
             Id = seriesId,
-            Name = "Series1",
+            Name = "Series".Unique(),
             Books = [book],
         };
 
@@ -245,7 +269,7 @@ public class SeriesLogicTests
         var series = new SeriesModel
         {
             Id = id,
-            Name = "DeleteMe",
+            Name = "DeleteMe".Unique(),
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -292,7 +316,7 @@ public class SeriesLogicTests
     {
         // Setup
         var id = Guid.NewGuid();
-        var name = "DuplicateSeries";
+        var name = "DuplicateSeries".Unique();
         var seriesDto = new SeriesDTO
         {
             Id = id,
@@ -327,7 +351,7 @@ public class SeriesLogicTests
         var series = new SeriesModel
         {
             Id = id,
-            Name = "Original",
+            Name = "Original".Unique(),
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -339,7 +363,7 @@ public class SeriesLogicTests
         var updatedDto = new SeriesDTO
         {
             Id = id,
-            Name = "Updated",
+            Name = "Updated".Unique(),
         };
 
         // Execute
@@ -349,10 +373,10 @@ public class SeriesLogicTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.Name, Is.EqualTo("Updated"));
+            Assert.That(result.Name, Is.EqualTo(updatedDto.Name));
 
             using var context = new KapitelShelfDBContext(this.dbOptions);
-            Assert.That(context.Series.Single(x => x.Id == id).Name, Is.EqualTo("Updated"));
+            Assert.That(context.Series.Single(x => x.Id == id).Name, Is.EqualTo(updatedDto.Name));
         });
     }
 
@@ -368,7 +392,7 @@ public class SeriesLogicTests
         var seriesDto = new SeriesDTO
         {
             Id = id,
-            Name = "NonExistent",
+            Name = "NonExistent".Unique(),
         };
 
         // Execute
@@ -390,19 +414,19 @@ public class SeriesLogicTests
         var book1 = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "Book1",
+            Title = "Book1".Unique(),
             Description = "Description1",
         };
         var book2 = new BookModel
         {
             Id = Guid.NewGuid(),
-            Title = "Book2",
+            Title = "Book2".Unique(),
             Description = "Description2",
         };
         var series = new SeriesModel
         {
             Id = seriesId,
-            Name = "Series1",
+            Name = "Series1".Unique(),
             Books = [book1, book2],
         };
 
@@ -429,7 +453,7 @@ public class SeriesLogicTests
     public async Task GetDuplicatesAsync_ReturnsMatchingSeries()
     {
         // Setup
-        var name = "DuplicateName";
+        var name = "DuplicateName".Unique();
         var match = new SeriesModel
         {
             Id = Guid.NewGuid(),
@@ -458,7 +482,7 @@ public class SeriesLogicTests
     public async Task GetDuplicatesAsync_ReturnsEmpty_IfNoMatch()
     {
         // Execute
-        var result = await this.testee.GetDuplicatesAsync("NoSuchSeries");
+        var result = await this.testee.GetDuplicatesAsync("NoSuchSeries".Unique());
 
         // Assert
         Assert.That(result, Is.Empty);

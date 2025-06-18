@@ -8,6 +8,7 @@ import EditBookDetailPage from "../pages/book/EditBookDetailPage";
 import ImportBookPage from "../pages/book/ImportBookPage";
 import HomePage from "../pages/HomePage";
 import BooksPage from "../pages/LibraryPage";
+import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
 
@@ -28,6 +29,7 @@ const AppRoutes = (): ReactElement | null =>
         { path: "library/books/:bookId/edit", element: <EditBookDetailPage /> },
         { path: "library/books/create", element: <CreateBookPage /> },
         { path: "library/books/import", element: <ImportBookPage /> },
+        { path: "search", element: <SearchResultsPage /> },
       ],
     },
   ]);

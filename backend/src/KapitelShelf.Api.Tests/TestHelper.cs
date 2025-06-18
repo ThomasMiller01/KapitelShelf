@@ -42,4 +42,14 @@ public static class Testhelper
         });
         return config.CreateMapper();
     }
+
+    /// <summary>
+    /// Make a string unique.
+    /// </summary>
+    /// <param name="value">The string.</param>
+    /// <returns>The unique string.</returns>
+    public static string Unique(this string value)
+    {
+        return $"{value}_{Guid.NewGuid()}";
+    }
 }
