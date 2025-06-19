@@ -30,6 +30,7 @@ const BookCard = ({
     <ItemCardLayout
       itemVariant={itemVariant}
       title={book.title}
+      description={book.description}
       link={`/library/books/${book.id}`}
       image={CoverUrl(book)}
       onClick={onClick}
@@ -51,6 +52,7 @@ const BookCard = ({
             direction="row"
             justifyContent="space-between"
             spacing={0}
+            width="100%"
           >
             <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
               {LocationTypeToString[book.location?.type ?? -1]}

@@ -78,7 +78,7 @@ body:
       description: |
         Please provide the version of the KapitelShelf Frontend you are using.
         (You can find this in the footer of the KapitelShelf web interface)
-      placeholder: v0.2.0
+      placeholder: vX.Y.Z
     validations:
       required: true
   - type: input
@@ -88,7 +88,7 @@ body:
       description: |
         Please provide the version of the KapitelShelf API you are using.
         (You can find this in the footer of the KapitelShelf web interface)
-      placeholder: v0.2.0
+      placeholder: vX.Y.Z
     validations:
       required: true
   
