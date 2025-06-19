@@ -125,6 +125,7 @@ const DetailedItemCardLayout = ({
           {/* Title */}
           <Typography
             variant="h6"
+            gutterBottom
             sx={{
               fontSize: isMobile ? "0.8rem !important" : "1rem !important",
               display: "-webkit-box",
@@ -134,7 +135,7 @@ const DetailedItemCardLayout = ({
               textOverflow: "ellipsis",
               lineHeight: 1.2,
               minHeight: "2.4em",
-              wordBreak: "break-all",
+              wordBreak: "break-word",
             }}
           >
             {title}
@@ -147,7 +148,11 @@ const DetailedItemCardLayout = ({
             textOverflow="ellipsis"
             overflow="hidden"
             gutterBottom
-            sx={{ WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}
+            sx={{
+              WebkitLineClamp: 4,
+              WebkitBoxOrient: "vertical",
+              wordBreak: "break-word",
+            }}
           >
             {description}
           </Typography>

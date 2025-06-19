@@ -118,7 +118,7 @@ const NormalItemCardLayout = ({
               textOverflow: "ellipsis",
               lineHeight: 1.2,
               minHeight: "2.4em",
-              wordBreak: "break-all",
+              wordBreak: "break-word",
             }}
           >
             {title}

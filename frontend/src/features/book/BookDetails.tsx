@@ -66,11 +66,20 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
         </Grid>
 
         <Grid size={{ xs: 11, md: 7.5 }} mt="20px">
-          <Typography variant="h5" gutterBottom>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{ wordBreak: "break-word" }}
+          >
             {book.title}
           </Typography>
 
-          <Typography variant="body1" color="text.secondary" mb="15px">
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            mb="15px"
+            sx={{ wordBreak: "break-word" }}
+          >
             {book.description}
           </Typography>
 
