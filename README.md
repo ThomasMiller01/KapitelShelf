@@ -12,10 +12,10 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 - Manage physical and digital books with file support
 - Responsive UI (desktop, tablet, mobile)
 - Import and sync books with filesystem _(sync planned)_
-  - Bulk import from CSV ([see Guide](docs/quickstart.md#22-import-in-bulk-from-csv))
-- Browse and search books, series, author and tags _(authors & tags planned)_
+  - Bulk import from CSV ([see Guide](docs/references.md#import-in-bulk-from-csv))
+- Browse and search books, series, author and tags
 - Full user metadata editing (notes, read status, favorite) _(planned)_
-  - Import metadata from Amazon, Google and OpenLibrary ([see Guide](docs/quickstart.md#23-import-metadata))
+  - Import metadata from Amazon, Google and OpenLibrary ([see Guide](docs/references.md#import-metadata-for-a-book))
 - Shelves and filtering (tags, categories, series, location) _(planned)_
 - OPDS support for eReaders _(planned)_
 
@@ -34,6 +34,7 @@ See the [Quickstart Guide](docs/quickstart.md) for an introduction to using Kapi
 - [Development Guide](docs/development.md)
 - [Helm Chart](helm/kapitelshelf/README.md)
 - [Examples](examples/README.md)
+- [References](docs/references.md)
 
 ## Development
 
