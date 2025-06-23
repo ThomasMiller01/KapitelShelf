@@ -1,5 +1,20 @@
-# build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+# build stage for Migrations
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-migrations
+
+WORKDIR /src
+
+COPY ./KapitelShelf.Data ./KapitelShelf.Data
+COPY ./KapitelShelf.Data.Migrations ./KapitelShelf.Data.Migrations
+COPY .editorconfig .editorconfig
+
+WORKDIR /src/KapitelShelf.Data.Migrations
+
+RUN dotnet restore "./KapitelShelf.Data.Migrations.csproj" && \
+    dotnet build "./KapitelShelf.Data.Migrations.csproj" -c Release -o /app/build && \
+    dotnet publish "./KapitelShelf.Data.Migrations.csproj" -c Release -o /app/publish
+
+# build stage for API
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-api
 
 WORKDIR /src
 
@@ -18,9 +33,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
 
 WORKDIR /app
 
-COPY --from=build /app/publish .
+COPY --from=build-api /app/publish ./api
+COPY --from=build-migrations /app/publish ./migrations
 
 EXPOSE 5261
 ENV HTTP_PORTS=5261
 
-ENTRYPOINT ["dotnet", "KapitelShelf.Api.dll"]
+ENTRYPOINT ["sh", "-c", "dotnet ./migrations/KapitelShelf.Data.Migrations.dll && dotnet ./api/KapitelShelf.Api.dll"]

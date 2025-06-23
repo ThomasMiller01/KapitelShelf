@@ -20,13 +20,11 @@ For a detailed installation and configuration options see the Helm chart's [READ
 
 ```yaml
 services:
+  # ----- KapitelShelf -----
   frontend:
     container_name: kapitelshelf-frontend
     image: thomasmiller01/kapitelshelf-frontend:latest
     restart: unless-stopped
-    depends_on:
-      migrator:
-        condition: service_completed_successfully
     environment:
       VITE_KAPITELSHELF_API: http://localhost:5261
     ports:
@@ -37,9 +35,10 @@ services:
     image: thomasmiller01/kapitelshelf-api:latest
     restart: unless-stopped
     depends_on:
-      migrator:
-        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
     environment:
+      KapitelShelf__DataDir: /var/lib/kapitelshelf/data
       KapitelShelf__Database__Host: host.docker.internal:5432
       KapitelShelf__Database__Username: kapitelshelf
       KapitelShelf__Database__Password: kapitelshelf
@@ -48,19 +47,7 @@ services:
     volumes:
       - kapitelshelf_data:/var/lib/kapitelshelf/data
 
-  migrator:
-    container_name: kapitelshelf-migrator
-    image: thomasmiller01/kapitelshelf-migrator:latest
-    restart: no
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      KapitelShelf__Database__Host: host.docker.internal:5432
-      KapitelShelf__Database__Username: kapitelshelf
-      KapitelShelf__Database__Password: kapitelshelf
-
-  # ----- database -----
+  # ----- Database -----
   postgres:
     image: postgres:16.8
     container_name: postgres
@@ -97,7 +84,6 @@ The docker images are published on:
 | -------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Frontend | `thomasmiller01/kapitelshelf-frontend` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-frontend) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-frontend) |
 | API      | `thomasmiller01/kapitelshelf-api`      | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-api) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-api)           |
-| Migrator | `thomasmiller01/kapitelshelf-migrator` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-migrator) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-migrator) |
 
 ### Frontend
 
@@ -122,6 +108,7 @@ docker run -d \
 docker run -d \
     --name=kapitelshelf-api \
     -p 5261:5261 \
+    -e KapitelShelf__DataDir=./data \
     -e KapitelShelf__Database__Host=host.docker.internal:5432 \
     -e KapitelShelf__Database__Username=kapitelshelf \
     -e KapitelShelf__Database__Password=kapitelshelf \
@@ -138,23 +125,3 @@ docker run -d \
 | `KapitelShelf__Database__Host`     | `host.docker.internal:5432`  | `KapitelShelf.Database.Host`     |
 | `KapitelShelf__Database__Username` | `kapitelshelf`               | `KapitelShelf.Database.Username` |
 | `KapitelShelf__Database__Password` | `kapitelshelf`               | `KapitelShelf.Database.Password` |
-
-### Migrator
-
-```bash
-docker run -d \
-    --name=kapitelshelf-migrator \
-    -e KapitelShelf__Database__Host=host.docker.internal:5432 \
-    -e KapitelShelf__Database__Username=kapitelshelf \
-    -e KapitelShelf__Database__Password=kapitelshelf \
-    --restart no \
-    thomasmiller01/kapitelshelf-migrator
-```
-
-#### Environment Variables
-
-| Environment Variable               | Default                     | Settings Path (appsettings.json) |
-| ---------------------------------- | --------------------------- | -------------------------------- |
-| `KapitelShelf__Database__Host`     | `host.docker.internal:5432` | `KapitelShelf.Database.Host`     |
-| `KapitelShelf__Database__Username` | `kapitelshelf`              | `KapitelShelf.Database.Username` |
-| `KapitelShelf__Database__Password` | `kapitelshelf`              | `KapitelShelf.Database.Password` |
