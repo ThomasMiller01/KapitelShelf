@@ -123,31 +123,6 @@ api:
       cpu: 250m
       memory: 512Mi
 
-migrator:
-  image:
-    # -- Docker image repository
-    # @section -- Migrator Values
-    repository: thomasmiller01/kapitelshelf-migrator
-    # -- Docker image tag
-    # @section -- Migrator Values
-    tag: "0.1.2"
-    # -- Docker [imagePullPolicy](https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images)
-    # @section -- Migrator Values
-    pullPolicy: IfNotPresent
-
-  resources:
-    # -- Sets the migrator container resources limits
-    # @section -- Migrator Values
-    limits:
-      cpu: 200m
-      memory: 256Mi
-      
-    # -- Sets the migrator container resources limits
-    # @section -- Migrator Values
-    requests:
-      cpu: 100m
-      memory: 128Mi
-
 postgresql:  
   auth:
     # -- PostgreSQL database username **(Change this for production!)**

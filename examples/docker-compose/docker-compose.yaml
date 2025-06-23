@@ -1,0 +1,60 @@
+services:
+  # ----- KapitelShelf -----
+  frontend:
+    container_name: kapitelshelf-frontend
+    image: thomasmiller01/kapitelshelf-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      VITE_KAPITELSHELF_API: http://localhost:5261
+    ports:
+      - "5173:5173"
+
+  api:
+    container_name: kapitelshelf-api
+    image: thomasmiller01/kapitelshelf-api:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5261/health/live"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    environment:
+      KapitelShelf__DataDir: /var/lib/kapitelshelf/data
+      KapitelShelf__Database__Host: host.docker.internal:5432
+      KapitelShelf__Database__Username: kapitelshelf
+      KapitelShelf__Database__Password: kapitelshelf
+    ports:
+      - "5261:5261"
+    volumes:
+      - kapitelshelf_data:/var/lib/kapitelshelf/data
+
+  # ----- Database -----
+  postgres:
+    image: postgres:16.8
+    container_name: postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    environment:
+      POSTGRES_USER: kapitelshelf
+      POSTGRES_PASSWORD: kapitelshelf
+      POSTGRES_DB: kapitelshelf
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  kapitelshelf_data:
+  postgres_data:

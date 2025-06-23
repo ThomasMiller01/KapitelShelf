@@ -33,6 +33,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
 
 WORKDIR /app
 
+# install curl for docker-compose healthchecks
+RUN apt-get update && apt-get install -y curl
+
 COPY --from=build-api /app/publish ./api
 COPY --from=build-migrations /app/publish ./migrations
 
