@@ -42,4 +42,4 @@ COPY --from=build-migrations /app/publish ./migrations
 EXPOSE 5261
 ENV HTTP_PORTS=5261
 
-ENTRYPOINT ["sh", "-c", "dotnet ./migrations/KapitelShelf.Data.Migrations.dll && dotnet ./api/KapitelShelf.Api.dll"]
+ENTRYPOINT ["sh", "-c", "cd ./migrations && dotnet KapitelShelf.Data.Migrations.dll && cd ../api && dotnet KapitelShelf.Api.dll"]
