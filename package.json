@@ -17,8 +17,7 @@
     "gen:helm:docs": "docker run --rm -v %cd%/helm:/helm-docs -v %cd%/docs/helm:/templates jnorwood/helm-docs:v1.14.2 --template-files=/templates/README.md.gotmpl",
     "release:helm": "cd ./helm/kapitelshelf && npx commit-and-tag-version -a && git push origin main --tags",
     "release:frontend": "cd ./frontend && npx commit-and-tag-version && git push origin main --tags",
-    "release:backend:api": "cd ./backend/src/KapitelShelf.Api && npx commit-and-tag-version && git push origin main --tags",
-    "release:backend:migrations": "cd ./backend/src/KapitelShelf.Data.Migrations && npx commit-and-tag-version && git push origin main --tags"
+    "release:backend:api": "cd ./backend/src/KapitelShelf.Api && npx commit-and-tag-version && git push origin main --tags"
   },
   "devDependencies": {
     "commit-and-tag-version": "^12.5.1",

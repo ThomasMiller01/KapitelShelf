@@ -57,19 +57,6 @@
         "focus": false
       },
       "problemMatcher": []
-    },
-    {
-      "label": "Release: Bump Migrations",
-      "type": "shell",
-      "command": "npm run release:backend:migrations",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": false
-      },
-      "problemMatcher": []
     }
   ]
 }

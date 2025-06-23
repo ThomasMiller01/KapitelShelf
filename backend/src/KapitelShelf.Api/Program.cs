@@ -8,6 +8,7 @@ using System.Text.Json;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
@@ -79,6 +80,10 @@ builder.Services.AddSingleton<MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
 builder.Services.AddSingleton<SearchLogic>();
 
+// healthchecks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<KapitelShelfDBContext>("CheckDatabase");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -97,5 +102,22 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// healthchecks
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    // Only checks app is running (liveness)
+    Predicate = _ => false,
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    // Checks all registered health checks (readiness)
+    Predicate = _ => true,
+});
+app.MapHealthChecks("/health/startup", new HealthCheckOptions
+{
+    // Checks all registered health checks (startup, same as readiness)
+    Predicate = _ => true,
+});
 
 app.Run();

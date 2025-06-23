@@ -1,11 +1,12 @@
 services:
+  # ----- KapitelShelf -----
   frontend:
     container_name: kapitelshelf-frontend
-    image: thomasmiller01/kapitelshelf-frontend:test
+    image: thomasmiller01/kapitelshelf-frontend:latest
     restart: unless-stopped
     depends_on:
-      migrator:
-        condition: service_completed_successfully
+      api:
+        condition: service_healthy
     environment:
       VITE_KAPITELSHELF_API: http://localhost:5261
     ports:
@@ -13,12 +14,19 @@ services:
 
   api:
     container_name: kapitelshelf-api
-    image: thomasmiller01/kapitelshelf-api:test
+    image: thomasmiller01/kapitelshelf-api:latest
     restart: unless-stopped
     depends_on:
-      migrator:
-        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5261/health/live"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     environment:
+      KapitelShelf__DataDir: /var/lib/kapitelshelf/data
       KapitelShelf__Database__Host: host.docker.internal:5432
       KapitelShelf__Database__Username: kapitelshelf
       KapitelShelf__Database__Password: kapitelshelf
@@ -27,19 +35,7 @@ services:
     volumes:
       - kapitelshelf_data:/var/lib/kapitelshelf/data
 
-  migrator:
-    container_name: kapitelshelf-migrator
-    image: thomasmiller01/kapitelshelf-migrator:test
-    restart: no
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      KapitelShelf__Database__Host: host.docker.internal:5432
-      KapitelShelf__Database__Username: kapitelshelf
-      KapitelShelf__Database__Password: kapitelshelf
-
-  # ----- database -----
+  # ----- Database -----
   postgres:
     image: postgres:16.8
     container_name: postgres

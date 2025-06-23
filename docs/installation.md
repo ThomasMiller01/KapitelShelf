@@ -18,72 +18,7 @@ For a detailed installation and configuration options see the Helm chart's [READ
 
 ## docker-compose
 
-```yaml
-services:
-  frontend:
-    container_name: kapitelshelf-frontend
-    image: thomasmiller01/kapitelshelf-frontend:latest
-    restart: unless-stopped
-    depends_on:
-      migrator:
-        condition: service_completed_successfully
-    environment:
-      VITE_KAPITELSHELF_API: http://localhost:5261
-    ports:
-      - "5173:5173"
-
-  api:
-    container_name: kapitelshelf-api
-    image: thomasmiller01/kapitelshelf-api:latest
-    restart: unless-stopped
-    depends_on:
-      migrator:
-        condition: service_completed_successfully
-    environment:
-      KapitelShelf__Database__Host: host.docker.internal:5432
-      KapitelShelf__Database__Username: kapitelshelf
-      KapitelShelf__Database__Password: kapitelshelf
-    ports:
-      - "5261:5261"
-    volumes:
-      - kapitelshelf_data:/var/lib/kapitelshelf/data
-
-  migrator:
-    container_name: kapitelshelf-migrator
-    image: thomasmiller01/kapitelshelf-migrator:latest
-    restart: no
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      KapitelShelf__Database__Host: host.docker.internal:5432
-      KapitelShelf__Database__Username: kapitelshelf
-      KapitelShelf__Database__Password: kapitelshelf
-
-  # ----- database -----
-  postgres:
-    image: postgres:16.8
-    container_name: postgres
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
-    environment:
-      POSTGRES_USER: kapitelshelf
-      POSTGRES_PASSWORD: kapitelshelf
-      POSTGRES_DB: kapitelshelf
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-volumes:
-  kapitelshelf_data:
-  postgres_data:
-```
+You can find an example `docker-compose.yaml` file in [examples/docker-compose](../examples/docker-compose/docker-compose.yaml).
 
 ## Docker (Standalone)
 
@@ -97,7 +32,6 @@ The docker images are published on:
 | -------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Frontend | `thomasmiller01/kapitelshelf-frontend` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-frontend) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-frontend) |
 | API      | `thomasmiller01/kapitelshelf-api`      | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-api) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-api)           |
-| Migrator | `thomasmiller01/kapitelshelf-migrator` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-migrator) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-migrator) |
 
 ### Frontend
 
@@ -122,6 +56,7 @@ docker run -d \
 docker run -d \
     --name=kapitelshelf-api \
     -p 5261:5261 \
+    -e KapitelShelf__DataDir=./data \
     -e KapitelShelf__Database__Host=host.docker.internal:5432 \
     -e KapitelShelf__Database__Username=kapitelshelf \
     -e KapitelShelf__Database__Password=kapitelshelf \
@@ -138,23 +73,3 @@ docker run -d \
 | `KapitelShelf__Database__Host`     | `host.docker.internal:5432`  | `KapitelShelf.Database.Host`     |
 | `KapitelShelf__Database__Username` | `kapitelshelf`               | `KapitelShelf.Database.Username` |
 | `KapitelShelf__Database__Password` | `kapitelshelf`               | `KapitelShelf.Database.Password` |
-
-### Migrator
-
-```bash
-docker run -d \
-    --name=kapitelshelf-migrator \
-    -e KapitelShelf__Database__Host=host.docker.internal:5432 \
-    -e KapitelShelf__Database__Username=kapitelshelf \
-    -e KapitelShelf__Database__Password=kapitelshelf \
-    --restart no \
-    thomasmiller01/kapitelshelf-migrator
-```
-
-#### Environment Variables
-
-| Environment Variable               | Default                     | Settings Path (appsettings.json) |
-| ---------------------------------- | --------------------------- | -------------------------------- |
-| `KapitelShelf__Database__Host`     | `host.docker.internal:5432` | `KapitelShelf.Database.Host`     |
-| `KapitelShelf__Database__Username` | `kapitelshelf`              | `KapitelShelf.Database.Username` |
-| `KapitelShelf__Database__Password` | `kapitelshelf`              | `KapitelShelf.Database.Password` |

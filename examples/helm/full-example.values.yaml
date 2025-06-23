@@ -68,20 +68,6 @@ api:
       cpu: 250m
       memory: 512Mi
 
-migrator:
-  image:
-    repository: thomasmiller01/kapitelshelf-migrator
-    tag: "latest"
-    pullPolicy: IfNotPresent
-
-  resources:
-    limits:
-      cpu: 200m
-      memory: 256Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-
 postgresql:
   auth:
     username: "<POSTGRES_USERNAME>"
