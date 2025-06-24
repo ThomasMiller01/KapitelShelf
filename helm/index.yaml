@@ -3,7 +3,7 @@ entries:
   KapitelShelf:
   - apiVersion: v2
     appVersion: N/A
-    created: "2025-06-24T16:21:54.984502883Z"
+    created: "2025-06-24T16:23:05.222269567Z"
     dependencies:
     - condition: global.deployPostgresql
       name: postgresql
@@ -12,7 +12,7 @@ entries:
     description: KapitelShelf helm chart for deploying the KapitelShelf application
       stack, including optional PostgreSQL database support. Provides a flexible setup
       for both self-contained and external database configurations.
-    digest: 71528afa1250669960d445835d94ec53eca81e879f3386dc859622920f4fc4d9
+    digest: 0eef3ed305665e4d5bddbc4153115dd04b20d543686f04c5efce78490420f6f2
     home: https://github.com/ThomasMiller01/KapitelShelf
     name: KapitelShelf
     sources:
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://thomasmiller01.github.io/KapitelShelf/helm/KapitelShelf-0.2.1.tgz
     version: 0.2.1
-generated: "2025-06-24T16:21:54.979198178Z"
+generated: "2025-06-24T16:23:05.216256888Z"
