@@ -7,6 +7,7 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -138,6 +139,44 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         series.TotalBooks = bookCount;
 
         return series;
+    }
+
+    /// <summary>
+    /// Search all series by their name.
+    /// </summary>
+    /// <param name="name">The series name.</param>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<PagedResult<SeriesDTO>> Search(string name, int page, int pageSize)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return new PagedResult<SeriesDTO> { Items = [], TotalCount = 0 };
+        }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var query = context.Series
+            .AsNoTracking()
+            .FilterBySeriesNameQuery(name);
+
+        var items = await query
+            .SortBySeriesNameQuery(name)
+
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.Map<SeriesDTO>(x))
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
+
+        return new PagedResult<SeriesDTO>
+        {
+            Items = items,
+            TotalCount = totalCount,
+        };
     }
 
     /// <summary>

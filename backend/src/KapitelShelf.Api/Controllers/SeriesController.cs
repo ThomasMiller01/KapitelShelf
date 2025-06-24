@@ -97,6 +97,51 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
     }
 
     /// <summary>
+    /// Search series with the series name.
+    /// </summary>
+    /// <param name="name">The series name.</param>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("search")]
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetSearchResult(
+        [FromQuery] string name,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 24)
+    {
+        try
+        {
+            var result = await this.logic.Search(name, page, pageSize);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error searching series by name: {Name}", name);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Search suggestions with the series name.
+    /// </summary>
+    /// <param name="name">The series name.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("search/suggestions")]
+    public async Task<ActionResult<List<BookDTO>>> GetSearchSuggestions([FromQuery] string name)
+    {
+        try
+        {
+            var result = await this.logic.Search(name, page: 1, pageSize: StaticConstants.MaxSearchSuggestions);
+            return Ok(result.Items);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching suggestions by series name: {Name}", name);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Delete a series.
     /// </summary>
     /// <param name="seriesId">The id of the seriesto delete.</param>
