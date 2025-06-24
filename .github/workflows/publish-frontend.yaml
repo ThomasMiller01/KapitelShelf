@@ -105,14 +105,24 @@ jobs:
         working-directory: ./frontend
         run: |
           # Pull the section under "## vX.Y.Z" up until the next "## "
-          awk '
-            # when we hit the header for our version, start printing
-            $0 ~ "^## '"$VERSION"'[[:space:]]*\\(" { flag=1 }
-            # if we see a new header (and have already started), exit
-            /^## / && flag && $0 !~ "^## '"$VERSION"'[[:space:]]*\\(" { exit }
-            # if flag is set, print the line
-            flag { print }
-          ' CHANGELOG.md > release_body.txt
+          IN_SECTION=0
+          while IFS= read -r line
+          do
+              # If this line is the header for our version, start capturing
+              if [[ "$line" =~ ^##\ \[$VERSION\] ]]; then
+                  IN_SECTION=1
+                  echo "$line"
+                  continue
+              fi
+              # If we reach the next version header, stop capturing
+              if [[ "$IN_SECTION" -eq 1 && "$line" =~ ^##\ \[ ]]; then
+                  break
+              fi
+              # Print the line if we're inside the desired version section
+              if [[ "$IN_SECTION" -eq 1 ]]; then
+                  echo "$line"
+              fi
+          done < CHANGELOG.md > release_body.txt
 
           # Export it as a multiline ENV for use in create-release
           echo 'RELEASE_BODY<<EOF' >> $GITHUB_ENV
@@ -124,7 +134,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: frontend@${{ env.VERSION }}
           release_name: "Frontend v${{ env.VERSION }}"
           body: ${{ env.RELEASE_BODY }}
