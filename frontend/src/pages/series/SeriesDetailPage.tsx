@@ -1,6 +1,17 @@
+import AddLinkIcon from "@mui/icons-material/AddLink";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Box, Chip, IconButton, styled } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {
+  Box,
+  Chip,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  styled,
+} from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -9,6 +20,7 @@ import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
+import MergeSeriesDialog from "../../components/series/MergeSeriesDialog";
 import SeriesBooksList from "../../features/series/SeriesBooksList";
 import { useMobile } from "../../hooks/useMobile";
 import { seriesApi } from "../../lib/api/KapitelShelf.Api";
@@ -69,6 +81,13 @@ const SeriesDetailPage = (): ReactElement => {
     navigate("/library");
   };
 
+  const [mergeSeriesOpen, setMergeSeriesOpen] = useState(false);
+  const onMergeSeries = async (): Promise<void> => {
+    setMergeSeriesOpen(false);
+
+    alert("TODO");
+  };
+
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Series" showRandomFacts />;
   }
@@ -101,6 +120,10 @@ const SeriesDetailPage = (): ReactElement => {
           <IconButton onClick={() => setDeleteOpen(true)} key="delete">
             <DeleteIcon />
           </IconButton>,
+          <OptionsMenu
+            key="options"
+            onMergeSeriesClick={() => setMergeSeriesOpen(true)}
+          />,
         ]}
       />
       <Box padding="24px">
@@ -113,8 +136,65 @@ const SeriesDetailPage = (): ReactElement => {
         title="Confirm to delete this series"
         description="Are you sure you want to delete this series? This action cannot be undone."
       />
+      <MergeSeriesDialog
+        open={mergeSeriesOpen}
+        onCancel={() => setMergeSeriesOpen(false)}
+        onConfirm={onMergeSeries}
+      />
     </Box>
   );
 };
+
+interface OptionsMenuProps {
+  onMergeSeriesClick: () => void;
+}
+
+const OptionsMenu = ({
+  onMergeSeriesClick,
+}: OptionsMenuProps): ReactElement => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = (): void => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <IconButton onClick={handleClick}>
+        <MoreVertIcon />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <OptionMenuItem
+          text="Merge with Series"
+          icon={<AddLinkIcon />}
+          onClick={() => {
+            onMergeSeriesClick();
+            handleClose();
+          }}
+        />
+      </Menu>
+    </>
+  );
+};
+
+interface OptionMenuItemProps {
+  text: string;
+  icon?: ReactElement;
+  onClick: () => void;
+}
+
+const OptionMenuItem = ({
+  text,
+  icon,
+  onClick,
+}: OptionMenuItemProps): ReactElement => (
+  <MenuItem onClick={onClick}>
+    {icon && <ListItemIcon>{icon}</ListItemIcon>}
+    <ListItemText>{text}</ListItemText>
+  </MenuItem>
+);
 
 export default SeriesDetailPage;
