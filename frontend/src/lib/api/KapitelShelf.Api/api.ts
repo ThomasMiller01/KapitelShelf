@@ -2032,6 +2032,86 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
+         * @summary Search series with the series name.
+         * @param {string} [name] The series name.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSearchGet: async (name?: string, page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/series/search`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (pageSize !== undefined) {
+                localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Search suggestions with the series name.
+         * @param {string} [name] The series name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSearchSuggestionsGet: async (name?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/series/search/suggestions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get books by the series id.
          * @param {string} seriesId The series id of the books to get.
          * @param {number} [page] The page number.
@@ -2247,6 +2327,34 @@ export const SeriesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Search series with the series name.
+         * @param {string} [name] The series name.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSearchGet(name?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSearchGet(name, page, pageSize, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSearchGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Search suggestions with the series name.
+         * @param {string} [name] The series name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSearchSuggestionsGet(name?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BookDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSearchSuggestionsGet(name, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSearchSuggestionsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get books by the series id.
          * @param {string} seriesId The series id of the books to get.
          * @param {number} [page] The page number.
@@ -2338,6 +2446,28 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
+         * @summary Search series with the series name.
+         * @param {string} [name] The series name.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSearchGet(name?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
+            return localVarFp.seriesSearchGet(name, page, pageSize, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Search suggestions with the series name.
+         * @param {string} [name] The series name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSearchSuggestionsGet(name?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
+            return localVarFp.seriesSearchSuggestionsGet(name, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get books by the series id.
          * @param {string} seriesId The series id of the books to get.
          * @param {number} [page] The page number.
@@ -2412,6 +2542,32 @@ export class SeriesApi extends BaseAPI {
      */
     public seriesGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
         return SeriesApiFp(this.configuration).seriesGet(page, pageSize, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Search series with the series name.
+     * @param {string} [name] The series name.
+     * @param {number} [page] The page number.
+     * @param {number} [pageSize] The page size.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSearchGet(name?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSearchGet(name, page, pageSize, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Search suggestions with the series name.
+     * @param {string} [name] The series name.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSearchSuggestionsGet(name?: string, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSearchSuggestionsGet(name, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

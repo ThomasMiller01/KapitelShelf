@@ -20,10 +20,11 @@ import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import MergeSeriesDialog from "../../components/series/MergeSeriesDialog";
+import MergeSeriesDetails from "../../features/series/MergeSeriesDetails";
 import SeriesBooksList from "../../features/series/SeriesBooksList";
 import { useMobile } from "../../hooks/useMobile";
 import { seriesApi } from "../../lib/api/KapitelShelf.Api";
+import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 const VolumesBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",
@@ -82,8 +83,10 @@ const SeriesDetailPage = (): ReactElement => {
   };
 
   const [mergeSeriesOpen, setMergeSeriesOpen] = useState(false);
-  const onMergeSeries = async (): Promise<void> => {
+  const onMergeSeries = (series: SeriesDTO): void => {
     setMergeSeriesOpen(false);
+
+    console.log(series);
 
     alert("TODO");
   };
@@ -136,7 +139,8 @@ const SeriesDetailPage = (): ReactElement => {
         title="Confirm to delete this series"
         description="Are you sure you want to delete this series? This action cannot be undone."
       />
-      <MergeSeriesDialog
+      <MergeSeriesDetails
+        seriesName={series?.name}
         open={mergeSeriesOpen}
         onCancel={() => setMergeSeriesOpen(false)}
         onConfirm={onMergeSeries}

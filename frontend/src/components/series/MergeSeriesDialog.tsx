@@ -11,17 +11,19 @@ import {
 import type { ReactElement } from "react";
 
 export interface MergeSeriesDialogProps {
+  suggestionsContent?: ReactElement;
   open: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
 const MergeSeriesDialog = ({
+  suggestionsContent,
   open,
   onCancel,
   onConfirm,
 }: MergeSeriesDialogProps): ReactElement => (
-  <Dialog open={open} onClose={onCancel}>
+  <Dialog open={open} onClose={onCancel} maxWidth="lg" fullWidth>
     <DialogTitle>
       <Box display="flex" alignItems="center" gap={1.5}>
         <AddLinkIcon />
@@ -32,6 +34,7 @@ const MergeSeriesDialog = ({
       <Typography variant="body1" mb={2}>
         Select the target series to merge <b>all books</b> into:
       </Typography>
+      {suggestionsContent}
     </DialogContent>
     <DialogActions>
       <Button onClick={onCancel}>Cancel</Button>
