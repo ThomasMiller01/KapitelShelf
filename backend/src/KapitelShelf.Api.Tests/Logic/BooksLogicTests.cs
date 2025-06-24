@@ -182,6 +182,109 @@ public class BooksLogicTests
     }
 
     /// <summary>
+    /// Tests SearchBySearchterm returns empty, when the searchterm is whitespace.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task SearchBySearchterm_ReturnsEmpty_WhenSearchtermIsNullOrWhitespace()
+    {
+        // Execute
+        var empty = await this.testee.Search(" ", 1, 10);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(empty.TotalCount, Is.EqualTo(0));
+            Assert.That(empty.Items, Is.Empty);
+        });
+    }
+
+    /// <summary>
+    /// Tests SearchBySearchterm returns a paged result, when a matching exists.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task SearchBySearchterm_ReturnsPagedResult_WhenMatchingExists()
+    {
+        // Setup
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series1".Unique(),
+        };
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Example".Unique(),
+            Description = "Description",
+            SeriesId = series.Id,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.Search(book.Title, 1, 10);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.TotalCount, Is.EqualTo(1));
+            Assert.That(result.Items, Has.Count.EqualTo(1));
+        });
+        Assert.That(result.Items[0].Title, Is.EqualTo(book.Title));
+    }
+
+    /// <summary>
+    /// Tests SearchBySearchterm paginates correctly.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task SearchBySearchterm_PaginatesCorrectly()
+    {
+        // Setup
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "ExampleSeries".Unique(),
+        };
+
+        var uniqueTitle = "Book".Unique();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+
+            for (int i = 1; i <= 15; i++)
+            {
+                var book = new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = $"{uniqueTitle} {i}",
+                    Description = "Description",
+                    SeriesId = series.Id,
+                };
+                context.Books.Add(book);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.Search(uniqueTitle, page: 2, pageSize: 5);
+
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Items, Has.Count.EqualTo(5));
+        });
+    }
+
+    /// <summary>
     /// Tests CreateBookAsync returns null when input is null.
     /// </summary>
     /// <returns>A task.</returns>

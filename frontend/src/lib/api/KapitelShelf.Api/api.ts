@@ -1050,6 +1050,86 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Search books with a search term.
+         * @param {string} [searchterm] The search term.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksSearchGet: async (searchterm?: string, page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/books/search`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (searchterm !== undefined) {
+                localVarQueryParameter['searchterm'] = searchterm;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (pageSize !== undefined) {
+                localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Search suggestions with a search term.
+         * @param {string} [searchterm] The search term.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksSearchSuggestionsGet: async (searchterm?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/books/search/suggestions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (searchterm !== undefined) {
+                localVarQueryParameter['searchterm'] = searchterm;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1192,6 +1272,34 @@ export const BooksApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Search books with a search term.
+         * @param {string} [searchterm] The search term.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksSearchGet(searchterm?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksSearchGet(searchterm, page, pageSize, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksSearchGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Search suggestions with a search term.
+         * @param {string} [searchterm] The search term.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksSearchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BookDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksSearchSuggestionsGet(searchterm, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksSearchSuggestionsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -1303,6 +1411,28 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          */
         booksPost(createBookDTO?: CreateBookDTO, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
             return localVarFp.booksPost(createBookDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Search books with a search term.
+         * @param {string} [searchterm] The search term.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksSearchGet(searchterm?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
+            return localVarFp.booksSearchGet(searchterm, page, pageSize, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Search suggestions with a search term.
+         * @param {string} [searchterm] The search term.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksSearchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
+            return localVarFp.booksSearchSuggestionsGet(searchterm, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1434,6 +1564,32 @@ export class BooksApi extends BaseAPI {
      */
     public booksPost(createBookDTO?: CreateBookDTO, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksPost(createBookDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Search books with a search term.
+     * @param {string} [searchterm] The search term.
+     * @param {number} [page] The page number.
+     * @param {number} [pageSize] The page size.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksSearchGet(searchterm?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksSearchGet(searchterm, page, pageSize, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Search suggestions with a search term.
+     * @param {string} [searchterm] The search term.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksSearchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksSearchSuggestionsGet(searchterm, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1638,6 +1794,7 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         searchGet: async (searchterm?: string, page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -1681,6 +1838,7 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
          * @summary Search suggestions with a search term.
          * @param {string} [searchterm] The search term.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         searchSuggestionsGet: async (searchterm?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -1728,6 +1886,7 @@ export const SearchApiFp = function(configuration?: Configuration) {
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async searchGet(searchterm?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
@@ -1741,6 +1900,7 @@ export const SearchApiFp = function(configuration?: Configuration) {
          * @summary Search suggestions with a search term.
          * @param {string} [searchterm] The search term.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async searchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BookDTO>>> {
@@ -1766,6 +1926,7 @@ export const SearchApiFactory = function (configuration?: Configuration, basePat
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         searchGet(searchterm?: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
@@ -1776,6 +1937,7 @@ export const SearchApiFactory = function (configuration?: Configuration, basePat
          * @summary Search suggestions with a search term.
          * @param {string} [searchterm] The search term.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         searchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
@@ -1798,6 +1960,7 @@ export class SearchApi extends BaseAPI {
      * @param {number} [page] The page number.
      * @param {number} [pageSize] The page size.
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SearchApi
      */
@@ -1810,6 +1973,7 @@ export class SearchApi extends BaseAPI {
      * @summary Search suggestions with a search term.
      * @param {string} [searchterm] The search term.
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SearchApi
      */

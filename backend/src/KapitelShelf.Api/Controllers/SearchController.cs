@@ -17,11 +17,11 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="logic">The search logic.</param>
 [ApiController]
 [Route("search")]
-public class SearchController(ILogger<SearchController> logger, SearchLogic logic) : ControllerBase
+public class SearchController(ILogger<SearchController> logger, IBooksLogic logic) : ControllerBase
 {
     private readonly ILogger<SearchController> logger = logger;
 
-    private readonly SearchLogic logic = logic;
+    private readonly IBooksLogic logic = logic;
 
     /// <summary>
     /// Search books with a search term.
@@ -31,6 +31,7 @@ public class SearchController(ILogger<SearchController> logger, SearchLogic logi
     /// <param name="pageSize">The page size.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
+    [Obsolete("Use GET /books/search instead", false)]
     public async Task<ActionResult<PagedResult<BookDTO>>> GetSearchResult(
         [FromQuery] string searchterm,
         [FromQuery] int page = 1,
@@ -38,7 +39,7 @@ public class SearchController(ILogger<SearchController> logger, SearchLogic logi
     {
         try
         {
-            var result = await this.logic.SearchBySearchterm(searchterm, page, pageSize);
+            var result = await this.logic.Search(searchterm, page, pageSize);
             return Ok(result);
         }
         catch (Exception ex)
@@ -54,11 +55,12 @@ public class SearchController(ILogger<SearchController> logger, SearchLogic logi
     /// <param name="searchterm">The search term.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("suggestions")]
+    [Obsolete("Use GET /books/search/suggestions instead", false)]
     public async Task<ActionResult<List<BookDTO>>> GetSearchSuggestions([FromQuery] string searchterm)
     {
         try
         {
-            var result = await this.logic.SearchBySearchterm(searchterm, page: 1, pageSize: StaticConstants.MaxSearchSuggestions);
+            var result = await this.logic.Search(searchterm, page: 1, pageSize: StaticConstants.MaxSearchSuggestions);
             return Ok(result.Items);
         }
         catch (Exception ex)

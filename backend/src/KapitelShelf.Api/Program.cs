@@ -78,7 +78,6 @@ builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<IBookParserManager, BookParserManager>();
 builder.Services.AddSingleton<MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
-builder.Services.AddSingleton<SearchLogic>();
 
 // healthchecks
 builder.Services.AddHealthChecks()

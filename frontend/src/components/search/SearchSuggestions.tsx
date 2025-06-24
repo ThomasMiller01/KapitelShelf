@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useState } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
-import { searchApi } from "../../lib/api/KapitelShelf.Api";
+import { booksApi } from "../../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { NoItemsFoundCard } from "../base/feedback/NoItemsFoundCard";
 import BookCard from "../BookCard";
@@ -28,7 +28,7 @@ export const SearchSuggestions = ({
         return [];
       }
 
-      const { data } = await searchApi.searchSuggestionsGet(term);
+      const { data } = await booksApi.booksSearchSuggestionsGet(term);
       return data;
     },
   });
