@@ -81,7 +81,7 @@ const LocationDetails = ({
           component={Link}
           href={fileUrl}
           target="_blank"
-          rel="noreferer"
+          rel="noreferrer"
           disabled={fileUrl === undefined}
         >
           Download
@@ -97,7 +97,7 @@ const LocationDetails = ({
           startIcon={<AutoStoriesIcon />}
           href={location.url ?? undefined}
           target="_blank"
-          rel="noreferer"
+          rel="noreferrer"
         >
           Read on {LocationTypeToString[location.type ?? -1]}
         </Button>
