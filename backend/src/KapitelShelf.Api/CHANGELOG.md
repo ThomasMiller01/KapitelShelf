@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.2](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.2.1...api@0.2.2) (2025-06-25)
+
+
+### Features
+
+* merge a series into another one ([#233](https://github.com/ThomasMiller01/KapitelShelf/issues/233)) ([3f8a315](https://github.com/ThomasMiller01/KapitelShelf/commit/3f8a315b4c5341879fde70b256af083d81355889))
+* put migrator into api docker image to prevent mismatched api and migrator versions ([#227](https://github.com/ThomasMiller01/KapitelShelf/issues/227)) ([197e2e8](https://github.com/ThomasMiller01/KapitelShelf/commit/197e2e891dfc4cfd9be8965316715818479ff307))
+* return https cover images for google metadata ([575ba70](https://github.com/ThomasMiller01/KapitelShelf/commit/575ba70b99fe8fdef26c9f0de648f64cebef5745))
+* search-bar & search-results page ([#218](https://github.com/ThomasMiller01/KapitelShelf/issues/218)) ([2f2c500](https://github.com/ThomasMiller01/KapitelShelf/commit/2f2c500d7398dbb60ac15c75a8a85d7a81c62170))
+
+
+### Bug Fixes
+
+* amazon metadata source did not return any books ([#221](https://github.com/ThomasMiller01/KapitelShelf/issues/221)) ([fea0be9](https://github.com/ThomasMiller01/KapitelShelf/commit/fea0be9ccac9f089128f728286a42534ff658728))
+* load metadata cover via proxy ([51604d4](https://github.com/ThomasMiller01/KapitelShelf/commit/51604d4d6d84266b67797b431e2b2641d2a3bc95))
+
 ## [0.2.1](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.2.0...api@0.2.1) (2025-06-11)
 
 ### Features
