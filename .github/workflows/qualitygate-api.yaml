@@ -2,13 +2,6 @@ name: "Quality Gate: API"
 
 on:
   workflow_dispatch: {} # allow manual run
-  push:
-    branches: [main]
-    paths:
-      - 'backend/src/KapitelShelf.Api/**'
-      - 'backend/src/KapitelShelf.Api.Tests/**'
-      - 'backend/src/KapitelShelf.Data/**'
-      - '.github/workflows/qualitygate-api.yaml'
   pull_request:
     branches: [main]
     paths:
