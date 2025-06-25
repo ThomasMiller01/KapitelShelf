@@ -2,10 +2,10 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { Box } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import type { ReactElement } from "react";
+import { useNavigate } from "react-router-dom";
 
 import FancyText from "../../components/FancyText";
 import EditableBookDetails from "../../features/book/EditableBookDetails";
-import { useNotification } from "../../hooks/useNotification";
 import { booksApi } from "../../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
 
@@ -20,7 +20,7 @@ interface UploadFileMutationProps {
 }
 
 const CreateBookPage = (): ReactElement => {
-  const { triggerNavigate } = useNotification();
+  const navigate = useNavigate();
 
   const { mutateAsync: mutateCreateBook } = useMutation({
     mutationKey: ["create-book"],
@@ -89,11 +89,7 @@ const CreateBookPage = (): ReactElement => {
       await mutateUploadFile({ bookId: createdBook.id, bookFile });
     }
 
-    triggerNavigate({
-      operation: "Created the following book",
-      itemName: createdBook.title,
-      url: `/library/books/${createdBook.id}`,
-    });
+    navigate(`/library/books/${createdBook.id}`);
   };
 
   return (
