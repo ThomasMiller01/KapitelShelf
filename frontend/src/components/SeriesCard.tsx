@@ -1,23 +1,30 @@
-import { type ReactElement } from "react";
+import React, { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { SeriesDTO } from "../lib/api/KapitelShelf.Api/api";
 import { CoverUrl } from "../utils/FileUtils";
 import type { ItemCardType } from "./layout/ItemCard/ItemCardLayout";
-import ItemCardLayout, { MetadataItem } from "./layout/ItemCard/ItemCardLayout";
+import ItemCardLayout, {
+  ItemsMetadata,
+  MetadataItem,
+} from "./layout/ItemCard/ItemCardLayout";
 
 interface SeriesCardProps {
   series: SeriesDTO;
   itemVariant?: ItemCardType;
-  enableLink?: boolean;
+  showMetadata?: boolean;
+  linkEnabled?: boolean;
+  selected?: boolean;
   onClick?: () => void;
 }
 
 const SeriesCard = ({
   series,
   itemVariant = "normal",
-  enableLink = true,
+  showMetadata = false,
+  linkEnabled = true,
+  selected,
   onClick,
 }: SeriesCardProps): ReactElement => {
   const { isMobile } = useMobile();
@@ -26,14 +33,23 @@ const SeriesCard = ({
   return (
     <ItemCardLayout
       itemVariant={itemVariant}
+      selected={selected}
       title={series.name}
-      link={enableLink ? `/library/series/${series.id}` : undefined}
+      link={linkEnabled ? `/library/series/${series.id}` : undefined}
       image={CoverUrl(book)}
       fallbackImage={bookCover}
       onClick={onClick}
       badge={series.totalBooks ? series.totalBooks?.toString() : ""}
       squareBadge={false}
       metadata={[
+        showMetadata ? (
+          <>
+            <CategoriesMetadata series={series} />
+            <TagsMetadata series={series} />
+          </>
+        ) : (
+          <React.Fragment key="no-metadata" />
+        ),
         <MetadataItem
           key="author"
           sx={{ fontSize: isMobile ? "0.7rem" : "0.9rem" }}
@@ -41,6 +57,43 @@ const SeriesCard = ({
           {book?.author?.firstName} {book?.author?.lastName}
         </MetadataItem>,
       ]}
+    />
+  );
+};
+
+interface MetadataProps {
+  series: SeriesDTO;
+}
+
+const CategoriesMetadata = ({ series }: MetadataProps): ReactElement => {
+  if (
+    !series.lastVolume?.categories ||
+    series.lastVolume?.categories.length === 0
+  ) {
+    return <></>;
+  }
+
+  return (
+    <ItemsMetadata
+      items={series.lastVolume.categories.map((x) => x.name)}
+      maxItems={3}
+      variant="filled"
+      color="primary"
+    />
+  );
+};
+
+const TagsMetadata = ({ series }: MetadataProps): ReactElement => {
+  if (!series.lastVolume?.tags || series.lastVolume?.tags.length === 0) {
+    return <></>;
+  }
+
+  return (
+    <ItemsMetadata
+      items={series.lastVolume.tags.map((x) => x.name)}
+      maxItems={3}
+      variant="outlined"
+      color="default"
     />
   );
 };

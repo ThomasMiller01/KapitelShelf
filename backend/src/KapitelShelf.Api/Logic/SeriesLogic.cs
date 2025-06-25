@@ -159,6 +159,19 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
         var query = context.Series
             .AsNoTracking()
+
+            .Include(x => x.Books)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Cover)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Categories)
+                    .ThenInclude(x => x.Category)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Tags)
+                    .ThenInclude(x => x.Tag)
+            .AsSingleQuery()
+
             .FilterBySeriesNameQuery(name);
 
         var items = await query

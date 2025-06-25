@@ -20,7 +20,7 @@ import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import MergeSeriesDetails from "../../features/series/MergeSeriesDetails";
+import MergeSeriesDialog from "../../features/series/MergeSeriesDialog";
 import SeriesBooksList from "../../features/series/SeriesBooksList";
 import { useMobile } from "../../hooks/useMobile";
 import { seriesApi } from "../../lib/api/KapitelShelf.Api";
@@ -88,7 +88,7 @@ const SeriesDetailPage = (): ReactElement => {
 
     console.log(series);
 
-    alert("TODO");
+    navigate(`/library/series/${series.id}`);
   };
 
   if (isLoading) {
@@ -139,8 +139,8 @@ const SeriesDetailPage = (): ReactElement => {
         title="Confirm to delete this series"
         description="Are you sure you want to delete this series? This action cannot be undone."
       />
-      <MergeSeriesDetails
-        seriesName={series?.name}
+      <MergeSeriesDialog
+        series={series}
         open={mergeSeriesOpen}
         onCancel={() => setMergeSeriesOpen(false)}
         onConfirm={onMergeSeries}
