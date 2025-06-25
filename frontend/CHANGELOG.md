@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.3](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.2.2...frontend@0.2.3) (2025-06-25)
+
+
+### Features
+
+* merge a series into another one ([#233](https://github.com/ThomasMiller01/KapitelShelf/issues/233)) ([3f8a315](https://github.com/ThomasMiller01/KapitelShelf/commit/3f8a315b4c5341879fde70b256af083d81355889))
+* navigate to book after creation ([#234](https://github.com/ThomasMiller01/KapitelShelf/issues/234)) ([164259a](https://github.com/ThomasMiller01/KapitelShelf/commit/164259af2c959459c3cb81a6b5ba5d35ad79752c))
+* search-bar & search-results page ([#218](https://github.com/ThomasMiller01/KapitelShelf/issues/218)) ([2f2c500](https://github.com/ThomasMiller01/KapitelShelf/commit/2f2c500d7398dbb60ac15c75a8a85d7a81c62170))
+* set notifications limit to 5 ([faa2ab0](https://github.com/ThomasMiller01/KapitelShelf/commit/faa2ab0a29fd44b1216efaecc43dc0855554b415))
+
+
+### Bug Fixes
+
+* anchor ref attribute spelling error ([#231](https://github.com/ThomasMiller01/KapitelShelf/issues/231)) ([b2b2cc0](https://github.com/ThomasMiller01/KapitelShelf/commit/b2b2cc06867c82fe551b260bd5411b67f9147540))
+* cover image doesnt fill available space ([#222](https://github.com/ThomasMiller01/KapitelShelf/issues/222)) ([11492c4](https://github.com/ThomasMiller01/KapitelShelf/commit/11492c4978eb7d49e493c991a9432c7018526bbf))
+* load metadata cover via proxy ([51604d4](https://github.com/ThomasMiller01/KapitelShelf/commit/51604d4d6d84266b67797b431e2b2641d2a3bc95))
+* no space between location and page number on search suggestions ([#224](https://github.com/ThomasMiller01/KapitelShelf/issues/224)) ([804ecaf](https://github.com/ThomasMiller01/KapitelShelf/commit/804ecaf11ef9f944d9eacdc409930f4de619bbc8))
+
 ## [0.2.2](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.2.1...frontend@0.2.2) (2025-06-11)
 
 
