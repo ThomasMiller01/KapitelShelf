@@ -92,6 +92,115 @@
         }
       }
     },
+    "/books/search": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Search books with a search term.",
+        "parameters": [
+          {
+            "name": "searchterm",
+            "in": "query",
+            "description": "The search term.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/search/suggestions": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Search suggestions with a search term.",
+        "parameters": [
+          {
+            "name": "searchterm",
+            "in": "query",
+            "description": "The search term.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/books/import": {
       "post": {
         "tags": [
@@ -547,7 +656,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/search/suggestions": {
@@ -596,7 +706,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/series/summary": {
@@ -805,6 +916,150 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/series/search": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Search series with the series name.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The series name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/series/search/suggestions": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Search suggestions with the series name.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The series name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/series/{seriesId}/merge/{targetSeriesId}": {
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Merge the series into the target series.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The source series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "targetSeriesId",
+            "in": "path",
+            "description": "The target series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"

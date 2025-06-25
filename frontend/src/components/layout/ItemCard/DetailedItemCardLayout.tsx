@@ -42,6 +42,7 @@ const DetailedItemCardLayout = ({
   badge,
   squareBadge = true,
   metadata = [],
+  selected = false,
 }: ItemCardLayoutProps): ReactElement => {
   const navigate = useNavigate();
 
@@ -66,10 +67,17 @@ const DetailedItemCardLayout = ({
 
   return (
     <Card
+      onClick={handleClick}
+      data-active={selected ? "" : undefined}
       sx={{
         width: "100%",
+        "&[data-active]": {
+          backgroundColor: "action.selected",
+          "&:hover": {
+            backgroundColor: "action.selectedHover",
+          },
+        },
       }}
-      onClick={handleClick}
     >
       <Box
         component={isClickable ? CardActionArea : "div"}

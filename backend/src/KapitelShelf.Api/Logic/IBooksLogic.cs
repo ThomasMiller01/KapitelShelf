@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 
 namespace KapitelShelf.Api.Logic;
@@ -23,6 +24,15 @@ public interface IBooksLogic
     /// <param name="bookId">The id of the book.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="BookDTO"/> if found; otherwise, <c>null</c>.</returns>
     Task<BookDTO?> GetBookByIdAsync(Guid bookId);
+
+    /// <summary>
+    /// Search all books by search term.
+    /// </summary>
+    /// <param name="searchterm">The search term.</param>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    Task<PagedResult<BookDTO>> Search(string searchterm, int page, int pageSize);
 
     /// <summary>
     /// Creates a new book.

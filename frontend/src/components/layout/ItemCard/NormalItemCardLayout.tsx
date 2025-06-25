@@ -29,6 +29,7 @@ const NormalItemCardLayout = ({
   badge,
   squareBadge = true,
   metadata = [],
+  selected,
 }: ItemCardLayoutProps): ReactElement => {
   const navigate = useNavigate();
 
@@ -53,6 +54,8 @@ const NormalItemCardLayout = ({
 
   return (
     <Card
+      onClick={handleClick}
+      data-active={selected ? "" : undefined}
       sx={{
         width: {
           xs: "41vw", // mobile: about 2 cards per row
@@ -62,8 +65,13 @@ const NormalItemCardLayout = ({
         },
         maxWidth: 200,
         height: "100%",
+        "&[data-active]": {
+          backgroundColor: "action.selected",
+          "&:hover": {
+            backgroundColor: "action.selectedHover",
+          },
+        },
       }}
-      onClick={handleClick}
     >
       <Box
         component={isClickable ? CardActionArea : "div"}

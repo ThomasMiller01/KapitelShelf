@@ -446,6 +446,108 @@ public class SeriesLogicTests
     }
 
     /// <summary>
+    /// Tests MergeSeries moves all books from source to target and deletes source.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task MergeSeries_MovesBooksAndDeletesSource()
+    {
+        // Setup
+        var sourceId = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "MergeBook".Unique(),
+            Description = "Description",
+            SeriesId = sourceId,
+        };
+        var sourceSeries = new SeriesModel
+        {
+            Id = sourceId,
+            Name = "SourceSeries".Unique(),
+        };
+        var targetSeries = new SeriesModel
+        {
+            Id = targetId,
+            Name = "TargetSeries".Unique(),
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.AddRange(sourceSeries, targetSeries);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.MergeSeries(sourceId, targetId);
+
+        // Assert
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var updatedBook = await context.Books.FindAsync(book.Id);
+            Assert.That(updatedBook, Is.Not.Null);
+            Assert.That(updatedBook!.SeriesId, Is.EqualTo(targetId));
+
+            var source = await context.Series.FindAsync(sourceId);
+            Assert.That(source, Is.Null);
+
+            var target = await context.Series
+                .Include(s => s.Books)
+                .FirstOrDefaultAsync(s => s.Id == targetId);
+            Assert.That(target, Is.Not.Null);
+            Assert.That(target!.Books.Any(b => b.Id == book.Id), Is.True);
+        }
+    }
+
+    /// <summary>
+    /// Tests MergeSeries throws if source series does not exist.
+    /// </summary>
+    [Test]
+    public void MergeSeries_ThrowsOnUnknownSource()
+    {
+        var unknownSource = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = targetId,
+                Name = "Target".Unique(),
+            });
+            context.SaveChanges();
+        }
+
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.MergeSeries(unknownSource, targetId));
+        Assert.That(ex!.Message, Does.Contain("Unknown source series id"));
+    }
+
+    /// <summary>
+    /// Tests MergeSeries throws if target series does not exist.
+    /// </summary>
+    [Test]
+    public void MergeSeries_ThrowsOnUnknownTarget()
+    {
+        var sourceId = Guid.NewGuid();
+        var unknownTarget = Guid.NewGuid();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = sourceId,
+                Name = "Source".Unique(),
+            });
+            context.SaveChanges();
+        }
+
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.MergeSeries(sourceId, unknownTarget));
+        Assert.That(ex!.Message, Does.Contain("Unknown target series id"));
+    }
+
+    /// <summary>
     /// Tests GetDuplicatesAsync returns matching series by name.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>

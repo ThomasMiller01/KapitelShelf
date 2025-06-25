@@ -3,11 +3,13 @@
 // </copyright>
 
 using AutoMapper;
+using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -82,6 +84,51 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
             .Select(x => this.mapper.Map<BookDTO>(x))
             .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<PagedResult<BookDTO>> Search(string searchterm, int page, int pageSize)
+    {
+        if (string.IsNullOrWhiteSpace(searchterm))
+        {
+            return new PagedResult<BookDTO> { Items = [], TotalCount = 0 };
+        }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var query = context.BookSearchView
+            .AsNoTracking()
+
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Cover)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Series)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Location)
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
+            .FilterBySearchtermQuery(searchterm);
+
+        var items = await query
+            .SortBySearchtermQuery(searchterm)
+
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.Map<BookDTO>(x.BookModel))
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
+
+        return new PagedResult<BookDTO>
+        {
+            Items = items,
+            TotalCount = totalCount,
+        };
     }
 
     /// <inheritdoc/>

@@ -7,6 +7,7 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -138,6 +139,57 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         series.TotalBooks = bookCount;
 
         return series;
+    }
+
+    /// <summary>
+    /// Search all series by their name.
+    /// </summary>
+    /// <param name="name">The series name.</param>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    public async Task<PagedResult<SeriesDTO>> Search(string name, int page, int pageSize)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return new PagedResult<SeriesDTO> { Items = [], TotalCount = 0 };
+        }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var query = context.Series
+            .AsNoTracking()
+
+            .Include(x => x.Books)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Cover)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Categories)
+                    .ThenInclude(x => x.Category)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Tags)
+                    .ThenInclude(x => x.Tag)
+            .AsSingleQuery()
+
+            .FilterBySeriesNameQuery(name);
+
+        var items = await query
+            .SortBySeriesNameQuery(name)
+
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.Map<SeriesDTO>(x))
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
+
+        return new PagedResult<SeriesDTO>
+        {
+            Items = items,
+            TotalCount = totalCount,
+        };
     }
 
     /// <summary>
@@ -273,6 +325,44 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         {
             this.booksLogic.DeleteFiles(bookId);
         }
+    }
+
+    /// <summary>
+    /// Merge all books from the source series into the target series.
+    /// </summary>
+    /// <param name="sourceSeriesId">The source series id.</param>
+    /// <param name="targetSeriesId">The target series id.</param>
+    /// <returns>A task.</returns>
+    public async Task MergeSeries(Guid sourceSeriesId, Guid targetSeriesId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var sourceSeries = await context.Series
+            .Include(x => x.Books)
+            .Where(x => x.Id == sourceSeriesId)
+            .FirstOrDefaultAsync();
+
+        if (sourceSeries is null)
+        {
+            throw new ArgumentException("Unknown source series id.");
+        }
+
+        var targetSeriesExists = await context.Series.AnyAsync(x => x.Id == targetSeriesId);
+        if (!targetSeriesExists)
+        {
+            throw new ArgumentException("Unknown target series id.");
+        }
+
+        // move all books to the target series
+        foreach (var book in sourceSeries.Books)
+        {
+            book.SeriesId = targetSeriesId;
+        }
+
+        await context.SaveChangesAsync();
+
+        // delete target series
+        await this.DeleteSeriesAsync(sourceSeriesId);
     }
 
     internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
