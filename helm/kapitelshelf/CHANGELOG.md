@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.2.1...helm@0.2.2) (2025-06-25)
+
+
+### Features
+
+* bump frontend and api images ([352c305](https://github.com/ThomasMiller01/KapitelShelf/commit/352c305de4266adb75ba96530eebe5caf980ff04))
+* put migrator into api docker image to prevent mismatched api and migrator versions ([#227](https://github.com/ThomasMiller01/KapitelShelf/issues/227)) ([197e2e8](https://github.com/ThomasMiller01/KapitelShelf/commit/197e2e891dfc4cfd9be8965316715818479ff307))
+
 ## [0.2.1](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.2.0...helm@0.2.1) (2025-06-11)
 
 ### Features
