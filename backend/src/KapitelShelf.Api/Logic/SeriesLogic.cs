@@ -327,6 +327,44 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         }
     }
 
+    /// <summary>
+    /// Merge all books from the source series into the target series.
+    /// </summary>
+    /// <param name="sourceSeriesId">The source series id.</param>
+    /// <param name="targetSeriesId">The target series id.</param>
+    /// <returns>A task.</returns>
+    public async Task MergeSeries(Guid sourceSeriesId, Guid targetSeriesId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var sourceSeries = await context.Series
+            .Include(x => x.Books)
+            .Where(x => x.Id == sourceSeriesId)
+            .FirstOrDefaultAsync();
+
+        if (sourceSeries is null)
+        {
+            throw new ArgumentException("Unknown source series id.");
+        }
+
+        var targetSeriesExists = await context.Series.AnyAsync(x => x.Id == targetSeriesId);
+        if (!targetSeriesExists)
+        {
+            throw new ArgumentException("Unknown target series id.");
+        }
+
+        // move all books to the target series
+        foreach (var book in sourceSeries.Books)
+        {
+            book.SeriesId = targetSeriesId;
+        }
+
+        await context.SaveChangesAsync();
+
+        // delete target series
+        await this.DeleteSeriesAsync(sourceSeriesId);
+    }
+
     internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

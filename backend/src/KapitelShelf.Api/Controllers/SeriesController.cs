@@ -197,6 +197,32 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
     }
 
     /// <summary>
+    /// Merge the series into the target series.
+    /// </summary>
+    /// <param name="seriesId">The source series id.</param>
+    /// <param name="targetSeriesId">The target series id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{seriesId}/merge/{targetSeriesId}")]
+    public async Task<IActionResult> UpdateSeries(Guid seriesId, Guid targetSeriesId)
+    {
+        try
+        {
+            await this.logic.MergeSeries(seriesId, targetSeriesId);
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error updating series with Id: {SeriesId}", seriesId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Get books by the series id.
     /// </summary>
     /// <param name="seriesId">The series id of the books to get.</param>

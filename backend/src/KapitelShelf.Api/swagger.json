@@ -1032,6 +1032,41 @@
         }
       }
     },
+    "/series/{seriesId}/merge/{targetSeriesId}": {
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Merge the series into the target series.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The source series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "targetSeriesId",
+            "in": "path",
+            "description": "The target series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/series/{seriesId}/books": {
       "get": {
         "tags": [

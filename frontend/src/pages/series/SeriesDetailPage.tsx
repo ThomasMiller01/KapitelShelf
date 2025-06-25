@@ -55,7 +55,7 @@ const SeriesDetailPage = (): ReactElement => {
   });
 
   const { mutateAsync: mutateDeleteSeries } = useMutation({
-    mutationKey: ["delete-series", series],
+    mutationKey: ["delete-series", seriesId],
     mutationFn: async () => {
       if (seriesId === undefined) {
         return null;
@@ -67,6 +67,28 @@ const SeriesDetailPage = (): ReactElement => {
       notify: {
         enabled: true,
         operation: "Deleting series",
+        showLoading: true,
+        showSuccess: true,
+      },
+    },
+  });
+
+  const { mutateAsync: mutateMergeSeries } = useMutation({
+    mutationKey: ["merge-series", seriesId],
+    mutationFn: async (targetSeriesId: string | undefined) => {
+      if (seriesId === undefined || targetSeriesId === undefined) {
+        return null;
+      }
+
+      await seriesApi.seriesSeriesIdMergeTargetSeriesIdPut(
+        seriesId,
+        targetSeriesId
+      );
+    },
+    meta: {
+      notify: {
+        enabled: true,
+        operation: "Merging series",
         showLoading: true,
         showSuccess: true,
       },
@@ -86,9 +108,9 @@ const SeriesDetailPage = (): ReactElement => {
   const onMergeSeries = (series: SeriesDTO): void => {
     setMergeSeriesOpen(false);
 
-    console.log(series);
-
-    navigate(`/library/series/${series.id}`);
+    mutateMergeSeries(series.id).then((_) =>
+      navigate(`/library/series/${series.id}`)
+    );
   };
 
   if (isLoading) {

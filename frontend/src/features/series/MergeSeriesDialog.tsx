@@ -1,5 +1,6 @@
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -148,7 +149,7 @@ const MergeSeriesDialog = ({
           Merge Series
         </Box>
       </DialogTitle>
-      <DialogContent sx={{ pt: "10px !important" }}>
+      <DialogContent sx={{ pt: "10px !important", pb: "0" }}>
         <TextField
           variant="outlined"
           size="small"
@@ -171,6 +172,37 @@ const MergeSeriesDialog = ({
           onSelectSeries={setSelectedSeries}
         />
       </DialogContent>
+      {selectedSeries !== undefined && (
+        <DialogContent sx={{ pt: "10px !important", pb: "0" }}>
+          <Alert severity="info" sx={{ mt: "10px", width: "fit-content" }}>
+            This will merge{" "}
+            <Typography
+              display="inline-block"
+              variant="body2"
+              fontWeight="bold"
+            >
+              all books
+            </Typography>{" "}
+            from{" "}
+            <Typography
+              display="inline-block"
+              variant="body2"
+              fontWeight="bold"
+            >
+              {series?.name}
+            </Typography>{" "}
+            into{" "}
+            <Typography
+              display="inline-block"
+              variant="body2"
+              fontWeight="bold"
+            >
+              {selectedSeries?.name}
+            </Typography>
+            .
+          </Alert>
+        </DialogContent>
+      )}
       <DialogActions>
         <Button onClick={handleCancel}>Cancel</Button>
         <Button
