@@ -4,9 +4,12 @@
 
 - [Library](#library)
 - [Search](#search)
-- [Add a Book](#add-a-book)
-- [Edit a Book](#edit-a-book)
-- [Delete a Book](#delete-a-book)
+- Books
+  - [Add a Book](#add-a-book)
+  - [Edit a Book](#edit-a-book)
+  - [Delete a Book](#delete-a-book)
+- Series
+  - [Merge two Series](#merge-two-series)
 - [Metadata](#metadata)
 - [File Handling](#file-handling)
 
@@ -115,6 +118,28 @@ Visit the book details page and click the `Delete` _(trash icon)_ button.
 Now **confirm** the deletion in the dialog via the red `Delete` button.
 
 ![Delete Dialog](./.attachments/references/delete_book/delete_dialog.png)
+
+## Merge two Series
+
+**Problem:** If the books from the same series have the series some differently spelled.
+**Solution:** You can now merge all the books from a source series into a target series with one button click.
+
+1. Click the "three dots" on the page of the series page you want **to remove**
+2. Click on the "Merge Series" button
+
+![Merge Series Button](./.attachments/references/combine_series/merge_series_button.png)
+
+> The Merge Series Dialog automatically loads all series with a similar name.
+
+3. Select the target series you want to merge into.
+
+![Merge Series Dialog](./.attachments/references/combine_series/merge_series_dialog.png)
+
+> If the series does not show up, you can use the textfield on the top to search for the full name of the target series.
+
+4. Click the "Merge" button.
+
+You will automatically be navigated to the target series, once the merging completes successfully.
 
 ## Metadata
 
