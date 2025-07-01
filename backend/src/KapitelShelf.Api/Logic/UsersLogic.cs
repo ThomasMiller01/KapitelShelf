@@ -126,21 +126,21 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <summary>
     /// Deletes a user by its id.
     /// </summary>
-    /// <param name="bookId">The id of the book to delete.</param>
+    /// <param name="userId">The id of the user to delete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<BookDTO?> DeleteUserAsync(Guid bookId)
+    public async Task<UserDTO?> DeleteUserAsync(Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        var book = await context.Books.FindAsync(bookId);
-        if (book is null)
+        var user = await context.Users.FindAsync(userId);
+        if (user is null)
         {
             return null;
         }
 
-        context.Books.Remove(book);
+        context.Users.Remove(user);
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<BookDTO>(book);
+        return this.mapper.Map<UserDTO>(user);
     }
 }
