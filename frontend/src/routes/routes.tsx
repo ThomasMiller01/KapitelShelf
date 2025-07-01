@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
+import { useUserProfile } from "../contexts/UserProfileContext";
 import BookDetailPage from "../pages/book/BookDetailPage";
 import CreateBookPage from "../pages/book/CreateBookPage";
 import EditBookDetailPage from "../pages/book/EditBookDetailPage";
@@ -11,12 +12,15 @@ import BooksPage from "../pages/LibraryPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
+import { UserProfileSelectionPage } from "../pages/UserProfileSelectionPage";
 
-const AppRoutes = (): ReactElement | null =>
-  useRoutes([
+const AppRoutes = (): ReactElement | null => {
+  const { profile } = useUserProfile();
+
+  return useRoutes([
     {
       path: "/",
-      element: <MainLayout />,
+      element: profile === null ? <UserProfileSelectionPage /> : <MainLayout />,
       children: [
         { index: true, element: <HomePage /> },
         { path: "library", element: <BooksPage /> },
@@ -33,5 +37,6 @@ const AppRoutes = (): ReactElement | null =>
       ],
     },
   ]);
+};
 
 export default AppRoutes;
