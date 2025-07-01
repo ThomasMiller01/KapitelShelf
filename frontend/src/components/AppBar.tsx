@@ -5,6 +5,7 @@ import { Avatar, Box, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useUserProfile } from "../contexts/UserProfileContext";
 import { useMobile } from "../hooks/useMobile";
 import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
 import { SearchBar } from "./search/SearchBar";
@@ -16,6 +17,9 @@ interface TopAppBarProps {
 
 export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
   const { isMobile } = useMobile();
+  const { profile } = useUserProfile();
+
+  console.log(profile);
 
   return (
     <ResponsiveDrawerAppBar open={open} toggle={toggle}>
@@ -39,7 +43,7 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
             <ThemeToggle />
           </Box> */}
           <Avatar
-            alt="User Avatar"
+            alt={profile?.username || "Logged Out"}
             src="/avatar.png"
             sx={{ width: 32, height: 32 }}
           />

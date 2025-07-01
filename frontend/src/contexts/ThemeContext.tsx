@@ -14,7 +14,7 @@ import { getTheme } from "../styles/Theme";
 
 type ThemeMode = "light" | "dark";
 
-const THEME_KEY = "kapitelshelf.theme";
+const THEME_KEY = "theme";
 
 const ThemeToggleContext = createContext<() => void>(() => {});
 const ThemeModeContext = createContext<ThemeMode>("light");
