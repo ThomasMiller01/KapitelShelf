@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,7 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     /// </summary>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
-    public async Task<ActionResult<IList<BookDTO>>> GetUsers()
+    public async Task<ActionResult<IList<UserDTO>>> GetUsers()
     {
         try
         {
@@ -46,7 +47,7 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     /// <param name="userId">The id of the user to get.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("{userId}")]
-    public async Task<ActionResult<BookDTO>> GetUserById(Guid userId)
+    public async Task<ActionResult<UserDTO>> GetUserById(Guid userId)
     {
         try
         {
@@ -68,20 +69,20 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     /// <summary>
     /// Create a new user.
     /// </summary>
-    /// <param name="createBookDto">The create user dto.</param>
+    /// <param name="createUserDto">The create user dto.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost]
-    public async Task<ActionResult<BookDTO>> CreateUser(CreateBookDTO createBookDto)
+    public async Task<ActionResult<UserDTO>> CreateUser(CreateUserDTO createUserDto)
     {
         try
         {
-            var user = await this.logic.CreateUserAsync(createBookDto);
+            var user = await this.logic.CreateUserAsync(createUserDto);
 
             return CreatedAtAction(nameof(CreateUser), user);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error creating user with username: {Username}", createBookDto?.Title);
+            this.logger.LogError(ex, "Error creating user with username: {Username}", createUserDto?.Username);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

@@ -20,5 +20,9 @@ public class UserMappingProfile : Profile
     {
         CreateMap<UserModel, UserDTO>()
             .ReverseMap();
+
+        CreateMap<CreateUserDTO, UserModel>();
+
+        CreateMap<UserDTO, CreateUserDTO>();
     }
 }

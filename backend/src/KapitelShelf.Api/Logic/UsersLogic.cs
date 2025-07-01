@@ -6,6 +6,7 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Data;
+using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic;
@@ -54,22 +55,23 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <summary>
     /// Creates a new user.
     /// </summary>
-    /// <param name="createBookDTO">The dto containing information for the new book.</param>
+    /// <param name="createUserDto">The dto containing information for the new user.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<BookDTO?> CreateUserAsync(CreateBookDTO createBookDTO)
+    public async Task<UserDTO?> CreateUserAsync(CreateUserDTO createUserDto)
     {
-        if (createBookDTO is null)
+        if (createUserDto is null)
         {
             return null;
         }
 
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        // context.Books.Add(book);
+        var user = this.mapper.Map<UserModel>(createUserDto);
+
+        context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        // return this.mapper.Map<BookDTO>(book);
-        return null;
+        return this.mapper.Map<UserDTO>(user);
     }
 
     /// <summary>
