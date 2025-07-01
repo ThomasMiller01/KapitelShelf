@@ -27,19 +27,25 @@ export const UserProfileSelectionPage = (): ReactElement => {
 
   if (isLoading) {
     return (
-      <LoadingCard useLogo delayed itemName="User Profiles" showRandomFacts />
+      <Box padding="20px">
+        <LoadingCard useLogo delayed itemName="User Profiles" showRandomFacts />
+      </Box>
     );
   }
 
   if (isError || userProfiles === undefined || userProfiles === null) {
-    return <RequestErrorCard itemName="User Profiles" onRetry={refetch} />;
+    return (
+      <Box padding="20px">
+        <RequestErrorCard itemName="User Profiles" onRetry={refetch} />
+      </Box>
+    );
   }
 
   return (
     <Box
       minHeight="90vh"
       display="flex"
-      padding="30px"
+      padding="20px"
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
