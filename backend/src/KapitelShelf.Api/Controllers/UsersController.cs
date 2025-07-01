@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic;
 using Microsoft.AspNetCore.Mvc;
@@ -116,14 +115,14 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     /// Update a user.
     /// </summary>
     /// <param name="userId">The id of the user to update.</param>
-    /// <param name="book">The updated book.</param>
+    /// <param name="user">The updated user.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPut("{userId}")]
-    public async Task<IActionResult> UpdateBook(Guid userId, BookDTO book)
+    public async Task<IActionResult> UpdateBook(Guid userId, UserDTO user)
     {
         try
         {
-            var updatedUser = await this.logic.UpdateUserAsync(userId, book);
+            var updatedUser = await this.logic.UpdateUserAsync(userId, user);
             if (updatedUser is null)
             {
                 return NotFound();

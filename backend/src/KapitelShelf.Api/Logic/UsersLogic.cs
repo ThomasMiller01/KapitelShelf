@@ -3,7 +3,6 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -77,52 +76,34 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <summary>
     /// Updates an existing user.
     /// </summary>
-    /// <param name="bookId">The id of the book to update.</param>
-    /// <param name="bookDto">The dto containing updated book information.</param>
+    /// <param name="userId">The id of the user to update.</param>
+    /// <param name="userDto">The dto containing updated user information.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<BookDTO?> UpdateUserAsync(Guid bookId, BookDTO bookDto)
+    public async Task<UserDTO?> UpdateUserAsync(Guid userId, UserDTO userDto)
     {
-        if (bookDto is null)
+        if (userDto is null)
         {
             return null;
         }
 
         await using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        var book = await context.Books
-            .Include(b => b.Author)
-            .Include(b => b.Series)
-            .Include(b => b.Cover)
-            .Include(b => b.Location)!
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                .ThenInclude(l => l.FileInfo)
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-            .Include(b => b.Categories)
-                .ThenInclude(bc => bc.Category)
-            .Include(b => b.Tags)
-                .ThenInclude(bt => bt.Tag)
-            .AsSingleQuery()
-            .FirstOrDefaultAsync(b => b.Id == bookId);
-
-        if (book is null)
+        var user = await context.Users.FirstOrDefaultAsync(b => b.Id == userId);
+        if (user is null)
         {
             return null;
         }
 
-        // patch book root scalars
-        context.Entry(book).CurrentValues.SetValues(new
+        // patch user root scalars
+        context.Entry(user).CurrentValues.SetValues(new
         {
-            bookDto.Title,
-            bookDto.Description,
-            bookDto.PageNumber,
-            bookDto.ReleaseDate,
-            bookDto.SeriesNumber,
+            userDto.Username,
         });
 
         // commit
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<BookDTO>(book);
+        return this.mapper.Map<UserDTO>(user);
     }
 
     /// <summary>
