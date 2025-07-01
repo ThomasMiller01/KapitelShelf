@@ -39,6 +39,7 @@ public static class Testhelper
             cfg.AddProfile<LocationMappingProfile>();
             cfg.AddProfile<SeriesMappingProfile>();
             cfg.AddProfile<TagMappingProfile>();
+            cfg.AddProfile<UserMappingProfile>();
         });
         return config.CreateMapper();
     }
