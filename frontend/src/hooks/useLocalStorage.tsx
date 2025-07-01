@@ -1,14 +1,31 @@
-const BASE_LOCAL_STORAGE_KEY = "kapitelshelf.";
+import { useCallback } from "react";
+
+import { useUserProfile } from "../contexts/UserProfileContext";
+
+const BASE_LOCAL_STORAGE_KEY = "kapitelshelf";
 
 export const useLocalStorage = (): [
   (key: string) => string | null,
-  (key: string, value: string) => void
+  (key: string, value: string) => void,
+  (key: string) => string
 ] => {
-  const getItem = (key: string): string | null =>
-    localStorage.getItem(BASE_LOCAL_STORAGE_KEY + key);
+  const { profile } = useUserProfile();
 
-  const setItem = (key: string, value: string): void =>
-    localStorage.setItem(BASE_LOCAL_STORAGE_KEY + key, value);
+  const getKey = useCallback(
+    (key: string): string => `${BASE_LOCAL_STORAGE_KEY}.${profile?.id}.${key}`,
+    [profile?.id]
+  );
 
-  return [getItem, setItem];
+  const getItem = useCallback(
+    (key: string): string | null => localStorage.getItem(getKey(key)),
+    [getKey]
+  );
+
+  const setItem = useCallback(
+    (key: string, value: string): void =>
+      localStorage.setItem(getKey(key), value),
+    [getKey]
+  );
+
+  return [getItem, setItem, getKey];
 };

@@ -1,10 +1,11 @@
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import { Avatar, Box, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
+import { Box, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { UserProfile } from "../features/UserProfile";
 import { useMobile } from "../hooks/useMobile";
 import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
 import { SearchBar } from "./search/SearchBar";
@@ -38,11 +39,7 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
           {/* <Box ml={isMobile ? "10px !important" : ""}>
             <ThemeToggle />
           </Box> */}
-          <Avatar
-            alt="User Avatar"
-            src="/avatar.png"
-            sx={{ width: 32, height: 32 }}
-          />
+          <UserProfile />
         </Stack>
       </Box>
     </ResponsiveDrawerAppBar>

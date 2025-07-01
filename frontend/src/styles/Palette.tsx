@@ -41,3 +41,16 @@ export const PaletteLight: PaletteOptions = {
     main: "#D32F2F",
   },
 };
+
+export const UserProfileColors = [
+  "#b11218", // red
+  "#39796b", // teal
+  "#1976d2", // blue
+  "#b2a429", // gold
+  "#b26a22", // orange
+  "#879623", // olive green
+  "#7b1fa2", // purple
+  "#2997a3", // cyan
+  "#a15033", // deep orange
+  "#388e3c", // green
+];

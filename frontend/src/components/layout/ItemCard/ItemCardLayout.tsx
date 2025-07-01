@@ -48,7 +48,7 @@ export interface ItemCardLayoutProps {
   fallbackImage?: string | null | undefined;
   badge?: string | null | undefined;
   squareBadge?: boolean;
-  metadata: ReactNode[];
+  metadata?: ReactNode[];
   selected?: boolean;
 
   itemVariant?: ItemCardType;

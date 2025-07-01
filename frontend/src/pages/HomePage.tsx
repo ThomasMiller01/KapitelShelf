@@ -20,7 +20,7 @@ const HomePage = (): ReactElement => {
     );
   }
 
-  return <Box sx={{ margin: "10px" }}>TODO</Box>;
+  return <Box sx={{ margin: "10px" }}></Box>;
 };
 
 export default HomePage;

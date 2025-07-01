@@ -14,7 +14,7 @@ import { getTheme } from "../styles/Theme";
 
 type ThemeMode = "light" | "dark";
 
-const THEME_KEY = "kapitelshelf.theme";
+const THEME_KEY = "theme";
 
 const ThemeToggleContext = createContext<() => void>(() => {});
 const ThemeModeContext = createContext<ThemeMode>("light");
@@ -32,14 +32,12 @@ export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
       return stored;
     }
 
-    // const prefersDark = window.matchMedia(
-    //   "(prefers-color-scheme: dark)"
-    // ).matches;
+    // const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const prefersDark = true;
     return prefersDark ? "dark" : "light";
   };
 
-  const [mode, setMode] = useState<ThemeMode>(getDefaultMode);
+  const [mode, setMode] = useState<ThemeMode>(getDefaultMode());
 
   const toggleTheme = (): void => {
     setMode((prev) => {
