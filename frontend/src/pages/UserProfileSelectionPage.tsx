@@ -51,12 +51,15 @@ export const UserProfileSelectionPage = (): ReactElement => {
       justifyContent="center"
       bgcolor="background.default"
     >
-      <FancyText variant="h4" sx={{ mb: 4 }}>
+      <FancyText variant="h4" sx={{ mb: 6 }}>
         Who's reading?
       </FancyText>
       <Grid spacing={4} justifyContent="center" width="100%" container>
         {userProfiles.map((userProfile) => (
-          <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2 }} key={userProfile.id}>
+          <Grid
+            size={{ xs: 6, sm: 4, md: 3, lg: 2, xl: 1.5 }}
+            key={userProfile.id}
+          >
             <UserProfileCard userProfile={userProfile} onClick={setProfile} />
           </Grid>
         ))}

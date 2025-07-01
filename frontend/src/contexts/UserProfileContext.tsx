@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 
 interface UserProfileContextProps {
@@ -9,7 +8,7 @@ interface UserProfileContextProps {
   setProfile: (profile: UserDTO) => void;
 }
 
-const PROFILE_KEY = "user.profile";
+const PROFILE_KEY = "current.user.profile";
 
 const UserProfileContext = createContext<UserProfileContextProps | undefined>(
   undefined
@@ -20,23 +19,25 @@ export const UserProfileProvider = ({
 }: {
   children: ReactNode;
 }): ReactElement => {
-  const [getItem, setItem] = useLocalStorage();
   const [profile, setProfileState] = useState<UserDTO | null>(null);
 
   // load profile on mount
   useEffect(() => {
-    const stored = getItem(PROFILE_KEY);
+    const stored = localStorage.getItem(`kapitelshelf.${PROFILE_KEY}`);
     if (stored) {
       setProfileState(JSON.parse(stored));
     }
-  }, [getItem]);
+  }, []);
 
   // save when profile changes
   useEffect(() => {
     if (profile) {
-      setItem(PROFILE_KEY, JSON.stringify(profile));
+      localStorage.setItem(
+        `kapitelshelf.${PROFILE_KEY}`,
+        JSON.stringify(profile)
+      );
     }
-  }, [profile, setItem]);
+  }, [profile]);
 
   const setProfile = (newProfile: UserDTO): void => {
     setProfileState(newProfile);

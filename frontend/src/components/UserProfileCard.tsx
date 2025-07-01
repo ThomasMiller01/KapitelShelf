@@ -1,16 +1,10 @@
-import PersonIcon from "@mui/icons-material/Person";
-import { Avatar, Card, CardActionArea, Typography } from "@mui/material";
-import { deepPurple } from "@mui/material/colors";
+import { Card, CardActionArea, Typography } from "@mui/material";
+import CardMedia from "@mui/material/CardMedia";
 import { type ReactElement } from "react";
 
+import TestImg from "../assets/test.png";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
-
-const getInitials = (username: string): string =>
-  username
-    .split(" ")
-    .map((n) => n[0]?.toUpperCase() ?? "")
-    .join("")
-    .slice(0, 2);
+import { GetUserColor } from "../utils/UserProfile";
 
 interface UserProfileCardProps {
   userProfile: UserDTO;
@@ -27,27 +21,19 @@ const UserProfileCard = ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        py: 3,
-        px: 1,
+        bgcolor: GetUserColor(userProfile.username),
       }}
       onClick={
         onClick !== undefined ? (): void => onClick(userProfile) : undefined
       }
     >
-      <Avatar
-        sx={{
-          width: 72,
-          height: 72,
-          bgcolor: deepPurple[400],
-          mb: 2,
-          fontSize: 32,
-        }}
-      >
-        {getInitials(userProfile.username ?? "") || (
-          <PersonIcon fontSize="large" />
-        )}
-      </Avatar>
-      <Typography variant="subtitle1" noWrap>
+      <CardMedia
+        component="img"
+        sx={{ maxHeight: "200px", minHeight: "170px" }}
+        image={TestImg}
+        alt={userProfile.username ?? "User Avatar"}
+      />
+      <Typography variant="h6" noWrap my="5px">
         {userProfile.username}
       </Typography>
     </CardActionArea>
