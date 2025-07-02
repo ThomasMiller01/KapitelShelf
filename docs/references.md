@@ -2,6 +2,7 @@
 
 **Table of Contents:**
 
+- [User Profiles](#user-profiles)
 - [Library](#library)
 - [Search](#search)
 - Books
@@ -12,6 +13,20 @@
   - [Merge two Series](#merge-two-series)
 - [Metadata](#metadata)
 - [File Handling](#file-handling)
+
+## User Profiles
+
+- what are user profiles?
+
+TODO
+
+### Select a User Profile
+
+TODO
+
+### Switch to another User Profile
+
+TODO
 
 ## Library
 
