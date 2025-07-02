@@ -14,11 +14,11 @@ http://localhost:5173
 
 > ℹ️ The url can **vary** based on how you installed it. <br /> **docker-compose** & **Docker** => use the url provided above <br /> **Helm** => navigate to the url you configured via the `frontend.ingress` value
 
-## 2. Create a user profile
+## 2. Create a User Profile
 
 TODO
 
-> Switching to another user profile is detailed in [Switch to another User Profile](./references.md#switch-to-another-user-profile).
+> Switching to another user profile is detailed in [Switch to another user profile](./references.md#switch-to-another-user-profile).
 
 ## 3. Add Your First Book
 

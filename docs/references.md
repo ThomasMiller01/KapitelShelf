@@ -16,17 +16,22 @@
 
 ## User Profiles
 
-- what are user profiles?
+User profiles store the individuell settings and metadata (like ratings and notes) of a user.
 
-TODO
+### Select a user profile
 
-### Select a User Profile
+1. On the user profile selection screen are all user profiles shown
+2. Click on the profile you want to select
 
-TODO
+![Select a user profile](./.attachments/references/user_profiles/user_profile_selection.png)
 
-### Switch to another User Profile
+### Switch to another user profile
 
-TODO
+1. Click on your user icon on the top right of the page
+2. Click the "Switch Profile" button
+3. This will navigate you to the user profile selection, see [Select a user profile](#select-a-user-profile)
+
+![Switch to another user profile](./.attachments/references/user_profiles/switch_user_profile.png)
 
 ## Library
 
