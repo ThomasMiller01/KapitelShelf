@@ -2,6 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic;
 using Microsoft.AspNetCore.Mvc;
@@ -133,6 +135,36 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error updating user with Id: {UserId}", userId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Get the last visited books of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{userId}/lastvisitedbooks")]
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetlastVisitedBooksByUserId(
+        Guid userId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 12)
+    {
+        try
+        {
+            var books = await this.logic.GetLastVisitedBooks(userId, page, pageSize);
+            if (books is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching last visited books");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
