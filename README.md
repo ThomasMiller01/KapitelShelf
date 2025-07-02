@@ -10,13 +10,14 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 ## Features
 
 - Manage physical and digital books with file support
-- Responsive UI (desktop, tablet, mobile)
+- Browse and search books, series, author and tags
+- Shelves and filtering (tags, categories, series, location) _(planned)_
 - Import and sync books with filesystem _(sync planned)_
   - Bulk import from CSV ([see Guide](docs/references.md#import-in-bulk-from-csv))
-- Browse and search books, series, author and tags
 - Full user metadata editing (notes, read status, favorite) _(planned)_
   - Import metadata from Amazon, Google and OpenLibrary ([see Guide](docs/references.md#import-metadata-for-a-book))
-- Shelves and filtering (tags, categories, series, location) _(planned)_
+- Responsive UI (desktop, tablet, mobile)
+- User Profiles that sync settings across devices _(sync planned)_
 - OPDS support for eReaders _(planned)_
 
 ## Installation
