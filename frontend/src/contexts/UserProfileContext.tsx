@@ -6,6 +6,7 @@ import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 interface UserProfileContextProps {
   profile: UserDTO | null;
   setProfile: (profile: UserDTO) => void;
+  clearProfile: () => void;
 }
 
 const PROFILE_KEY = "current.user.profile";
@@ -43,8 +44,13 @@ export const UserProfileProvider = ({
     setProfileState(newProfile);
   };
 
+  const clearProfile = (): void => {
+    setProfileState(null);
+    localStorage.removeItem(`kapitelshelf.${PROFILE_KEY}`);
+  };
+
   return (
-    <UserProfileContext.Provider value={{ profile, setProfile }}>
+    <UserProfileContext.Provider value={{ profile, setProfile, clearProfile }}>
       {children}
     </UserProfileContext.Provider>
   );

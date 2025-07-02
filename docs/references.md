@@ -2,6 +2,7 @@
 
 **Table of Contents:**
 
+- [User Profiles](#user-profiles)
 - [Library](#library)
 - [Search](#search)
 - Books
@@ -12,6 +13,25 @@
   - [Merge two Series](#merge-two-series)
 - [Metadata](#metadata)
 - [File Handling](#file-handling)
+
+## User Profiles
+
+User profiles store the individuell settings and metadata (like ratings and notes) of a user.
+
+### Select a user profile
+
+1. On the user profile selection screen are all user profiles shown
+2. Click on the profile you want to select
+
+![Select a user profile](./.attachments/references/user_profiles/user_profile_selection.png)
+
+### Switch to another user profile
+
+1. Click on your user icon on the top right of the page
+2. Click the "Switch Profile" button
+3. This will navigate you to the user profile selection, see [Select a user profile](#select-a-user-profile)
+
+![Switch to another user profile](./.attachments/references/user_profiles/switch_user_profile.png)
 
 ## Library
 
