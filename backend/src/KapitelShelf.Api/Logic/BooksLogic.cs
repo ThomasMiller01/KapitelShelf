@@ -60,11 +60,11 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     }
 
     /// <inheritdoc/>
-    public async Task<BookDTO?> GetBookByIdAsync(Guid bookId)
+    public async Task<BookDTO?> GetBookByIdAsync(Guid bookId, Guid? userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        return await context.Books
+        var book = await context.Books
             .AsNoTracking()
 
             .Include(x => x.Author)
@@ -84,6 +84,11 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
             .Select(x => this.mapper.Map<BookDTO>(x))
             .FirstOrDefaultAsync();
+
+        // mark book as visited for user
+        await this.MarkBookAsVisited(bookId, userId);
+
+        return book;
     }
 
     /// <inheritdoc/>
@@ -615,5 +620,35 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         }
 
         return importResult;
+    }
+
+    private async Task MarkBookAsVisited(Guid bookId, Guid? userId = null)
+    {
+        if (bookId == Guid.Empty || userId is null || userId == Guid.Empty)
+        {
+            return;
+        }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var visitedBook = await context.VisitedBooks
+            .Where(x => x.BookId == bookId && x.UserId == userId)
+            .FirstOrDefaultAsync();
+
+        if (visitedBook == null)
+        {
+            context.VisitedBooks.Add(new VisitedBooksModel
+            {
+                BookId = bookId,
+                UserId = (Guid)userId,
+                VisitedAt = DateTime.UtcNow,
+            });
+        }
+        else
+        {
+            visitedBook.VisitedAt = DateTime.UtcNow;
+        }
+
+        await context.SaveChangesAsync();
     }
 }

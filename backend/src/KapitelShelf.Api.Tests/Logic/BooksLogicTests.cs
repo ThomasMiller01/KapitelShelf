@@ -155,7 +155,7 @@ public class BooksLogicTests
         }
 
         // Execute
-        var result = await this.testee.GetBookByIdAsync(book.Id);
+        var result = await this.testee.GetBookByIdAsync(book.Id, Guid.NewGuid());
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -175,7 +175,7 @@ public class BooksLogicTests
     public async Task GetBookByIdAsync_ReturnsNull_WhenNotFound()
     {
         // Execute
-        var result = await this.testee.GetBookByIdAsync(Guid.NewGuid());
+        var result = await this.testee.GetBookByIdAsync(Guid.NewGuid(), Guid.NewGuid());
 
         // Assert
         Assert.That(result, Is.Null);
@@ -237,6 +237,94 @@ public class BooksLogicTests
             Assert.That(result.Items, Has.Count.EqualTo(1));
         });
         Assert.That(result.Items[0].Title, Is.EqualTo(book.Title));
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsVisited adds a new entry if none exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetBookByIdAsync_AddsVisitedBook_WhenNoneExists()
+    {
+        // Setup
+        var userId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series1".Unique(),
+        };
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "MarkVisitedTest".Unique(),
+            SeriesId = series.Id,
+        };
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            context.SaveChanges();
+        }
+
+        // Execute
+        var result = await this.testee.GetBookByIdAsync(bookId, userId);
+
+        // Assert
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var visited = context.VisitedBooks.FirstOrDefault(x => x.BookId == bookId && x.UserId == userId);
+            Assert.That(visited, Is.Not.Null);
+            Assert.That(visited.VisitedAt, Is.Not.EqualTo(default(DateTime)));
+        }
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsVisited updates VisitedAt if entry exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetBookByIdAsync_UpdatesVisitedAt_WhenEntryExists()
+    {
+        // Setup
+        var userId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series2".Unique(),
+        };
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "MarkVisitedUpdate".Unique(),
+            SeriesId = series.Id,
+        };
+
+        var oldTime = DateTime.UtcNow.AddDays(-1);
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            context.VisitedBooks.Add(new VisitedBooksModel
+            {
+                BookId = bookId,
+                UserId = userId,
+                VisitedAt = oldTime,
+            });
+            context.SaveChanges();
+        }
+
+        // Execute
+        var result = await this.testee.GetBookByIdAsync(bookId, userId);
+
+        // Assert
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var visited = context.VisitedBooks.FirstOrDefault(x => x.BookId == bookId && x.UserId == userId);
+            Assert.That(visited, Is.Not.Null);
+            Assert.That(visited.VisitedAt, Is.GreaterThan(oldTime));
+        }
     }
 
     /// <summary>
