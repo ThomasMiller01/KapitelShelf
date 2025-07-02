@@ -50,7 +50,7 @@ export interface ItemCardLayoutProps {
   squareBadge?: boolean;
   metadata?: ReactNode[];
   selected?: boolean;
-
+  small?: boolean;
   itemVariant?: ItemCardType;
 }
 
