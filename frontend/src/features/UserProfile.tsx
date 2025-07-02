@@ -19,7 +19,7 @@ import { GetUserColor } from "../utils/UserProfile";
 
 export const UserProfile = (): ReactElement => {
   const trigger = useNotImplemented();
-  const { profile } = useUserProfile();
+  const { profile, clearProfile } = useUserProfile();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -80,7 +80,7 @@ export const UserProfile = (): ReactElement => {
         <MenuItem
           onClick={() => {
             handleClose();
-            trigger(244);
+            clearProfile();
           }}
         >
           <ListItemIcon>
