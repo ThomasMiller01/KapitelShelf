@@ -18,6 +18,16 @@
 
 User profiles store the individuell settings and metadata (like ratings and notes) of a user.
 
+### Create a new user profile
+
+1. Click on the "+" (plus) button to start creating a new user profile
+
+![Create User Profile Button](./.attachments/references/user_profiles/create_user_profile_button.png)
+
+2. Fill in the username and click the "Save" button
+
+![Create User Profile Dialog](./.attachments/references/user_profiles/create_user_profile_dialog.png)
+
 ### Select a user profile
 
 1. On the user profile selection screen are all user profiles shown
