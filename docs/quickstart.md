@@ -16,9 +16,13 @@ http://localhost:5173
 
 ## 2. Create a User Profile
 
-TODO
+1. Click on the "+" (plus) button to start creating a new user profile
 
-> Switching to another user profile is detailed in [Switch to another user profile](./references.md#switch-to-another-user-profile).
+![Create User Profile Button](./.attachments/references/user_profiles/create_user_profile_button.png)
+
+2. Fill in the username and click the "Save" button
+
+![Create User Profile Dialog](./.attachments/references/user_profiles/create_user_profile_dialog.png)
 
 ## 3. Add Your First Book
 

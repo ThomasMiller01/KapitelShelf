@@ -1,16 +1,19 @@
-import { Box, Grid } from "@mui/material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { Box, Grid, IconButton, Tooltip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
+import { useNavigate } from "react-router-dom";
 
-import LoadingCard from "../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
-import FancyText from "../components/FancyText";
-import UserProfileCard from "../components/UserProfileCard";
-import { useUserProfile } from "../contexts/UserProfileContext";
-import { usersApi } from "../lib/api/KapitelShelf.Api";
+import LoadingCard from "../../components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import FancyText from "../../components/FancyText";
+import UserProfileCard from "../../components/UserProfileCard";
+import { useUserProfile } from "../../contexts/UserProfileContext";
+import { usersApi } from "../../lib/api/KapitelShelf.Api";
 
 export const UserProfileSelectionPage = (): ReactElement => {
   const { setProfile } = useUserProfile();
+  const navigate = useNavigate();
 
   const {
     data: userProfiles,
@@ -63,6 +66,19 @@ export const UserProfileSelectionPage = (): ReactElement => {
             <UserProfileCard userProfile={userProfile} onClick={setProfile} />
           </Grid>
         ))}
+        <Grid
+          size={{ xs: 6, sm: 4, md: 3, lg: 2, xl: 1.5 }}
+          alignContent="center"
+        >
+          <Tooltip title="Create new user profile">
+            <IconButton
+              sx={{ mx: "2rem", my: "1rem" }}
+              onClick={() => navigate("/create-user-profile")}
+            >
+              <AddCircleIcon sx={{ fontSize: "5rem", color: "text.primary" }} />
+            </IconButton>
+          </Tooltip>
+        </Grid>
       </Grid>
     </Box>
   );

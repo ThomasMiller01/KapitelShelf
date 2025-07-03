@@ -12,7 +12,8 @@ import BooksPage from "../pages/LibraryPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
-import { UserProfileSelectionPage } from "../pages/UserProfileSelectionPage";
+import { CreateUserProfilePage } from "../pages/user/CreateUserProfilePage";
+import { UserProfileSelectionPage } from "../pages/user/UserProfileSelectionPage";
 
 const AppRoutes = (): ReactElement | null => {
   const { profile } = useUserProfile();
@@ -35,6 +36,10 @@ const AppRoutes = (): ReactElement | null => {
         { path: "library/books/import", element: <ImportBookPage /> },
         { path: "search", element: <SearchResultsPage /> },
       ],
+    },
+    {
+      path: "/create-user-profile",
+      element: <CreateUserProfilePage />,
     },
   ]);
 };
