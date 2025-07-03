@@ -155,7 +155,7 @@ public class BooksLogicTests
         }
 
         // Execute
-        var result = await this.testee.GetBookByIdAsync(book.Id, Guid.NewGuid());
+        var result = await this.testee.GetBookByIdAsync(book.Id, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -175,7 +175,7 @@ public class BooksLogicTests
     public async Task GetBookByIdAsync_ReturnsNull_WhenNotFound()
     {
         // Execute
-        var result = await this.testee.GetBookByIdAsync(Guid.NewGuid(), Guid.NewGuid());
+        var result = await this.testee.GetBookByIdAsync(Guid.NewGuid(), null);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -249,6 +249,11 @@ public class BooksLogicTests
         // Setup
         var userId = Guid.NewGuid();
         var bookId = Guid.NewGuid();
+        var user = new UserModel
+        {
+            Id = userId,
+            Username = "User1".Unique(),
+        };
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
@@ -258,10 +263,12 @@ public class BooksLogicTests
         {
             Id = bookId,
             Title = "MarkVisitedTest".Unique(),
+            Description = "Description",
             SeriesId = series.Id,
         };
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
+            context.Users.Add(user);
             context.Series.Add(series);
             context.Books.Add(book);
             context.SaveChanges();
@@ -289,6 +296,11 @@ public class BooksLogicTests
         // Setup
         var userId = Guid.NewGuid();
         var bookId = Guid.NewGuid();
+        var user = new UserModel
+        {
+            Id = userId,
+            Username = "User1".Unique(),
+        };
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
@@ -298,12 +310,14 @@ public class BooksLogicTests
         {
             Id = bookId,
             Title = "MarkVisitedUpdate".Unique(),
+            Description = "Description",
             SeriesId = series.Id,
         };
 
         var oldTime = DateTime.UtcNow.AddDays(-1);
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
+            context.Users.Add(user);
             context.Series.Add(series);
             context.Books.Add(book);
             context.VisitedBooks.Add(new VisitedBooksModel
