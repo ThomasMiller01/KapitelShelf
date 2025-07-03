@@ -2,7 +2,7 @@ import { Card, CardActionArea, Typography } from "@mui/material";
 import CardMedia from "@mui/material/CardMedia";
 import { type ReactElement } from "react";
 
-import TestImg from "../assets/test.png";
+import WizardProfile from "../assets/Wizard.png";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 import { GetUserColor } from "../utils/UserProfile";
 
@@ -29,8 +29,11 @@ const UserProfileCard = ({
     >
       <CardMedia
         component="img"
-        sx={{ maxHeight: "200px", minHeight: "170px" }}
-        image={TestImg}
+        sx={{
+          minHeight: "170px",
+          maxHeight: "200px",
+        }}
+        image={WizardProfile}
         alt={userProfile.username ?? "User Avatar"}
       />
       <Typography variant="h6" noWrap my="5px">

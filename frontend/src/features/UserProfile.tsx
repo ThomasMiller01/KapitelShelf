@@ -11,14 +11,12 @@ import {
 import type { ReactElement } from "react";
 import React from "react";
 
-import TestImg from "../assets/test.png";
+import WizardProfile from "../assets/Wizard.png";
 import { useUserProfile } from "../contexts/UserProfileContext";
-import { useNotImplemented } from "../hooks/useNotImplemented";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 import { GetUserColor } from "../utils/UserProfile";
 
 export const UserProfile = (): ReactElement => {
-  const trigger = useNotImplemented();
   const { profile, clearProfile } = useUserProfile();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -100,7 +98,7 @@ interface UserProfileIconProps {
 const UserProfileIcon = ({ profile }: UserProfileIconProps): ReactElement => (
   <Avatar
     alt={profile?.username || "Unknown User"}
-    src={TestImg}
+    src={WizardProfile}
     variant="rounded"
     sx={{
       width: 32,
