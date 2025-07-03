@@ -1,10 +1,11 @@
-import { Card, CardActionArea, Typography } from "@mui/material";
+import { Card, CardActionArea } from "@mui/material";
 import CardMedia from "@mui/material/CardMedia";
 import { type ReactElement } from "react";
 
 import WizardProfile from "../assets/Wizard.png";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 import { GetUserColor } from "../utils/UserProfile";
+import FancyText from "./FancyText";
 
 interface UserProfileCardProps {
   userProfile: UserDTO;
@@ -36,9 +37,9 @@ const UserProfileCard = ({
         image={WizardProfile}
         alt={userProfile.username ?? "User Avatar"}
       />
-      <Typography variant="h6" noWrap my="5px">
+      <FancyText variant="h6" noWrap my="5px">
         {userProfile.username}
-      </Typography>
+      </FancyText>
     </CardActionArea>
   </Card>
 );

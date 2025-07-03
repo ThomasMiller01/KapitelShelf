@@ -6,12 +6,12 @@ import {
   ListItemIcon,
   Menu,
   MenuItem,
-  Typography,
 } from "@mui/material";
 import type { ReactElement } from "react";
 import React from "react";
 
 import WizardProfile from "../assets/Wizard.png";
+import FancyText from "../components/FancyText";
 import { useUserProfile } from "../contexts/UserProfileContext";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 import { GetUserColor } from "../utils/UserProfile";
@@ -71,8 +71,8 @@ export const UserProfile = (): ReactElement => {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={handleClose}>
-          <UserProfileIcon profile={profile} />{" "}
-          <Typography ml="5px">{profile?.username}</Typography>
+          <UserProfileIcon profile={profile} />
+          <FancyText ml="6px">{profile?.username}</FancyText>
         </MenuItem>
         <Divider />
         <MenuItem

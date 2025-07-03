@@ -67,7 +67,6 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
       <Swiper
         modules={[Navigation]}
         navigation
-        loop={true}
         spaceBetween={itemGap}
         slidesPerView="auto"
         autoHeight
