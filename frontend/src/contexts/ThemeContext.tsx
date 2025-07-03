@@ -7,7 +7,14 @@ import {
   ThemeProvider as MUIThemeProvider,
 } from "@mui/material";
 import type { FC, ReactElement, ReactNode } from "react";
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { getTheme } from "../styles/Theme";
@@ -26,7 +33,7 @@ export const useThemeMode = (): ThemeMode => useContext(ThemeModeContext);
 export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [getItem, setItem] = useLocalStorage();
 
-  const getDefaultMode = (): ThemeMode => {
+  const getDefaultMode = useCallback((): ThemeMode => {
     const stored = getItem(THEME_KEY);
     if (stored === "light" || stored === "dark") {
       return stored;
@@ -35,7 +42,11 @@ export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
     // const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const prefersDark = true;
     return prefersDark ? "dark" : "light";
-  };
+  }, [getItem]);
+
+  useEffect(() => {
+    setMode(getDefaultMode());
+  }, [getDefaultMode]);
 
   const [mode, setMode] = useState<ThemeMode>(getDefaultMode());
 

@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 
+import LastVisitedBooksList from "../features/book/LastVisitedBooksList";
 import WelcomeScreen from "../features/WelcomeScreen";
 import { useWelcomeScreen } from "../hooks/useWelcomeScreen";
 
@@ -20,7 +21,11 @@ const HomePage = (): ReactElement => {
     );
   }
 
-  return <Box sx={{ margin: "10px" }}></Box>;
+  return (
+    <Box sx={{ margin: "10px" }}>
+      <LastVisitedBooksList />
+    </Box>
+  );
 };
 
 export default HomePage;

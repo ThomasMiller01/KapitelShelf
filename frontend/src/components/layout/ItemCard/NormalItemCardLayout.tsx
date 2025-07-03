@@ -30,6 +30,7 @@ const NormalItemCardLayout = ({
   squareBadge = true,
   metadata = [],
   selected,
+  small = false,
 }: ItemCardLayoutProps): ReactElement => {
   const navigate = useNavigate();
 
@@ -63,7 +64,7 @@ const NormalItemCardLayout = ({
           md: "22vw", // desktop: 4–5 per row
           lg: "15vw", // large screen: 7–8 per row
         },
-        maxWidth: 200,
+        maxWidth: small ? 150 : 200,
         height: "100%",
         "&[data-active]": {
           backgroundColor: "action.selected",
@@ -118,7 +119,7 @@ const NormalItemCardLayout = ({
           <Typography
             variant="h6"
             sx={{
-              fontSize: isMobile ? "0.8rem !important" : "1rem !important",
+              fontSize: TitleFontSize(isMobile, small),
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
@@ -138,6 +139,21 @@ const NormalItemCardLayout = ({
       </Box>
     </Card>
   );
+};
+
+const TitleFontSize = (isMobile: boolean, small: boolean): string => {
+  if (isMobile) {
+    // mobile and normal or small
+    return "0.8rem !important";
+  }
+
+  if (small) {
+    // desktop and small
+    return "0.9rem !important";
+  }
+
+  // desktop and normal
+  return "1rem !important";
 };
 
 export default NormalItemCardLayout;

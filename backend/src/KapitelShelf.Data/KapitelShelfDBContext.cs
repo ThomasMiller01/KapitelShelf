@@ -70,6 +70,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     public DbSet<UserBookMetadataModel> UserBookMetadata => Set<UserBookMetadataModel>();
 
     /// <summary>
+    /// Gets the visited books table.
+    /// </summary>
+    public DbSet<VisitedBooksModel> VisitedBooks => Set<VisitedBooksModel>();
+
+    /// <summary>
     /// Gets the book search view.
     /// </summary>
     public DbSet<BookSearchView> BookSearchView => Set<BookSearchView>();
@@ -166,6 +171,13 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
         modelBuilder.Entity<SeriesModel>()
             .HasIndex(c => new { c.Name })
             .IsUnique();
+
+        // Visited Books
+        modelBuilder.Entity<VisitedBooksModel>()
+            .HasOne(b => b.Book)
+            .WithMany()
+            .HasForeignKey(b => b.BookId)
+            .OnDelete(DeleteBehavior.Cascade);
 #pragma warning restore CA1062 // Validate arguments of public methods
 
         base.OnModelCreating(modelBuilder);

@@ -22,8 +22,9 @@ public interface IBooksLogic
     /// Retrieves a book by its id.
     /// </summary>
     /// <param name="bookId">The id of the book.</param>
+    /// <param name="userId">The id of the user that is accessing this book.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="BookDTO"/> if found; otherwise, <c>null</c>.</returns>
-    Task<BookDTO?> GetBookByIdAsync(Guid bookId);
+    Task<BookDTO?> GetBookByIdAsync(Guid bookId, Guid? userId = null);
 
     /// <summary>
     /// Search all books by search term.

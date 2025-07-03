@@ -911,10 +911,11 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
          * 
          * @summary Get book by the id.
          * @param {string} bookId The id of the book to get.
+         * @param {string} [userId] The id of the user.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdGet: async (bookId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        booksBookIdGet: async (bookId: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'bookId' is not null or undefined
             assertParamExists('booksBookIdGet', 'bookId', bookId)
             const localVarPath = `/books/{bookId}`
@@ -929,6 +930,10 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
 
 
     
@@ -1243,11 +1248,12 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * 
          * @summary Get book by the id.
          * @param {string} bookId The id of the book to get.
+         * @param {string} [userId] The id of the user.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdGet(bookId, options);
+        async booksBookIdGet(bookId: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdGet(bookId, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1398,11 +1404,12 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * 
          * @summary Get book by the id.
          * @param {string} bookId The id of the book to get.
+         * @param {string} [userId] The id of the user.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
-            return localVarFp.booksBookIdGet(bookId, options).then((request) => request(axios, basePath));
+        booksBookIdGet(bookId: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
+            return localVarFp.booksBookIdGet(bookId, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1542,12 +1549,13 @@ export class BooksApi extends BaseAPI {
      * 
      * @summary Get book by the id.
      * @param {string} bookId The id of the book to get.
+     * @param {string} [userId] The id of the user.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
      */
-    public booksBookIdGet(bookId: string, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksBookIdGet(bookId, options).then((request) => request(this.axios, this.basePath));
+    public booksBookIdGet(bookId: string, userId?: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksBookIdGet(bookId, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2886,6 +2894,50 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Get the last visited books of a user.
+         * @param {string} userId The id of the user.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersUserIdLastvisitedbooksGet: async (userId: string, page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('usersUserIdLastvisitedbooksGet', 'userId', userId)
+            const localVarPath = `/users/{userId}/lastvisitedbooks`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (pageSize !== undefined) {
+                localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Update a user.
          * @param {string} userId The id of the user to update.
          * @param {UserDTO} [userDTO] The updated user.
@@ -2985,6 +3037,21 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get the last visited books of a user.
+         * @param {string} userId The id of the user.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersUserIdLastvisitedbooksGet(userId: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersUserIdLastvisitedbooksGet(userId, page, pageSize, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersUserIdLastvisitedbooksGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Update a user.
          * @param {string} userId The id of the user to update.
          * @param {UserDTO} [userDTO] The updated user.
@@ -3045,6 +3112,18 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         usersUserIdGet(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<UserDTO> {
             return localVarFp.usersUserIdGet(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get the last visited books of a user.
+         * @param {string} userId The id of the user.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersUserIdLastvisitedbooksGet(userId: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
+            return localVarFp.usersUserIdLastvisitedbooksGet(userId, page, pageSize, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3112,6 +3191,20 @@ export class UsersApi extends BaseAPI {
      */
     public usersUserIdGet(userId: string, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).usersUserIdGet(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get the last visited books of a user.
+     * @param {string} userId The id of the user.
+     * @param {number} [page] The page number.
+     * @param {number} [pageSize] The page size.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsersApi
+     */
+    public usersUserIdLastvisitedbooksGet(userId: string, page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersUserIdLastvisitedbooksGet(userId, page, pageSize, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

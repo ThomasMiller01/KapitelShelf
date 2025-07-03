@@ -15,6 +15,7 @@ interface BookCardProps {
   showMetadata?: boolean;
   itemVariant?: ItemCardType;
   onClick?: () => void;
+  small?: boolean;
 }
 
 const BookCard = ({
@@ -23,12 +24,14 @@ const BookCard = ({
   showMetadata = true,
   itemVariant = "normal",
   onClick,
+  small = false,
 }: BookCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
   return (
     <ItemCardLayout
       itemVariant={itemVariant}
+      small={small}
       title={book.title}
       description={book.description}
       link={`/library/books/${book.id}`}
@@ -54,11 +57,13 @@ const BookCard = ({
             spacing={0}
             width="100%"
           >
-            <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
+            <MetadataItem sx={{ fontSize: MetadataFontSize(isMobile, small) }}>
               {LocationTypeToString[book.location?.type ?? -1]}
             </MetadataItem>
             {book.pageNumber && book.pageNumber !== 0 && (
-              <MetadataItem sx={{ fontSize: isMobile ? "0.6rem" : "0.8rem" }}>
+              <MetadataItem
+                sx={{ fontSize: MetadataFontSize(isMobile, small) }}
+              >
                 {book.pageNumber} pages
               </MetadataItem>
             )}
@@ -69,6 +74,21 @@ const BookCard = ({
       ]}
     />
   );
+};
+
+const MetadataFontSize = (isMobile: boolean, small: boolean): string => {
+  if (isMobile) {
+    // mobile and normal or small
+    return "0.6rem !important";
+  }
+
+  if (small) {
+    // desktop and small
+    return "0.7rem !important";
+  }
+
+  // desktop and normal
+  return "0.8rem !important";
 };
 
 export default BookCard;

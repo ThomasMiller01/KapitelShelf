@@ -23,4 +23,9 @@ public class UserModel
     /// Gets or sets the books.
     /// </summary>
     public ICollection<UserBookMetadataModel> Books { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the visited books.
+    /// </summary>
+    public ICollection<VisitedBooksModel> VisitedBooks { get; set; } = [];
 }

@@ -141,13 +141,14 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// Get book by the id.
     /// </summary>
     /// <param name="bookId">The id of the book to get.</param>
+    /// <param name="userId">The id of the user.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("{bookId}")]
-    public async Task<ActionResult<BookDTO>> GetBookById(Guid bookId)
+    public async Task<ActionResult<BookDTO>> GetBookById(Guid bookId, Guid? userId)
     {
         try
         {
-            var book = await this.logic.GetBookByIdAsync(bookId);
+            var book = await this.logic.GetBookByIdAsync(bookId, userId);
             if (book is null)
             {
                 return NotFound();

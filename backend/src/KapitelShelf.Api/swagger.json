@@ -268,6 +268,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The id of the user.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1320,6 +1329,68 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/{userId}/lastvisitedbooks": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get the last visited books of a user.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The id of the user.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 12
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDTOPagedResult"
+                }
+              }
+            }
           }
         }
       }

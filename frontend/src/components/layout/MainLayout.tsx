@@ -13,6 +13,7 @@ const Main = styled("main", {
   shouldForwardProp: (prop) => prop !== "open" && prop !== "isMobile",
 })<{ open: boolean; isMobile: boolean }>(({ theme, open, isMobile }) => ({
   flexGrow: 1,
+  minWidth: 0,
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -26,7 +27,7 @@ export const MainLayout = (): ReactElement => {
   const [open, toggleDrawer] = useResponsiveDrawer();
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minWidth: 0 }}>
       <CssBaseline />
       <Sidebar open={open} onClose={toggleDrawer} />
       <AppBar open={open} toggle={toggleDrawer} />
