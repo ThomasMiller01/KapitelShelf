@@ -323,7 +323,21 @@ export interface CreateUserDTO {
      * @memberof CreateUserDTO
      */
     'username'?: string | null;
+    /**
+     * 
+     * @type {ProfileImageTypeDTO}
+     * @memberof CreateUserDTO
+     */
+    'image'?: ProfileImageTypeDTO;
+    /**
+     * Gets or sets the profile color.
+     * @type {string}
+     * @memberof CreateUserDTO
+     */
+    'color'?: string | null;
 }
+
+
 /**
  * Gets or sets the fileinfo dto.
  * @export
@@ -557,6 +571,20 @@ export type MetadataSources = typeof MetadataSources[keyof typeof MetadataSource
 
 
 /**
+ * The profile image enum.
+ * @export
+ * @enum {number}
+ */
+
+export const ProfileImageTypeDTO = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+
+export type ProfileImageTypeDTO = typeof ProfileImageTypeDTO[keyof typeof ProfileImageTypeDTO];
+
+
+/**
  * The series dto.
  * @export
  * @interface SeriesDTO
@@ -711,7 +739,21 @@ export interface UserDTO {
      * @memberof UserDTO
      */
     'username'?: string | null;
+    /**
+     * 
+     * @type {ProfileImageTypeDTO}
+     * @memberof UserDTO
+     */
+    'image'?: ProfileImageTypeDTO;
+    /**
+     * Gets or sets the profile color.
+     * @type {string}
+     * @memberof UserDTO
+     */
+    'color'?: string | null;
 }
+
+
 
 /**
  * BooksApi - axios parameter creator

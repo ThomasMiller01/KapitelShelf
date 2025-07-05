@@ -100,6 +100,8 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         context.Entry(user).CurrentValues.SetValues(new
         {
             userDto.Username,
+            userDto.Image,
+            userDto.Color,
         });
 
         // commit
