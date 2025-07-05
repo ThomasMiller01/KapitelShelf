@@ -1,21 +1,25 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Avatar, Box, Button, Stack, TextField, Tooltip } from "@mui/material";
 import type { ReactNode } from "react";
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement, useEffect } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-import WizardProfile from "../../assets/Wizard.png";
-import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
+import {
+  ProfileImageTypeDTO,
+  type UserDTO,
+} from "../../lib/api/KapitelShelf.Api/api";
 import type { UserFormValues } from "../../lib/schemas/UserSchema";
 import { UserSchema } from "../../lib/schemas/UserSchema";
-import { GetUserColor } from "../../utils/UserProfile";
-
-// 600ms after user stops typing
-const USERNAME_REST_MS = 600;
+import {
+  GetUserColor,
+  ProfileImageTypeToName,
+  ProfileImageTypeToSrc,
+} from "../../utils/UserProfile";
 
 interface ActionProps {
   name: string;
-  onClick: (user: UserDTO) => void;
+  onClick: (user: UserDTO | undefined) => void;
   icon?: ReactNode;
 }
 
@@ -35,6 +39,8 @@ const EditableProfileDetails = ({
     mode: "onBlur",
     defaultValues: {
       username: initial?.username ?? "",
+      image: initial?.image,
+      color: initial?.color ?? GetUserColor(initial?.username),
     },
   });
 
@@ -50,18 +56,6 @@ const EditableProfileDetails = ({
     triggerValidation();
   }, [triggerValidation, initial]);
 
-  // update profile image color with delay
-  const [profileImageColor, setProfileImageColor] = useState(
-    GetUserColor(initial?.username)
-  );
-  useEffect(() => {
-    const handle = setTimeout(
-      () => setProfileImageColor(GetUserColor(control._formValues.username)),
-      USERNAME_REST_MS
-    );
-    return (): void => clearTimeout(handle);
-  }, [control._formValues.username]);
-
   const onSubmit = (data: UserFormValues): void => {
     if (confirmAction === undefined) {
       return;
@@ -69,6 +63,8 @@ const EditableProfileDetails = ({
 
     const user: UserDTO = {
       username: data.username,
+      image: data.image,
+      color: data.color,
     };
 
     confirmAction.onClick(user);
@@ -78,44 +74,81 @@ const EditableProfileDetails = ({
     <Box>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack
-            direction={{ xs: "column-reverse", sm: "row" }}
-            spacing={{ xs: 2, sm: 4 }}
-            alignItems="center"
-            mb="15px"
-          >
-            <Box
-              sx={{
-                bgcolor: profileImageColor,
-                pb: "10px",
-                borderRadius: "32px",
-              }}
-            >
-              <img
-                style={{
-                  minHeight: "170px",
-                  maxHeight: "200px",
-                }}
-                src={WizardProfile}
-                alt={"User Avatar"}
-              />
-            </Box>
-            {/* Title */}
-            <Controller
-              name="username"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Username"
-                  variant="filled"
-                  fullWidth
-                  error={Boolean(errors.username)}
-                  helperText={errors.username?.message}
-                />
-              )}
-            />
-          </Stack>
+          {/* Color */}
+          <Controller
+            name="color"
+            control={control}
+            render={({ field: fcolor }) => (
+              <Stack
+                direction={{ xs: "column-reverse", sm: "row" }}
+                spacing={{ xs: 2, sm: 4 }}
+                alignItems="center"
+                mb="15px"
+              >
+                <Box
+                  sx={{
+                    bgcolor: fcolor.value,
+                    pb: "10px",
+                    borderRadius: "32px",
+                  }}
+                >
+                  {/* Image */}
+                  <Controller
+                    name="image"
+                    control={control}
+                    render={({ field: fimage }) => (
+                      <Tooltip
+                        title={
+                          ProfileImageTypeToName[
+                            fimage.value ?? ProfileImageTypeDTO.NUMBER_0
+                          ]
+                        }
+                      >
+                        <img
+                          style={{
+                            minHeight: "170px",
+                            maxHeight: "200px",
+                          }}
+                          src={
+                            ProfileImageTypeToSrc[
+                              fimage.value ?? ProfileImageTypeDTO.NUMBER_0
+                            ]
+                          }
+                          alt={
+                            ProfileImageTypeToName[
+                              fimage.value ?? ProfileImageTypeDTO.NUMBER_0
+                            ]
+                          }
+                        />
+                      </Tooltip>
+                    )}
+                  />
+                </Box>
+                <Stack spacing={2} alignItems="start">
+                  {/* Username */}
+                  <Controller
+                    name="username"
+                    control={control}
+                    render={({ field: fusername }) => (
+                      <TextField
+                        {...fusername}
+                        label="Username"
+                        variant="filled"
+                        fullWidth
+                        error={Boolean(errors.username)}
+                        helperText={errors.username?.message}
+                      />
+                    )}
+                  />
+                  <IconButtonWithTooltip tooltip="Change Color" size="small">
+                    <Avatar variant="rounded" sx={{ bgcolor: fcolor.value }}>
+                      {" "}
+                    </Avatar>
+                  </IconButtonWithTooltip>
+                </Stack>
+              </Stack>
+            )}
+          />
 
           <Stack
             direction={{ xs: "column", md: "row" }}
@@ -129,6 +162,7 @@ const EditableProfileDetails = ({
                 action={confirmAction}
                 disabled={!isValid}
                 variant="contained"
+                isSubmit
               />
             )}
             {cancelAction && (
@@ -145,15 +179,22 @@ const ActionButton = ({
   action,
   disabled = false,
   variant = "contained",
+  isSubmit = false,
 }: {
   action: ActionProps;
   disabled?: boolean;
   variant?: "contained" | "outlined";
+  isSubmit?: boolean;
 }): ReactElement => (
   <Button
     variant={variant}
     startIcon={action.icon}
-    type="submit"
+    type={isSubmit ? "submit" : "button"}
+    onClick={
+      !isSubmit && action.onClick !== undefined
+        ? (): void => action.onClick(undefined)
+        : undefined
+    }
     disabled={disabled}
     sx={{
       alignItems: "start",

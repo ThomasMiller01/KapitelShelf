@@ -33,6 +33,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         return await context.Users
             .AsNoTracking()
+            .OrderBy(x => x.Username)
             .Select(x => this.mapper.Map<UserDTO>(x))
             .ToListAsync();
     }
