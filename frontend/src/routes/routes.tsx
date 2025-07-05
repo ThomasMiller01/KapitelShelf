@@ -12,8 +12,10 @@ import BooksPage from "../pages/LibraryPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
-import { CreateUserProfilePage } from "../pages/user/CreateUserProfilePage";
-import { UserProfileSelectionPage } from "../pages/user/UserProfileSelectionPage";
+import { CreateProfilePage } from "../pages/user/CreateProfilePage";
+import { EditProfilePage } from "../pages/user/EditProfilePage";
+import { SelectProfilePage } from "../pages/user/SelectProfilePage";
+import { ViewProfilePage } from "../pages/user/ViewProfilePage";
 
 const AppRoutes = (): ReactElement | null => {
   const { profile } = useUserProfile();
@@ -21,9 +23,11 @@ const AppRoutes = (): ReactElement | null => {
   return useRoutes([
     {
       path: "/",
-      element: profile === null ? <UserProfileSelectionPage /> : <MainLayout />,
+      element: profile === null ? <SelectProfilePage /> : <MainLayout />,
       children: [
         { index: true, element: <HomePage /> },
+        { path: "profile", element: <ViewProfilePage /> },
+        { path: "profile/edit", element: <EditProfilePage /> },
         { path: "library", element: <BooksPage /> },
         { path: "library/series/:seriesId", element: <SeriesDetailPage /> },
         {
@@ -39,7 +43,7 @@ const AppRoutes = (): ReactElement | null => {
     },
     {
       path: "/create-user-profile",
-      element: <CreateUserProfilePage />,
+      element: <CreateProfilePage />,
     },
   ]);
 };

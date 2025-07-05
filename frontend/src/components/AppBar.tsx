@@ -5,7 +5,7 @@ import { Box, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { UserProfile } from "../features/UserProfile";
+import { ProfileMenu } from "../features/user/ProfileMenu";
 import { useMobile } from "../hooks/useMobile";
 import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
 import { SearchBar } from "./search/SearchBar";
@@ -39,7 +39,7 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
           {/* <Box ml={isMobile ? "10px !important" : ""}>
             <ThemeToggle />
           </Box> */}
-          <UserProfile />
+          <ProfileMenu />
         </Stack>
       </Box>
     </ResponsiveDrawerAppBar>
