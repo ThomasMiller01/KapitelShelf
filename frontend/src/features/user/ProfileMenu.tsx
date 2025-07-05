@@ -11,13 +11,13 @@ import type { ReactElement } from "react";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import WizardProfile from "../assets/Wizard.png";
-import FancyText from "../components/FancyText";
-import { useUserProfile } from "../contexts/UserProfileContext";
-import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
-import { GetUserColor } from "../utils/UserProfile";
+import WizardProfile from "../../assets/Wizard.png";
+import FancyText from "../../components/FancyText";
+import { useUserProfile } from "../../contexts/UserProfileContext";
+import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { GetUserColor } from "../../utils/UserProfile";
 
-export const UserProfile = (): ReactElement => {
+export const ProfileMenu = (): ReactElement => {
   const { profile, clearProfile } = useUserProfile();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

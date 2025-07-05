@@ -13,7 +13,8 @@ import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
 import { CreateProfilePage } from "../pages/user/CreateProfilePage";
-import { ProfileSelectionPage } from "../pages/user/ProfileSelectionPage";
+import { EditProfilePage } from "../pages/user/EditProfilePage";
+import { SelectProfilePage } from "../pages/user/SelectProfilePage";
 import { ViewProfilePage } from "../pages/user/ViewProfilePage";
 
 const AppRoutes = (): ReactElement | null => {
@@ -22,10 +23,11 @@ const AppRoutes = (): ReactElement | null => {
   return useRoutes([
     {
       path: "/",
-      element: profile === null ? <ProfileSelectionPage /> : <MainLayout />,
+      element: profile === null ? <SelectProfilePage /> : <MainLayout />,
       children: [
         { index: true, element: <HomePage /> },
         { path: "profile", element: <ViewProfilePage /> },
+        { path: "profile/edit", element: <EditProfilePage /> },
         { path: "library", element: <BooksPage /> },
         { path: "library/series/:seriesId", element: <SeriesDetailPage /> },
         {
