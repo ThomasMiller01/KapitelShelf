@@ -1,12 +1,15 @@
+import { useMutation } from "@tanstack/react-query";
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
+import { usersApi } from "../lib/api/KapitelShelf.Api";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 
 interface UserProfileContextProps {
   profile: UserDTO | null;
   setProfile: (profile: UserDTO) => void;
   clearProfile: () => void;
+  syncProfile: () => void;
 }
 
 const PROFILE_KEY = "current.user.profile";
@@ -22,13 +25,23 @@ export const UserProfileProvider = ({
 }): ReactElement => {
   const [profile, setProfileState] = useState<UserDTO | null>(null);
 
+  const { mutateAsync: mutateLoadProfile } = useMutation({
+    mutationKey: ["load-profile"],
+    mutationFn: async (userId: string) => {
+      const { data } = await usersApi.usersUserIdGet(userId);
+      return data;
+    },
+  });
+
   // load profile on mount
   useEffect(() => {
     const stored = localStorage.getItem(`kapitelshelf.${PROFILE_KEY}`);
     if (stored) {
-      setProfileState(JSON.parse(stored));
+      mutateLoadProfile(JSON.parse(stored).id).then((fetchedProfile) => {
+        setProfileState(fetchedProfile);
+      });
     }
-  }, []);
+  }, [mutateLoadProfile]);
 
   // save when profile changes
   useEffect(() => {
@@ -49,8 +62,20 @@ export const UserProfileProvider = ({
     localStorage.removeItem(`kapitelshelf.${PROFILE_KEY}`);
   };
 
+  const syncProfile = (): void => {
+    if (!profile || !profile.id) {
+      return;
+    }
+
+    mutateLoadProfile(profile.id).then((fetchedProfile) => {
+      setProfileState(fetchedProfile);
+    });
+  };
+
   return (
-    <UserProfileContext.Provider value={{ profile, setProfile, clearProfile }}>
+    <UserProfileContext.Provider
+      value={{ profile, setProfile, clearProfile, syncProfile }}
+    >
       {children}
     </UserProfileContext.Provider>
   );

@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import type { ReactElement } from "react";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import WizardProfile from "../assets/Wizard.png";
 import FancyText from "../components/FancyText";
@@ -26,6 +27,10 @@ export const UserProfile = (): ReactElement => {
   };
   const handleClose = (): void => {
     setAnchorEl(null);
+  };
+  const handleSwitchProfile = (): void => {
+    handleClose();
+    clearProfile();
   };
 
   return (
@@ -70,17 +75,12 @@ export const UserProfile = (): ReactElement => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem component={Link} to="/profile">
           <UserProfileIcon profile={profile} />
           <FancyText ml="6px">{profile?.username}</FancyText>
         </MenuItem>
         <Divider />
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            clearProfile();
-          }}
-        >
+        <MenuItem onClick={handleSwitchProfile}>
           <ListItemIcon>
             <PeopleIcon fontSize="small" />
           </ListItemIcon>

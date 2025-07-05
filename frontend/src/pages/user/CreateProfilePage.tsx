@@ -20,7 +20,7 @@ import { GetUserColor } from "../../utils/UserProfile";
 // 600ms after user stops typing
 const USERNAME_REST_MS = 600;
 
-export const CreateUserProfilePage = (): ReactElement => {
+export const CreateProfilePage = (): ReactElement => {
   const navigate = useNavigate();
   const { setProfile } = useUserProfile();
 

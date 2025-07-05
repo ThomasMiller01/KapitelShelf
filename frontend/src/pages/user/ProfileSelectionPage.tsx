@@ -11,7 +11,7 @@ import UserProfileCard from "../../components/UserProfileCard";
 import { useUserProfile } from "../../contexts/UserProfileContext";
 import { usersApi } from "../../lib/api/KapitelShelf.Api";
 
-export const UserProfileSelectionPage = (): ReactElement => {
+export const ProfileSelectionPage = (): ReactElement => {
   const { setProfile } = useUserProfile();
   const navigate = useNavigate();
 
