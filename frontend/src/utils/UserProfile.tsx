@@ -1,12 +1,9 @@
 import MonsieurRead from "../assets/users/images/MonsieurRead.png";
 import Readini from "../assets/users/images/Readini.png";
 import { ProfileImageTypeDTO } from "../lib/api/KapitelShelf.Api/api";
-import { UserProfileColors } from "../styles/Palette";
 
 export const GetUserColor = (username: string | undefined | null): string => {
-  console.log("default");
   if (username === undefined || username === null) {
-    console.log(UserProfileColors[0]);
     return UserProfileColors[0];
   }
 
@@ -27,3 +24,16 @@ export const ProfileImageTypeToName = {
   [ProfileImageTypeDTO.NUMBER_0]: "Monsieur Read",
   [ProfileImageTypeDTO.NUMBER_1]: "Readini",
 };
+
+export const UserProfileColors = [
+  "#39796b", // teal
+  "#b26a22", // orange
+  "#1976d2", // blue
+  "#b11218", // red
+  "#2997a3", // cyan
+  "#a15033", // deep orange
+  "#388e3c", // green
+  "#b2a429", // gold
+  "#7b1fa2", // purple
+  "#879623", // olive green
+];
