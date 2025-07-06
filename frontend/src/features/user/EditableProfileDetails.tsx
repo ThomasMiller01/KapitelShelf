@@ -1,21 +1,34 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Stack, TextField } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+} from "@mui/material";
 import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-import WizardProfile from "../../assets/Wizard.png";
-import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
+import { ColorPicker } from "../../components/ColorPicker";
+import { ProfileImage } from "../../components/ProfileImage";
+import {
+  ProfileImageTypeDTO,
+  type UserDTO,
+} from "../../lib/api/KapitelShelf.Api/api";
 import type { UserFormValues } from "../../lib/schemas/UserSchema";
 import { UserSchema } from "../../lib/schemas/UserSchema";
 import { GetUserColor } from "../../utils/UserProfile";
-
-// 600ms after user stops typing
-const USERNAME_REST_MS = 600;
+import { ProfileImageList } from "./ProfileImageList";
 
 interface ActionProps {
   name: string;
-  onClick: (user: UserDTO) => void;
+  onClick: (user: UserDTO | undefined) => void;
   icon?: ReactNode;
 }
 
@@ -35,6 +48,8 @@ const EditableProfileDetails = ({
     mode: "onBlur",
     defaultValues: {
       username: initial?.username ?? "",
+      image: initial?.image,
+      color: initial?.color ?? GetUserColor(initial?.username),
     },
   });
 
@@ -50,18 +65,6 @@ const EditableProfileDetails = ({
     triggerValidation();
   }, [triggerValidation, initial]);
 
-  // update profile image color with delay
-  const [profileImageColor, setProfileImageColor] = useState(
-    GetUserColor(initial?.username)
-  );
-  useEffect(() => {
-    const handle = setTimeout(
-      () => setProfileImageColor(GetUserColor(control._formValues.username)),
-      USERNAME_REST_MS
-    );
-    return (): void => clearTimeout(handle);
-  }, [control._formValues.username]);
-
   const onSubmit = (data: UserFormValues): void => {
     if (confirmAction === undefined) {
       return;
@@ -69,53 +72,121 @@ const EditableProfileDetails = ({
 
     const user: UserDTO = {
       username: data.username,
+      image: data.image,
+      color: data.color,
     };
 
     confirmAction.onClick(user);
   };
 
+  const [selectImageOpen, setSelectImageOpen] = useState(false);
+  const [selectColorOpen, setSelectColorOpen] = useState(false);
+
   return (
     <Box>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack
-            direction={{ xs: "column-reverse", sm: "row" }}
-            spacing={{ xs: 2, sm: 4 }}
-            alignItems="center"
-            mb="15px"
-          >
-            <Box
-              sx={{
-                bgcolor: profileImageColor,
-                pb: "10px",
-                borderRadius: "32px",
-              }}
-            >
-              <img
-                style={{
-                  minHeight: "170px",
-                  maxHeight: "200px",
-                }}
-                src={WizardProfile}
-                alt={"User Avatar"}
-              />
-            </Box>
-            {/* Title */}
-            <Controller
-              name="username"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Username"
-                  variant="filled"
-                  fullWidth
-                  error={Boolean(errors.username)}
-                  helperText={errors.username?.message}
+          <Controller
+            name="color"
+            control={control}
+            render={({ field: fcolor }) => (
+              <>
+                <Controller
+                  name="image"
+                  control={control}
+                  render={({ field: fimage }) => (
+                    <Stack
+                      direction={{ xs: "column-reverse", sm: "row" }}
+                      spacing={{ xs: 2, sm: 4 }}
+                      alignItems="center"
+                      mb="15px"
+                    >
+                      <Box position="relative">
+                        {/* Image */}
+                        <ProfileImage
+                          profileImageType={
+                            fimage.value ?? ProfileImageTypeDTO.NUMBER_0
+                          }
+                          profileColor={fcolor.value ?? ""}
+                        />
+                        <IconButtonWithTooltip
+                          tooltip="Change Image"
+                          onClick={() => setSelectImageOpen(true)}
+                          sx={{
+                            position: "absolute",
+                            bottom: 6,
+                            right: 6,
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButtonWithTooltip>
+                      </Box>
+                      <Stack spacing={2} alignItems="start">
+                        {/* Username */}
+                        <Controller
+                          name="username"
+                          control={control}
+                          render={({ field: fusername }) => (
+                            <TextField
+                              {...fusername}
+                              label="Username"
+                              variant="filled"
+                              fullWidth
+                              error={Boolean(errors.username)}
+                              helperText={errors.username?.message}
+                            />
+                          )}
+                        />
+                        {/* Color */}
+                        <IconButtonWithTooltip
+                          tooltip="Change Color"
+                          size="small"
+                          onClick={() => setSelectColorOpen(true)}
+                          sx={{
+                            width: 42,
+                            height: 42,
+                            backgroundColor: fcolor.value,
+                            borderRadius: "8px",
+                            position: "relative",
+                          }}
+                        >
+                          {" "}
+                        </IconButtonWithTooltip>
+                      </Stack>
+                      <ListSelectionDialog
+                        name="profile image"
+                        open={selectImageOpen}
+                        onClose={() => setSelectImageOpen(false)}
+                      >
+                        <ProfileImageList
+                          onClick={(profileImageType: ProfileImageTypeDTO) => {
+                            setSelectImageOpen(false);
+                            fimage.onChange(profileImageType);
+                          }}
+                          profileColor={fcolor.value ?? ""}
+                        />
+                      </ListSelectionDialog>
+                      <ListSelectionDialog
+                        name="profile color"
+                        open={selectColorOpen}
+                        onClose={() => setSelectColorOpen(false)}
+                        small
+                      >
+                        <ColorPicker
+                          size={42}
+                          value={fcolor.value ?? ""}
+                          onChange={(color: string) => {
+                            setSelectColorOpen(false);
+                            fcolor.onChange(color);
+                          }}
+                        />
+                      </ListSelectionDialog>
+                    </Stack>
+                  )}
                 />
-              )}
-            />
-          </Stack>
+              </>
+            )}
+          />
 
           <Stack
             direction={{ xs: "column", md: "row" }}
@@ -129,6 +200,7 @@ const EditableProfileDetails = ({
                 action={confirmAction}
                 disabled={!isValid}
                 variant="contained"
+                isSubmit
               />
             )}
             {cancelAction && (
@@ -145,15 +217,22 @@ const ActionButton = ({
   action,
   disabled = false,
   variant = "contained",
+  isSubmit = false,
 }: {
   action: ActionProps;
   disabled?: boolean;
   variant?: "contained" | "outlined";
+  isSubmit?: boolean;
 }): ReactElement => (
   <Button
     variant={variant}
     startIcon={action.icon}
-    type="submit"
+    type={isSubmit ? "submit" : "button"}
+    onClick={
+      !isSubmit && action.onClick !== undefined
+        ? (): void => action.onClick(undefined)
+        : undefined
+    }
     disabled={disabled}
     sx={{
       alignItems: "start",
@@ -164,6 +243,37 @@ const ActionButton = ({
   >
     {action.name}
   </Button>
+);
+
+interface ListSelectionDialogProps {
+  name: string;
+  open: boolean;
+  onClose: () => void;
+  small?: boolean;
+  children: ReactElement;
+}
+
+const ListSelectionDialog: React.FC<ListSelectionDialogProps> = ({
+  name,
+  open,
+  onClose,
+  small = false,
+  children,
+}) => (
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth={small ? "md" : "lg"}
+    fullWidth={!small}
+  >
+    <DialogTitle>Select a {name} from the list below</DialogTitle>
+    <DialogContent sx={{ pt: "10px !important", pb: "0" }}>
+      {children}
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose}>Cancel</Button>
+    </DialogActions>
+  </Dialog>
 );
 
 export default EditableProfileDetails;

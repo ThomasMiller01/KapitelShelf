@@ -33,6 +33,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         return await context.Users
             .AsNoTracking()
+            .OrderBy(x => x.Username)
             .Select(x => this.mapper.Map<UserDTO>(x))
             .ToListAsync();
     }
@@ -100,6 +101,8 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         context.Entry(user).CurrentValues.SetValues(new
         {
             userDto.Username,
+            userDto.Image,
+            userDto.Color,
         });
 
         // commit

@@ -20,6 +20,16 @@ public class UserModel
     public string Username { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the profile image.
+    /// </summary>
+    public ProfileImageType Image { get; set; } = ProfileImageType.Readini;
+
+    /// <summary>
+    /// Gets or sets the profile color.
+    /// </summary>
+    public string Color { get; set; } = "fffff";
+
+    /// <summary>
     /// Gets or sets the books.
     /// </summary>
     public ICollection<UserBookMetadataModel> Books { get; set; } = [];

@@ -253,6 +253,8 @@ public class BooksLogicTests
         {
             Id = userId,
             Username = "User1".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
         };
         var series = new SeriesModel
         {
@@ -300,6 +302,8 @@ public class BooksLogicTests
         {
             Id = userId,
             Username = "User1".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
         };
         var series = new SeriesModel
         {

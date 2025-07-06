@@ -4,9 +4,11 @@ import CardMedia from "@mui/material/CardMedia";
 import { type ReactElement } from "react";
 import { Link } from "react-router-dom";
 
-import WizardProfile from "../assets/Wizard.png";
-import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
-import { GetUserColor } from "../utils/UserProfile";
+import {
+  ProfileImageTypeDTO,
+  type UserDTO,
+} from "../lib/api/KapitelShelf.Api/api";
+import { ProfileImageTypeToSrc } from "../utils/UserProfile";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
 import FancyText from "./FancyText";
 
@@ -25,7 +27,7 @@ const UserProfileCard = ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        bgcolor: GetUserColor(userProfile.username),
+        bgcolor: userProfile?.color,
         position: "relative",
       }}
       onClick={
@@ -38,7 +40,11 @@ const UserProfileCard = ({
           minHeight: "170px",
           maxHeight: "200px",
         }}
-        image={WizardProfile}
+        image={
+          ProfileImageTypeToSrc[
+            userProfile.image ?? ProfileImageTypeDTO.NUMBER_0
+          ]
+        }
         alt={userProfile.username ?? "User Avatar"}
       />
       <FancyText variant="h6" noWrap my="5px">

@@ -85,11 +85,15 @@ public class UsersLogicTests
         {
             Id = Guid.NewGuid(),
             Username = "user1".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
         };
         var user2 = new UserModel
         {
             Id = Guid.NewGuid(),
             Username = "user2".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -123,6 +127,8 @@ public class UsersLogicTests
         {
             Id = Guid.NewGuid(),
             Username = "founduser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -164,6 +170,8 @@ public class UsersLogicTests
         var createDto = new CreateUserDTO
         {
             Username = "newuser".Unique(),
+            Image = ProfileImageTypeDTO.MonsieurRead,
+            Color = "#33ffff",
         };
 
         // Execute
@@ -202,6 +210,8 @@ public class UsersLogicTests
         {
             Id = Guid.NewGuid(),
             Username = "beforeupdate".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -214,6 +224,8 @@ public class UsersLogicTests
         {
             Id = user.Id,
             Username = "afterupdate".Unique(),
+            Image = ProfileImageTypeDTO.MonsieurRead,
+            Color = "#33ffff",
         };
 
         // Execute
@@ -240,6 +252,8 @@ public class UsersLogicTests
         {
             Id = Guid.NewGuid(),
             Username = "notfound".Unique(),
+            Image = ProfileImageTypeDTO.MonsieurRead,
+            Color = "#33ffff",
         };
 
         // Execute
@@ -278,6 +292,8 @@ public class UsersLogicTests
         {
             Id = Guid.NewGuid(),
             Username = "deleteuser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))

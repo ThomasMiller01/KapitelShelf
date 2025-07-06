@@ -1,9 +1,12 @@
-import { Box, Container, Stack, TextField } from "@mui/material";
+import { Box, Container, Stack, TextField, Tooltip } from "@mui/material";
 import type { ReactElement } from "react";
 
-import WizardProfile from "../../assets/Wizard.png";
 import { useUserProfile } from "../../contexts/UserProfileContext";
-import { GetUserColor } from "../../utils/UserProfile";
+import { ProfileImageTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
+import {
+  ProfileImageTypeToName,
+  ProfileImageTypeToSrc,
+} from "../../utils/UserProfile";
 
 export const ProfileDetails = (): ReactElement => {
   const { profile } = useUserProfile();
@@ -17,33 +20,51 @@ export const ProfileDetails = (): ReactElement => {
       >
         <Box
           sx={{
-            bgcolor: GetUserColor(profile?.username),
+            bgcolor: profile?.color,
             pb: "10px",
             borderRadius: "32px",
           }}
         >
-          <img
-            style={{
-              minHeight: "170px",
-              maxHeight: "200px",
-            }}
-            src={WizardProfile}
-            alt="User Avatar"
-          />
+          <Tooltip
+            title={
+              ProfileImageTypeToName[
+                profile?.image ?? ProfileImageTypeDTO.NUMBER_0
+              ]
+            }
+          >
+            <img
+              style={{
+                minHeight: "170px",
+                maxHeight: "200px",
+              }}
+              src={
+                ProfileImageTypeToSrc[
+                  profile?.image ?? ProfileImageTypeDTO.NUMBER_0
+                ]
+              }
+              alt={
+                ProfileImageTypeToName[
+                  profile?.image ?? ProfileImageTypeDTO.NUMBER_0
+                ]
+              }
+            />
+          </Tooltip>
         </Box>
-        <TextField
-          label="Username"
-          variant="filled"
-          fullWidth
-          value={profile?.username}
-          disabled
-          sx={{
-            input: {
-              color: "text.primary",
-              "-webkit-text-fill-color": "unset !important",
-            },
-          }}
-        />
+        <Stack spacing={2}>
+          <TextField
+            label="Username"
+            variant="filled"
+            fullWidth
+            value={profile?.username}
+            disabled
+            sx={{
+              input: {
+                color: "text.primary",
+                WebkitTextFillColor: "unset !important",
+              },
+            }}
+          />
+        </Stack>
       </Stack>
     </Container>
   );

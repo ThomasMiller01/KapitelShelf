@@ -24,5 +24,8 @@ public class UserMappingProfile : Profile
         CreateMap<CreateUserDTO, UserModel>();
 
         CreateMap<UserDTO, CreateUserDTO>();
+
+        CreateMap<ProfileImageType, ProfileImageTypeDTO>()
+            .ReverseMap();
     }
 }

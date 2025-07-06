@@ -11,11 +11,13 @@ import type { ReactElement } from "react";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import WizardProfile from "../../assets/Wizard.png";
 import FancyText from "../../components/FancyText";
 import { useUserProfile } from "../../contexts/UserProfileContext";
-import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { GetUserColor } from "../../utils/UserProfile";
+import {
+  ProfileImageTypeDTO,
+  type UserDTO,
+} from "../../lib/api/KapitelShelf.Api/api";
+import { ProfileImageTypeToSrc } from "../../utils/UserProfile";
 
 export const ProfileMenu = (): ReactElement => {
   const { profile, clearProfile } = useUserProfile();
@@ -98,12 +100,12 @@ interface UserProfileIconProps {
 const UserProfileIcon = ({ profile }: UserProfileIconProps): ReactElement => (
   <Avatar
     alt={profile?.username || "Unknown User"}
-    src={WizardProfile}
+    src={ProfileImageTypeToSrc[profile?.image ?? ProfileImageTypeDTO.NUMBER_0]}
     variant="rounded"
     sx={{
       width: 32,
       height: 32,
-      bgcolor: GetUserColor(profile?.username),
+      bgcolor: profile?.color,
     }}
   />
 );

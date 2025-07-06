@@ -69,7 +69,11 @@ export const EditProfilePage = (): ReactElement => {
     clearProfile();
   };
 
-  const onConfirm = (user: UserDTO): void => {
+  const onConfirm = (user: UserDTO | undefined): void => {
+    if (user === undefined) {
+      return;
+    }
+
     mutateEditProfile(user).then(() => {
       syncProfile();
       navigate(-1);

@@ -1689,6 +1689,14 @@
             "type": "string",
             "description": "Gets or sets the username.",
             "nullable": true
+          },
+          "image": {
+            "$ref": "#/components/schemas/ProfileImageTypeDTO"
+          },
+          "color": {
+            "type": "string",
+            "description": "Gets or sets the profile color.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -1900,6 +1908,15 @@
         "description": "The metadata sources for book metadata scraping.",
         "format": "int32"
       },
+      "ProfileImageTypeDTO": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "The profile image enum.",
+        "format": "int32"
+      },
       "SeriesDTO": {
         "type": "object",
         "properties": {
@@ -2034,6 +2051,14 @@
           "username": {
             "type": "string",
             "description": "Gets or sets the user name.",
+            "nullable": true
+          },
+          "image": {
+            "$ref": "#/components/schemas/ProfileImageTypeDTO"
+          },
+          "color": {
+            "type": "string",
+            "description": "Gets or sets the profile color.",
             "nullable": true
           }
         },

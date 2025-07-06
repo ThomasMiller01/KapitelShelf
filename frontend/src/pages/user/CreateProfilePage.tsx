@@ -11,9 +11,6 @@ import type {
   UserDTO,
 } from "../../lib/api/KapitelShelf.Api/api";
 
-// 600ms after user stops typing
-const USERNAME_REST_MS = 600;
-
 export const CreateProfilePage = (): ReactElement => {
   const navigate = useNavigate();
   const { setProfile } = useUserProfile();
@@ -32,7 +29,11 @@ export const CreateProfilePage = (): ReactElement => {
     },
   });
 
-  const onSave = (user: UserDTO): void => {
+  const onSave = (user: UserDTO | undefined): void => {
+    if (user === undefined) {
+      return;
+    }
+
     mutateCreateUserProfile(user).then((response) => {
       setProfile(response.data);
       navigate(-1);

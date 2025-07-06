@@ -1,4 +1,4 @@
-﻿// <copyright file="LocationTypeEnum.cs" company="KapitelShelf">
+﻿// <copyright file="LocationType.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
