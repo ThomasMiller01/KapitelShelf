@@ -29,7 +29,7 @@ export const UserProfileColors = [
   "#39796b", // teal
   "#b26a22", // orange
   "#1976d2", // blue
-  "#b11218", // red
+  "#c4373c", // red
   "#2997a3", // cyan
   "#a15033", // deep orange
   "#388e3c", // green

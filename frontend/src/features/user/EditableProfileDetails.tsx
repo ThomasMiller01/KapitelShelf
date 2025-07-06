@@ -1,7 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import EditIcon from "@mui/icons-material/Edit";
 import {
-  Avatar,
   Box,
   Button,
   Dialog,
@@ -16,6 +15,7 @@ import { type ReactElement, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
+import { ColorPicker } from "../../components/ColorPicker";
 import { ProfileImage } from "../../components/ProfileImage";
 import {
   ProfileImageTypeDTO,
@@ -80,6 +80,7 @@ const EditableProfileDetails = ({
   };
 
   const [selectImageOpen, setSelectImageOpen] = useState(false);
+  const [selectColorOpen, setSelectColorOpen] = useState(false);
 
   return (
     <Box>
@@ -140,14 +141,16 @@ const EditableProfileDetails = ({
                         <IconButtonWithTooltip
                           tooltip="Change Color"
                           size="small"
-                          onClick={() => alert("TODO")}
+                          onClick={() => setSelectColorOpen(true)}
+                          sx={{
+                            width: 42,
+                            height: 42,
+                            backgroundColor: fcolor.value,
+                            borderRadius: "8px",
+                            position: "relative",
+                          }}
                         >
-                          <Avatar
-                            variant="rounded"
-                            sx={{ bgcolor: fcolor.value }}
-                          >
-                            {" "}
-                          </Avatar>
+                          {" "}
                         </IconButtonWithTooltip>
                       </Stack>
                       <ListSelectionDialog
@@ -161,6 +164,21 @@ const EditableProfileDetails = ({
                             fimage.onChange(profileImageType);
                           }}
                           profileColor={fcolor.value ?? ""}
+                        />
+                      </ListSelectionDialog>
+                      <ListSelectionDialog
+                        name="profile color"
+                        open={selectColorOpen}
+                        onClose={() => setSelectColorOpen(false)}
+                        small
+                      >
+                        <ColorPicker
+                          size={42}
+                          value={fcolor.value ?? ""}
+                          onChange={(color: string) => {
+                            setSelectColorOpen(false);
+                            fcolor.onChange(color);
+                          }}
                         />
                       </ListSelectionDialog>
                     </Stack>
@@ -231,6 +249,7 @@ interface ListSelectionDialogProps {
   name: string;
   open: boolean;
   onClose: () => void;
+  small?: boolean;
   children: ReactElement;
 }
 
@@ -238,9 +257,15 @@ const ListSelectionDialog: React.FC<ListSelectionDialogProps> = ({
   name,
   open,
   onClose,
+  small = false,
   children,
 }) => (
-  <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth={small ? "md" : "lg"}
+    fullWidth={!small}
+  >
     <DialogTitle>Select a {name} from the list below</DialogTitle>
     <DialogContent sx={{ pt: "10px !important", pb: "0" }}>
       {children}
