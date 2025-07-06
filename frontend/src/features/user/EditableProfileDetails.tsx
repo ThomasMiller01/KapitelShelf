@@ -1,21 +1,30 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Avatar, Box, Button, Stack, TextField, Tooltip } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Avatar,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+} from "@mui/material";
 import type { ReactNode } from "react";
-import { type ReactElement, useEffect } from "react";
+import { type ReactElement, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
+import { ProfileImage } from "../../components/ProfileImage";
 import {
   ProfileImageTypeDTO,
   type UserDTO,
 } from "../../lib/api/KapitelShelf.Api/api";
 import type { UserFormValues } from "../../lib/schemas/UserSchema";
 import { UserSchema } from "../../lib/schemas/UserSchema";
-import {
-  GetUserColor,
-  ProfileImageTypeToName,
-  ProfileImageTypeToSrc,
-} from "../../utils/UserProfile";
+import { GetUserColor } from "../../utils/UserProfile";
+import { ProfileImageList } from "./ProfileImageList";
 
 interface ActionProps {
   name: string;
@@ -70,83 +79,94 @@ const EditableProfileDetails = ({
     confirmAction.onClick(user);
   };
 
+  const [selectImageOpen, setSelectImageOpen] = useState(false);
+
   return (
     <Box>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Color */}
           <Controller
             name="color"
             control={control}
             render={({ field: fcolor }) => (
-              <Stack
-                direction={{ xs: "column-reverse", sm: "row" }}
-                spacing={{ xs: 2, sm: 4 }}
-                alignItems="center"
-                mb="15px"
-              >
-                <Box
-                  sx={{
-                    bgcolor: fcolor.value,
-                    pb: "10px",
-                    borderRadius: "32px",
-                  }}
-                >
-                  {/* Image */}
-                  <Controller
-                    name="image"
-                    control={control}
-                    render={({ field: fimage }) => (
-                      <Tooltip
-                        title={
-                          ProfileImageTypeToName[
+              <>
+                <Controller
+                  name="image"
+                  control={control}
+                  render={({ field: fimage }) => (
+                    <Stack
+                      direction={{ xs: "column-reverse", sm: "row" }}
+                      spacing={{ xs: 2, sm: 4 }}
+                      alignItems="center"
+                      mb="15px"
+                    >
+                      <Box position="relative">
+                        {/* Image */}
+                        <ProfileImage
+                          profileImageType={
                             fimage.value ?? ProfileImageTypeDTO.NUMBER_0
-                          ]
-                        }
-                      >
-                        <img
-                          style={{
-                            minHeight: "170px",
-                            maxHeight: "200px",
-                          }}
-                          src={
-                            ProfileImageTypeToSrc[
-                              fimage.value ?? ProfileImageTypeDTO.NUMBER_0
-                            ]
                           }
-                          alt={
-                            ProfileImageTypeToName[
-                              fimage.value ?? ProfileImageTypeDTO.NUMBER_0
-                            ]
-                          }
+                          profileColor={fcolor.value ?? ""}
                         />
-                      </Tooltip>
-                    )}
-                  />
-                </Box>
-                <Stack spacing={2} alignItems="start">
-                  {/* Username */}
-                  <Controller
-                    name="username"
-                    control={control}
-                    render={({ field: fusername }) => (
-                      <TextField
-                        {...fusername}
-                        label="Username"
-                        variant="filled"
-                        fullWidth
-                        error={Boolean(errors.username)}
-                        helperText={errors.username?.message}
-                      />
-                    )}
-                  />
-                  <IconButtonWithTooltip tooltip="Change Color" size="small">
-                    <Avatar variant="rounded" sx={{ bgcolor: fcolor.value }}>
-                      {" "}
-                    </Avatar>
-                  </IconButtonWithTooltip>
-                </Stack>
-              </Stack>
+                        <IconButtonWithTooltip
+                          tooltip="Change Image"
+                          onClick={() => setSelectImageOpen(true)}
+                          sx={{
+                            position: "absolute",
+                            bottom: 6,
+                            right: 6,
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButtonWithTooltip>
+                      </Box>
+                      <Stack spacing={2} alignItems="start">
+                        {/* Username */}
+                        <Controller
+                          name="username"
+                          control={control}
+                          render={({ field: fusername }) => (
+                            <TextField
+                              {...fusername}
+                              label="Username"
+                              variant="filled"
+                              fullWidth
+                              error={Boolean(errors.username)}
+                              helperText={errors.username?.message}
+                            />
+                          )}
+                        />
+                        {/* Color */}
+                        <IconButtonWithTooltip
+                          tooltip="Change Color"
+                          size="small"
+                          onClick={() => alert("TODO")}
+                        >
+                          <Avatar
+                            variant="rounded"
+                            sx={{ bgcolor: fcolor.value }}
+                          >
+                            {" "}
+                          </Avatar>
+                        </IconButtonWithTooltip>
+                      </Stack>
+                      <ListSelectionDialog
+                        name="profile image"
+                        open={selectImageOpen}
+                        onClose={() => setSelectImageOpen(false)}
+                      >
+                        <ProfileImageList
+                          onClick={(profileImageType: ProfileImageTypeDTO) => {
+                            setSelectImageOpen(false);
+                            fimage.onChange(profileImageType);
+                          }}
+                          profileColor={fcolor.value ?? ""}
+                        />
+                      </ListSelectionDialog>
+                    </Stack>
+                  )}
+                />
+              </>
             )}
           />
 
@@ -205,6 +225,30 @@ const ActionButton = ({
   >
     {action.name}
   </Button>
+);
+
+interface ListSelectionDialogProps {
+  name: string;
+  open: boolean;
+  onClose: () => void;
+  children: ReactElement;
+}
+
+const ListSelectionDialog: React.FC<ListSelectionDialogProps> = ({
+  name,
+  open,
+  onClose,
+  children,
+}) => (
+  <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+    <DialogTitle>Select a {name} from the list below</DialogTitle>
+    <DialogContent sx={{ pt: "10px !important", pb: "0" }}>
+      {children}
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose}>Cancel</Button>
+    </DialogActions>
+  </Dialog>
 );
 
 export default EditableProfileDetails;

@@ -1,5 +1,5 @@
-import MonsieurRead from "../assets/users/images/MonsieurRead.png";
-import Readini from "../assets/users/images/Readini.png";
+import MonsieurRead from "../assets/users/MonsieurRead.png";
+import Readini from "../assets/users/Readini.png";
 import { ProfileImageTypeDTO } from "../lib/api/KapitelShelf.Api/api";
 
 export const GetUserColor = (username: string | undefined | null): string => {
@@ -37,3 +37,8 @@ export const UserProfileColors = [
   "#7b1fa2", // purple
   "#879623", // olive green
 ];
+
+export const ProfileImageCategories = {
+  "Stuff with Faces": [ProfileImageTypeDTO.NUMBER_0],
+  "Quirky Companions": [ProfileImageTypeDTO.NUMBER_1],
+};
