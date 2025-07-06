@@ -37,7 +37,11 @@ export const UserProfileProvider = ({
   useEffect(() => {
     const stored = localStorage.getItem(`kapitelshelf.${PROFILE_KEY}`);
     if (stored) {
-      mutateLoadProfile(JSON.parse(stored).id).then((fetchedProfile) => {
+      const storedProfile = JSON.parse(stored);
+      setProfileState(storedProfile);
+
+      // update user profile from api
+      mutateLoadProfile(storedProfile.id).then((fetchedProfile) => {
         setProfileState(fetchedProfile);
       });
     }
