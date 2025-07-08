@@ -1,14 +1,13 @@
-import { Box, Container, Stack, TextField, Tooltip } from "@mui/material";
+import { Container, Stack, TextField } from "@mui/material";
 import type { ReactElement } from "react";
 
+import { ProfileImage } from "../../components/ProfileImage";
 import { useUserProfile } from "../../contexts/UserProfileContext";
+import { useMobile } from "../../hooks/useMobile";
 import { ProfileImageTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
-import {
-  ProfileImageTypeToName,
-  ProfileImageTypeToSrc,
-} from "../../utils/UserProfile";
 
 export const ProfileDetails = (): ReactElement => {
+  const { isMobile } = useMobile();
   const { profile } = useUserProfile();
 
   return (
@@ -18,39 +17,11 @@ export const ProfileDetails = (): ReactElement => {
         spacing={{ xs: 2, sm: 4 }}
         alignItems="center"
       >
-        <Box
-          sx={{
-            bgcolor: profile?.color,
-            pb: "10px",
-            borderRadius: "32px",
-          }}
-        >
-          <Tooltip
-            title={
-              ProfileImageTypeToName[
-                profile?.image ?? ProfileImageTypeDTO.NUMBER_0
-              ]
-            }
-          >
-            <img
-              style={{
-                minHeight: "170px",
-                maxHeight: "200px",
-              }}
-              src={
-                ProfileImageTypeToSrc[
-                  profile?.image ?? ProfileImageTypeDTO.NUMBER_0
-                ]
-              }
-              alt={
-                ProfileImageTypeToName[
-                  profile?.image ?? ProfileImageTypeDTO.NUMBER_0
-                ]
-              }
-            />
-          </Tooltip>
-        </Box>
-        <Stack spacing={2}>
+        <ProfileImage
+          profileImageType={profile?.image ?? ProfileImageTypeDTO.NUMBER_0}
+          profileColor={profile?.color ?? ""}
+        />
+        <Stack spacing={2} sx={{ width: isMobile ? "80%" : "100%" }}>
           <TextField
             label="Username"
             variant="filled"

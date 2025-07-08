@@ -18,6 +18,36 @@ public enum ProfileImageType
     /// <summary>
     /// A wizard without arms.
     /// </summary>
-    /// <remmarks>Knowledge Keepers</remmarks>
+    /// <remmarks>Quirky Companions</remmarks>
     Readini = 1,
+
+    /// <summary>
+    /// A sad/blushing drinking package.
+    /// </summary>
+    /// <remmarks>Stuff with Faces</remmarks>
+    MuggyMalheur = 2,
+
+    /// <summary>
+    /// A happy coffee mug.
+    /// </summary>
+    /// <remmarks>Stuff with Faces</remmarks>
+    CheeryChino = 3,
+
+    /// <summary>
+    /// A collected ray-less sun.
+    /// </summary>
+    /// <remmarks>Stuff with Faces</remmarks>
+    SunnyTome = 4,
+
+    /// <summary>
+    /// A happy acovado.
+    /// </summary>
+    /// <remmarks>Stuff with Faces</remmarks>
+    Freshavocado = 5,
+
+    /// <summary>
+    /// A seven tailed fox.
+    /// </summary>
+    /// <remmarks>Quirky Companions</remmarks>
+    Tailywink = 6,
 }
