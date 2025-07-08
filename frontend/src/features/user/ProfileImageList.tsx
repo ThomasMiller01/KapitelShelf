@@ -60,7 +60,7 @@ const ProfileImageCategoryList: React.FC<ProfileImageCategoryListProps> = ({
           <ProfileImage
             profileImageType={profileImageType}
             profileColor={profileColor}
-            maxHeight={isSm ? 150 : 200}
+            maxHeight={isSm ? 135 : 200}
             onClick={onClick}
           />
         </Grid>

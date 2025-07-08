@@ -1911,7 +1911,12 @@
       "ProfileImageTypeDTO": {
         "enum": [
           0,
-          1
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
         ],
         "type": "integer",
         "description": "The profile image enum.",

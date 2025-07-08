@@ -1,5 +1,10 @@
+import CheeryChino from "../assets/users/CheeryChino.png";
+import Freshavocado from "../assets/users/Freshavocado.png";
 import MonsieurRead from "../assets/users/MonsieurRead.png";
+import MuggyMalheur from "../assets/users/MuggyMalheur.png";
 import Readini from "../assets/users/Readini.png";
+import SunnyTome from "../assets/users/SunnyTome.png";
+import Tailywink from "../assets/users/Tailywink.png";
 import { ProfileImageTypeDTO } from "../lib/api/KapitelShelf.Api/api";
 
 export const GetUserColor = (username: string | undefined | null): string => {
@@ -18,11 +23,35 @@ export const GetUserColor = (username: string | undefined | null): string => {
 export const ProfileImageTypeToSrc = {
   [ProfileImageTypeDTO.NUMBER_0]: MonsieurRead,
   [ProfileImageTypeDTO.NUMBER_1]: Readini,
+  [ProfileImageTypeDTO.NUMBER_2]: MuggyMalheur,
+  [ProfileImageTypeDTO.NUMBER_3]: CheeryChino,
+  [ProfileImageTypeDTO.NUMBER_4]: SunnyTome,
+  [ProfileImageTypeDTO.NUMBER_5]: Freshavocado,
+  [ProfileImageTypeDTO.NUMBER_6]: Tailywink,
 };
 
 export const ProfileImageTypeToName = {
   [ProfileImageTypeDTO.NUMBER_0]: "Monsieur Read",
   [ProfileImageTypeDTO.NUMBER_1]: "Readini",
+  [ProfileImageTypeDTO.NUMBER_2]: "Muggy Malheur",
+  [ProfileImageTypeDTO.NUMBER_3]: "Cheery Chino",
+  [ProfileImageTypeDTO.NUMBER_4]: "Sunny Tome",
+  [ProfileImageTypeDTO.NUMBER_5]: "FR E SH A VOCA DO",
+  [ProfileImageTypeDTO.NUMBER_6]: "Tailywink",
+};
+
+export const ProfileImageCategories = {
+  "Stuff with Faces": [
+    ProfileImageTypeDTO.NUMBER_0,
+    ProfileImageTypeDTO.NUMBER_2,
+    ProfileImageTypeDTO.NUMBER_3,
+    ProfileImageTypeDTO.NUMBER_4,
+    ProfileImageTypeDTO.NUMBER_5,
+  ],
+  "Quirky Companions": [
+    ProfileImageTypeDTO.NUMBER_1,
+    ProfileImageTypeDTO.NUMBER_6,
+  ],
 };
 
 export const UserProfileColors = [
@@ -37,8 +66,3 @@ export const UserProfileColors = [
   "#7b1fa2", // purple
   "#879623", // olive green
 ];
-
-export const ProfileImageCategories = {
-  "Stuff with Faces": [ProfileImageTypeDTO.NUMBER_0],
-  "Quirky Companions": [ProfileImageTypeDTO.NUMBER_1],
-};

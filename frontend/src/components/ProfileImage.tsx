@@ -27,7 +27,6 @@ export const ProfileImage: React.FC<ProfileImageProps> = ({
     }
     sx={{
       bgcolor: profileColor,
-      padding: "0 0 10px 0",
       borderRadius: "32px",
       display: "block",
     }}

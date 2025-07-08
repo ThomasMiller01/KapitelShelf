@@ -17,6 +17,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import { ColorPicker } from "../../components/ColorPicker";
 import { ProfileImage } from "../../components/ProfileImage";
+import { useMobile } from "../../hooks/useMobile";
 import {
   ProfileImageTypeDTO,
   type UserDTO,
@@ -43,6 +44,7 @@ const EditableProfileDetails = ({
   confirmAction,
   cancelAction,
 }: EditableProfileDetailsProps): ReactElement => {
+  const { isMobile } = useMobile();
   const methods = useForm({
     resolver: yupResolver(UserSchema),
     mode: "onBlur",
@@ -121,7 +123,11 @@ const EditableProfileDetails = ({
                           <EditIcon />
                         </IconButtonWithTooltip>
                       </Box>
-                      <Stack spacing={2} alignItems="start">
+                      <Stack
+                        spacing={2}
+                        alignItems="start"
+                        sx={{ width: isMobile ? "80%" : "100%" }}
+                      >
                         {/* Username */}
                         <Controller
                           name="username"

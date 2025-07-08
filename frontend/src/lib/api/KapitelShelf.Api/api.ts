@@ -578,7 +578,12 @@ export type MetadataSources = typeof MetadataSources[keyof typeof MetadataSource
 
 export const ProfileImageTypeDTO = {
     NUMBER_0: 0,
-    NUMBER_1: 1
+    NUMBER_1: 1,
+    NUMBER_2: 2,
+    NUMBER_3: 3,
+    NUMBER_4: 4,
+    NUMBER_5: 5,
+    NUMBER_6: 6
 } as const;
 
 export type ProfileImageTypeDTO = typeof ProfileImageTypeDTO[keyof typeof ProfileImageTypeDTO];
