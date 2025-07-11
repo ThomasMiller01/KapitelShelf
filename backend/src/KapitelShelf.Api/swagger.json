@@ -1138,6 +1138,58 @@
         }
       }
     },
+    "/tasks": {
+      "get": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Fetch all tasks.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Create a dummy task.",
+        "description": "REMOVE BEFORE NEXT RELEASE!.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "deprecated": true
+      }
+    },
     "/users": {
       "get": {
         "tags": [
@@ -2045,6 +2097,61 @@
         },
         "additionalProperties": false,
         "description": "The tag dto."
+      },
+      "TaskDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the task name.",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "description": "Gets or sets the category.",
+            "nullable": true
+          },
+          "state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "isSingleExecution": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the task is a single execution or continued."
+          },
+          "isCronJob": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the task is a cron job."
+          },
+          "cronExpression": {
+            "type": "string",
+            "description": "Gets or sets the cron expression, if the job is a cron job.",
+            "nullable": true
+          },
+          "lastExecution": {
+            "type": "string",
+            "description": "Gets or sets the time offset when the task was last executed.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "nextExecution": {
+            "type": "string",
+            "description": "Gets or sets the time offset when the task will be next executed.",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The task dto."
+      },
+      "TaskState": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "The task state enum.",
+        "format": "int32"
       },
       "UserDTO": {
         "type": "object",
