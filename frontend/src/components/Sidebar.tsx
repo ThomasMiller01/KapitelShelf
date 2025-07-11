@@ -1,7 +1,9 @@
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import CloudQueueIcon from "@mui/icons-material/CloudQueue";
 import DevicesIcon from "@mui/icons-material/Devices";
 import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import SettingsIcon from "@mui/icons-material/Settings";
 import type { SxProps, Theme } from "@mui/material";
 import {
   List,
@@ -12,7 +14,7 @@ import {
   Stack,
 } from "@mui/material";
 import type { ReactElement, ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { useMobile } from "../hooks/useMobile";
 import { useVersion } from "../hooks/useVersion";
@@ -48,6 +50,22 @@ export const Sidebar = ({ open, onClose }: SidebarProps): ReactElement => {
             link="/library"
             onClose={isMobile ? onClose : undefined}
           />
+          <SidebarLinkItem
+            name="Settings"
+            icon={<SettingsIcon />}
+            link="/settings"
+            onClose={isMobile ? onClose : undefined}
+            activeOnExactMatch
+            showChildrenAlways={false}
+          >
+            <SidebarLinkItem
+              name="Tasks"
+              icon={<AssignmentIcon />}
+              link="/settings/tasks"
+              onClose={isMobile ? onClose : undefined}
+              nestingLevel={1}
+            />
+          </SidebarLinkItem>
         </List>
         <List>
           <SidebarTextItem
@@ -90,6 +108,10 @@ const SidebarItem = ({
 interface SidebarLinkItemProps extends SidebarItemProps {
   link: string;
   onClose?: () => void;
+  children?: ReactElement;
+  nestingLevel?: number;
+  showChildrenAlways?: boolean;
+  activeOnExactMatch?: boolean;
 }
 
 const SidebarLinkItem = ({
@@ -97,24 +119,42 @@ const SidebarLinkItem = ({
   icon,
   link,
   onClose = undefined,
-}: SidebarLinkItemProps): ReactElement => (
-  <SidebarItem>
-    <ListItemButton
-      component={NavLink}
-      to={link}
-      onClick={onClose}
-      sx={{
-        borderRadius: "20px",
-        "&.active": {
-          backgroundColor: "action.selected", // or a custom color
-        },
-      }}
-    >
-      <ListItemIcon>{icon}</ListItemIcon>
-      <ListItemText primary={name} />
-    </ListItemButton>
-  </SidebarItem>
-);
+  children,
+  nestingLevel = 0,
+  activeOnExactMatch = false,
+  showChildrenAlways = true,
+}: SidebarLinkItemProps): ReactElement => {
+  const { pathname } = useLocation();
+
+  return (
+    <>
+      <SidebarItem
+        sx={{
+          pl: 1.2 + 2 * nestingLevel,
+        }}
+      >
+        <ListItemButton
+          component={NavLink}
+          to={link}
+          onClick={onClose}
+          end={activeOnExactMatch}
+          sx={{
+            borderRadius: "20px",
+            "&.active": {
+              backgroundColor: "action.selected", // or a custom color
+            },
+          }}
+        >
+          <ListItemIcon>{icon}</ListItemIcon>
+          <ListItemText primary={name} />
+        </ListItemButton>
+      </SidebarItem>
+      {children && (pathname.startsWith(link) || showChildrenAlways) && (
+        <List sx={{ padding: "0" }}>{children}</List>
+      )}
+    </>
+  );
+};
 
 interface SidebarTextItemProps extends SidebarItemProps {
   small?: boolean;
