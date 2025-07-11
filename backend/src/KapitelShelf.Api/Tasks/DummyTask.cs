@@ -10,6 +10,7 @@ namespace KapitelShelf.Api.Tasks;
 /// A dummy task for developemnt.
 /// </summary>
 /// <remarks>REMOVE BEFORE NEXT RELEASE!.</remarks>
+[Obsolete("REMOVE BEFORE NEXT RELEASE!")]
 public class DummyTask : IJob
 {
     /// <inheritdoc/>

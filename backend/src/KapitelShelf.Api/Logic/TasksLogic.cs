@@ -72,6 +72,7 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory)
     /// </summary>
     /// <returns>A task.</returns>
     /// <remarks>REMOVE BEFORE NEXT RELEASE!.</remarks>
+    [Obsolete("REMOVE BEFORE NEXT RELEASE!")]
     public async Task CreateDummyTask()
     {
         var scheduler = await this.schedulerFactory.GetScheduler();
