@@ -3,6 +3,7 @@ import Freshavocado from "../assets/users/Freshavocado.png";
 import MonsieurRead from "../assets/users/MonsieurRead.png";
 import MuggyMalheur from "../assets/users/MuggyMalheur.png";
 import Readini from "../assets/users/Readini.png";
+import Riley from "../assets/users/Riley.png";
 import SunnyTome from "../assets/users/SunnyTome.png";
 import Tailywink from "../assets/users/Tailywink.png";
 import { ProfileImageTypeDTO } from "../lib/api/KapitelShelf.Api/api";
@@ -28,6 +29,7 @@ export const ProfileImageTypeToSrc = {
   [ProfileImageTypeDTO.NUMBER_4]: SunnyTome,
   [ProfileImageTypeDTO.NUMBER_5]: Freshavocado,
   [ProfileImageTypeDTO.NUMBER_6]: Tailywink,
+  [ProfileImageTypeDTO.NUMBER_7]: Riley,
 };
 
 export const ProfileImageTypeToName = {
@@ -38,6 +40,7 @@ export const ProfileImageTypeToName = {
   [ProfileImageTypeDTO.NUMBER_4]: "Sunny Tome",
   [ProfileImageTypeDTO.NUMBER_5]: "FR E SH A VOCA DO",
   [ProfileImageTypeDTO.NUMBER_6]: "Tailywink",
+  [ProfileImageTypeDTO.NUMBER_7]: "Riley",
 };
 
 export const ProfileImageCategories = {
@@ -52,6 +55,7 @@ export const ProfileImageCategories = {
     ProfileImageTypeDTO.NUMBER_1,
     ProfileImageTypeDTO.NUMBER_6,
   ],
+  Chicks: [ProfileImageTypeDTO.NUMBER_7],
 };
 
 export const UserProfileColors = [

@@ -583,7 +583,8 @@ export const ProfileImageTypeDTO = {
     NUMBER_3: 3,
     NUMBER_4: 4,
     NUMBER_5: 5,
-    NUMBER_6: 6
+    NUMBER_6: 6,
+    NUMBER_7: 7
 } as const;
 
 export type ProfileImageTypeDTO = typeof ProfileImageTypeDTO[keyof typeof ProfileImageTypeDTO];

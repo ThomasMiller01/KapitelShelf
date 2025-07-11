@@ -62,6 +62,10 @@ If you like KapitelShelf, consider giving a ⭐ on GitHub!
 KapitelShelf is licensed under the MIT License.  
 See [LICENSE](./LICENSE) for more information.
 
+## Credits
+
+❤️ Special thanks to Leonie Tröster for drawing the wonderful images featured in KapitelShelf.
+
 ## Fun Fact
 
 The name **KapitelShelf** combines the German word **"Kapitel"** (meaning _chapter_) and the English word **"Shelf"**.  
