@@ -81,11 +81,14 @@ builder.Services.AddSingleton<IBookParserManager, BookParserManager>();
 builder.Services.AddSingleton<MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
 builder.Services.AddSingleton<UsersLogic>();
+builder.Services.AddSingleton<TasksLogic>();
 
 // background tasks using Quartz.NET
 builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));
 builder.Services.AddQuartz(q =>
 {
+    q.MaxBatchSize = 10;
+
     q.UsePersistentStore(c =>
     {
         c.UsePostgres(postgresOptions =>
