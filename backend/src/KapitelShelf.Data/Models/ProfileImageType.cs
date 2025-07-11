@@ -50,4 +50,10 @@ public enum ProfileImageType
     /// </summary>
     /// <remmarks>Quirky Companions</remmarks>
     Tailywink = 6,
+
+    /// <summary>
+    /// A brunette girl with huge eyes.
+    /// </summary>
+    /// <remmarks>Chicks</remmarks>
+    Riley = 7,
 }
