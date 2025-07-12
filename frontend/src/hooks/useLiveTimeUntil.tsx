@@ -35,11 +35,7 @@ export const useLiveTimeUntil = ({
       const diffMs = date.getTime() - now.getTime();
       const absDiffMs = Math.abs(diffMs);
 
-      console.log(diffMs);
-      console.log(allowPast);
-
       if (diffMs <= 0 && !allowPast) {
-        console.log("stop");
         // dont update if it is in the past
         // but format one last time to allow "0 seconds"
         setDisplay(FormatTimeUntil(dateStr, allowPast));
