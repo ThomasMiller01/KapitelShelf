@@ -19,8 +19,7 @@ export const TasksMenuItem = (): ReactElement => {
     queryKey: ["tasks-list-active"],
     queryFn: async () => {
       const { data } = await tasksApi.tasksGet();
-      return data;
-      // return data.filter((x) => x.state === TaskState.NUMBER_1);
+      return data.filter((x) => x.state === TaskState.NUMBER_1);
     },
   });
 
