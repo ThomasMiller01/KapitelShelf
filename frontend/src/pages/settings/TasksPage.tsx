@@ -38,7 +38,15 @@ export const TasksPage = (): ReactElement => {
       <Typography variant="h5">Tasks</Typography>
       <TasksList
         name="Active Tasks"
-        icon={<TaskStateIcon state={TaskState.NUMBER_1} />}
+        icon={
+          <TaskStateIcon
+            state={TaskState.NUMBER_1}
+            animated={
+              (tasks?.filter((x) => x.state === TaskState.NUMBER_1) ?? [])
+                .length > 0
+            }
+          />
+        }
         tasks={tasks?.filter((x) => x.state === TaskState.NUMBER_1) ?? []}
       />
       <TasksList

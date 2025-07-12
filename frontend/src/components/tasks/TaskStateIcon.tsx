@@ -2,7 +2,7 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import DoneIcon from "@mui/icons-material/Done";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import type { SvgIconOwnProps } from "@mui/material";
-import { Tooltip } from "@mui/material";
+import { GlobalStyles, Tooltip } from "@mui/material";
 
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
 
@@ -26,15 +26,24 @@ export const TaskStateIcon: React.FC<TaskStateIconProps> = ({
       );
     case TaskState.NUMBER_1:
       return (
-        <Tooltip title="Running">
-          <AutorenewIcon
-            {...props}
-            sx={{
-              animation: animated ? "spin 1.2s linear infinite" : "unset",
-              ...sx,
+        <>
+          <GlobalStyles
+            styles={{
+              "@keyframes spin": {
+                to: { transform: "rotate(360deg)" },
+              },
             }}
-          />
-        </Tooltip>
+          />{" "}
+          <Tooltip title="Running">
+            <AutorenewIcon
+              {...props}
+              sx={{
+                animation: animated ? "spin 3s linear infinite" : "unset",
+                ...sx,
+              }}
+            />
+          </Tooltip>
+        </>
       );
     case TaskState.NUMBER_2:
       return (
