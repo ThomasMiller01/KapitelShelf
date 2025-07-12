@@ -4,7 +4,7 @@ import type { ProfileImageTypeDTO } from "../lib/api/KapitelShelf.Api/api";
 import {
   ProfileImageTypeToName,
   ProfileImageTypeToSrc,
-} from "../utils/UserProfile";
+} from "../utils/UserProfileUtils";
 
 interface ProfileImageProps {
   profileImageType: ProfileImageTypeDTO;

@@ -2,6 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using AppAny.Quartz.EntityFrameworkCore.Migrations;
+using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -184,5 +186,8 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
 
         // register extension methods
         modelBuilder.HasDbFunction(() => PgTrgmExtensions.Similarity(default!, default!));
+
+        // background tasks migration for Quartz.NET
+        modelBuilder.AddQuartz(builder => builder.UsePostgreSql());
     }
 }

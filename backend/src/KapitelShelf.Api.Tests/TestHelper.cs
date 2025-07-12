@@ -40,6 +40,7 @@ public static class Testhelper
             cfg.AddProfile<SeriesMappingProfile>();
             cfg.AddProfile<TagMappingProfile>();
             cfg.AddProfile<UserMappingProfile>();
+            cfg.AddProfile<TaskMappingProfile>();
         });
         return config.CreateMapper();
     }

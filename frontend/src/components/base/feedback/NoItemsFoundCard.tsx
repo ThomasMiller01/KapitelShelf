@@ -1,10 +1,14 @@
 import { Box, Button, Typography } from "@mui/material";
 import type { ReactElement } from "react";
+
+type WORDING_TYPES = "creatable" | "normal";
 interface NoItemsFoundCardProps {
   itemName: string;
   useLogo?: boolean;
   onCreate?: () => void;
   small?: boolean;
+  extraSmall?: boolean;
+  wording?: WORDING_TYPES;
 }
 
 export const NoItemsFoundCard = ({
@@ -12,6 +16,8 @@ export const NoItemsFoundCard = ({
   useLogo = false,
   onCreate,
   small = false,
+  extraSmall = false,
+  wording = "creatable",
 }: NoItemsFoundCardProps): ReactElement => (
   <Box
     sx={{
@@ -20,18 +26,18 @@ export const NoItemsFoundCard = ({
       alignItems: "center",
       justifyContent: "center",
       height: "100%",
-      py: 10,
+      py: extraSmall ? 2 : 10,
     }}
   >
     {useLogo && (
       <img src="/kapitelshelf.png" alt="KapitelShelf Logo" width={120} />
     )}
     <Typography
-      variant={small ? "h6" : "h5"}
-      my={small ? 0 : 4}
+      variant={extraSmall ? "body1" : small ? "h6" : "h5"}
+      my={small || extraSmall ? 0 : 4}
       textTransform="uppercase"
     >
-      Looks like you don't have any {itemName} yet
+      {GetWording(wording, itemName)}
     </Typography>
     {onCreate && (
       <Typography
@@ -50,3 +56,14 @@ export const NoItemsFoundCard = ({
     )}
   </Box>
 );
+
+const GetWording = (wordingType: WORDING_TYPES, itemName: string): string => {
+  switch (wordingType) {
+    case "creatable":
+      return `Looks like you don't have any ${itemName} yet`;
+    case "normal":
+      return `No ${itemName}`;
+    default:
+      return GetWording("creatable", itemName);
+  }
+};

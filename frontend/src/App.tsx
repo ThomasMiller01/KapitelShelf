@@ -6,8 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { BrowserRouter } from "react-router-dom";
 
-import { ApiNotificationListener } from "./components/base/notification/ApiNotificationListener";
-import { NotificationProvider } from "./components/base/notification/NotificationProvider";
+import { ApiNotificationListener } from "./contexts/notification/ApiNotificationListener";
+import { NotificationProvider } from "./contexts/notification/NotificationProvider";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProfileProvider } from "./contexts/UserProfileContext";
 import AppRoutes from "./routes/routes";
