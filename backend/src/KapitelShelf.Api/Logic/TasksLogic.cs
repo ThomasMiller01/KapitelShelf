@@ -13,7 +13,7 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// The tasks logic.
 /// </summary>
-public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory)
+public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, TaskRuntimeDataStore dataStore)
 {
     /// <summary>
     /// The mapper.
@@ -26,6 +26,11 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory)
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
     /// <summary>
+    /// The task runtime data store.
+    /// </summary>
+    private readonly TaskRuntimeDataStore dataStore = dataStore;
+
+    /// <summary>
     /// Get all tasks.
     /// </summary>
     /// <returns>A list of all tasks.</returns>
@@ -34,6 +39,12 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory)
         var scheduler = await this.schedulerFactory.GetScheduler();
 
         var tasks = new List<TaskDTO>();
+
+        // Get all currently executing jobs
+        var executingJobs = await scheduler.GetCurrentlyExecutingJobs();
+        var executinJobKeys = executingJobs
+            .Select(ctx => ctx.JobDetail.Key)
+            .ToHashSet();
 
         var categories = await scheduler.GetJobGroupNames();
         foreach (var category in categories)
@@ -49,11 +60,18 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory)
                     var isSingleExecution = trigger is ISimpleTrigger simple && simple.RepeatCount == 0;
                     var isCronJob = trigger is ICronTrigger;
 
+                    // Check if this job is currently running
+                    var isRunning = executinJobKeys.Contains(jobKey);
+                    var state = isRunning ? TaskState.Running : this.mapper.Map<TaskState>(triggerState);
+
+                    var progress = this.dataStore.GetProgress(jobKey.ToString());
+
                     tasks.Add(new TaskDTO
                     {
                         Name = jobKey.Name,
                         Category = category,
-                        State = this.mapper.Map<TaskState>(triggerState),
+                        State = state,
+                        Progress = progress,
                         IsSingleExecution = isSingleExecution,
                         IsCronJob = isCronJob,
                         CronExpression = trigger is ICronTrigger cron ? cron.CronExpressionString : null,
@@ -78,11 +96,11 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory)
         var scheduler = await this.schedulerFactory.GetScheduler();
 
         var job = JobBuilder.Create<DummyTask>()
-            .WithIdentity("Dummy Task 2", "Dummy")
+            .WithIdentity("Dummy Task 3", "Dummy")
             .Build();
 
         var trigger = TriggerBuilder.Create()
-            .WithIdentity("Dummy Task Trigger 2", "Dummy")
+            .WithIdentity("Dummy Task Trigger 3", "Dummy")
             .WithCronSchedule("0 */1 * ? * *")
             .Build();
 

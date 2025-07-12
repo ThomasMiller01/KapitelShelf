@@ -752,6 +752,12 @@ export interface TaskDTO {
      */
     'state'?: TaskState;
     /**
+     * Gets or sets the job progress, if the job is current running.
+     * @type {number}
+     * @memberof TaskDTO
+     */
+    'progress'?: number | null;
+    /**
      * Gets or sets a value indicating whether the task is a single execution or continued.
      * @type {boolean}
      * @memberof TaskDTO

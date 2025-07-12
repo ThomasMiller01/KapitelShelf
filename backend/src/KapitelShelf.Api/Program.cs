@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Tasks;
 using KapitelShelf.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -105,6 +106,7 @@ builder.Services.AddQuartzHostedService(options =>
     // let jobs finish gracefully
     options.WaitForJobsToComplete = true;
 });
+builder.Services.AddSingleton<TaskRuntimeDataStore>();
 
 // healthchecks
 builder.Services.AddHealthChecks()

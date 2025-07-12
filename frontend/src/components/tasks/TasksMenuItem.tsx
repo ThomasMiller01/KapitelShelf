@@ -12,6 +12,7 @@ import { NavLink } from "react-router-dom";
 
 import { tasksApi } from "../../lib/api/KapitelShelf.Api";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
+import { SECOND_MS } from "../../utils/TimeUtils";
 import { TaskStateIcon } from "./TaskStateIcon";
 
 export const TasksMenuItem = (): ReactElement => {
@@ -21,6 +22,7 @@ export const TasksMenuItem = (): ReactElement => {
       const { data } = await tasksApi.tasksGet();
       return data.filter((x) => x.state === TaskState.NUMBER_1);
     },
+    refetchInterval: 5 * SECOND_MS,
   });
 
   return (

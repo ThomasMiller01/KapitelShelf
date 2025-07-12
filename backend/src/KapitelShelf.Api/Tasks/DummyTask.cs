@@ -11,8 +11,21 @@ namespace KapitelShelf.Api.Tasks;
 /// </summary>
 /// <remarks>REMOVE BEFORE NEXT RELEASE!.</remarks>
 [Obsolete("REMOVE BEFORE NEXT RELEASE!")]
-public class DummyTask : IJob
+public class DummyTask(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger) : TaskBase(dataStore, logger)
 {
     /// <inheritdoc/>
-    public async Task Execute(IJobExecutionContext context) => await Task.CompletedTask;
+    public override async Task ExecuteTask(IJobExecutionContext context)
+    {
+        // example: simulate work in steps, reporting progress
+        for (int i = 1; i <= 5; i++)
+        {
+            this.Logger.LogInformation("Task Progress: {Progress}", i * 20);
+
+            // simulate work
+            await Task.Delay(5000);
+
+            // set progress (as percent)
+            this.DataStore.SetProgress(this.JobKey(context), i * 20);
+        }
+    }
 }

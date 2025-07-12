@@ -25,6 +25,11 @@ public class TaskDTO
     public TaskState State { get; set; }
 
     /// <summary>
+    /// Gets or sets the job progress, if the job is current running.
+    /// </summary>
+    public int? Progress { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the task is a single execution or continued.
     /// </summary>
     public bool IsSingleExecution { get; set; }

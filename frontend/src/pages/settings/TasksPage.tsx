@@ -8,7 +8,7 @@ import { TaskStateIcon } from "../../components/tasks/TaskStateIcon";
 import TasksList from "../../features/tasks/TaskList";
 import { tasksApi } from "../../lib/api/KapitelShelf.Api";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
-import { MINUTE_MS } from "../../utils/TimeUtils";
+import { SECOND_MS } from "../../utils/TimeUtils";
 
 export const TasksPage = (): ReactElement => {
   const {
@@ -22,7 +22,7 @@ export const TasksPage = (): ReactElement => {
       const { data } = await tasksApi.tasksGet();
       return data;
     },
-    refetchInterval: MINUTE_MS,
+    refetchInterval: 5 * SECOND_MS,
   });
 
   if (isLoading) {

@@ -2114,6 +2114,12 @@
           "state": {
             "$ref": "#/components/schemas/TaskState"
           },
+          "progress": {
+            "type": "integer",
+            "description": "Gets or sets the job progress, if the job is current running.",
+            "format": "int32",
+            "nullable": true
+          },
           "isSingleExecution": {
             "type": "boolean",
             "description": "Gets or sets a value indicating whether the task is a single execution or continued."

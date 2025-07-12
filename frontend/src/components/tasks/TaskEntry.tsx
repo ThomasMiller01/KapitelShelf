@@ -2,8 +2,9 @@ import { Chip, Grid, Typography } from "@mui/material";
 import cronstrue from "cronstrue";
 
 import { useLiveTimeUntil } from "../../hooks/useLiveTimeUntil";
-import type { TaskDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { type TaskDTO, TaskState } from "../../lib/api/KapitelShelf.Api/api";
 import { FormatTime } from "../../utils/TimeUtils";
+import { CircularProgressWithLabel } from "../base/feedback/CircularProgressWithLabel";
 import { Property } from "../base/Property";
 import { TaskTypeIcon } from "./TaskTypeIcon";
 
@@ -46,8 +47,15 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
           <Chip label={task.category} size="small" sx={{ mt: 0.5 }} />
         )}
       </Grid>
+      {task.state === TaskState.NUMBER_1 && (
+        <Grid size={{ xs: 6, lg: 2 }}>
+          <Property label="Progress">
+            <CircularProgressWithLabel progress={task.progress} />
+          </Property>
+        </Grid>
+      )}
       {task.isCronJob && (
-        <Grid size={{ xs: 12, lg: 2 }}>
+        <Grid size={{ xs: task.state === TaskState.NUMBER_1 ? 6 : 12, lg: 2 }}>
           <Property label="Execution" tooltip={task.cronExpression}>
             {cronstrue.toString(task.cronExpression ?? "")}
           </Property>
