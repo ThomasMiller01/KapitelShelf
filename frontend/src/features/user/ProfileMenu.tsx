@@ -18,7 +18,7 @@ import {
   ProfileImageTypeDTO,
   type UserDTO,
 } from "../../lib/api/KapitelShelf.Api/api";
-import { ProfileImageTypeToSrc } from "../../utils/UserProfile";
+import { ProfileImageTypeToSrc } from "../../utils/UserProfileUtils";
 
 export const ProfileMenu = (): ReactElement => {
   const { profile, clearProfile } = useUserProfile();

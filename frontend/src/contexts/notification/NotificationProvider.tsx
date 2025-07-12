@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import { MaterialDesignContent, SnackbarProvider } from "notistack";
 import type { ReactElement, ReactNode } from "react";
 
-import { useMobile } from "../../../hooks/useMobile";
+import { useMobile } from "../../hooks/useMobile";
 
 const BaseNotification = styled(MaterialDesignContent)(() => ({
   padding: "0px 10px",

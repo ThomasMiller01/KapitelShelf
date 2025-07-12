@@ -1,5 +1,4 @@
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import SyncIcon from "@mui/icons-material/Sync";
 import {
   ListItemIcon,
   ListItemText,
@@ -13,13 +12,15 @@ import { NavLink } from "react-router-dom";
 
 import { tasksApi } from "../../lib/api/KapitelShelf.Api";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
+import { TaskStateIcon } from "./TaskStateIcon";
 
 export const TasksMenuItem = (): ReactElement => {
   const { data: activeTasks } = useQuery({
-    queryKey: ["tasks-list"],
+    queryKey: ["tasks-list-active"],
     queryFn: async () => {
       const { data } = await tasksApi.tasksGet();
-      return data.filter((x) => x.state === TaskState.NUMBER_1);
+      return data;
+      // return data.filter((x) => x.state === TaskState.NUMBER_1);
     },
   });
 
@@ -41,7 +42,12 @@ export const TasksMenuItem = (): ReactElement => {
             {activeTasks?.length}
           </Typography>
           <ListItemIcon sx={{ minWidth: "auto !important" }}>
-            <SyncIcon fontSize="small" sx={{ color: "text.secondary" }} />
+            <TaskStateIcon
+              state={TaskState.NUMBER_1}
+              animated
+              fontSize="small"
+              sx={{ color: "text.secondary" }}
+            />
           </ListItemIcon>
         </Stack>
       )}

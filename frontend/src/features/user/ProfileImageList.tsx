@@ -9,7 +9,7 @@ import {
 
 import { ProfileImage } from "../../components/ProfileImage";
 import type { ProfileImageTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { ProfileImageCategories } from "../../utils/UserProfile";
+import { ProfileImageCategories } from "../../utils/UserProfileUtils";
 
 interface ProfileImageListProps {
   onClick: (profileImageType: ProfileImageTypeDTO) => void;

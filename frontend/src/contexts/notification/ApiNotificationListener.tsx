@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useCallback, useEffect } from "react";
 
-import { useNotification } from "../../../hooks/useNotification";
+import { useNotification } from "../../hooks/useNotification";
 
 interface NotifyMetadata {
   enabled: boolean; // default: false

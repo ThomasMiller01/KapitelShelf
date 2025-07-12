@@ -130,7 +130,7 @@ const SidebarLinkItem = ({
     <>
       <SidebarItem
         sx={{
-          pl: 1.2 + 2 * nestingLevel,
+          pl: 1.2 + 2.2 * nestingLevel,
         }}
       >
         <ListItemButton
@@ -146,7 +146,10 @@ const SidebarLinkItem = ({
           }}
         >
           <ListItemIcon>{icon}</ListItemIcon>
-          <ListItemText primary={name} />
+          <ListItemText
+            primary={name}
+            sx={{ margin: nestingLevel === 0 ? "4px" : "0" }}
+          />
         </ListItemButton>
       </SidebarItem>
       {children && (pathname.startsWith(link) || showChildrenAlways) && (

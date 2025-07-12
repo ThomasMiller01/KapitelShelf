@@ -24,7 +24,7 @@ import {
 } from "../../lib/api/KapitelShelf.Api/api";
 import type { UserFormValues } from "../../lib/schemas/UserSchema";
 import { UserSchema } from "../../lib/schemas/UserSchema";
-import { GetUserColor } from "../../utils/UserProfile";
+import { GetUserColor } from "../../utils/UserProfileUtils";
 import { ProfileImageList } from "./ProfileImageList";
 
 interface ActionProps {

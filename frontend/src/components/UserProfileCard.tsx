@@ -8,7 +8,7 @@ import {
   ProfileImageTypeDTO,
   type UserDTO,
 } from "../lib/api/KapitelShelf.Api/api";
-import { ProfileImageTypeToSrc } from "../utils/UserProfile";
+import { ProfileImageTypeToSrc } from "../utils/UserProfileUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
 import FancyText from "./FancyText";
 

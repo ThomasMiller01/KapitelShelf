@@ -2,7 +2,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import { Box, IconButton } from "@mui/material";
 import React from "react";
 
-import { UserProfileColors } from "../utils/UserProfile";
+import { UserProfileColors } from "../utils/UserProfileUtils";
 
 type ColorPickerProps = {
   value: string;

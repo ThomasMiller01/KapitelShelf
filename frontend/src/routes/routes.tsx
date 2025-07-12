@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 import { useRoutes } from "react-router-dom";
 
@@ -14,6 +13,7 @@ import BooksPage from "../pages/LibraryPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
+import { SettingsPage } from "../pages/settings/SettingsPage";
 import { TasksPage } from "../pages/settings/TasksPage";
 import { CreateProfilePage } from "../pages/user/CreateProfilePage";
 import { EditProfilePage } from "../pages/user/EditProfilePage";
@@ -48,7 +48,7 @@ const AppRoutes = (): ReactElement | null => {
           children: [
             {
               index: true,
-              element: <Box>TODO</Box>,
+              element: <SettingsPage />,
             },
             {
               path: "tasks",
