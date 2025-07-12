@@ -3,6 +3,7 @@ import cronstrue from "cronstrue";
 
 import { useLiveTimeUntil } from "../../hooks/useLiveTimeUntil";
 import { type TaskDTO, TaskState } from "../../lib/api/KapitelShelf.Api/api";
+import { GetTaskCategoryColor } from "../../utils/TaskUtils";
 import { FormatTime } from "../../utils/TimeUtils";
 import { CircularProgressWithLabel } from "../base/feedback/CircularProgressWithLabel";
 import { Property } from "../base/Property";
@@ -44,7 +45,14 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
           {task.name}
         </Typography>
         {task.category && (
-          <Chip label={task.category} size="small" sx={{ mt: 0.5 }} />
+          <Chip
+            label={task.category}
+            size="small"
+            sx={{
+              mt: 0.5,
+              bgcolor: GetTaskCategoryColor(task.category),
+            }}
+          />
         )}
       </Grid>
       {task.state === TaskState.NUMBER_1 && (

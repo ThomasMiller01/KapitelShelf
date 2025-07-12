@@ -96,14 +96,25 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, Task
         var scheduler = await this.schedulerFactory.GetScheduler();
 
         var job = JobBuilder.Create<DummyTask>()
-            .WithIdentity("Dummy Task 3", "Dummy")
+            .WithIdentity("Dummy Task", "Dummy")
             .Build();
 
         var trigger = TriggerBuilder.Create()
-            .WithIdentity("Dummy Task Trigger 3", "Dummy")
-            .WithCronSchedule("0 */1 * ? * *")
+            .WithIdentity("Dummy Task Trigger", "Dummy")
+            .WithCronSchedule("0 */5 * ? * *")
             .Build();
 
         await scheduler.ScheduleJob(job, trigger);
+
+        var job2 = JobBuilder.Create<DummyTask>()
+            .WithIdentity("Dummy Task 2", "Dummy")
+            .Build();
+
+        var trigger2 = TriggerBuilder.Create()
+            .WithIdentity("Dummy Task Trigger 2", "Dummy")
+            .WithCronSchedule("0 */1 * ? * *")
+            .Build();
+
+        await scheduler.ScheduleJob(job2, trigger2);
     }
 }

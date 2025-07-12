@@ -5,6 +5,7 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using KapitelShelf.Api;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
@@ -107,6 +108,7 @@ builder.Services.AddQuartzHostedService(options =>
     options.WaitForJobsToComplete = true;
 });
 builder.Services.AddSingleton<TaskRuntimeDataStore>();
+builder.Services.AddHostedService<StartupTasksHostedService>();
 
 // healthchecks
 builder.Services.AddHealthChecks()

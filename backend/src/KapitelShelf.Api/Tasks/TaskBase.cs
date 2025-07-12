@@ -20,13 +20,25 @@ public abstract class TaskBase(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
     /// <inheritdoc/>
     public async Task Execute(IJobExecutionContext context)
     {
-        ArgumentNullException.ThrowIfNull(context);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(context);
 
-        this.DataStore.SetProgress(this.JobKey(context), 0);
+            this.DataStore.SetProgress(this.JobKey(context), 0);
 
-        await this.ExecuteTask(context);
+            await this.ExecuteTask(context);
 
-        this.DataStore.ClearProgress(this.JobKey(context));
+            this.DataStore.ClearProgress(this.JobKey(context));
+        }
+        catch (JobExecutionException)
+        {
+            // rethrow job execution exception
+            throw;
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Error during task execution");
+        }
     }
 
     /// <summary>
