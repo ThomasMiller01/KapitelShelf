@@ -56,4 +56,10 @@ public enum ProfileImageType
     /// </summary>
     /// <remmarks>Chicks</remmarks>
     Riley = 7,
+
+    /// <summary>
+    /// A blushing and grumpy goth girl.
+    /// </summary>
+    /// <remmarks>Chicks</remmarks>
+    Chico = 8,
 }
