@@ -1175,19 +1175,6 @@
             }
           }
         }
-      },
-      "post": {
-        "tags": [
-          "Tasks"
-        ],
-        "summary": "Create a dummy task.",
-        "description": "REMOVE BEFORE NEXT RELEASE!.",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "deprecated": true
       }
     },
     "/users": {
@@ -1792,6 +1779,16 @@
         "additionalProperties": false,
         "description": "Gets or sets the fileinfo dto."
       },
+      "FinishedReasonNullable": {
+        "enum": [
+          0,
+          1,
+          null
+        ],
+        "type": "integer",
+        "format": "int32",
+        "nullable": true
+      },
       "ImportBookDTO": {
         "type": "object",
         "properties": {
@@ -2119,6 +2116,9 @@
             "description": "Gets or sets the job progress, if the job is current running.",
             "format": "int32",
             "nullable": true
+          },
+          "finishedReason": {
+            "$ref": "#/components/schemas/FinishedReasonNullable"
           },
           "isSingleExecution": {
             "type": "boolean",

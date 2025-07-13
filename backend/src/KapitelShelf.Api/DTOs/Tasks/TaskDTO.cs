@@ -30,6 +30,11 @@ public class TaskDTO
     public int? Progress { get; set; }
 
     /// <summary>
+    /// Gets or sets the finished reason, if the task is finished.
+    /// </summary>
+    public FinishedReason? FinishedReason { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the task is a single execution or continued.
     /// </summary>
     public bool IsSingleExecution { get; set; }

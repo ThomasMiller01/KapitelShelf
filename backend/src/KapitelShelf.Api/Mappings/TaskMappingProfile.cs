@@ -20,6 +20,9 @@ public class TaskMappingProfile : Profile
     {
         CreateMap<TriggerState, TaskState>()
             .ConvertUsing(src => MapTriggerStateToTaskState(src));
+
+        CreateMap<TriggerState, FinishedReason?>()
+            .ConvertUsing(src => MapTriggerStateToFinishedReason(src));
     }
 
     /// <summary>
@@ -38,6 +41,22 @@ public class TaskMappingProfile : Profile
             TriggerState.Error => TaskState.Finished,
             TriggerState.None => TaskState.Finished,
             _ => TaskState.Scheduled
+        };
+    }
+
+    /// <summary>
+    /// Maps Quartz TriggerState to the TaskState.
+    /// </summary>
+    /// <param name="state">The Quartz TriggerState.</param>
+    /// <returns>The mapped TaskState.</returns>
+    private static FinishedReason? MapTriggerStateToFinishedReason(TriggerState state)
+    {
+        return state switch
+        {
+            TriggerState.Complete => FinishedReason.Completed,
+            TriggerState.Error => FinishedReason.Error,
+            TriggerState.None => FinishedReason.Completed,
+            _ => null
         };
     }
 }

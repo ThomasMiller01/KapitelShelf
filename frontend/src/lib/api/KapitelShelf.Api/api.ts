@@ -382,6 +382,20 @@ export interface FileInfoDTO {
     'fileName'?: string | null;
 }
 /**
+ * 
+ * @export
+ * @enum {number}
+ */
+
+export const FinishedReasonNullable = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+
+export type FinishedReasonNullable = typeof FinishedReasonNullable[keyof typeof FinishedReasonNullable];
+
+
+/**
  * The import book dto.
  * @export
  * @interface ImportBookDTO
@@ -757,6 +771,12 @@ export interface TaskDTO {
      * @memberof TaskDTO
      */
     'progress'?: number | null;
+    /**
+     * 
+     * @type {FinishedReasonNullable}
+     * @memberof TaskDTO
+     */
+    'finishedReason'?: FinishedReasonNullable | null;
     /**
      * Gets or sets a value indicating whether the task is a single execution or continued.
      * @type {boolean}
@@ -2916,37 +2936,6 @@ export const TasksApiAxiosParamCreator = function (configuration?: Configuration
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * REMOVE BEFORE NEXT RELEASE!.
-         * @summary Create a dummy task.
-         * @param {*} [options] Override http request option.
-         * @deprecated
-         * @throws {RequiredError}
-         */
-        tasksPost: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/tasks`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -2969,19 +2958,6 @@ export const TasksApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['TasksApi.tasksGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
-        /**
-         * REMOVE BEFORE NEXT RELEASE!.
-         * @summary Create a dummy task.
-         * @param {*} [options] Override http request option.
-         * @deprecated
-         * @throws {RequiredError}
-         */
-        async tasksPost(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.tasksPost(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TasksApi.tasksPost']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
     }
 };
 
@@ -3000,16 +2976,6 @@ export const TasksApiFactory = function (configuration?: Configuration, basePath
          */
         tasksGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<TaskDTO>> {
             return localVarFp.tasksGet(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * REMOVE BEFORE NEXT RELEASE!.
-         * @summary Create a dummy task.
-         * @param {*} [options] Override http request option.
-         * @deprecated
-         * @throws {RequiredError}
-         */
-        tasksPost(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.tasksPost(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -3030,18 +2996,6 @@ export class TasksApi extends BaseAPI {
      */
     public tasksGet(options?: RawAxiosRequestConfig) {
         return TasksApiFp(this.configuration).tasksGet(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * REMOVE BEFORE NEXT RELEASE!.
-     * @summary Create a dummy task.
-     * @param {*} [options] Override http request option.
-     * @deprecated
-     * @throws {RequiredError}
-     * @memberof TasksApi
-     */
-    public tasksPost(options?: RawAxiosRequestConfig) {
-        return TasksApiFp(this.configuration).tasksPost(options).then((request) => request(this.axios, this.basePath));
     }
 }
 
