@@ -28,5 +28,10 @@ namespace KapitelShelf.Api.Settings
         /// The maximum number of search suggestions to return.
         /// </summary>
         public static readonly int MaxSearchSuggestions = 12;
+
+        /// <summary>
+        /// The default OneDrive clientId of RClone.
+        /// </summary>
+        public static readonly string CloudStorageOneDriveRCloneClientId = "TODO";
     }
 }

@@ -1968,6 +1968,193 @@ export class MetadataApi extends BaseAPI {
 
 
 /**
+ * OneDriveApi - axios parameter creator
+ * @export
+ */
+export const OneDriveApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Callback for the OneDrive OAuth flow.
+         * @param {string} [code] The OAuth callback code.
+         * @param {string} [state] The OAuth callback state.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageOnedriveOauthCallbackGet: async (code?: string, state?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/cloudstorage/onedrive/oauth/callback`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (code !== undefined) {
+                localVarQueryParameter['code'] = code;
+            }
+
+            if (state !== undefined) {
+                localVarQueryParameter['state'] = state;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Redirect to the OneDrive OAuth url.
+         * @param {string} [redirectUrl] The url to redirect to after the OAuth flow finished.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageOnedriveOauthGet: async (redirectUrl?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/cloudstorage/onedrive/oauth`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (redirectUrl !== undefined) {
+                localVarQueryParameter['redirectUrl'] = redirectUrl;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OneDriveApi - functional programming interface
+ * @export
+ */
+export const OneDriveApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = OneDriveApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Callback for the OneDrive OAuth flow.
+         * @param {string} [code] The OAuth callback code.
+         * @param {string} [state] The OAuth callback state.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cloudstorageOnedriveOauthCallbackGet(code?: string, state?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cloudstorageOnedriveOauthCallbackGet(code, state, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OneDriveApi.cloudstorageOnedriveOauthCallbackGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Redirect to the OneDrive OAuth url.
+         * @param {string} [redirectUrl] The url to redirect to after the OAuth flow finished.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cloudstorageOnedriveOauthGet(redirectUrl?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cloudstorageOnedriveOauthGet(redirectUrl, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OneDriveApi.cloudstorageOnedriveOauthGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * OneDriveApi - factory interface
+ * @export
+ */
+export const OneDriveApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = OneDriveApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Callback for the OneDrive OAuth flow.
+         * @param {string} [code] The OAuth callback code.
+         * @param {string} [state] The OAuth callback state.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageOnedriveOauthCallbackGet(code?: string, state?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.cloudstorageOnedriveOauthCallbackGet(code, state, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Redirect to the OneDrive OAuth url.
+         * @param {string} [redirectUrl] The url to redirect to after the OAuth flow finished.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageOnedriveOauthGet(redirectUrl?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.cloudstorageOnedriveOauthGet(redirectUrl, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * OneDriveApi - object-oriented interface
+ * @export
+ * @class OneDriveApi
+ * @extends {BaseAPI}
+ */
+export class OneDriveApi extends BaseAPI {
+    /**
+     * 
+     * @summary Callback for the OneDrive OAuth flow.
+     * @param {string} [code] The OAuth callback code.
+     * @param {string} [state] The OAuth callback state.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OneDriveApi
+     */
+    public cloudstorageOnedriveOauthCallbackGet(code?: string, state?: string, options?: RawAxiosRequestConfig) {
+        return OneDriveApiFp(this.configuration).cloudstorageOnedriveOauthCallbackGet(code, state, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Redirect to the OneDrive OAuth url.
+     * @param {string} [redirectUrl] The url to redirect to after the OAuth flow finished.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OneDriveApi
+     */
+    public cloudstorageOnedriveOauthGet(redirectUrl?: string, options?: RawAxiosRequestConfig) {
+        return OneDriveApiFp(this.configuration).cloudstorageOnedriveOauthGet(redirectUrl, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * SearchApi - axios parameter creator
  * @export
  */

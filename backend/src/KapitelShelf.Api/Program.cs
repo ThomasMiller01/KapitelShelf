@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Data;
@@ -84,6 +85,8 @@ builder.Services.AddSingleton<MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
 builder.Services.AddSingleton<UsersLogic>();
 builder.Services.AddSingleton<TasksLogic>();
+
+builder.Services.AddSingleton<OneDriveLogic>();
 
 // background tasks using Quartz.NET
 builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));

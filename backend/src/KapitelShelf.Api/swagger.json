@@ -608,6 +608,60 @@
         }
       }
     },
+    "/cloudstorage/onedrive/oauth": {
+      "get": {
+        "tags": [
+          "OneDrive"
+        ],
+        "summary": "Redirect to the OneDrive OAuth url.",
+        "parameters": [
+          {
+            "name": "redirectUrl",
+            "in": "query",
+            "description": "The url to redirect to after the OAuth flow finished.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/cloudstorage/onedrive/oauth/callback": {
+      "get": {
+        "tags": [
+          "OneDrive"
+        ],
+        "summary": "Callback for the OneDrive OAuth flow.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "The OAuth callback code.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "The OAuth callback state.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/search": {
       "get": {
         "tags": [
