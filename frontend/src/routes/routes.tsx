@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
+import { SettingsLayout } from "../components/layout/SettingsLayout";
 import { useUserProfile } from "../contexts/UserProfileContext";
 import BookDetailPage from "../pages/book/BookDetailPage";
 import CreateBookPage from "../pages/book/CreateBookPage";
@@ -12,6 +13,8 @@ import BooksPage from "../pages/LibraryPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
+import { SettingsPage } from "../pages/settings/SettingsPage";
+import { TasksPage } from "../pages/settings/TasksPage";
 import { CreateProfilePage } from "../pages/user/CreateProfilePage";
 import { EditProfilePage } from "../pages/user/EditProfilePage";
 import { SelectProfilePage } from "../pages/user/SelectProfilePage";
@@ -39,6 +42,20 @@ const AppRoutes = (): ReactElement | null => {
         { path: "library/books/create", element: <CreateBookPage /> },
         { path: "library/books/import", element: <ImportBookPage /> },
         { path: "search", element: <SearchResultsPage /> },
+        {
+          path: "settings",
+          element: <SettingsLayout />,
+          children: [
+            {
+              index: true,
+              element: <SettingsPage />,
+            },
+            {
+              path: "tasks",
+              element: <TasksPage />,
+            },
+          ],
+        },
       ],
     },
     {

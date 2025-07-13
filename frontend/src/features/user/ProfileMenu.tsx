@@ -12,12 +12,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import FancyText from "../../components/FancyText";
+import { TasksMenuItem } from "../../components/tasks/TasksMenuItem";
 import { useUserProfile } from "../../contexts/UserProfileContext";
 import {
   ProfileImageTypeDTO,
   type UserDTO,
 } from "../../lib/api/KapitelShelf.Api/api";
-import { ProfileImageTypeToSrc } from "../../utils/UserProfile";
+import { ProfileImageTypeToSrc } from "../../utils/UserProfileUtils";
 
 export const ProfileMenu = (): ReactElement => {
   const { profile, clearProfile } = useUserProfile();
@@ -81,6 +82,8 @@ export const ProfileMenu = (): ReactElement => {
           <UserProfileIcon profile={profile} />
           <FancyText ml="6px">{profile?.username}</FancyText>
         </MenuItem>
+        <Divider />
+        <TasksMenuItem />
         <Divider />
         <MenuItem onClick={handleSwitchProfile}>
           <ListItemIcon>

@@ -5,19 +5,23 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using KapitelShelf.Api;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Tasks;
 using KapitelShelf.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
+using Quartz.Impl.AdoJobStore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // configuration settings
 var settings = builder.Configuration.GetSection("KapitelShelf").Get<KapitelShelfSettings>()!;
 #pragma warning disable CA1869 // Cache and reuse 'JsonSerializerOptions' instances
-Console.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+Console.WriteLine(JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
 #pragma warning restore CA1869 // Cache and reuse 'JsonSerializerOptions' instances
 
 #pragma warning disable IDE0001 // Simplify Names
@@ -65,8 +69,8 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 });
 
 // database
-builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options =>
-    options.UseNpgsql($"Host={settings.Database.Host};Database={StaticConstants.DatabaseName};Username={settings.Database.Username};Password={settings.Database.Password}"));
+var databaseConnection = $"Host={settings.Database.Host};Database={StaticConstants.DatabaseName};Username={settings.Database.Username};Password={settings.Database.Password}";
+builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options => options.UseNpgsql(databaseConnection));
 
 // automapper
 builder.Services.AddAutoMapper(typeof(Program));
@@ -79,6 +83,32 @@ builder.Services.AddSingleton<IBookParserManager, BookParserManager>();
 builder.Services.AddSingleton<MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
 builder.Services.AddSingleton<UsersLogic>();
+builder.Services.AddSingleton<TasksLogic>();
+
+// background tasks using Quartz.NET
+builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));
+builder.Services.AddQuartz(q =>
+{
+    q.MaxBatchSize = 10;
+
+    q.UsePersistentStore(c =>
+    {
+        c.UsePostgres(postgresOptions =>
+        {
+            postgresOptions.UseDriverDelegate<PostgreSQLDelegate>();
+            postgresOptions.ConnectionString = $"{databaseConnection};SearchPath=quartz";
+        });
+    });
+});
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.AwaitApplicationStarted = true;
+
+    // let jobs finish gracefully
+    options.WaitForJobsToComplete = true;
+});
+builder.Services.AddSingleton<TaskRuntimeDataStore>();
+builder.Services.AddHostedService<StartupTasksHostedService>();
 
 // healthchecks
 builder.Services.AddHealthChecks()
