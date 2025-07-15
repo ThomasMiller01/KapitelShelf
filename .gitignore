@@ -17,3 +17,6 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# ignore 3rd-party executables
+development/3rd-party

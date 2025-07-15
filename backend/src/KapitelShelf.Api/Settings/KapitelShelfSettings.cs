@@ -23,5 +23,10 @@ namespace KapitelShelf.Api.Settings
         /// Gets or sets the database settings.
         /// </summary>
         public DatabaseSettings Database { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the cloud storage settings.
+        /// </summary>
+        public CloudStorageSettings CloudStorage { get; set; } = null!;
     }
 }

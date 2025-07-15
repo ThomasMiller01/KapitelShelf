@@ -30,8 +30,13 @@ namespace KapitelShelf.Api.Settings
         public static readonly int MaxSearchSuggestions = 12;
 
         /// <summary>
-        /// The default OneDrive clientId of RClone.
+        /// The text for the exception, when amazon blocked us.
         /// </summary>
-        public static readonly string CloudStorageOneDriveRCloneClientId = "TODO";
+        public static readonly string CloudStorageConfigurationSubPath = "cloudstorage";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageRCloneFileName = "rclone.conf";
     }
 }

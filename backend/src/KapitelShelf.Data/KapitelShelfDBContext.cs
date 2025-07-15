@@ -6,6 +6,7 @@ using AppAny.Quartz.EntityFrameworkCore.Migrations;
 using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Data;
@@ -75,6 +76,16 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     /// Gets the visited books table.
     /// </summary>
     public DbSet<VisitedBooksModel> VisitedBooks => Set<VisitedBooksModel>();
+
+    /// <summary>
+    /// Gets the visited books table.
+    /// </summary>
+    public DbSet<CloudConfigurationModel> CloudConfiguration => Set<CloudConfigurationModel>();
+
+    /// <summary>
+    /// Gets the visited books table.
+    /// </summary>
+    public DbSet<CloudStorageModel> CloudStorages => Set<CloudStorageModel>();
 
     /// <summary>
     /// Gets the book search view.
@@ -180,6 +191,16 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .WithMany()
             .HasForeignKey(b => b.BookId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Cloud Configuration
+        modelBuilder.Entity<CloudConfigurationModel>()
+            .HasIndex(c => new { c.Type })
+            .IsUnique();
+
+        // Cloud Storages
+        modelBuilder.Entity<CloudStorageModel>()
+            .HasIndex(c => new { c.Type, c.CloudOwnerEmail })
+            .IsUnique();
 #pragma warning restore CA1062 // Validate arguments of public methods
 
         base.OnModelCreating(modelBuilder);
