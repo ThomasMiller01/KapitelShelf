@@ -13,6 +13,7 @@ import BooksPage from "../pages/LibraryPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
+import { CloudStoragesPage } from "../pages/settings/CloudStoragesPage";
 import { SettingsPage } from "../pages/settings/SettingsPage";
 import { TasksPage } from "../pages/settings/TasksPage";
 import { CreateProfilePage } from "../pages/user/CreateProfilePage";
@@ -53,6 +54,10 @@ const AppRoutes = (): ReactElement | null => {
             {
               path: "tasks",
               element: <TasksPage />,
+            },
+            {
+              path: "cloudstorages",
+              element: <CloudStoragesPage />,
             },
           ],
         },

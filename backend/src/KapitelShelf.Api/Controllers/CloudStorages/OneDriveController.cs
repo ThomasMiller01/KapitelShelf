@@ -24,6 +24,24 @@ public partial class OneDriveController(ILogger<OneDriveController> logger, OneD
     private readonly OneDriveLogic logic = logic;
 
     /// <summary>
+    /// List all cloud storages.
+    /// </summary>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet]
+    public async Task<ActionResult<List<CloudStorageDTO>>> ListCloudStorages()
+    {
+        try
+        {
+            return Ok(await this.logic.ListCloudStorages());
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting list of 'OneDrive' cloudstorages.");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Check if OneDrive cloud is configured.
     /// </summary>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
@@ -67,7 +85,7 @@ public partial class OneDriveController(ILogger<OneDriveController> logger, OneD
     /// <param name="redirectUrl">The url to redirect to after the OAuth flow finished.</param>
     /// <returns>An IActionResult.</returns>
     [HttpGet("oauth")]
-    public async Task<ActionResult> OAuth(string redirectUrl)
+    public async Task<ActionResult<string>> OAuth(string redirectUrl)
     {
         try
         {
@@ -77,8 +95,7 @@ public partial class OneDriveController(ILogger<OneDriveController> logger, OneD
                 return StatusCode(403, "Cloud 'OneDrive' is not configured");
             }
 
-            var oauthUrl = await this.logic.GetOAuthUrl(redirectUrl);
-            return Redirect(oauthUrl);
+            return await this.logic.GetOAuthUrl(redirectUrl);
         }
         catch (Exception ex)
         {

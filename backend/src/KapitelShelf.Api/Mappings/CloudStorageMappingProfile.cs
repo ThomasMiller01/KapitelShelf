@@ -23,5 +23,9 @@ public class CloudStorageMappingProfile : Profile
 
         CreateMap<CloudType, CloudTypeDTO>()
             .ReverseMap();
+
+        CreateMap<CloudStorageModel, CloudStorageDTO>()
+            .ReverseMap()
+            .ForMember(dest => dest.RCloneConfig, opt => opt.Ignore());
     }
 }

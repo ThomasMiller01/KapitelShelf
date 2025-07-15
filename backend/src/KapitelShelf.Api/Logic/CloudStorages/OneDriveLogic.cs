@@ -130,6 +130,17 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         await context.SaveChangesAsync();
     }
 
+    /// <inheritdoc/>
+    public override async Task<List<CloudStorageDTO>> ListCloudStorages()
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return context.CloudStorages
+            .Where(x => x.Type == CloudType.OneDrive)
+            .Select(x => this.mapper.Map<CloudStorageDTO>(x))
+            .ToList();
+    }
+
     private static async Task<(string driveId, string email, string name)> GetDriveDetails(string accessToken)
     {
         using var httpClient = new HttpClient();

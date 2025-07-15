@@ -112,6 +112,12 @@ public abstract class CloudStoragesBaseLogic(IDbContextFactory<KapitelShelfDBCon
     public abstract Task GenerateRCloneConfig(OAuthTokensDTO tokens);
 
     /// <summary>
+    /// List all the cloud storages.
+    /// </summary>
+    /// <returns>The cloud storages.</returns>
+    public abstract Task<List<CloudStorageDTO>> ListCloudStorages();
+
+    /// <summary>
     /// Get the data path for a storage.
     /// </summary>
     /// <param name="cloudTypeDto">The cloud type dto.</param>

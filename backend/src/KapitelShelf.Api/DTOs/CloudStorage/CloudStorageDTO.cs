@@ -1,13 +1,15 @@
-﻿// <copyright file="CloudStorageModel.cs" company="KapitelShelf">
+﻿// <copyright file="CloudStorageDTO.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Data.Models.CloudStorage;
+using KapitelShelf.Data.Models.CloudStorage;
+
+namespace KapitelShelf.Api.DTOs.CloudStorage;
 
 /// <summary>
-/// The cloud storage model.
+/// The cloud storage dto.
 /// </summary>
-public class CloudStorageModel
+public class CloudStorageDTO
 {
     /// <summary>
     /// Gets or sets the author id.
@@ -23,11 +25,6 @@ public class CloudStorageModel
     /// Gets or sets a value indicating whether this storage needs re-authentication.
     /// </summary>
     public bool NeedsReAuthentication { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets the rclone config path.
-    /// </summary>
-    public string RCloneConfig { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the cloud directory to mirror.

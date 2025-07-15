@@ -608,6 +608,108 @@
         }
       }
     },
+    "/cloudstorage/onedrive": {
+      "get": {
+        "tags": [
+          "OneDrive"
+        ],
+        "summary": "List all cloud storages.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudstorage/onedrive/isconfigured": {
+      "get": {
+        "tags": [
+          "OneDrive"
+        ],
+        "summary": "Check if OneDrive cloud is configured.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudstorage/onedrive/configure": {
+      "put": {
+        "tags": [
+          "OneDrive"
+        ],
+        "summary": "Configure the OneDrive cloud.",
+        "requestBody": {
+          "description": "The configure cloud dto.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureCloudDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureCloudDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureCloudDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/cloudstorage/onedrive/oauth": {
       "get": {
         "tags": [
@@ -626,7 +728,24 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -1646,6 +1765,59 @@
         },
         "additionalProperties": false,
         "description": "The category dto."
+      },
+      "CloudStorageDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the author id.",
+            "format": "uuid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CloudType"
+          },
+          "needsReAuthentication": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this storage needs re-authentication."
+          },
+          "cloudDirectory": {
+            "type": "string",
+            "description": "Gets or sets the cloud directory to mirror.",
+            "nullable": true
+          },
+          "cloudOwnerEmail": {
+            "type": "string",
+            "description": "Gets or sets the cloud owner email.",
+            "nullable": true
+          },
+          "cloudOwnerName": {
+            "type": "string",
+            "description": "Gets or sets the cloud owner name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The cloud storage dto."
+      },
+      "CloudType": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ConfigureCloudDTO": {
+        "type": "object",
+        "properties": {
+          "oAuthClientId": {
+            "type": "string",
+            "description": "Gets or sets the OAuth client id.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The configure cloud dto."
       },
       "CreateAuthorDTO": {
         "type": "object",
