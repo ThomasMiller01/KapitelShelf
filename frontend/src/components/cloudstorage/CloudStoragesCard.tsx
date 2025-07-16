@@ -1,6 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import ReportIcon from "@mui/icons-material/Report";
-import { Button, Grid, Stack, Typography } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import { Badge, Button, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 
@@ -33,8 +34,8 @@ export const CloudStorageCard = ({
   return (
     <Grid
       container
-      rowSpacing={0.5}
-      columnSpacing={3}
+      rowSpacing={1.5}
+      columnSpacing={isMobile ? 3 : 4}
       alignItems="center"
       sx={{
         minHeight: 56,
@@ -43,7 +44,8 @@ export const CloudStorageCard = ({
         borderRadius: 2,
         bgcolor: "background.paper",
         boxShadow: 1,
-        width: "100%",
+        minWidth: isMobile ? "100%" : "600px",
+        width: "fit-content",
       }}
     >
       {/* Type */}
@@ -51,36 +53,37 @@ export const CloudStorageCard = ({
         <CloudStorageIcon
           type={cloudstorage.type}
           disabled={cloudstorage.needsReAuthentication}
-          sx={{ mx: isMobile ? "0" : "15px" }}
+          sx={{ mx: isMobile ? "5px" : "15px" }}
         />
       </Grid>
 
       {/* Re-Authenticate */}
       {cloudstorage.needsReAuthentication && (
         <Grid>
-          <Button
-            variant="contained"
-            color="warning"
-            startIcon={<ReportIcon />}
-            onClick={() => startOAuthFlow()}
-            sx={{ mb: "15px" }}
-          >
-            Re-Authenticate
-          </Button>
+          <Badge badgeContent={<WarningRoundedIcon color="primary" />}>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => startOAuthFlow()}
+            >
+              Re-Authenticate
+            </Button>
+          </Badge>
         </Grid>
       )}
 
       {/* Directory */}
-      {cloudstorage.cloudDirectory && (
-        <Grid>
-          <Property
-            label="Directory"
-            disabled={cloudstorage.needsReAuthentication}
-          >
-            {cloudstorage.cloudDirectory}
-          </Property>
-        </Grid>
-      )}
+      <Grid>
+        <Property
+          label="Directory"
+          disabled={cloudstorage.needsReAuthentication}
+        >
+          <CloudStorageDirectory
+            directory={cloudstorage.cloudDirectory}
+            needsReAuthentication={cloudstorage.needsReAuthentication}
+          />
+        </Property>
+      </Grid>
 
       {/* Owner */}
       <Grid>
@@ -100,6 +103,8 @@ export const CloudStorageCard = ({
         </Property>
       </Grid>
 
+      <Grid sx={{ flexGrow: 1 }}></Grid>
+
       {/* Operations */}
       <Grid>
         <Stack spacing={0.8} alignItems="start">
@@ -109,5 +114,52 @@ export const CloudStorageCard = ({
         </Stack>
       </Grid>
     </Grid>
+  );
+};
+
+interface CloudStorageDirectoryProps {
+  directory: string | undefined | null;
+  needsReAuthentication: boolean | undefined;
+}
+
+const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
+  directory,
+  needsReAuthentication,
+}) => {
+  if (directory === undefined || directory === null) {
+    return (
+      <Tooltip title="Configure Directory">
+        <Badge
+          badgeContent={
+            <WarningRoundedIcon
+              color={needsReAuthentication ? "disabled" : "primary"}
+            />
+          }
+        >
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            disabled={needsReAuthentication}
+          >
+            Configure
+          </Button>
+        </Badge>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Stack direction="row" spacing={1}>
+      <Typography sx={{ opacity: needsReAuthentication ? 0.5 : 1 }}>
+        {directory}
+      </Typography>
+      <IconButtonWithTooltip
+        tooltip="Change Directory"
+        disabled={needsReAuthentication}
+      >
+        <EditIcon />
+      </IconButtonWithTooltip>
+    </Stack>
   );
 };

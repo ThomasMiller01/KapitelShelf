@@ -3,6 +3,7 @@ import type { SvgIconOwnProps } from "@mui/material";
 import { Tooltip } from "@mui/material";
 
 import { CloudType } from "../../lib/api/KapitelShelf.Api/api";
+import { CloudTypeToString } from "../../utils/CloudStorageUtils";
 
 interface CloudStorageIconProps extends SvgIconOwnProps {
   type: CloudType | undefined;
@@ -18,7 +19,7 @@ export const CloudStorageIcon: React.FC<CloudStorageIconProps> = ({
   switch (type) {
     case CloudType.NUMBER_0:
       return (
-        <Tooltip title="OneDrive">
+        <Tooltip title={CloudTypeToString(CloudType.NUMBER_0)}>
           <CloudIcon {...props} sx={{ opacity: disabled ? 0.5 : 1, ...sx }} />
         </Tooltip>
       );

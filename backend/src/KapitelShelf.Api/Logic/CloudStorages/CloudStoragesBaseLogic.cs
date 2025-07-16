@@ -6,7 +6,6 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
-using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic.CloudStorages;
@@ -32,63 +31,20 @@ public abstract class CloudStoragesBaseLogic(IDbContextFactory<KapitelShelfDBCon
     /// Check if OneDrive cloud is configured.
     /// </summary>
     /// <returns>True if OneDirve cloud is configured, otherwise false.</returns>
-    public async Task<bool> IsConfigured()
-    {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.CloudConfiguration
-            .Where(x => x.Type == CloudType.OneDrive)
-            .AnyAsync();
-    }
+    public abstract Task<bool> IsConfigured();
 
     /// <summary>
     /// Configure the OneDrive cloud.
     /// </summary>
     /// <param name="configureCloudDto">The configure cloud dto.</param>
     /// <returns>A task.</returns>
-    public async Task Configure(ConfigureCloudDTO configureCloudDto)
-    {
-        ArgumentNullException.ThrowIfNull(configureCloudDto);
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        if (await this.IsConfigured())
-        {
-            // update the current configuration
-            var configuration = await context.CloudConfiguration
-                .FirstOrDefaultAsync(x => x.Type == CloudType.OneDrive);
-
-            ArgumentNullException.ThrowIfNull(configuration);
-
-            configuration.OAuthClientId = configureCloudDto.OAuthClientId;
-        }
-        else
-        {
-            // create a new configuration
-            var configuration = new CloudConfigurationModel
-            {
-                Type = CloudType.OneDrive,
-                OAuthClientId = configureCloudDto.OAuthClientId,
-            };
-            context.CloudConfiguration.Add(configuration);
-        }
-
-        await context.SaveChangesAsync();
-    }
+    public abstract Task Configure(ConfigureCloudDTO configureCloudDto);
 
     /// <summary>
     /// Get the cloud configuration.
     /// </summary>
     /// <returns>The cloud configuration.</returns>
-    public async Task<CloudConfigurationDTO> GetConfiguration()
-    {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.CloudConfiguration
-                .Where(x => x.Type == CloudType.OneDrive)
-                .Select(x => this.mapper.Map<CloudConfigurationDTO>(x))
-                .FirstAsync();
-    }
+    public abstract Task<CloudConfigurationDTO> GetConfiguration();
 
     /// <summary>
     /// Get the url for the OAuth flow of OneDrive.

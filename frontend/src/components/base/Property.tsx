@@ -2,7 +2,7 @@ import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 
 interface PropertyProps {
-  children: ReactElement | string | undefined;
+  children: ReactElement | string | undefined | null;
   label?: string;
   tooltip?: string | null;
   width?: string;

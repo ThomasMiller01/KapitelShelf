@@ -20,6 +20,63 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings) : CloudStoragesBaseLogic(dbContextFactory, mapper, settings)
 {
     /// <inheritdoc/>
+    public override async Task<bool> IsConfigured()
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.CloudConfiguration
+            .Where(x => x.Type == CloudType.OneDrive)
+            .AnyAsync();
+    }
+
+    /// <inheritdoc/>
+    public override async Task Configure(ConfigureCloudDTO configureCloudDto)
+    {
+        ArgumentNullException.ThrowIfNull(configureCloudDto);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        if (await this.IsConfigured())
+        {
+            // update the current configuration
+            var configuration = await context.CloudConfiguration
+                .FirstOrDefaultAsync(x => x.Type == CloudType.OneDrive);
+
+            ArgumentNullException.ThrowIfNull(configuration);
+
+            configuration.OAuthClientId = configureCloudDto.OAuthClientId;
+        }
+        else
+        {
+            // create a new configuration
+            var configuration = new CloudConfigurationModel
+            {
+                Type = CloudType.OneDrive,
+                OAuthClientId = configureCloudDto.OAuthClientId,
+            };
+            context.CloudConfiguration.Add(configuration);
+        }
+
+        // invalidate all cloud storages and require re-authentication
+        await context.CloudStorages
+            .Where(x => x.Type == CloudType.OneDrive)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.NeedsReAuthentication, true));
+
+        await context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public override async Task<CloudConfigurationDTO> GetConfiguration()
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.CloudConfiguration
+                .Where(x => x.Type == CloudType.OneDrive)
+                .Select(x => this.mapper.Map<CloudConfigurationDTO>(x))
+                .FirstAsync();
+    }
+
+    /// <inheritdoc/>
     public override async Task<string> GetOAuthUrl(string redirectUrl)
     {
         var configuration = await this.GetConfiguration();
@@ -101,7 +158,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         Directory.CreateDirectory(cloudTypePath);
 
         // overwrite the file with the new config
-        var rclonePath = Path.Combine(cloudTypePath, StaticConstants.CloudStorageRCloneFileName);
+        var rclonePath = Path.Combine(cloudTypePath, email, StaticConstants.CloudStorageRCloneFileName);
         File.WriteAllText(rclonePath, sb.ToString());
 
         // add new cloud storage
