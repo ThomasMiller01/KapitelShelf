@@ -155,10 +155,11 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
 
         // ensure the directory exists
         var cloudTypePath = this.GetDataPath(CloudTypeDTO.OneDrive);
-        Directory.CreateDirectory(cloudTypePath);
+        var basePath = Path.Combine(cloudTypePath, email);
+        Directory.CreateDirectory(basePath);
 
         // overwrite the file with the new config
-        var rclonePath = Path.Combine(cloudTypePath, email, StaticConstants.CloudStorageRCloneFileName);
+        var rclonePath = Path.Combine(basePath, StaticConstants.CloudStorageRCloneFileName);
         File.WriteAllText(rclonePath, sb.ToString());
 
         // add new cloud storage
