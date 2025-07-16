@@ -3,7 +3,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { Badge, Button, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import { type ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
 import { onedriveApi } from "../../lib/api/KapitelShelf.Api";
@@ -11,6 +11,7 @@ import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
 import { CloudStorageIcon } from "./CloudStorageIcon";
+import { ConfigureCloudDirectoryDialog } from "./ConfigureCloudDirectory/ConfigureCloudDirectoryDialog";
 
 interface CloudStorageCardProps {
   cloudstorage: CloudStorageDTO;
@@ -20,6 +21,8 @@ export const CloudStorageCard = ({
   cloudstorage,
 }: CloudStorageCardProps): ReactElement => {
   const { isMobile } = useMobile();
+
+  const [openDirectoryDialog, setOpenDirectoryDialog] = useState(false);
 
   const { mutate: startOAuthFlow } = useMutation({
     mutationKey: ["cloudstorage-onedrive-re-oauth-flow"],
@@ -81,6 +84,7 @@ export const CloudStorageCard = ({
           <CloudStorageDirectory
             directory={cloudstorage.cloudDirectory}
             needsReAuthentication={cloudstorage.needsReAuthentication}
+            onConfigureDirectoryClick={() => setOpenDirectoryDialog(true)}
           />
         </Property>
       </Grid>
@@ -113,6 +117,13 @@ export const CloudStorageCard = ({
           </IconButtonWithTooltip>
         </Stack>
       </Grid>
+
+      <ConfigureCloudDirectoryDialog
+        open={openDirectoryDialog}
+        onCancel={() => setOpenDirectoryDialog(false)}
+        onConfirm={() => setOpenDirectoryDialog(false)}
+        cloudType={cloudstorage.type}
+      />
     </Grid>
   );
 };
@@ -120,11 +131,13 @@ export const CloudStorageCard = ({
 interface CloudStorageDirectoryProps {
   directory: string | undefined | null;
   needsReAuthentication: boolean | undefined;
+  onConfigureDirectoryClick: () => void;
 }
 
 const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
   directory,
   needsReAuthentication,
+  onConfigureDirectoryClick,
 }) => {
   if (directory === undefined || directory === null) {
     return (
@@ -140,6 +153,7 @@ const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
             variant="contained"
             color="error"
             size="small"
+            onClick={onConfigureDirectoryClick}
             disabled={needsReAuthentication}
           >
             Configure
@@ -156,6 +170,7 @@ const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
       </Typography>
       <IconButtonWithTooltip
         tooltip="Change Directory"
+        onClick={onConfigureDirectoryClick}
         disabled={needsReAuthentication}
       >
         <EditIcon />
