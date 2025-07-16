@@ -1,5 +1,6 @@
 import {
   BooksApi,
+  CloudStorageApi,
   MetadataApi,
   OneDriveApi,
   SeriesApi,
@@ -19,4 +20,5 @@ export const versionApi = new VersionApi(config);
 export const metadataApi = new MetadataApi(config);
 export const usersApi = new UsersApi(config);
 export const tasksApi = new TasksApi(config);
+export const cloudstorageApi = new CloudStorageApi(config);
 export const onedriveApi = new OneDriveApi(config);

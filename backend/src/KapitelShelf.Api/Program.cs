@@ -86,6 +86,7 @@ builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>()
 builder.Services.AddSingleton<UsersLogic>();
 builder.Services.AddSingleton<TasksLogic>();
 
+builder.Services.AddSingleton<CloudStoragesLogic>();
 builder.Services.AddSingleton<OneDriveLogic>();
 
 // background tasks using Quartz.NET

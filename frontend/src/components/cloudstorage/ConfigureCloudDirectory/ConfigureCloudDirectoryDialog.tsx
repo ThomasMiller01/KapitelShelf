@@ -4,6 +4,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  TextField,
 } from "@mui/material";
 import { type ReactElement, useState } from "react";
 
@@ -15,12 +16,18 @@ export interface ConfigureCloudDirectoryDialogProps {
   onCancel: () => void;
   onConfirm: (directory: string) => void;
   cloudType: CloudType | undefined;
+  storageId: string | undefined;
 }
 
 export const ConfigureCloudDirectoryDialog: React.FC<
   ConfigureCloudDirectoryDialogProps
-> = ({ cloudType, onConfirm, ...props }) => {
+> = ({ cloudType, storageId, onConfirm, onCancel, ...props }) => {
   const [directory, setDirectory] = useState<string | null>(null);
+
+  const handleCancel = (): void => {
+    setDirectory(null);
+    onCancel();
+  };
 
   const handleConfirm = (): void => {
     if (directory === null) {
@@ -34,11 +41,17 @@ export const ConfigureCloudDirectoryDialog: React.FC<
     case CloudType.NUMBER_0:
       return (
         <ConfigureCloudDirectoryDialogLayout
+          directory={directory}
           cloudType={cloudType}
+          storageId=""
           onConfirm={handleConfirm}
+          onCancel={handleCancel}
           {...props}
         >
-          <ConfigureOneDrive onDirectorySelect={setDirectory} />
+          <ConfigureOneDrive
+            storageId={storageId}
+            onDirectorySelect={setDirectory}
+          />
         </ConfigureCloudDirectoryDialogLayout>
       );
   }
@@ -46,20 +59,31 @@ export const ConfigureCloudDirectoryDialog: React.FC<
 
 interface ConfigureCloudDirectoryDialogLayoutProps
   extends ConfigureCloudDirectoryDialogProps {
+  directory: string | null;
   onConfirm: () => void;
   children?: ReactElement | ReactElement[];
 }
 
 const ConfigureCloudDirectoryDialogLayout: React.FC<
   ConfigureCloudDirectoryDialogLayoutProps
-> = ({ open, onCancel, onConfirm, children }) => (
+> = ({ directory, open, onCancel, onConfirm, children }) => (
   <Dialog open={open} onClose={onCancel} maxWidth="md" fullWidth>
     <DialogTitle>Configure the Cloud Directory</DialogTitle>
     <DialogContent>{children}</DialogContent>
+    <DialogContent sx={{ minHeight: "fit-content", pb: "10px" }}>
+      <TextField
+        label="Selected"
+        variant="filled"
+        size="small"
+        value={directory}
+        fullWidth
+        slotProps={{ inputLabel: { shrink: directory !== null } }}
+      />
+    </DialogContent>
     <DialogActions>
       <Button onClick={onCancel}>Cancel</Button>
       <Button color="primary" variant="contained" onClick={onConfirm}>
-        Save
+        Select
       </Button>
     </DialogActions>
   </Dialog>

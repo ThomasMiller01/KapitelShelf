@@ -2,8 +2,10 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Globalization;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Data.Models.CloudStorage;
 
 namespace KapitelShelf.Api.Mappings;
@@ -27,5 +29,10 @@ public class CloudStorageMappingProfile : Profile
         CreateMap<CloudStorageModel, CloudStorageDTO>()
             .ReverseMap()
             .ForMember(dest => dest.RCloneConfig, opt => opt.Ignore());
+
+        CreateMap<RCloneListJsonDTO, CloudStorageDirectoryDTO>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+            .ForMember(dest => dest.ModifiedTime, opt => opt.MapFrom(src => DateTime.Parse(src.ModTime, CultureInfo.InvariantCulture)))
+        .ReverseMap();
     }
 }

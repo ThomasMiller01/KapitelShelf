@@ -14,70 +14,17 @@ namespace KapitelShelf.Api.Controllers.CloudStorages;
 /// Initializes a new instance of the <see cref="OneDriveController"/> class.
 /// </summary>
 /// <param name="logger">The logger.</param>
+/// <param name="baseLogic">The base logic.</param>
 /// <param name="logic">The tasks logic.</param>
 [ApiController]
 [Route("cloudstorage/onedrive")]
-public class OneDriveController(ILogger<OneDriveController> logger, OneDriveLogic logic) : ControllerBase
+public class OneDriveController(ILogger<OneDriveController> logger, CloudStoragesLogic baseLogic, OneDriveLogic logic) : ControllerBase
 {
     private readonly ILogger<OneDriveController> logger = logger;
 
+    private readonly CloudStoragesLogic baseLogic = baseLogic;
+
     private readonly OneDriveLogic logic = logic;
-
-    /// <summary>
-    /// List all cloud storages.
-    /// </summary>
-    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpGet]
-    public async Task<ActionResult<List<CloudStorageDTO>>> ListCloudStorages()
-    {
-        try
-        {
-            return Ok(await this.logic.ListCloudStorages());
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error getting list of 'OneDrive' cloudstorages.");
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
-
-    /// <summary>
-    /// Check if OneDrive cloud is configured.
-    /// </summary>
-    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpGet("isconfigured")]
-    public async Task<ActionResult<bool>> IsConfigured()
-    {
-        try
-        {
-            return Ok(await this.logic.IsConfigured());
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error getting configured status of 'OneDrive' cloud");
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
-
-    /// <summary>
-    /// Configure the OneDrive cloud.
-    /// </summary>
-    /// <param name="configureCloudDto">The configure cloud dto.</param>
-    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpPut("configure")]
-    public async Task<IActionResult> Configure(ConfigureCloudDTO configureCloudDto)
-    {
-        try
-        {
-            await this.logic.Configure(configureCloudDto);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error configuring 'OneDrive' cloud");
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
 
     /// <summary>
     /// Redirect to the OneDrive OAuth url.
@@ -89,7 +36,7 @@ public class OneDriveController(ILogger<OneDriveController> logger, OneDriveLogi
     {
         try
         {
-            var isConfigured = await this.logic.IsConfigured();
+            var isConfigured = await this.baseLogic.IsConfigured(CloudTypeDTO.OneDrive);
             if (!isConfigured)
             {
                 return StatusCode(403, "Cloud 'OneDrive' is not configured");
@@ -115,7 +62,7 @@ public class OneDriveController(ILogger<OneDriveController> logger, OneDriveLogi
     {
         try
         {
-            var isConfigured = await this.logic.IsConfigured();
+            var isConfigured = await this.baseLogic.IsConfigured(CloudTypeDTO.OneDrive);
             if (!isConfigured)
             {
                 return StatusCode(403, "Cloud 'OneDrive' is not configured");

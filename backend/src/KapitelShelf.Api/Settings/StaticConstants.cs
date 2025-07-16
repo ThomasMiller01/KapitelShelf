@@ -38,5 +38,20 @@ namespace KapitelShelf.Api.Settings
         /// The text for the exception, when amazon blocked us.
         /// </summary>
         public static readonly string CloudStorageRCloneFileName = "rclone.conf";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageRCloneConfigName = "kapitelshelf";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageDirectoryNotFoundExceptionKey = "CLOUDSTORAGE_DIRECTORY_NOT_FOUND";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageStorageNotFoundExceptionKey = "CLOUDSTORAGE_STORAGE_NOT_FOUND";
     }
 }

@@ -35,6 +35,8 @@ public static class ProcessUtils
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = workingDirectory ?? string.Empty,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
             },
         };
 

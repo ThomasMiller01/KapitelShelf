@@ -3,10 +3,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { Badge, Button, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import type { AxiosResponse, RawAxiosRequestConfig } from "axios";
 import { type ReactElement, useState } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
-import { onedriveApi } from "../../lib/api/KapitelShelf.Api";
+import { cloudstorageApi } from "../../lib/api/KapitelShelf.Api";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
@@ -15,24 +16,50 @@ import { ConfigureCloudDirectoryDialog } from "./ConfigureCloudDirectory/Configu
 
 interface CloudStorageCardProps {
   cloudstorage: CloudStorageDTO;
+  getOAuthUrl: (
+    redirectUrl?: string,
+    options?: RawAxiosRequestConfig
+  ) => Promise<AxiosResponse<string, any>>;
+  update: () => void;
 }
 
 export const CloudStorageCard = ({
   cloudstorage,
+  getOAuthUrl,
+  update,
 }: CloudStorageCardProps): ReactElement => {
   const { isMobile } = useMobile();
 
   const [openDirectoryDialog, setOpenDirectoryDialog] = useState(false);
 
   const { mutate: startOAuthFlow } = useMutation({
-    mutationKey: ["cloudstorage-onedrive-re-oauth-flow"],
+    mutationKey: ["cloudstorage-re-oauth-flow", cloudstorage.id],
     mutationFn: async () => {
-      const { data } = await onedriveApi.cloudstorageOnedriveOauthGet(
-        window.location.href
-      );
+      const { data } = await getOAuthUrl(window.location.href);
       window.location.href = data;
     },
   });
+
+  const { mutate: configureDirectory } = useMutation({
+    mutationKey: ["cloudstorage-configure-directory", cloudstorage.id],
+    mutationFn: async (directory: string) => {
+      if (cloudstorage.id === undefined) {
+        return;
+      }
+
+      await cloudstorageApi.cloudstorageStoragesStorageIdConfigureDirectoryPut(
+        cloudstorage.id,
+        directory
+      );
+
+      update();
+    },
+  });
+
+  const onConfigureDirectory = (directory: string): void => {
+    configureDirectory(directory);
+    setOpenDirectoryDialog(false);
+  };
 
   return (
     <Grid
@@ -119,9 +146,10 @@ export const CloudStorageCard = ({
       </Grid>
 
       <ConfigureCloudDirectoryDialog
+        storageId={cloudstorage.id}
         open={openDirectoryDialog}
         onCancel={() => setOpenDirectoryDialog(false)}
-        onConfirm={() => setOpenDirectoryDialog(false)}
+        onConfirm={onConfigureDirectory}
         cloudType={cloudstorage.type}
       />
     </Grid>
@@ -164,7 +192,7 @@ const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
   }
 
   return (
-    <Stack direction="row" spacing={1}>
+    <Stack direction="row" spacing={1} alignItems="center">
       <Typography sx={{ opacity: needsReAuthentication ? 0.5 : 1 }}>
         {directory}
       </Typography>
@@ -172,8 +200,9 @@ const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
         tooltip="Change Directory"
         onClick={onConfigureDirectoryClick}
         disabled={needsReAuthentication}
+        size="small"
       >
-        <EditIcon />
+        <EditIcon fontSize="small" />
       </IconButtonWithTooltip>
     </Stack>
   );

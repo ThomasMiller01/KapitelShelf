@@ -10,7 +10,7 @@ import { IconButtonWithTooltip } from "../../components/base/IconButtonWithToolt
 import { CloudStorageIcon } from "../../components/cloudstorage/CloudStorageIcon";
 import { CloudStorageCard } from "../../components/cloudstorage/CloudStoragesCard";
 import { ConfigureCloudConfigurationDialog } from "../../components/cloudstorage/ConfigureCloudConfiguration/ConfigureCloudConfigurationDialog";
-import { onedriveApi } from "../../lib/api/KapitelShelf.Api";
+import { cloudstorageApi, onedriveApi } from "../../lib/api/KapitelShelf.Api";
 import type { ConfigureCloudDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CloudType } from "../../lib/api/KapitelShelf.Api/api";
 
@@ -25,15 +25,19 @@ export const OneDriveSettings = (): ReactElement => {
   } = useQuery({
     queryKey: ["cloudstorage-onedrive-isconfigured"],
     queryFn: async () => {
-      const { data } = await onedriveApi.cloudstorageOnedriveIsconfiguredGet();
+      const { data } = await cloudstorageApi.cloudstorageIsconfiguredGet(
+        CloudType.NUMBER_0
+      );
       return data;
     },
   });
 
-  const { data: cloudstorages } = useQuery({
+  const { data: cloudstorages, refetch: updateStorages } = useQuery({
     queryKey: ["cloudstorage-onedrive-list-cloudstorages"],
     queryFn: async () => {
-      const { data } = await onedriveApi.cloudstorageOnedriveGet();
+      const { data } = await cloudstorageApi.cloudstorageStoragesGet(
+        CloudType.NUMBER_0
+      );
       return data;
     },
   });
@@ -51,7 +55,10 @@ export const OneDriveSettings = (): ReactElement => {
   const { mutate: configure } = useMutation({
     mutationKey: ["cloudstorage-onedrive-configure"],
     mutationFn: async (configuration: ConfigureCloudDTO) => {
-      await onedriveApi.cloudstorageOnedriveConfigurePut(configuration);
+      await cloudstorageApi.cloudstorageConfigurePut(
+        CloudType.NUMBER_0,
+        configuration
+      );
       refetch();
     },
   });
@@ -110,7 +117,12 @@ export const OneDriveSettings = (): ReactElement => {
       </Button>
       <Stack spacing={1} mb="5px">
         {cloudstorages?.map((cloudstorage) => (
-          <CloudStorageCard key={cloudstorage.id} cloudstorage={cloudstorage} />
+          <CloudStorageCard
+            key={cloudstorage.id}
+            cloudstorage={cloudstorage}
+            getOAuthUrl={onedriveApi.cloudstorageOnedriveOauthGet}
+            update={() => updateStorages()}
+          />
         ))}
       </Stack>
       <ConfigureCloudConfigurationDialog

@@ -2,11 +2,11 @@ import { FinishedReasonNullable } from "../lib/api/KapitelShelf.Api/api";
 
 export const TaskCategoryColors: Record<string, string> = {
   Maintenance: "#A13B00",
-  Cloud: "#005662",
+  ["Cloud Storage"]: "#005662",
   default: "rgba(255, 255, 255, 0.16)",
 };
 
-const IsSpecialTaskCategoryColor = (category: string) =>
+const IsSpecialTaskCategoryColor = (category: string): boolean =>
   Object.keys(TaskCategoryColors).includes(category);
 
 export const GetTaskCategoryColor = (category: string | undefined): string =>

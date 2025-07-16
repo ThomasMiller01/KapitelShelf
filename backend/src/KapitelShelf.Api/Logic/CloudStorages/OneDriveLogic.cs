@@ -5,7 +5,6 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
@@ -17,69 +16,22 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The OneDrive cloud storage logic.
 /// </summary>
-public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings) : CloudStoragesBaseLogic(dbContextFactory, mapper, settings)
+public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, KapitelShelfSettings settings, CloudStoragesLogic baseLogic)
 {
-    /// <inheritdoc/>
-    public override async Task<bool> IsConfigured()
+    private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
+
+    private readonly KapitelShelfSettings settings = settings;
+
+    private readonly CloudStoragesLogic baseLogic = baseLogic;
+
+    /// <summary>
+    /// Get the url for the OAuth flow of OneDrive.
+    /// </summary>
+    /// <param name="redirectUrl">The url to redirect to after the OAuth flow finished.</param>
+    /// <returns>The OAuth url.</returns>
+    public async Task<string> GetOAuthUrl(string redirectUrl)
     {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.CloudConfiguration
-            .Where(x => x.Type == CloudType.OneDrive)
-            .AnyAsync();
-    }
-
-    /// <inheritdoc/>
-    public override async Task Configure(ConfigureCloudDTO configureCloudDto)
-    {
-        ArgumentNullException.ThrowIfNull(configureCloudDto);
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        if (await this.IsConfigured())
-        {
-            // update the current configuration
-            var configuration = await context.CloudConfiguration
-                .FirstOrDefaultAsync(x => x.Type == CloudType.OneDrive);
-
-            ArgumentNullException.ThrowIfNull(configuration);
-
-            configuration.OAuthClientId = configureCloudDto.OAuthClientId;
-        }
-        else
-        {
-            // create a new configuration
-            var configuration = new CloudConfigurationModel
-            {
-                Type = CloudType.OneDrive,
-                OAuthClientId = configureCloudDto.OAuthClientId,
-            };
-            context.CloudConfiguration.Add(configuration);
-        }
-
-        // invalidate all cloud storages and require re-authentication
-        await context.CloudStorages
-            .Where(x => x.Type == CloudType.OneDrive)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.NeedsReAuthentication, true));
-
-        await context.SaveChangesAsync();
-    }
-
-    /// <inheritdoc/>
-    public override async Task<CloudConfigurationDTO> GetConfiguration()
-    {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.CloudConfiguration
-                .Where(x => x.Type == CloudType.OneDrive)
-                .Select(x => this.mapper.Map<CloudConfigurationDTO>(x))
-                .FirstAsync();
-    }
-
-    /// <inheritdoc/>
-    public override async Task<string> GetOAuthUrl(string redirectUrl)
-    {
-        var configuration = await this.GetConfiguration();
+        var configuration = await this.baseLogic.GetConfiguration(CloudTypeDTO.OneDrive);
 
         var stateInfo = new OAuthStateInfoDTO
         {
@@ -101,10 +53,14 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         return "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" + queryString;
     }
 
-    /// <inheritdoc/>
-    public override async Task<OAuthTokensDTO> GetOAuthTokensFromCode(string code)
+    /// <summary>
+    /// Gets the OAuth token from the OAuth code.
+    /// </summary>
+    /// <param name="code">The OAuth code.</param>
+    /// <returns>The OAuth tokens.</returns>
+    public async Task<OAuthTokensDTO> GetOAuthTokensFromCode(string code)
     {
-        var configuration = await this.GetConfiguration();
+        var configuration = await this.baseLogic.GetConfiguration(CloudTypeDTO.OneDrive);
 
         using var httpClient = new HttpClient();
         var content = new FormUrlEncodedContent(
@@ -130,12 +86,16 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         };
     }
 
-    /// <inheritdoc/>
-    public override async Task GenerateRCloneConfig(OAuthTokensDTO tokens)
+    /// <summary>
+    /// Generate the rclone config.
+    /// </summary>
+    /// <param name="tokens">The OAuth tokens.</param>
+    /// <returns>A task.</returns>
+    public async Task GenerateRCloneConfig(OAuthTokensDTO tokens)
     {
         ArgumentNullException.ThrowIfNull(tokens);
 
-        var configuration = await this.GetConfiguration();
+        var configuration = await this.baseLogic.GetConfiguration(CloudTypeDTO.OneDrive);
         ArgumentNullException.ThrowIfNull(configuration);
 
         // build the token JSON
@@ -146,7 +106,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
 
         // build the rclone config content
         var sb = new StringBuilder();
-        sb.AppendLine("[MyOneDriveTest]");
+        sb.AppendLine(CultureInfo.CurrentCulture, $"[{StaticConstants.CloudStorageRCloneConfigName}]");
         sb.AppendLine("type = onedrive");
         sb.AppendLine(CultureInfo.CurrentCulture, $"client_id = {configuration.OAuthClientId}");
         sb.AppendLine(CultureInfo.CurrentCulture, $"token = {tokenJson}");
@@ -154,7 +114,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         sb.AppendLine("drive_type = personal");
 
         // ensure the directory exists
-        var cloudTypePath = this.GetDataPath(CloudTypeDTO.OneDrive);
+        var cloudTypePath = this.baseLogic.GetDataPath(CloudTypeDTO.OneDrive);
         var basePath = Path.Combine(cloudTypePath, email);
         Directory.CreateDirectory(basePath);
 
@@ -186,17 +146,6 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         cloudStorage.CloudOwnerName = name;
 
         await context.SaveChangesAsync();
-    }
-
-    /// <inheritdoc/>
-    public override async Task<List<CloudStorageDTO>> ListCloudStorages()
-    {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return context.CloudStorages
-            .Where(x => x.Type == CloudType.OneDrive)
-            .Select(x => this.mapper.Map<CloudStorageDTO>(x))
-            .ToList();
     }
 
     private static async Task<(string driveId, string email, string name)> GetDriveDetails(string accessToken)
