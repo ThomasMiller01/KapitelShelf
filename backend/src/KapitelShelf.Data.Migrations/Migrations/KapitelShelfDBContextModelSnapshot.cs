@@ -628,6 +628,62 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("KapitelShelf.Data.Models.CloudStorage.CloudConfigurationModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OAuthClientId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Type")
+                        .IsUnique();
+
+                    b.ToTable("CloudConfiguration");
+                });
+
+            modelBuilder.Entity("KapitelShelf.Data.Models.CloudStorage.CloudStorageModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CloudDirectory")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CloudOwnerEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CloudOwnerName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("NeedsReAuthentication")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RCloneConfig")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Type", "CloudOwnerEmail")
+                        .IsUnique();
+
+                    b.ToTable("CloudStorages");
+                });
+
             modelBuilder.Entity("KapitelShelf.Data.Models.FileInfoModel", b =>
                 {
                     b.Property<Guid>("Id")

@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.Tasks;
+using KapitelShelf.Api.Tasks.Maintenance;
 using Quartz;
 
 namespace KapitelShelf.Api;

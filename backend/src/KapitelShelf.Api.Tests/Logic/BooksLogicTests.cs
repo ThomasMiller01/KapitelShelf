@@ -12,6 +12,7 @@ using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -62,7 +63,7 @@ public class BooksLogicTests
     public async Task Cleanup() => await this.postgres.DisposeAsync();
 
     /// <summary>
-    /// Sets up a new in-memory database and fakes before each test.
+    /// Sets up the testee and fakes before each test.
     /// </summary>
     /// <returns>A task.</returns>
     [SetUp]

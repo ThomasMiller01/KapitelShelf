@@ -5,7 +5,7 @@
 using Quartz;
 using Quartz.Impl.Matchers;
 
-namespace KapitelShelf.Api.Tasks;
+namespace KapitelShelf.Api.Tasks.Maintenance;
 
 /// <summary>
 /// Remove finished jobs and restart error jobs.
@@ -17,7 +17,7 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
     /// <inheritdoc/>
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
-        var scheduler = await this.schedulerFactory.GetScheduler();
+        var scheduler = await schedulerFactory.GetScheduler();
 
         var jobsToCheck = new List<JobKey>();
 
@@ -63,7 +63,7 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
 
             // notify job progress
             var progress = (int)Math.Floor((double)i / groups.Count * 100);
-            this.DataStore.SetProgress(this.JobKey(context), progress);
+            DataStore.SetProgress(JobKey(context), progress);
         }
     }
 }

@@ -28,5 +28,30 @@ namespace KapitelShelf.Api.Settings
         /// The maximum number of search suggestions to return.
         /// </summary>
         public static readonly int MaxSearchSuggestions = 12;
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageConfigurationSubPath = "cloudstorage";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageRCloneFileName = "rclone.conf";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageRCloneConfigName = "kapitelshelf";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageDirectoryNotFoundExceptionKey = "CLOUDSTORAGE_DIRECTORY_NOT_FOUND";
+
+        /// <summary>
+        /// The text for the exception, when amazon blocked us.
+        /// </summary>
+        public static readonly string CloudStorageStorageNotFoundExceptionKey = "CLOUDSTORAGE_STORAGE_NOT_FOUND";
     }
 }

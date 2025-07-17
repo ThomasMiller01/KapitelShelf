@@ -1,0 +1,11 @@
+import { CloudTypeDTO } from "../lib/api/KapitelShelf.Api/api";
+
+export const CloudTypeToString = (type: CloudTypeDTO): string => {
+  switch (type) {
+    case CloudTypeDTO.NUMBER_0:
+      return "OneDrive";
+
+    default:
+      return "Unknown";
+  }
+};

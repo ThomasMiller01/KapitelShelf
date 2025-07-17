@@ -507,6 +507,256 @@
         }
       }
     },
+    "/cloudstorage/isconfigured": {
+      "get": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Check if OneDrive cloud is configured.",
+        "parameters": [
+          {
+            "name": "cloudType",
+            "in": "query",
+            "description": "The cloud type.",
+            "schema": {
+              "$ref": "#/components/schemas/CloudTypeDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudstorage/configure": {
+      "put": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Configure the OneDrive cloud.",
+        "parameters": [
+          {
+            "name": "cloudType",
+            "in": "query",
+            "description": "The cloud type.",
+            "schema": {
+              "$ref": "#/components/schemas/CloudTypeDTO"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The configure cloud dto.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureCloudDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureCloudDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureCloudDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/cloudstorage/storages": {
+      "get": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "List all cloud storages.",
+        "parameters": [
+          {
+            "name": "cloudType",
+            "in": "query",
+            "description": "The cloud type.",
+            "schema": {
+              "$ref": "#/components/schemas/CloudTypeDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudstorage/storages/{storageId}": {
+      "delete": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Delete a cloud storage.",
+        "parameters": [
+          {
+            "name": "storageId",
+            "in": "path",
+            "description": "The cloud storage id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/cloudstorage/storages/{storageId}/list/directories": {
+      "get": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "List all directories.",
+        "parameters": [
+          {
+            "name": "storageId",
+            "in": "path",
+            "description": "The cloud storage id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "description": "The start path of the directories to list.",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDirectoryDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDirectoryDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CloudStorageDirectoryDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudstorage/storages/{storageId}/configure/directory": {
+      "put": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Configure the cloud directory.",
+        "parameters": [
+          {
+            "name": "storageId",
+            "in": "path",
+            "description": "The cloud storage id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "directory",
+            "in": "query",
+            "description": "The cloud directory.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/metadata/{source}": {
       "get": {
         "tags": [
@@ -604,6 +854,77 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/cloudstorage/onedrive/oauth": {
+      "get": {
+        "tags": [
+          "OneDrive"
+        ],
+        "summary": "Redirect to the OneDrive OAuth url.",
+        "parameters": [
+          {
+            "name": "redirectUrl",
+            "in": "query",
+            "description": "The url to redirect to after the OAuth flow finished.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudstorage/onedrive/oauth/callback": {
+      "get": {
+        "tags": [
+          "OneDrive"
+        ],
+        "summary": "Callback for the OneDrive OAuth flow.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "The OAuth callback code.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "The OAuth callback state.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -1592,6 +1913,87 @@
         },
         "additionalProperties": false,
         "description": "The category dto."
+      },
+      "CloudStorageDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the author id.",
+            "format": "uuid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CloudTypeDTO"
+          },
+          "needsReAuthentication": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this storage needs re-authentication."
+          },
+          "cloudDirectory": {
+            "type": "string",
+            "description": "Gets or sets the cloud directory to mirror.",
+            "nullable": true
+          },
+          "cloudOwnerEmail": {
+            "type": "string",
+            "description": "Gets or sets the cloud owner email.",
+            "nullable": true
+          },
+          "cloudOwnerName": {
+            "type": "string",
+            "description": "Gets or sets the cloud owner name.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The cloud storage dto."
+      },
+      "CloudStorageDirectoryDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the directory id.",
+            "nullable": true
+          },
+          "path": {
+            "type": "string",
+            "description": "Gets or sets the path to the directory.",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Gets or sets the directory name.",
+            "nullable": true
+          },
+          "modifiedTime": {
+            "type": "string",
+            "description": "Gets or sets the last modified time.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The cloud storage directory dto."
+      },
+      "CloudTypeDTO": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "description": "The cloud type dto.",
+        "format": "int32"
+      },
+      "ConfigureCloudDTO": {
+        "type": "object",
+        "properties": {
+          "oAuthClientId": {
+            "type": "string",
+            "description": "Gets or sets the OAuth client id.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The configure cloud dto."
       },
       "CreateAuthorDTO": {
         "type": "object",

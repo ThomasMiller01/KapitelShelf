@@ -1,0 +1,157 @@
+﻿// <copyright file="CloudStorageController.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
+
+using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Settings;
+using Microsoft.AspNetCore.Mvc;
+
+namespace KapitelShelf.Api.Controllers.CloudStorages;
+
+/// <summary>
+/// Initializes a new instance of the <see cref="CloudStorageController"/> class.
+/// </summary>
+/// <param name="logger">The logger.</param>
+/// <param name="logic">The tasks logic.</param>
+[ApiController]
+[Route("cloudstorage")]
+public class CloudStorageController(ILogger<CloudStorageController> logger, CloudStoragesLogic logic) : ControllerBase
+{
+    private readonly ILogger<CloudStorageController> logger = logger;
+
+    private readonly CloudStoragesLogic logic = logic;
+
+    /// <summary>
+    /// Check if OneDrive cloud is configured.
+    /// </summary>
+    /// <param name="cloudType">The cloud type.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("isconfigured")]
+    public async Task<ActionResult<bool>> IsConfigured(CloudTypeDTO cloudType)
+    {
+        try
+        {
+            return Ok(await this.logic.IsConfigured(cloudType));
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting configured status of '{CloudType}' cloud", cloudType);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Configure the OneDrive cloud.
+    /// </summary>
+    /// <param name="cloudType">The cloud type.</param>
+    /// <param name="configureCloudDto">The configure cloud dto.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("configure")]
+    public async Task<IActionResult> Configure(CloudTypeDTO cloudType, ConfigureCloudDTO configureCloudDto)
+    {
+        try
+        {
+            await this.logic.Configure(cloudType, configureCloudDto);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error configuring '{CloudType}' cloud", cloudType);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// List all cloud storages.
+    /// </summary>
+    /// <param name="cloudType">The cloud type.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("storages")]
+    public async Task<ActionResult<List<CloudStorageDTO>>> ListCloudStorages(CloudTypeDTO cloudType)
+    {
+        try
+        {
+            return Ok(await this.logic.ListCloudStorages(cloudType));
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting list of '{CloudType}' cloudstorages.", cloudType);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Delete a cloud storage.
+    /// </summary>
+    /// <param name="storageId">The cloud storage id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete("storages/{storageId}")]
+    public async Task<IActionResult> DeleteCloudStorage(Guid storageId)
+    {
+        try
+        {
+            var storage = await this.logic.DeleteCloudStorage(storageId);
+            if (storage is null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting cloud storage with id '{StorageId}'.", storageId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// List all directories.
+    /// </summary>
+    /// <param name="storageId">The cloud storage id.</param>
+    /// <param name="path">The start path of the directories to list.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("storages/{storageId}/list/directories")]
+    public async Task<ActionResult<List<CloudStorageDirectoryDTO>>> ListCloudStorageDirectories(Guid storageId, string path = "")
+    {
+        try
+        {
+            return Ok(await this.logic.ListCloudStorageDirectories(storageId, path));
+        }
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.CloudStorageDirectoryNotFoundExceptionKey)
+        {
+            return Conflict(new { error = "The directory was not found." });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting list of directories from 'OneDrive' cloudstorages.");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Configure the cloud directory.
+    /// </summary>
+    /// <param name="storageId">The cloud storage id.</param>
+    /// <param name="directory">The cloud directory.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("storages/{storageId}/configure/directory")]
+    public async Task<IActionResult> ConfigureDirectory(Guid storageId, string directory)
+    {
+        try
+        {
+            await this.logic.ConfigureDirectory(storageId, directory);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.CloudStorageStorageNotFoundExceptionKey)
+        {
+            return NotFound(new { error = "The storage was not found." });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error configuring '{StorageId}' storage directory", storageId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+}
