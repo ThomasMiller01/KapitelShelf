@@ -82,6 +82,31 @@ public class CloudStorageController(ILogger<CloudStorageController> logger, Clou
     }
 
     /// <summary>
+    /// Delete a cloud storage.
+    /// </summary>
+    /// <param name="storageId">The cloud storage id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete("storages/{storageId}")]
+    public async Task<IActionResult> DeleteCloudStorage(Guid storageId)
+    {
+        try
+        {
+            var storage = await this.logic.DeleteCloudStorage(storageId);
+            if (storage is null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting cloud storage with id '{StorageId}'.", storageId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// List all directories.
     /// </summary>
     /// <param name="storageId">The cloud storage id.</param>

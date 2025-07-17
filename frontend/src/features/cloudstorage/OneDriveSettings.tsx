@@ -12,7 +12,7 @@ import { CloudStorageCard } from "../../components/cloudstorage/CloudStoragesCar
 import { ConfigureCloudConfigurationDialog } from "../../components/cloudstorage/ConfigureCloudConfiguration/ConfigureCloudConfigurationDialog";
 import { cloudstorageApi, onedriveApi } from "../../lib/api/KapitelShelf.Api";
 import type { ConfigureCloudDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { CloudType } from "../../lib/api/KapitelShelf.Api/api";
+import { CloudTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 export const OneDriveSettings = (): ReactElement => {
   const [configureDialogOpen, setConfigureDialogOpen] = useState(false);
@@ -26,7 +26,7 @@ export const OneDriveSettings = (): ReactElement => {
     queryKey: ["cloudstorage-onedrive-isconfigured"],
     queryFn: async () => {
       const { data } = await cloudstorageApi.cloudstorageIsconfiguredGet(
-        CloudType.NUMBER_0
+        CloudTypeDTO.NUMBER_0
       );
       return data;
     },
@@ -36,7 +36,7 @@ export const OneDriveSettings = (): ReactElement => {
     queryKey: ["cloudstorage-onedrive-list-cloudstorages"],
     queryFn: async () => {
       const { data } = await cloudstorageApi.cloudstorageStoragesGet(
-        CloudType.NUMBER_0
+        CloudTypeDTO.NUMBER_0
       );
       return data;
     },
@@ -56,7 +56,7 @@ export const OneDriveSettings = (): ReactElement => {
     mutationKey: ["cloudstorage-onedrive-configure"],
     mutationFn: async (configuration: ConfigureCloudDTO) => {
       await cloudstorageApi.cloudstorageConfigurePut(
-        CloudType.NUMBER_0,
+        CloudTypeDTO.NUMBER_0,
         configuration
       );
       refetch();
@@ -98,7 +98,7 @@ export const OneDriveSettings = (): ReactElement => {
             configure(configuration);
             setConfigureDialogOpen(false);
           }}
-          cloudType={CloudType.NUMBER_0}
+          cloudType={CloudTypeDTO.NUMBER_0}
         />
       </OneDriveSettingsLayout>
     );
@@ -132,7 +132,7 @@ export const OneDriveSettings = (): ReactElement => {
           configure(configuration);
           setConfigureDialogOpen(false);
         }}
-        cloudType={CloudType.NUMBER_0}
+        cloudType={CloudTypeDTO.NUMBER_0}
       />
     </OneDriveSettingsLayout>
   );
@@ -150,7 +150,7 @@ const OneDriveSettingsLayout: React.FC<OneDriveSettingsLayoutProps> = ({
   <Paper sx={{ my: 2, py: 1.2, px: 2 }}>
     <Stack direction="row" spacing={1} alignItems="center">
       <CloudStorageIcon
-        type={CloudType.NUMBER_0}
+        type={CloudTypeDTO.NUMBER_0}
         sx={{ mr: "5px !important" }}
       />
       <Typography variant="h6">OneDrive</Typography>

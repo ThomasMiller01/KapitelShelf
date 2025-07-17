@@ -8,6 +8,7 @@ using System.Text.Json;
 using KapitelShelf.Api;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Data;
@@ -79,12 +80,14 @@ builder.Services.AddAutoMapper(typeof(Program));
 // logic
 builder.Services.AddSingleton<IBooksLogic, BooksLogic>();
 builder.Services.AddSingleton<SeriesLogic>();
-builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<IBookParserManager, BookParserManager>();
 builder.Services.AddSingleton<MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
 builder.Services.AddSingleton<UsersLogic>();
 builder.Services.AddSingleton<TasksLogic>();
+
+builder.Services.AddSingleton<IBookStorage, BookStorage>();
+builder.Services.AddSingleton<CloudStorage>();
 
 builder.Services.AddSingleton<CloudStoragesLogic>();
 builder.Services.AddSingleton<OneDriveLogic>();

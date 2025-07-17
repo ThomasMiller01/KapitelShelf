@@ -7,6 +7,7 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Api.Extensions;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
@@ -17,13 +18,15 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The cloud storages base logic.
 /// </summary>
-public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings)
+public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, CloudStorage fileStorage)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
 
     private readonly KapitelShelfSettings settings = settings;
+
+    private readonly CloudStorage fileStorage = fileStorage;
 
     /// <summary>
     /// Check if the cloud is configured.
@@ -175,18 +178,26 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
     }
 
     /// <summary>
-    /// Get the data path for a storage.
+    /// Delete a cloud storage.
     /// </summary>
-    /// <param name="cloudTypeDto">The cloud type dto.</param>
-    /// <returns>The data path.</returns>
-    public string GetDataPath(CloudTypeDTO cloudTypeDto)
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>The cloud storages.</returns>
+    public async Task<CloudStorageDTO?> DeleteCloudStorage(Guid storageId)
     {
-        var cloudTypeSubPath = cloudTypeDto switch
-        {
-            CloudTypeDTO.OneDrive => "onedrive",
-            _ => "unknown_type",
-        };
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        return Path.Combine(this.settings.DataDir, StaticConstants.CloudStorageConfigurationSubPath, cloudTypeSubPath);
+        var storage = await context.CloudStorages.FindAsync(storageId);
+        if (storage is null)
+        {
+            return null;
+        }
+
+        // delete storage location
+        this.fileStorage.DeleteDirectory(this.mapper.Map<CloudStorageDTO>(storage));
+
+        context.CloudStorages.Remove(storage);
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<CloudStorageDTO>(storage);
     }
 }

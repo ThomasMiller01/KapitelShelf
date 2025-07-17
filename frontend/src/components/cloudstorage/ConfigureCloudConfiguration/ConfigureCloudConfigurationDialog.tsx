@@ -8,7 +8,7 @@ import {
 import { type ReactElement, useState } from "react";
 
 import type { ConfigureCloudDTO } from "../../../lib/api/KapitelShelf.Api/api";
-import { CloudType } from "../../../lib/api/KapitelShelf.Api/api";
+import { CloudTypeDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import { CloudTypeToString } from "../../../utils/CloudStorageUtils";
 import { ConfigureOneDrive } from "./ConfigureOneDrive";
 
@@ -16,7 +16,7 @@ export interface ConfigureCloudConfigurationDialogProps {
   open: boolean;
   onCancel: () => void;
   onConfirm: (configuration: ConfigureCloudDTO) => void;
-  cloudType: CloudType;
+  cloudType: CloudTypeDTO;
 }
 
 export const ConfigureCloudConfigurationDialog: React.FC<
@@ -29,7 +29,7 @@ export const ConfigureCloudConfigurationDialog: React.FC<
   };
 
   switch (cloudType) {
-    case CloudType.NUMBER_0:
+    case CloudTypeDTO.NUMBER_0:
       return (
         <ConfigureCloudConfigurationDialogLayout
           cloudType={cloudType}

@@ -639,6 +639,31 @@
         }
       }
     },
+    "/cloudstorage/storages/{storageId}": {
+      "delete": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Delete a cloud storage.",
+        "parameters": [
+          {
+            "name": "storageId",
+            "in": "path",
+            "description": "The cloud storage id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/cloudstorage/storages/{storageId}/list/directories": {
       "get": {
         "tags": [
@@ -1898,7 +1923,7 @@
             "format": "uuid"
           },
           "type": {
-            "$ref": "#/components/schemas/CloudType"
+            "$ref": "#/components/schemas/CloudTypeDTO"
           },
           "needsReAuthentication": {
             "type": "boolean",
@@ -1949,13 +1974,6 @@
         },
         "additionalProperties": false,
         "description": "The cloud storage directory dto."
-      },
-      "CloudType": {
-        "enum": [
-          0
-        ],
-        "type": "integer",
-        "format": "int32"
       },
       "CloudTypeDTO": {
         "enum": [

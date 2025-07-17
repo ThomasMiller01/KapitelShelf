@@ -56,6 +56,21 @@ export const CloudStorageCard = ({
     },
   });
 
+  const { mutate: deleteStorage } = useMutation({
+    mutationKey: ["cloudstorage-delete", cloudstorage.id],
+    mutationFn: async () => {
+      if (cloudstorage.id === undefined) {
+        return;
+      }
+
+      await cloudstorageApi.cloudstorageStoragesStorageIdDelete(
+        cloudstorage.id
+      );
+
+      update();
+    },
+  });
+
   const onConfigureDirectory = (directory: string): void => {
     configureDirectory(directory);
     setOpenDirectoryDialog(false);
@@ -139,7 +154,10 @@ export const CloudStorageCard = ({
       {/* Operations */}
       <Grid>
         <Stack spacing={0.8} alignItems="start">
-          <IconButtonWithTooltip tooltip="Delete">
+          <IconButtonWithTooltip
+            tooltip="Delete"
+            onClick={() => deleteStorage()}
+          >
             <DeleteIcon />
           </IconButtonWithTooltip>
         </Stack>

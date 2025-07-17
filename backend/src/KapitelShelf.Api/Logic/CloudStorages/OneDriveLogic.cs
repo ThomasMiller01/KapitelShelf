@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
@@ -16,13 +17,15 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The OneDrive cloud storage logic.
 /// </summary>
-public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, KapitelShelfSettings settings, CloudStoragesLogic baseLogic)
+public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, KapitelShelfSettings settings, CloudStoragesLogic baseLogic, CloudStorage fileStorage)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly KapitelShelfSettings settings = settings;
 
     private readonly CloudStoragesLogic baseLogic = baseLogic;
+
+    private readonly CloudStorage fileStorage = fileStorage;
 
     /// <summary>
     /// Get the url for the OAuth flow of OneDrive.
@@ -114,7 +117,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         sb.AppendLine("drive_type = personal");
 
         // ensure the directory exists
-        var cloudTypePath = this.baseLogic.GetDataPath(CloudTypeDTO.OneDrive);
+        var cloudTypePath = this.fileStorage.FullPath(CloudTypeDTO.OneDrive, string.Empty);
         var basePath = Path.Combine(cloudTypePath, email);
         Directory.CreateDirectory(basePath);
 

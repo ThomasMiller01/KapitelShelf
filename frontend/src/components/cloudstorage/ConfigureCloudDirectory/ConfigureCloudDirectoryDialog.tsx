@@ -8,14 +8,14 @@ import {
 } from "@mui/material";
 import { type ReactElement, useState } from "react";
 
-import { CloudType } from "../../../lib/api/KapitelShelf.Api/api";
+import { CloudTypeDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import { ConfigureOneDrive } from "./ConfigureOneDrive";
 
 export interface ConfigureCloudDirectoryDialogProps {
   open: boolean;
   onCancel: () => void;
   onConfirm: (directory: string) => void;
-  cloudType: CloudType | undefined;
+  cloudType: CloudTypeDTO | undefined;
   storageId: string | undefined;
 }
 
@@ -38,7 +38,7 @@ export const ConfigureCloudDirectoryDialog: React.FC<
   };
 
   switch (cloudType) {
-    case CloudType.NUMBER_0:
+    case CloudTypeDTO.NUMBER_0:
       return (
         <ConfigureCloudDirectoryDialogLayout
           directory={directory}

@@ -4,7 +4,7 @@
 
 using System.Text;
 using KapitelShelf.Api.DTOs.FileInfo;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
@@ -144,7 +144,7 @@ public class BookStorageTests
     public void Stream_ThrowsOnNullFileInfo()
     {
         // Assert
-        Assert.Throws<ArgumentNullException>(() => this.testee.Stream(null!));
+        Assert.Throws<ArgumentNullException>(() => this.testee.Stream((FileInfoDTO)null!));
     }
 
     /// <summary>
@@ -219,12 +219,15 @@ public class BookStorageTests
     /// Tests FullPath creates correct absolute path.
     /// </summary>
     [Test]
-    public void FullPath_CombinesDataDirAndRelPath()
+    public void FullPath_CombinesDataDirAndSubPath()
     {
-        // Use reflection to access private method
-        var method = typeof(BookStorage).GetMethod("FullPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
-        var relPath = "book/cover.jpg";
-        var result = (string)method.Invoke(this.testee, [relPath])!;
-        Assert.That(result, Is.EqualTo(Path.GetFullPath(Path.Combine(this.tempDataDir, relPath))));
+        // Setup
+        var subPath = "book/cover.jpg";
+
+        // Execute
+        var result = this.testee.FullPath(subPath);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(Path.GetFullPath(Path.Combine(this.tempDataDir, subPath))));
     }
 }

@@ -2,8 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Data.Models.CloudStorage;
-
 namespace KapitelShelf.Api.DTOs.CloudStorage;
 
 /// <summary>
@@ -19,7 +17,7 @@ public class CloudStorageDTO
     /// <summary>
     /// Gets or sets the cloud storage name.
     /// </summary>
-    public CloudType Type { get; set; }
+    public CloudTypeDTO Type { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this storage needs re-authentication.
