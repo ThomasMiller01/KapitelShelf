@@ -1,4 +1,4 @@
-﻿// <copyright file="BookStorageTests.cs" company="KapitelShelf">
+﻿// <copyright file="StorageBaseTests.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
@@ -6,22 +6,20 @@ using System.Text;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
-using Microsoft.AspNetCore.Http;
-using NSubstitute;
 
 #pragma warning disable IDE0022 // Use expression body for method
 
-namespace KapitelShelf.Api.Tests.Logic;
+namespace KapitelShelf.Api.Tests.Logic.Storage;
 
 /// <summary>
 /// Unit tests for the BookStorage class.
 /// </summary>
 [TestFixture]
-public class BookStorageTests
+public class StorageBaseTests
 {
     private string tempDataDir;
     private KapitelShelfSettings settings;
-    private BookStorage testee;
+    private StorageBase testee;
 
     /// <summary>
     /// Creates a new temp directory before each test.
@@ -31,8 +29,8 @@ public class BookStorageTests
     {
         this.tempDataDir = Path.Combine(Path.GetTempPath(), "KapitelShelfTest", Guid.NewGuid().ToString());
         Directory.CreateDirectory(this.tempDataDir);
-        this.settings = new KapitelShelfSettings { DataDir = this.tempDataDir };
-        this.testee = new BookStorage(this.settings);
+        settings = new KapitelShelfSettings { DataDir = this.tempDataDir };
+        testee = new StorageBase(settings);
     }
 
     /// <summary>
@@ -48,50 +46,64 @@ public class BookStorageTests
     }
 
     /// <summary>
-    /// Tests Save creates a file and returns FileInfoDTO.
+    /// Tests save writes a file correctly.
     /// </summary>
-    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    /// <returns>A task.</returns>
     [Test]
-    public async Task Save_CreatesFileAndReturnsFileInfoDTO()
+    public async Task Save_WritesFileCorrectly()
     {
         // Setup
-        var bookId = Guid.NewGuid();
-        var fileName = "test.txt";
-        var fileContent = "hello world";
-        var fileBytes = Encoding.UTF8.GetBytes(fileContent);
-
-        var formFile = Substitute.For<IFormFile>();
-        formFile.FileName.Returns(fileName);
-        formFile.Length.Returns(fileBytes.Length);
-        formFile.OpenReadStream().Returns(new MemoryStream(fileBytes));
-        formFile.CopyToAsync(Arg.Any<Stream>(), Arg.Any<CancellationToken>()).Returns(
-            call =>
-            {
-                var stream = call.ArgAt<Stream>(0);
-                return new MemoryStream(fileBytes).CopyToAsync(stream, cancellationToken: call.ArgAt<CancellationToken>(1));
-            });
+        var filePath = "file/test.txt";
+        var fileContent = "test content";
+        var file = new BookParserHelper.InMemoryFormFile(Encoding.ASCII.GetBytes(fileContent), "test.txt");
 
         // Execute
-        var result = await this.testee.Save(bookId, formFile);
+        var result = await testee.Save(filePath, file);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        var fullPath = Path.Combine(this.tempDataDir, filePath);
+        Assert.That(File.Exists(fullPath), Is.True);
+        var savedContent = await File.ReadAllTextAsync(fullPath);
         Assert.Multiple(() =>
         {
-            Assert.That(result.FilePath, Is.EqualTo(Path.Combine(bookId.ToString(), fileName)));
-            Assert.That(result.FileSizeBytes, Is.EqualTo(fileBytes.Length));
-            Assert.That(File.Exists(Path.Combine(this.tempDataDir, result.FilePath)), Is.True);
+            Assert.That(savedContent, Is.EqualTo(fileContent));
+            Assert.That(result.FilePath, Is.EqualTo(filePath));
+            Assert.That(result.FileSizeBytes, Is.EqualTo(file.Length));
+            Assert.That(result.MimeType, Is.Not.Null.Or.Empty);
+            Assert.That(result.Sha256, Is.Not.Null.Or.Empty);
         });
     }
 
     /// <summary>
-    /// Tests Save throws if file is null.
+    /// Tests save throws when file is null.
     /// </summary>
     [Test]
     public void Save_ThrowsOnNullFile()
     {
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        {
+            await testee.Save("somefile.txt", null!);
+        });
+    }
+
+    /// <summary>
+    /// Tests save creates directory if it is missing.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Save_CreatesDirectoryIfMissing()
+    {
+        // Setup
+        var filePath = Path.Combine("newfolder", "file.txt");
+        var fileContent = "new dir";
+        var file = new BookParserHelper.InMemoryFormFile(Encoding.ASCII.GetBytes(fileContent), "file.txt");
+
+        // Execute
+        await testee.Save(filePath, file);
+
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.testee.Save(Guid.NewGuid(), null!));
+        var dirPath = Path.Combine(this.tempDataDir, "newfolder");
+        Assert.That(Directory.Exists(dirPath), Is.True);
     }
 
     /// <summary>
@@ -113,7 +125,7 @@ public class BookStorageTests
         var fileInfo = new FileInfoDTO { FilePath = filePath };
 
         // Execute
-        using var stream = this.testee.Stream(fileInfo);
+        using var stream = testee.Stream(fileInfo);
 
         // Assert
         Assert.That(stream, Is.Not.Null);
@@ -131,7 +143,7 @@ public class BookStorageTests
         var fileInfo = new FileInfoDTO { FilePath = "does/not/exist.pdf" };
 
         // Execute
-        var result = this.testee.Stream(fileInfo);
+        var result = testee.Stream(fileInfo);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -144,7 +156,7 @@ public class BookStorageTests
     public void Stream_ThrowsOnNullFileInfo()
     {
         // Assert
-        Assert.Throws<ArgumentNullException>(() => this.testee.Stream((FileInfoDTO)null!));
+        Assert.Throws<ArgumentNullException>(() => testee.Stream((FileInfoDTO)null!));
     }
 
     /// <summary>
@@ -163,7 +175,7 @@ public class BookStorageTests
         Assert.That(File.Exists(fullPath), Is.True);
 
         // Execute
-        this.testee.DeleteFile(filePath);
+        testee.DeleteFile(filePath);
 
         // Assert
         Assert.That(File.Exists(fullPath), Is.False);
@@ -176,43 +188,37 @@ public class BookStorageTests
     public void DeleteFile_DoesNothingIfFileMissing()
     {
         // Execute (should not throw)
-        Assert.DoesNotThrow(() => this.testee.DeleteFile("not-here.pdf"));
+        Assert.DoesNotThrow(() => testee.DeleteFile("not-here.pdf"));
     }
 
     /// <summary>
-    /// Tests DeleteDirectory removes the directory and all files.
+    /// Tests DeleteDirectory removes directory recursively.
     /// </summary>
     [Test]
     public void DeleteDirectory_RemovesDirectoryRecursively()
     {
         // Setup
-        var bookId = Guid.NewGuid();
-        var dir = Path.Combine(this.tempDataDir, bookId.ToString());
+        var dir = Path.Combine(tempDataDir, "recursive");
+        var file = Path.Combine(dir, "deep.txt");
         Directory.CreateDirectory(dir);
-        File.WriteAllText(Path.Combine(dir, "a.txt"), "a");
-        File.WriteAllText(Path.Combine(dir, "b.txt"), "b");
-
-        // Precondition
+        File.WriteAllText(file, "data");
         Assert.That(Directory.Exists(dir), Is.True);
 
         // Execute
-        this.testee.DeleteDirectory(bookId);
+        testee.DeleteDirectory("recursive");
 
         // Assert
         Assert.That(Directory.Exists(dir), Is.False);
     }
 
     /// <summary>
-    /// Tests DeleteDirectory does nothing if directory doesn't exist.
+    /// Tests DeleteDirectory does nothing if the directory is missing.
     /// </summary>
     [Test]
     public void DeleteDirectory_DoesNothingIfDirectoryMissing()
     {
-        // Setup
-        var bookId = Guid.NewGuid();
-
-        // Execute (should not throw)
-        Assert.DoesNotThrow(() => this.testee.DeleteDirectory(bookId));
+        // Should not throw
+        Assert.DoesNotThrow(() => testee.DeleteDirectory("notfound"));
     }
 
     /// <summary>
@@ -222,10 +228,10 @@ public class BookStorageTests
     public void FullPath_CombinesDataDirAndSubPath()
     {
         // Setup
-        var subPath = "book/cover.jpg";
+        var subPath = "my/file.jpg";
 
         // Execute
-        var result = this.testee.FullPath(subPath);
+        var result = testee.FullPath(subPath);
 
         // Assert
         Assert.That(result, Is.EqualTo(Path.GetFullPath(Path.Combine(this.tempDataDir, subPath))));
