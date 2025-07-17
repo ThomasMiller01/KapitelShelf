@@ -55,6 +55,7 @@ After adding books, you can visit your personal library.
 - For questions, visit the [General](https://github.com/ThomasMiller01/KapitelShelf/discussions/categories/general) section of the discussions on GitHub.
 - For bugs, [open an issue](https://github.com/ThomasMiller01/KapitelShelf/issues) on GitHub.
 - Check the [References](./references.md) for advanced usage and more details.
+- Check the [FAQ](./faq.md) for frequently asked questions.
 
 ---
 
