@@ -63,7 +63,7 @@ public class BooksLogicTests
     public async Task Cleanup() => await this.postgres.DisposeAsync();
 
     /// <summary>
-    /// Sets up a new in-memory database and fakes before each test.
+    /// Sets up the testee and fakes before each test.
     /// </summary>
     /// <returns>A task.</returns>
     [SetUp]

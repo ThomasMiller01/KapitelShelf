@@ -18,7 +18,7 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The cloud storages base logic.
 /// </summary>
-public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, CloudStorage fileStorage)
+public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ICloudStorage fileStorage)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -26,7 +26,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
     private readonly KapitelShelfSettings settings = settings;
 
-    private readonly CloudStorage fileStorage = fileStorage;
+    private readonly ICloudStorage fileStorage = fileStorage;
 
     /// <summary>
     /// Check if the cloud is configured.

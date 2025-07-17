@@ -5,7 +5,9 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
@@ -17,15 +19,17 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The OneDrive cloud storage logic.
 /// </summary>
-public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, KapitelShelfSettings settings, CloudStoragesLogic baseLogic, CloudStorage fileStorage)
+public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, CloudStoragesLogic baseLogic, ICloudStorage fileStorage)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
+
+    private readonly IMapper mapper = mapper;
 
     private readonly KapitelShelfSettings settings = settings;
 
     private readonly CloudStoragesLogic baseLogic = baseLogic;
 
-    private readonly CloudStorage fileStorage = fileStorage;
+    private readonly ICloudStorage fileStorage = fileStorage;
 
     /// <summary>
     /// Get the url for the OAuth flow of OneDrive.
@@ -116,15 +120,6 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         sb.AppendLine(CultureInfo.CurrentCulture, $"drive_id = {driveId}");
         sb.AppendLine("drive_type = personal");
 
-        // ensure the directory exists
-        var cloudTypePath = this.fileStorage.FullPath(CloudTypeDTO.OneDrive, string.Empty);
-        var basePath = Path.Combine(cloudTypePath, email);
-        Directory.CreateDirectory(basePath);
-
-        // overwrite the file with the new config
-        var rclonePath = Path.Combine(basePath, StaticConstants.CloudStorageRCloneFileName);
-        File.WriteAllText(rclonePath, sb.ToString());
-
         // add new cloud storage
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -143,10 +138,16 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         }
 
         // update information
-        cloudStorage.RCloneConfig = rclonePath;
         cloudStorage.NeedsReAuthentication = false;
         cloudStorage.CloudOwnerEmail = email;
         cloudStorage.CloudOwnerName = name;
+
+        var rclonePath = this.fileStorage.FullPath(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneConfigName);
+        cloudStorage.RCloneConfig = rclonePath;
+
+        // write rclone config file
+        var configFile = Encoding.UTF8.GetBytes(sb.ToString()).ToFile(StaticConstants.CloudStorageRCloneConfigName);
+        await this.fileStorage.Save(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneConfigName, configFile);
 
         await context.SaveChangesAsync();
     }

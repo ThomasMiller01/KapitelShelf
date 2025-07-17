@@ -3,7 +3,6 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
-using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.Settings;
 
 namespace KapitelShelf.Api.Logic.Storage;
@@ -12,26 +11,27 @@ namespace KapitelShelf.Api.Logic.Storage;
 /// Interface with the filesystem to retrieve and store cloud files.
 /// </summary>
 /// <param name="settings">The settings.</param>
-public class CloudStorage(KapitelShelfSettings settings) : StorageBase(settings)
+public class CloudStorage(KapitelShelfSettings settings) : StorageBase(settings), ICloudStorage
 {
-    /// <summary>
-    /// Save a file in the specific book directory.
-    /// </summary>
-    /// <param name="bookId">The id of the book directory.</param>
-    /// <param name="file">The file to save.</param>
-    /// <returns>A task.</returns>
-    public async Task<FileInfoDTO> Save(Guid bookId, IFormFile file)
+    /// <inheritdoc/>
+    public async Task Save(CloudStorageDTO storage, string fileName, IFormFile file)
     {
+        ArgumentNullException.ThrowIfNull(storage);
         ArgumentNullException.ThrowIfNull(file);
 
-        var filePath = Path.Combine(bookId.ToString(), file.FileName);
-        return await Save(filePath, file);
+        var fullFilePath = this.FullPath(storage, fileName);
+
+        var directory = Path.GetDirectoryName(fullFilePath);
+        if (directory is not null && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        await using var stream = new FileStream(fullFilePath, FileMode.Create);
+        await file.CopyToAsync(stream);
     }
 
-    /// <summary>
-    /// Delete the specific storage directory.
-    /// </summary>
-    /// <param name="storage">Delete all data for a storage.</param>
+    /// <inheritdoc/>
     public void DeleteDirectory(CloudStorageDTO storage)
     {
         ArgumentNullException.ThrowIfNull(storage);
@@ -42,12 +42,16 @@ public class CloudStorage(KapitelShelfSettings settings) : StorageBase(settings)
         this.DeleteDirectory(storageDataPath);
     }
 
-    /// <summary>
-    /// Get the full data path to a cloud directory.
-    /// </summary>
-    /// <param name="cloudType">The cloud storage.</param>
-    /// <param name="subPath">The subpath.</param>
-    /// <returns>The full path.</returns>
+    /// <inheritdoc/>
+    public string FullPath(CloudStorageDTO storage, string subPath)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+
+        var cloudSubPath = Path.Combine(storage.CloudOwnerEmail, subPath);
+        return this.FullPath(storage.Type, cloudSubPath);
+    }
+
+    /// <inheritdoc/>
     public string FullPath(CloudTypeDTO cloudType, string subPath)
     {
         var cloudTypeSubPath = CloudTypeToDirectory(cloudType);
