@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Grid,
   Link,
@@ -52,7 +53,7 @@ export const ConfigureOneDrive: React.FC<ConfigureOneDriveProps> = ({
           <Typography variant="h6" gutterBottom>
             How to get your Client ID for OneDrive
           </Typography>
-          <Stack spacing={2}>
+          <Stack spacing={2} mb={3}>
             <Step number={1}>
               <Typography variant="body2" color="text.secondary">
                 Go to{" "}
@@ -113,6 +114,18 @@ export const ConfigureOneDrive: React.FC<ConfigureOneDriveProps> = ({
               </Typography>
             </Step>
           </Stack>
+          <Alert severity="info">
+            Why do I need to create my own Microsoft Azure Application?
+            <br />
+            <Link
+              href="https://github.com/ThomasMiller01/KapitelShelf/blob/main/docs/faq.md#why-do-i-need-to-create-my-own-microsoft-azure-application-when-using-onedrive"
+              target="_blank"
+              rel="noreferrer"
+              sx={{ cursor: "pointer" }}
+            >
+              See FAQ
+            </Link>
+          </Alert>
         </Paper>
       </Grid>
     </Grid>
@@ -125,7 +138,7 @@ type StepProps = {
 };
 
 const Step: React.FC<StepProps> = ({ number, children }) => (
-  <Box>
+  <Box sx={{ wordBreak: "break-word" }}>
     <Typography variant="subtitle1" fontWeight={600}>
       Step {number}
     </Typography>
