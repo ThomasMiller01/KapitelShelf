@@ -31,10 +31,22 @@ RUN dotnet restore "./KapitelShelf.Api.csproj" && \
 # production stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
 
+# versions
+ARG RCLONE_VERSION=v1.65.2
+
 WORKDIR /app
 
-# install curl for docker-compose healthchecks
-RUN apt-get update && apt-get install -y curl
+# install utilities
+RUN apt-get update && apt-get install -y curl unzip
+
+# install rclone for cloud storage
+RUN curl -O https://downloads.rclone.org/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip && \
+    unzip rclone-${RCLONE_VERSION}-linux-amd64.zip && \
+    cd rclone-${RCLONE_VERSION}-linux-amd64 && \
+    cp rclone /usr/bin/rclone && \
+    chown root:root /usr/bin/rclone && \
+    chmod 755 /usr/bin/rclone && \
+    cd .. && rm -rf rclone-${RCLONE_VERSION}-linux-amd64*
 
 COPY --from=build-api /app/publish ./api
 COPY --from=build-migrations /app/publish ./migrations
