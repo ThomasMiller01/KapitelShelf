@@ -21,6 +21,18 @@ public class TaskRuntimeDataStore
     public void SetProgress(string jobKey, int percentage) => this.progress[jobKey] = percentage;
 
     /// <summary>
+    /// Set the progress for a task.
+    /// </summary>
+    /// <param name="jobKey">The job key of the task.</param>
+    /// <param name="current">The index of the currently finished item.</param>
+    /// <param name="total">The total number of items.</param>
+    public void SetProgress(string jobKey, int current, int total)
+    {
+        var percentage = (int)Math.Floor((double)current / total * 100);
+        SetProgress(jobKey, percentage);
+    }
+
+    /// <summary>
     /// Get the progress for a task.
     /// </summary>
     /// <param name="jobKey">The job key of the task.</param>

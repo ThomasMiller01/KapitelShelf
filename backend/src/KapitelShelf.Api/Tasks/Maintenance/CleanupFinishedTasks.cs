@@ -62,8 +62,7 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
             }
 
             // notify job progress
-            var progress = (int)Math.Floor((double)i / groups.Count * 100);
-            DataStore.SetProgress(JobKey(context), progress);
+            this.DataStore.SetProgress(JobKey(context), i, groups.Count);
         }
     }
 }

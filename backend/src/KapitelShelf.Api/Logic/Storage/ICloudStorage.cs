@@ -32,7 +32,7 @@ public interface ICloudStorage : IStorageBase
     /// <param name="storage">The cloud storage.</param>
     /// <param name="subPath">The subpath.</param>
     /// <returns>The full path.</returns>
-    string FullPath(CloudStorageDTO storage, string subPath);
+    string FullPath(CloudStorageDTO storage, string subPath = "");
 
     /// <summary>
     /// Get the full data path to a cloud directory.

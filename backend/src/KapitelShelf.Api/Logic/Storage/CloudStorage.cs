@@ -43,7 +43,7 @@ public class CloudStorage(KapitelShelfSettings settings) : StorageBase(settings)
     }
 
     /// <inheritdoc/>
-    public string FullPath(CloudStorageDTO storage, string subPath)
+    public string FullPath(CloudStorageDTO storage, string subPath = "")
     {
         ArgumentNullException.ThrowIfNull(storage);
 

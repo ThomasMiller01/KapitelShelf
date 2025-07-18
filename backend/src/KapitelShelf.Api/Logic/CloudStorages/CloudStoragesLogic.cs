@@ -7,18 +7,19 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Api.Extensions;
-using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 
 namespace KapitelShelf.Api.Logic.CloudStorages;
 
 /// <summary>
 /// The cloud storages base logic.
 /// </summary>
-public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ICloudStorage fileStorage)
+public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ISchedulerFactory schedulerFactory)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -26,7 +27,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
     private readonly KapitelShelfSettings settings = settings;
 
-    private readonly ICloudStorage fileStorage = fileStorage;
+    private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
     /// <summary>
     /// Check if the cloud is configured.
@@ -107,6 +108,21 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         storage.CloudDirectory = directory;
         await context.SaveChangesAsync();
+
+        // start initial download of the cloud directory
+        var scheduler = await this.schedulerFactory.GetScheduler();
+
+        var job = JobBuilder.Create<InitialStorageDownload>()
+            .WithIdentity($"Downloading '{directory}' from {storage.Type}", "CloudStorage")
+            .RequestRecovery() // re-execute after possible hard-shutdown
+            .Build();
+
+        var trigger = TriggerBuilder.Create()
+            .WithIdentity($"Downloading '{directory}' from {storage.Type}", "CloudStorage")
+            .StartNow()
+            .Build();
+
+        await scheduler.ScheduleJob(job, trigger);
     }
 
     /// <summary>
@@ -192,8 +208,16 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             return null;
         }
 
-        // delete storage location
-        this.fileStorage.DeleteDirectory(this.mapper.Map<CloudStorageDTO>(storage));
+        // delete storage data
+        var job = JobBuilder.Create<RemoveStorageData>()
+            .WithIdentity($"Removing local '{storage.CloudOwnerName}' of {storage.Type}", "CloudStorage")
+            .RequestRecovery() // re-execute after possible hard-shutdown
+            .Build();
+
+        var trigger = TriggerBuilder.Create()
+            .WithIdentity($"Removing local '{storage.CloudOwnerName}' of {storage.Type}", "CloudStorage")
+            .StartNow()
+            .Build();
 
         context.CloudStorages.Remove(storage);
         await context.SaveChangesAsync();
