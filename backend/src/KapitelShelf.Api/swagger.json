@@ -640,6 +640,46 @@
       }
     },
     "/cloudstorage/storages/{storageId}": {
+      "get": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Get a cloud storage.",
+        "parameters": [
+          {
+            "name": "storageId",
+            "in": "path",
+            "description": "The cloud storage id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudStorageDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudStorageDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudStorageDTO"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "tags": [
           "CloudStorage"

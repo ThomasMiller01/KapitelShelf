@@ -107,6 +107,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         }
 
         storage.CloudDirectory = directory;
+        storage.IsDownloaded = false;
         await context.SaveChangesAsync();
 
         // start initial download of the cloud directory
@@ -141,6 +142,17 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         return await context.CloudStorages
                 .Where(x => x.Id == storageId)
                 .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Get the cloud storage.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>The storage dto.</returns>
+    public async Task<CloudStorageDTO?> GetStorage(Guid storageId)
+    {
+        var storageModel = await this.GetStorageModel(storageId);
+        return this.mapper.Map<CloudStorageDTO>(storageModel);
     }
 
     /// <summary>

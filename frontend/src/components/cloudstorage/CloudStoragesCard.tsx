@@ -1,6 +1,4 @@
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
-import DownloadingIcon from "@mui/icons-material/Downloading";
 import EditIcon from "@mui/icons-material/Edit";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import type { BadgeProps } from "@mui/material";
@@ -25,6 +23,7 @@ import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CloudTypeToString } from "../../utils/CloudStorageUtils";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
+import { CloudStorageDownloadStatus } from "./CloudStorageDownloadStatus";
 import { CloudStorageIcon } from "./CloudStorageIcon";
 import { ConfigureCloudDirectoryDialog } from "./ConfigureCloudDirectory/ConfigureCloudDirectoryDialog";
 
@@ -130,10 +129,7 @@ export const CloudStorageCard = ({
     >
       {/* Type */}
       <Grid>
-        <DownloadingBadgeComponent
-          isDownloaded={cloudstorage.isDownloaded}
-          isCloudDirectorySet={cloudstorage.cloudDirectory !== null}
-        >
+        <DownloadingBadgeComponent cloudstorage={cloudstorage}>
           <CloudStorageIcon
             type={cloudstorage.type}
             disabled={cloudstorage.needsReAuthentication}
@@ -268,49 +264,24 @@ const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
 };
 
 interface DownloadingBadgeComponentProps {
-  isDownloaded: boolean | undefined;
-  isCloudDirectorySet: boolean;
+  cloudstorage: CloudStorageDTO;
   children: ReactElement | ReactElement[];
 }
 
 const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
-  isDownloaded,
-  isCloudDirectorySet,
+  cloudstorage,
   children,
 }) => {
   const { isMobile } = useMobile();
 
   // download could not be started yet, first the cloud directory has to be set
-  if (!isCloudDirectorySet) {
+  if (cloudstorage.cloudDirectory === null) {
     return children;
-  }
-
-  let isDownloadedIcon = <></>;
-  if (isDownloaded) {
-    isDownloadedIcon = (
-      <Tooltip title="Downloaded">
-        <CheckCircleOutlineIcon
-          color="success"
-          fontSize="small"
-          sx={{ bgcolor: "background.paper", borderRadius: "15px" }}
-        />
-      </Tooltip>
-    );
-  } else {
-    isDownloadedIcon = (
-      <Tooltip title="Downloading ...">
-        <DownloadingIcon
-          color="info"
-          fontSize="small"
-          sx={{ bgcolor: "background.paper", borderRadius: "15px" }}
-        />
-      </Tooltip>
-    );
   }
 
   return (
     <DownloadingBadge
-      badgeContent={isDownloadedIcon}
+      badgeContent={<CloudStorageDownloadStatus cloudstorage={cloudstorage} />}
       isMobile={isMobile}
       anchorOrigin={{
         vertical: "bottom",
