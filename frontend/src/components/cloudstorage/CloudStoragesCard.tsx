@@ -13,6 +13,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { shouldForwardProp } from "@mui/system";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosResponse, RawAxiosRequestConfig } from "axios";
 import { type ReactElement, useState } from "react";
@@ -27,9 +28,15 @@ import { Property } from "../base/Property";
 import { CloudStorageIcon } from "./CloudStorageIcon";
 import { ConfigureCloudDirectoryDialog } from "./ConfigureCloudDirectory/ConfigureCloudDirectoryDialog";
 
-const DownloadingBadge = styled(Badge)<BadgeProps>(() => ({
+interface DownloadingBadgeProps extends BadgeProps {
+  isMobile?: boolean;
+}
+
+const DownloadingBadge = styled(Badge, {
+  shouldForwardProp: (prop) => prop !== "isMobile" && shouldForwardProp(prop),
+})<DownloadingBadgeProps>(({ isMobile }) => ({
   "& .MuiBadge-badge": {
-    right: 15,
+    right: isMobile ? 5 : 15,
     top: 10,
     padding: "0 4px",
   },
@@ -271,6 +278,8 @@ const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
   isCloudDirectorySet,
   children,
 }) => {
+  const { isMobile } = useMobile();
+
   // download could not be started yet, first the cloud directory has to be set
   if (!isCloudDirectorySet) {
     return children;
@@ -302,6 +311,7 @@ const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
   return (
     <DownloadingBadge
       badgeContent={isDownloadedIcon}
+      isMobile={isMobile}
       anchorOrigin={{
         vertical: "bottom",
         horizontal: "right",
