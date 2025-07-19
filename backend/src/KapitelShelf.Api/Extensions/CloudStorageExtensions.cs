@@ -1,4 +1,4 @@
-﻿// <copyright file="CloudStorageModelExtensions.cs" company="KapitelShelf">
+﻿// <copyright file="CloudStorageExtensions.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
@@ -10,7 +10,7 @@ namespace KapitelShelf.Api.Extensions;
 /// <summary>
 /// The cloud storage model extensions.
 /// </summary>
-public static class CloudStorageModelExtensions
+public static class CloudStorageExtensions
 {
     /// <summary>
     /// Execute an rclone command with a storage.
@@ -18,17 +18,20 @@ public static class CloudStorageModelExtensions
     /// <param name="cloudStorage">The cloud storage.</param>
     /// <param name="rclonePath">The rclone executable.</param>
     /// <param name="arguments">The arguments.</param>
+    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onStderr">Called when stderr gets written to.</param>
+    /// <param name="stdoutSeperator">Custom stdout seperator.</param>
     /// <returns>The rclone output.</returns>
     /// <exception cref="InvalidOperationException">The rclone command returned an error.</exception>
-    public static async Task<string> ExecuteRCloneCommand(this CloudStorageModel cloudStorage, string rclonePath, List<string> arguments)
+    public static async Task<string> ExecuteRCloneCommand(this CloudStorageModel cloudStorage, string rclonePath, List<string> arguments, Action<string>? onStdout = null, Action<string>? onStderr = null, string? stdoutSeperator = null)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         ArgumentNullException.ThrowIfNull(cloudStorage);
 
         arguments.Add("--config");
-        arguments.Add(cloudStorage.RCloneConfig);
+        arguments.Add($"\"{cloudStorage.RCloneConfig}\"");
 
-        var (exitCode, stdout, stderr) = await ProcessUtils.RunProcessAsync(rclonePath, string.Join(" ", arguments));
+        var (exitCode, stdout, stderr) = await ProcessUtils.RunProcessAsync(rclonePath, string.Join(" ", arguments), onStdout: onStdout, onStderr: onStderr, stdoutSeperator: stdoutSeperator);
         if (exitCode != 0)
         {
             throw new InvalidOperationException(stderr);

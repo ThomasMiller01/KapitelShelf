@@ -139,15 +139,16 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
 
         // update information
         cloudStorage.NeedsReAuthentication = false;
+        cloudStorage.IsDownloaded = false;
         cloudStorage.CloudOwnerEmail = email;
         cloudStorage.CloudOwnerName = name;
 
-        var rclonePath = this.fileStorage.FullPath(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneConfigName);
+        var rclonePath = this.fileStorage.FullPath(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneFileName);
         cloudStorage.RCloneConfig = rclonePath;
 
         // write rclone config file
-        var configFile = Encoding.UTF8.GetBytes(sb.ToString()).ToFile(StaticConstants.CloudStorageRCloneConfigName);
-        await this.fileStorage.Save(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneConfigName, configFile);
+        var configFile = Encoding.UTF8.GetBytes(sb.ToString()).ToFile(StaticConstants.CloudStorageRCloneFileName);
+        await this.fileStorage.Save(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneFileName, configFile);
 
         await context.SaveChangesAsync();
     }

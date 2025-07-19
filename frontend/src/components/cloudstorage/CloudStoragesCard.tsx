@@ -1,18 +1,39 @@
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadingIcon from "@mui/icons-material/Downloading";
 import EditIcon from "@mui/icons-material/Edit";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { Badge, Button, Grid, Stack, Tooltip, Typography } from "@mui/material";
+import type { BadgeProps } from "@mui/material";
+import {
+  Badge,
+  Button,
+  Grid,
+  Stack,
+  styled,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosResponse, RawAxiosRequestConfig } from "axios";
 import { type ReactElement, useState } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
+import { useNotification } from "../../hooks/useNotification";
 import { cloudstorageApi } from "../../lib/api/KapitelShelf.Api";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { CloudTypeToString } from "../../utils/CloudStorageUtils";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
 import { CloudStorageIcon } from "./CloudStorageIcon";
 import { ConfigureCloudDirectoryDialog } from "./ConfigureCloudDirectory/ConfigureCloudDirectoryDialog";
+
+const DownloadingBadge = styled(Badge)<BadgeProps>(() => ({
+  "& .MuiBadge-badge": {
+    right: 15,
+    top: 10,
+    padding: "0 4px",
+  },
+}));
 
 interface CloudStorageCardProps {
   cloudstorage: CloudStorageDTO;
@@ -29,6 +50,7 @@ export const CloudStorageCard = ({
   update,
 }: CloudStorageCardProps): ReactElement => {
   const { isMobile } = useMobile();
+  const { triggerNavigate } = useNotification();
 
   const [openDirectoryDialog, setOpenDirectoryDialog] = useState(false);
 
@@ -53,6 +75,12 @@ export const CloudStorageCard = ({
       );
 
       update();
+
+      triggerNavigate({
+        operation: `Downloading from ${CloudTypeToString(cloudstorage.type)}`,
+        itemName: directory,
+        url: "/settings/tasks",
+      });
     },
   });
 
@@ -95,11 +123,17 @@ export const CloudStorageCard = ({
     >
       {/* Type */}
       <Grid>
-        <CloudStorageIcon
-          type={cloudstorage.type}
-          disabled={cloudstorage.needsReAuthentication}
-          sx={{ mx: isMobile ? "5px" : "15px" }}
-        />
+        <DownloadingBadgeComponent
+          isDownloaded={cloudstorage.isDownloaded}
+          isCloudDirectorySet={cloudstorage.cloudDirectory !== null}
+        >
+          <CloudStorageIcon
+            type={cloudstorage.type}
+            disabled={cloudstorage.needsReAuthentication}
+            fontSize="large"
+            sx={{ mx: isMobile ? "5px" : "15px" }}
+          />
+        </DownloadingBadgeComponent>
       </Grid>
 
       {/* Re-Authenticate */}
@@ -223,5 +257,57 @@ const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
         <EditIcon fontSize="small" />
       </IconButtonWithTooltip>
     </Stack>
+  );
+};
+
+interface DownloadingBadgeComponentProps {
+  isDownloaded: boolean | undefined;
+  isCloudDirectorySet: boolean;
+  children: ReactElement | ReactElement[];
+}
+
+const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
+  isDownloaded,
+  isCloudDirectorySet,
+  children,
+}) => {
+  // download could not be started yet, first the cloud directory has to be set
+  if (!isCloudDirectorySet) {
+    return children;
+  }
+
+  let isDownloadedIcon = <></>;
+  if (isDownloaded) {
+    isDownloadedIcon = (
+      <Tooltip title="Downloaded">
+        <CheckCircleOutlineIcon
+          color="success"
+          fontSize="small"
+          sx={{ bgcolor: "background.paper", borderRadius: "15px" }}
+        />
+      </Tooltip>
+    );
+  } else {
+    isDownloadedIcon = (
+      <Tooltip title="Downloading ...">
+        <DownloadingIcon
+          color="info"
+          fontSize="small"
+          sx={{ bgcolor: "background.paper", borderRadius: "15px" }}
+        />
+      </Tooltip>
+    );
+  }
+
+  return (
+    <DownloadingBadge
+      badgeContent={isDownloadedIcon}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "right",
+      }}
+    >
+      {children}
+    </DownloadingBadge>
   );
 };

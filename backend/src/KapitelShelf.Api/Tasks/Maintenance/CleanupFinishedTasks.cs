@@ -65,4 +65,28 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
             this.DataStore.SetProgress(JobKey(context), i, groups.Count);
         }
     }
+
+    /// <summary>
+    /// Schedule this task.
+    /// </summary>
+    /// <param name="scheduler">The scheduler.</param>
+    /// <returns>The job key.</returns>
+    public static async Task<string> Schedule(IScheduler scheduler)
+    {
+        ArgumentNullException.ThrowIfNull(scheduler);
+
+        var job = JobBuilder.Create<CleanupFinishedTasks>()
+            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
+            .Build();
+
+        var trigger = TriggerBuilder.Create()
+            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
+            .StartNow()
+            .WithCronSchedule("0 */15 * ? * *")
+            .Build();
+
+        await scheduler.ScheduleJob(job, [trigger], replace: true);
+
+        return job.Key.ToString();
+    }
 }

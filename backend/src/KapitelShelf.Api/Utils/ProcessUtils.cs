@@ -18,11 +18,17 @@ public static class ProcessUtils
     /// <param name="process">The executable to run (e.g., "rclone", "bash", "cmd.exe").</param>
     /// <param name="arguments">Command-line arguments for the process.</param>
     /// <param name="workingDirectory">Optional working directory for the process.</param>
+    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onStderr">Called when stderr gets written to.</param>
+    /// <param name="stdoutSeperator">Use a custom stdout seperator.</param>
     /// <returns>Exit code, standard output, and standard error.</returns>
     public static async Task<(int ExitCode, string Stdout, string Stderr)> RunProcessAsync(
         string process,
         string arguments,
-        string? workingDirectory = null)
+        string? workingDirectory = null,
+        Action<string>? onStdout = null,
+        Action<string>? onStderr = null,
+        string? stdoutSeperator = null)
     {
         var processObj = new Process
         {
@@ -40,30 +46,76 @@ public static class ProcessUtils
             },
         };
 
+        processObj.Start();
+
         var stdout = new StringBuilder();
         var stderr = new StringBuilder();
 
-        processObj.OutputDataReceived += (s, e) =>
+        var stdoutTask = Task.Run(async () =>
         {
-            if (e.Data != null)
+            var sb = new StringBuilder();
+            var buffer = new char[1];
+            using var reader = processObj.StandardOutput;
+            while (true)
             {
-                stdout.AppendLine(e.Data);
-            }
-        };
+                int read = await reader.ReadAsync(buffer, 0, 1);
+                if (read == 0)
+                {
+                    break;
+                }
 
-        processObj.ErrorDataReceived += (s, e) =>
+                char ch = buffer[0];
+
+                var isLineEnding = ch is '\r' or '\n';
+                var isSeperator = stdoutSeperator is not null && sb.ToString().EndsWith(stdoutSeperator, StringComparison.InvariantCulture);
+
+                if (isLineEnding || isSeperator)
+                {
+                    if (sb.Length > 0)
+                    {
+                        stdout.AppendLine(sb.ToString());
+                        onStdout?.Invoke(sb.ToString());
+
+                        sb.Clear();
+                    }
+
+                    // Handle possible \r\n sequence: skip \n if it immediately follows \r
+                    if (ch == '\r')
+                    {
+                        // peek ahead to see if the next char is '\n'
+                        int next = reader.Peek();
+                        if (next == '\n')
+                        {
+                            await reader.ReadAsync(buffer, 0, 1); // consume the \n
+                        }
+                    }
+                }
+                else
+                {
+                    sb.Append(ch);
+                }
+            }
+
+            // Final flush if something left
+            if (sb.Length > 0)
+            {
+                stdout.AppendLine(sb.ToString());
+                onStdout?.Invoke(sb.ToString());
+            }
+        });
+
+        var stderrTask = Task.Run(async () =>
         {
-            if (e.Data != null)
+            using var reader = processObj.StandardError;
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                stderr.AppendLine(e.Data);
+                stderr.AppendLine(line);
+                onStderr?.Invoke(line);
             }
-        };
+        });
 
-        processObj.Start();
-        processObj.BeginOutputReadLine();
-        processObj.BeginErrorReadLine();
-
-        await processObj.WaitForExitAsync();
+        await Task.WhenAll(stdoutTask, stderrTask, processObj.WaitForExitAsync());
 
         return (processObj.ExitCode, stdout.ToString(), stderr.ToString());
     }

@@ -55,22 +55,6 @@ export default tseslint.config(
       "spaced-comment": ["warn", "always", { markers: ["/"] }],
       "no-nested-ternary": "warn",
       "prefer-destructuring": ["warn", { object: true, array: false }],
-      "no-magic-numbers": [
-        "warn",
-        {
-          ignore: [
-            0,
-            1,
-            -1,
-            2, // check for even/uneven
-            1000, // convert s to ms
-          ],
-          ignoreArrayIndexes: true,
-          ignoreDefaultValues: true,
-          ignoreClassFieldInitialValues: true,
-          enforceConst: true,
-        },
-      ],
 
       // typescript specific
       "@typescript-eslint/consistent-type-imports": "warn",

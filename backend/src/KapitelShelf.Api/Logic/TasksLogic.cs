@@ -64,14 +64,12 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, Task
                     var isRunning = executinJobKeys.Contains(jobKey);
                     var state = isRunning ? TaskState.Running : this.mapper.Map<TaskState>(triggerState);
 
-                    var progress = this.dataStore.GetProgress(jobKey.ToString());
-
                     tasks.Add(new TaskDTO
                     {
                         Name = jobKey.Name,
                         Category = category,
                         State = state,
-                        Progress = progress,
+                        Progress = this.dataStore.GetProgress(jobKey.ToString()),
                         FinishedReason = this.mapper.Map<FinishedReason?>(triggerState),
                         IsSingleExecution = isSingleExecution,
                         IsCronJob = isCronJob,
@@ -80,6 +78,28 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, Task
                         NextExecution = trigger.GetNextFireTimeUtc(),
                     });
                 }
+            }
+        }
+
+        // Add running jobs that no longer have job/trigger records (e.g., one-shot jobs)
+        foreach (var jobContext in executingJobs)
+        {
+            var jobKey = jobContext.JobDetail.Key;
+            if (!tasks.Any(t => t.Name == jobKey.Name && t.Category == jobKey.Group))
+            {
+                tasks.Add(new TaskDTO
+                {
+                    Name = jobKey.Name,
+                    Category = jobKey.Group,
+                    State = TaskState.Running,
+                    Progress = this.dataStore.GetProgress(jobKey.ToString()),
+                    FinishedReason = null,
+                    IsSingleExecution = true, // Best guess for deleted one-shot jobs
+                    IsCronJob = false,
+                    CronExpression = null,
+                    LastExecution = jobContext.FireTimeUtc,
+                    NextExecution = jobContext.NextFireTimeUtc,
+                });
             }
         }
 

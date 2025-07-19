@@ -207,6 +207,12 @@ export interface CloudStorageDTO {
      * @memberof CloudStorageDTO
      */
     'cloudOwnerName'?: string | null;
+    /**
+     * Gets or sets a value indicating whether the data for this storage is downloaded.
+     * @type {boolean}
+     * @memberof CloudStorageDTO
+     */
+    'isDownloaded'?: boolean;
 }
 
 

@@ -1943,6 +1943,10 @@
             "type": "string",
             "description": "Gets or sets the cloud owner name.",
             "nullable": true
+          },
+          "isDownloaded": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the data for this storage is downloaded."
           }
         },
         "additionalProperties": false,

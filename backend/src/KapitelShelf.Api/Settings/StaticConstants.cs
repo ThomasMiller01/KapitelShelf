@@ -30,27 +30,32 @@ namespace KapitelShelf.Api.Settings
         public static readonly int MaxSearchSuggestions = 12;
 
         /// <summary>
-        /// The text for the exception, when amazon blocked us.
+        /// The cloud storage configuration directory subpath.
         /// </summary>
         public static readonly string CloudStorageConfigurationSubPath = "cloudstorage";
 
         /// <summary>
-        /// The text for the exception, when amazon blocked us.
+        /// The cloud storage cloud data subpath.
+        /// </summary>
+        public static readonly string CloudStorageCloudDataSubPath = "clouddata";
+
+        /// <summary>
+        /// The cloud storage rclone filename.
         /// </summary>
         public static readonly string CloudStorageRCloneFileName = "rclone.conf";
 
         /// <summary>
-        /// The text for the exception, when amazon blocked us.
+        /// The name of the rclone config.
         /// </summary>
         public static readonly string CloudStorageRCloneConfigName = "kapitelshelf";
 
         /// <summary>
-        /// The text for the exception, when amazon blocked us.
+        /// The the cloud storage directory not found exception.
         /// </summary>
         public static readonly string CloudStorageDirectoryNotFoundExceptionKey = "CLOUDSTORAGE_DIRECTORY_NOT_FOUND";
 
         /// <summary>
-        /// The text for the exception, when amazon blocked us.
+        /// The cloud storage storage not found exception.
         /// </summary>
         public static readonly string CloudStorageStorageNotFoundExceptionKey = "CLOUDSTORAGE_STORAGE_NOT_FOUND";
     }

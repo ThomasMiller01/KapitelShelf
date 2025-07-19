@@ -111,18 +111,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         // start initial download of the cloud directory
         var scheduler = await this.schedulerFactory.GetScheduler();
-
-        var job = JobBuilder.Create<InitialStorageDownload>()
-            .WithIdentity($"Downloading '{directory}' from {storage.Type}", "CloudStorage")
-            .RequestRecovery() // re-execute after possible hard-shutdown
-            .Build();
-
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Downloading '{directory}' from {storage.Type}", "CloudStorage")
-            .StartNow()
-            .Build();
-
-        await scheduler.ScheduleJob(job, trigger);
+        await InitialStorageDownload.Schedule(scheduler, this.mapper.Map<CloudStorageDTO>(storage));
     }
 
     /// <summary>
@@ -138,6 +127,43 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
                 .Where(x => x.Type == this.mapper.Map<CloudType>(cloudType))
                 .Select(x => this.mapper.Map<CloudConfigurationDTO>(x))
                 .FirstAsync();
+    }
+
+    /// <summary>
+    /// Get the cloud storage.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>The storage dto.</returns>
+    public async Task<CloudStorageModel?> GetStorageModel(Guid storageId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.CloudStorages
+                .Where(x => x.Id == storageId)
+                .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Mark the storage as downloaded.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A task.</returns>
+    public async Task MarkStorageAsDownloaded(Guid storageId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var storage = await context.CloudStorages
+                .Where(x => x.Id == storageId)
+                .FirstOrDefaultAsync();
+
+        if (storage is null)
+        {
+            return;
+        }
+
+        storage.IsDownloaded = true;
+
+        await context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -208,16 +234,9 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             return null;
         }
 
-        // delete storage data
-        var job = JobBuilder.Create<RemoveStorageData>()
-            .WithIdentity($"Removing local '{storage.CloudOwnerName}' of {storage.Type}", "CloudStorage")
-            .RequestRecovery() // re-execute after possible hard-shutdown
-            .Build();
-
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Removing local '{storage.CloudOwnerName}' of {storage.Type}", "CloudStorage")
-            .StartNow()
-            .Build();
+        // delete cloud data
+        var scheduler = await this.schedulerFactory.GetScheduler();
+        await RemoveStorageData.Schedule(scheduler, this.mapper.Map<CloudStorageDTO>(storage));
 
         context.CloudStorages.Remove(storage);
         await context.SaveChangesAsync();
