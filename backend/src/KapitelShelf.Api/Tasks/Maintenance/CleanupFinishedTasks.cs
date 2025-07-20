@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Tasks;
 using Quartz;
 using Quartz.Impl.Matchers;
 
@@ -31,6 +32,8 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
         var i = 0;
         foreach (var jobKey in jobsToCheck)
         {
+            this.CheckForInterrupt(context);
+
             // increment counter for task progress
             i++;
 
@@ -66,12 +69,16 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
         }
     }
 
+    /// <inheritdoc/>
+    public override async Task Kill() => await Task.CompletedTask;
+
     /// <summary>
     /// Schedule this task.
     /// </summary>
     /// <param name="scheduler">The scheduler.</param>
+    /// <param name="options">The task schedule options.</param>
     /// <returns>The job key.</returns>
-    public static async Task<string> Schedule(IScheduler scheduler)
+    public static async Task<string> Schedule(IScheduler scheduler, TaskScheduleOptionsDTO? options = null)
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
@@ -85,7 +92,11 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
             .WithCronSchedule("0 */15 * ? * *")
             .Build();
 
+        await PreScheduleSteps(scheduler, job, options);
+
         await scheduler.ScheduleJob(job, [trigger], replace: true);
+
+        await PostScheduleSteps(scheduler, job, options);
 
         return job.Key.ToString();
     }

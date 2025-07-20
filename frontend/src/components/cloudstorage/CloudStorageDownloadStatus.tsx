@@ -3,7 +3,7 @@ import DownloadingIcon from "@mui/icons-material/Downloading";
 import type { SvgIconOwnProps } from "@mui/material";
 import { Tooltip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cloudstorageApi } from "../../lib/api/KapitelShelf.Api";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
@@ -18,6 +18,11 @@ export const CloudStorageDownloadStatus: React.FC<
   const [downloadStatus, setDownloadStatus] = useState(
     cloudstorage.isDownloaded
   );
+
+  // sync isDownloaded with parent, when the change directory button is clicked e.g.
+  useEffect(() => {
+    setDownloadStatus(cloudstorage.isDownloaded);
+  }, [cloudstorage.isDownloaded]);
 
   useQuery({
     queryKey: ["cloudstorage-update-download-status", cloudstorage.id],

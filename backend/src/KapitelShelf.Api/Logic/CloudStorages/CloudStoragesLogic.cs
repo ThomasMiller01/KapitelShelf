@@ -6,6 +6,7 @@ using System.Text.Json;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
+using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
@@ -112,7 +113,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         // start initial download of the cloud directory
         var scheduler = await this.schedulerFactory.GetScheduler();
-        await InitialStorageDownload.Schedule(scheduler, this.mapper.Map<CloudStorageDTO>(storage));
+        await InitialStorageDownload.Schedule(scheduler, this.mapper.Map<CloudStorageDTO>(storage), options: TaskScheduleOptionsDTO.RestartPreset);
     }
 
     /// <summary>

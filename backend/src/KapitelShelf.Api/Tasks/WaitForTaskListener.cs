@@ -15,8 +15,13 @@ public class WaitForTaskListener(string jobKey) : IJobListener
 
     private readonly TaskCompletionSource<bool> task = new();
 
+    /// <summary>
+    /// Gets the public name.
+    /// </summary>
+    public static string PublicName => "WaitForTaskListener";
+
     /// <inheritdoc/>
-    public string Name => "WaitForTaskListener";
+    public string Name => PublicName;
 
     /// <inheritdoc/>
     public Task JobToBeExecuted(IJobExecutionContext context, CancellationToken cancellationToken = default) => Task.CompletedTask;

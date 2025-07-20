@@ -2,9 +2,11 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
@@ -31,7 +33,9 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
 
     private readonly KapitelShelfSettings settings = settings;
 
-    private IJobExecutionContext? executionContext;
+    private IJobExecutionContext? executionContext = null;
+
+    private Process? rcloneProcess = null;
 
     /// <summary>
     /// Sets the storage id.
@@ -54,13 +58,78 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
         await this.CleanDirectory(storage);
         this.DataStore.SetProgress(JobKey(context), 20);
 
-        // download new data
         // set context for progress handler
         this.executionContext = context;
+
+        // download new data
         var localPath = this.fileStorage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
-        await storageModel.ExecuteRCloneCommand(this.settings.CloudStorage.RClone, ["copy", $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"", $"\"{localPath}\"", "--progress", "--stats=1s"], onStdout: this.DownloadProgressHandler, stdoutSeperator: "Transferred:");
+        if (!Directory.Exists(localPath))
+        {
+            Directory.CreateDirectory(localPath);
+        }
+
+        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
+        {
+            // use rclone bisync
+            await storageModel.ExecuteRCloneCommand(
+                this.settings.CloudStorage.RClone,
+                [
+                    "bisync",
+                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
+                    $"\"{localPath}\"",
+                    "--resync",
+                    "--progress",
+                    "--stats=1s",
+                    "--stats-one-line"
+                ],
+                onStdout: this.DownloadProgressHandler,
+                stdoutSeperator: "ETA",
+                onProcessStarted: p => this.rcloneProcess = p,
+                cancellationToken: context.CancellationToken);
+        }
+        else
+        {
+            // use rclone clone
+            await storageModel.ExecuteRCloneCommand(
+                this.settings.CloudStorage.RClone,
+                [
+                    "copy",
+                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
+                    $"\"{localPath}\"",
+                    "--progress",
+                    "--stats=1s",
+                    "--stats-one-line"
+                ],
+                onStdout: this.DownloadProgressHandler,
+                stdoutSeperator: "ETA",
+                onProcessStarted: p => this.rcloneProcess = p,
+                cancellationToken: context.CancellationToken);
+        }
 
         await this.logic.MarkStorageAsDownloaded(storage.Id);
+    }
+
+    /// <inheritdoc/>
+    public override async Task Kill()
+    {
+        if (this.rcloneProcess is null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (!this.rcloneProcess.HasExited)
+            {
+                this.rcloneProcess.Kill(entireProcessTree: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Could not kill rclone process");
+        }
+
+        await Task.CompletedTask;
     }
 
     /// <summary>
@@ -68,8 +137,9 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
     /// </summary>
     /// <param name="scheduler">The scheduler.</param>
     /// <param name="storage">The storage.</param>
+    /// <param name="options">The task schedule options.</param>
     /// <returns>The job key.</returns>
-    public static async Task<string> Schedule(IScheduler scheduler, CloudStorageDTO storage)
+    public static async Task<string> Schedule(IScheduler scheduler, CloudStorageDTO storage, TaskScheduleOptionsDTO? options = null)
     {
         ArgumentNullException.ThrowIfNull(scheduler);
         ArgumentNullException.ThrowIfNull(storage);
@@ -85,7 +155,11 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
             .StartNow()
             .Build();
 
+        await PreScheduleSteps(scheduler, job, options);
+
         await scheduler.ScheduleJob(job, trigger);
+
+        await PostScheduleSteps(scheduler, job, options);
 
         return job.Key.ToString();
     }
@@ -108,7 +182,7 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
 
         // schedule task for removing cloud data
         var scheduler = await this.schedulerFactory.GetScheduler();
-        await RemoveStorageData.Schedule(scheduler, storage, removeOnlyCloudData: true, waitForFinish: true);
+        await RemoveStorageData.Schedule(scheduler, storage, removeOnlyCloudData: true, options: TaskScheduleOptionsDTO.WaitPreset);
     }
 
     /// <summary>
@@ -120,7 +194,7 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
         ArgumentNullException.ThrowIfNull(this.executionContext);
 
         // filter for correct line
-        // e.g. "86.786 MiB / 1.187 GiB, 7%, 7.005 MiB/s, ETA 2m41s"
+        // e.g. "Transferred: 86.786 MiB / 1.187 GiB, 7%, 7.005 MiB/s, ETA 2m41s"
         if (!data.Contains("ETA"))
         {
             return;

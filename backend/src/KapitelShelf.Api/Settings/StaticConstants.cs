@@ -2,6 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.CloudStorage;
+
 namespace KapitelShelf.Api.Settings
 {
     /// <summary>
@@ -58,5 +60,12 @@ namespace KapitelShelf.Api.Settings
         /// The cloud storage storage not found exception.
         /// </summary>
         public static readonly string CloudStorageStorageNotFoundExceptionKey = "CLOUDSTORAGE_STORAGE_NOT_FOUND";
+
+        /// <summary>
+        /// List of cloud storage types that support rclone bisync.
+        /// </summary>
+        public static readonly List<CloudTypeDTO> StoragesSupportRCloneBisync = [
+            CloudTypeDTO.OneDrive
+        ];
     }
 }

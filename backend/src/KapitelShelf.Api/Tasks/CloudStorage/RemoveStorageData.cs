@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using Quartz;
@@ -47,6 +48,11 @@ public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
             Type = type,
         };
         var storagePath = this.fileStorage.FullPath(partialStorage, this.RemoveOnlyCloudData ? StaticConstants.CloudStorageCloudDataSubPath : string.Empty);
+        if (!Directory.Exists(storagePath))
+        {
+            // directory was already deleted
+            return;
+        }
 
         var files = Directory.EnumerateFiles(storagePath, "*", SearchOption.AllDirectories);
 
@@ -54,6 +60,8 @@ public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
         int i = 0;
         foreach (var file in files)
         {
+            this.CheckForInterrupt(context);
+
             // increment counter for task progress
             i++;
 
@@ -74,15 +82,18 @@ public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
         await Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
+    public override async Task Kill() => await Task.CompletedTask;
+
     /// <summary>
     /// Schedule this task.
     /// </summary>
     /// <param name="scheduler">The scheduler.</param>
     /// <param name="storage">The storage.</param>
     /// <param name="removeOnlyCloudData">Remove only the cloud data and leave config.</param>
-    /// <param name="waitForFinish">Wait for the task to finish.</param>
+    /// <param name="options">The task schedule options.</param>
     /// <returns>The job key.</returns>
-    public static async Task<string> Schedule(IScheduler scheduler, CloudStorageDTO storage, bool removeOnlyCloudData = false, bool waitForFinish = false)
+    public static async Task<string> Schedule(IScheduler scheduler, CloudStorageDTO storage, bool removeOnlyCloudData = false, TaskScheduleOptionsDTO? options = null)
     {
         ArgumentNullException.ThrowIfNull(scheduler);
         ArgumentNullException.ThrowIfNull(storage);
@@ -100,21 +111,11 @@ public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
             .StartNow()
             .Build();
 
-        // set the listener, if this method should wait for the task to finish
-        WaitForTaskListener? listener = null;
-        if (waitForFinish)
-        {
-            listener = new WaitForTaskListener(job.Key.ToString());
-            scheduler.ListenerManager.AddJobListener(listener);
-        }
+        await PreScheduleSteps(scheduler, job, options);
 
         await scheduler.ScheduleJob(job, trigger);
 
-        // wait for the task to finish, if the listener is set
-        if (listener is not null)
-        {
-            await listener.WaitAsync();
-        }
+        await PostScheduleSteps(scheduler, job, options);
 
         return job.Key.ToString();
     }
