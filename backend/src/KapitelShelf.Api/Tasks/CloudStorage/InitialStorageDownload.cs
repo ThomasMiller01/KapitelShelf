@@ -18,7 +18,6 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Initially download data from a cloud storage.
 /// </summary>
-[DisallowConcurrentExecution]
 public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, ISchedulerFactory schedulerFactory, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
 {
     private readonly ILogger<TaskBase> logger = logger;
@@ -78,12 +77,13 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
                     $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
                     $"\"{localPath}\"",
                     "--resync",
+                    "--max-lock=2m",
                     "--progress",
                     "--stats=1s",
                     "--stats-one-line"
                 ],
                 onStdout: this.DownloadProgressHandler,
-                stdoutSeperator: "ETA",
+                stdoutSeperator: "xfr", // rclone transfer number
                 onProcessStarted: p => this.rcloneProcess = p,
                 cancellationToken: context.CancellationToken);
         }
@@ -93,7 +93,7 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
             await storageModel.ExecuteRCloneCommand(
                 this.settings.CloudStorage.RClone,
                 [
-                    "copy",
+                    "sync",
                     $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
                     $"\"{localPath}\"",
                     "--progress",
@@ -101,7 +101,7 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
                     "--stats-one-line"
                 ],
                 onStdout: this.DownloadProgressHandler,
-                stdoutSeperator: "ETA",
+                stdoutSeperator: "xfr", // rclone transfer number
                 onProcessStarted: p => this.rcloneProcess = p,
                 cancellationToken: context.CancellationToken);
         }
@@ -145,13 +145,14 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
         ArgumentNullException.ThrowIfNull(storage);
 
         var job = JobBuilder.Create<InitialStorageDownload>()
-            .WithIdentity($"Downloading '{storage.CloudDirectory}' from {storage.Type}", "Cloud Storage")
+            .WithIdentity($"Downloading cloud data from {storage.Type}", "Cloud Storage")
+            .WithDescription($"Initial download for '{storage.CloudDirectory}'")
             .UsingJobData("StorageId", storage.Id)
             .RequestRecovery() // re-execute after possible hard-shutdown
             .Build();
 
         var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Downloading '{storage.CloudDirectory}' from {storage.Type}", "Cloud Storage")
+            .WithIdentity($"Downloading cloud data from {storage.Type}", "Cloud Storage")
             .StartNow()
             .Build();
 
@@ -194,12 +195,13 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
         ArgumentNullException.ThrowIfNull(this.executionContext);
 
         // filter for correct line
-        // e.g. "Transferred: 86.786 MiB / 1.187 GiB, 7%, 7.005 MiB/s, ETA 2m41s"
+        // e.g. "86.786 MiB / 1.187 GiB, 7%, 7.005 MiB/s, ETA 2m41s"
         if (!data.Contains("ETA"))
         {
             return;
         }
 
+        // extract progress
         var percentMatch = MatchProgressPercentage().Match(data);
         if (percentMatch.Success)
         {
@@ -211,8 +213,36 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
                 this.DataStore.SetProgress(JobKey(this.executionContext), progress);
             }
         }
+
+        // transfer speed
+        string? speed = null;
+        var speedMatch = MatchSpeed().Match(data);
+        if (speedMatch.Success)
+        {
+            speed = speedMatch.Groups[1].Value;
+        }
+
+        // estimated-time-of-arrival
+        string? eta = null;
+        var etaMatch = MatchETA().Match(data);
+        if (etaMatch.Success)
+        {
+            eta = etaMatch.Groups[1].Value;
+        }
+
+        if (speed is not null || eta is not null)
+        {
+            var message = $"{speed}, ETA {eta}";
+            this.DataStore.SetMessage(JobKey(executionContext), message);
+        }
     }
 
     [GeneratedRegex(@"(\d+)%")]
     private static partial Regex MatchProgressPercentage();
+
+    [GeneratedRegex(@"([\d.]+ [KMG]{0,1}i{0,1}B/s)")]
+    private static partial Regex MatchSpeed();
+
+    [GeneratedRegex(@"ETA ([\w\d:]+)")]
+    private static partial Regex MatchETA();
 }

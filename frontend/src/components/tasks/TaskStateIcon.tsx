@@ -33,7 +33,7 @@ export const TaskStateIcon: React.FC<TaskStateIconProps> = ({
                 to: { transform: "rotate(360deg)" },
               },
             }}
-          />{" "}
+          />
           <Tooltip title="Running">
             <AutorenewIcon
               {...props}

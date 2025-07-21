@@ -869,17 +869,35 @@ export interface TaskDTO {
      */
     'category'?: string | null;
     /**
+     * Gets or sets the description.
+     * @type {string}
+     * @memberof TaskDTO
+     */
+    'description'?: string | null;
+    /**
      * 
      * @type {TaskState}
      * @memberof TaskDTO
      */
     'state'?: TaskState;
     /**
-     * Gets or sets the job progress, if the job is current running.
+     * Gets or sets the job progress, if the task is current running.
      * @type {number}
      * @memberof TaskDTO
      */
     'progress'?: number | null;
+    /**
+     * Gets or sets the job message, if the task is current running.
+     * @type {string}
+     * @memberof TaskDTO
+     */
+    'message'?: string | null;
+    /**
+     * Gets or sets a value indicating, whether the cancelation of the task is requested.
+     * @type {boolean}
+     * @memberof TaskDTO
+     */
+    'isCancelationRequested'?: boolean | null;
     /**
      * 
      * @type {FinishedReasonNullable}

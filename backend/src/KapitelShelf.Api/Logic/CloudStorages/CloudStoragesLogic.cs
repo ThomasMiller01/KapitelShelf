@@ -113,7 +113,9 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         // start initial download of the cloud directory
         var scheduler = await this.schedulerFactory.GetScheduler();
-        await InitialStorageDownload.Schedule(scheduler, this.mapper.Map<CloudStorageDTO>(storage), options: TaskScheduleOptionsDTO.RestartPreset);
+
+        // fire and forget task to get early response to frontend
+        _ = InitialStorageDownload.Schedule(scheduler, mapper.Map<CloudStorageDTO>(storage), options: TaskScheduleOptionsDTO.RestartPreset);
     }
 
     /// <summary>
@@ -135,7 +137,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
     /// Get the cloud storage.
     /// </summary>
     /// <param name="storageId">The storage id.</param>
-    /// <returns>The storage dto.</returns>
+    /// <returns>The storage model.</returns>
     public async Task<CloudStorageModel?> GetStorageModel(Guid storageId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -143,6 +145,19 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         return await context.CloudStorages
                 .Where(x => x.Id == storageId)
                 .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Get all storages that are downloaded.
+    /// </summary>
+    /// <returns>The storage models.</returns>
+    public async Task<List<CloudStorageModel>> GetDownloadedStorageModels()
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.CloudStorages
+                .Where(x => x.IsDownloaded)
+                .ToListAsync();
     }
 
     /// <summary>

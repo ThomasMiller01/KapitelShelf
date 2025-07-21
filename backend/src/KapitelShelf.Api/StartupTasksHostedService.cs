@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Tasks.Maintenance;
 using Quartz;
 
@@ -20,6 +21,7 @@ public class StartupTasksHostedService(ISchedulerFactory schedulerFactory) : IHo
         var scheduler = await this.schedulerFactory.GetScheduler(cancellationToken);
 
         await CleanupFinishedTasks.Schedule(scheduler);
+        await SyncStorageData.Schedule(scheduler);
     }
 
     /// <inheritdoc/>

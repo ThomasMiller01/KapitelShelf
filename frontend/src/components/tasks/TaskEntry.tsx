@@ -1,4 +1,4 @@
-import { Chip, Grid, Stack, Typography } from "@mui/material";
+import { Chip, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import cronstrue from "cronstrue";
 
 import { useLiveTimeUntil } from "../../hooks/useLiveTimeUntil";
@@ -51,6 +51,11 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
           {task.name}
         </Typography>
 
+        {/* Description */}
+        <Typography variant="body2" color="text.secondary" lineHeight={1.2}>
+          {task.description}
+        </Typography>
+
         {/* Category */}
         {task.category && (
           <Chip
@@ -66,9 +71,20 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
 
       {/* Progress */}
       {task.state === TaskState.NUMBER_1 && (
-        <Grid size={{ xs: 6, lg: 2 }}>
+        <Grid size={{ xs: 6, lg: 1 }}>
           <Property label="Progress">
             <CircularProgressWithLabel progress={task.progress} />
+          </Property>
+        </Grid>
+      )}
+
+      {/* Message */}
+      {task.state === TaskState.NUMBER_1 && task.message !== null && (
+        <Grid size={{ xs: 6, lg: 2 }}>
+          <Property label="Message">
+            <Tooltip title={task.message}>
+              <Typography variant="subtitle1">{task.message}</Typography>
+            </Tooltip>
           </Property>
         </Grid>
       )}
@@ -83,13 +99,13 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
       )}
 
       {/* CronJob Execution Description */}
-      <Grid size={{ xs: task.state === TaskState.NUMBER_1 ? 6 : 12, lg: 2 }}>
-        {task.isCronJob && (
+      {task.isCronJob && (
+        <Grid size={{ xs: task.state === TaskState.NUMBER_1 ? 6 : 12, lg: 2 }}>
           <Property label="Execution" tooltip={task.cronExpression}>
             {cronstrue.toString(task.cronExpression ?? "")}
           </Property>
-        )}
-      </Grid>
+        </Grid>
+      )}
 
       {/* Next Execution */}
       <Grid size={{ xs: 6, lg: 2 }}>

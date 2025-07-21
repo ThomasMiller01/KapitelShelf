@@ -30,7 +30,7 @@ public abstract class TaskBase(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
 
             await this.ExecuteTask(context);
 
-            this.DataStore.ClearProgress(this.JobKey(context));
+            this.DataStore.ClearData(this.JobKey(context));
         }
         catch (JobExecutionException)
         {

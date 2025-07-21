@@ -13,7 +13,6 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Deletes all the local data of a cloud storage.
 /// </summary>
-[DisallowConcurrentExecution]
 public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStorage fileStorage = fileStorage;
@@ -99,7 +98,8 @@ public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
         ArgumentNullException.ThrowIfNull(storage);
 
         var job = JobBuilder.Create<RemoveStorageData>()
-            .WithIdentity($"Removing local '{storage.CloudOwnerName}' of {storage.Type}", "Cloud Storage")
+            .WithIdentity($"Removing local cloud data of {storage.Type}", "Cloud Storage")
+            .WithDescription($"Delete local data of '{storage.CloudOwnerName}'")
             .UsingJobData("StorageOwnerEmail", storage.CloudOwnerEmail)
             .UsingJobData("StorageType", storage.Type.ToString())
             .UsingJobData("RemoveOnlyCloudData", removeOnlyCloudData)

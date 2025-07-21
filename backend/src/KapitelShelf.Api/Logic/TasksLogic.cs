@@ -42,9 +42,6 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, Task
 
         // Get all currently executing jobs
         var executingJobs = await scheduler.GetCurrentlyExecutingJobs();
-        var executinJobKeys = executingJobs
-            .Select(ctx => ctx.JobDetail.Key)
-            .ToHashSet();
 
         var categories = await scheduler.GetJobGroupNames();
         foreach (var category in categories)
@@ -59,17 +56,31 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, Task
                     var triggerState = await scheduler.GetTriggerState(trigger.Key);
                     var isSingleExecution = trigger is ISimpleTrigger simple && simple.RepeatCount == 0;
                     var isCronJob = trigger is ICronTrigger;
+                    var state = this.mapper.Map<TaskState>(triggerState);
 
                     // Check if this job is currently running
-                    var isRunning = executinJobKeys.Contains(jobKey);
-                    var state = isRunning ? TaskState.Running : this.mapper.Map<TaskState>(triggerState);
+                    int? progress = null;
+                    string? message = null;
+                    bool? isCancelationRequested = null;
+
+                    var runningJobContext = executingJobs.FirstOrDefault(x => x.JobDetail.Key.Equals(jobKey));
+                    if (runningJobContext is not null)
+                    {
+                        state = TaskState.Running;
+                        progress = this.dataStore.GetProgress(jobKey.ToString());
+                        message = this.dataStore.GetMessage(jobKey.ToString());
+                        isCancelationRequested = runningJobContext.CancellationToken.IsCancellationRequested;
+                    }
 
                     tasks.Add(new TaskDTO
                     {
                         Name = jobKey.Name,
                         Category = category,
+                        Description = jobDetail?.Description,
                         State = state,
-                        Progress = this.dataStore.GetProgress(jobKey.ToString()),
+                        Progress = progress,
+                        Message = message,
+                        IsCancelationRequested = isCancelationRequested,
                         FinishedReason = this.mapper.Map<FinishedReason?>(triggerState),
                         IsSingleExecution = isSingleExecution,
                         IsCronJob = isCronJob,
@@ -91,8 +102,10 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, Task
                 {
                     Name = jobKey.Name,
                     Category = jobKey.Group,
+                    Description = jobContext.JobDetail.Description,
                     State = TaskState.Running,
                     Progress = this.dataStore.GetProgress(jobKey.ToString()),
+                    Message = this.dataStore.GetMessage(jobKey.ToString()),
                     FinishedReason = null,
                     IsSingleExecution = true, // Best guess for deleted one-shot jobs
                     IsCronJob = false,

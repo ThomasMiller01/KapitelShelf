@@ -84,6 +84,7 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
 
         var job = JobBuilder.Create<CleanupFinishedTasks>()
             .WithIdentity("Cleanup Finished Tasks", "Maintenance")
+            .WithDescription("Restart failed tasks and delete completed ones.")
             .Build();
 
         var trigger = TriggerBuilder.Create()

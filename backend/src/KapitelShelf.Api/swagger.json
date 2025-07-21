@@ -2555,13 +2555,28 @@
             "description": "Gets or sets the category.",
             "nullable": true
           },
+          "description": {
+            "type": "string",
+            "description": "Gets or sets the description.",
+            "nullable": true
+          },
           "state": {
             "$ref": "#/components/schemas/TaskState"
           },
           "progress": {
             "type": "integer",
-            "description": "Gets or sets the job progress, if the job is current running.",
+            "description": "Gets or sets the job progress, if the task is current running.",
             "format": "int32",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the job message, if the task is current running.",
+            "nullable": true
+          },
+          "isCancelationRequested": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating, whether the cancelation of the task is requested.",
             "nullable": true
           },
           "finishedReason": {
