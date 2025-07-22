@@ -5,12 +5,12 @@
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Logic.CloudStorages;
-using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using Quartz;
 using Testcontainers.PostgreSql;
 
 namespace KapitelShelf.Api.Tests.Logic.CloudStorages;
@@ -27,7 +27,7 @@ public class CloudStoragesLogicTests
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
     private IMapper mapper;
     private KapitelShelfSettings settings;
-    private ICloudStorage fileStorage;
+    private ISchedulerFactory schedulerFactory;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -85,8 +85,8 @@ public class CloudStoragesLogicTests
                 RClone = "rclone",
             },
         };
-        this.fileStorage = Substitute.For<ICloudStorage>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.fileStorage);
+        this.schedulerFactory = Substitute.For<ISchedulerFactory>();
+        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory);
     }
 
     /// <summary>
@@ -412,8 +412,6 @@ public class CloudStoragesLogicTests
         {
             Assert.That(context.CloudStorages.Find(id), Is.Null);
         }
-
-        this.fileStorage.Received().DeleteDirectory(Arg.Any<CloudStorageDTO>());
     }
 
     /// <summary>
@@ -429,4 +427,177 @@ public class CloudStoragesLogicTests
         // Assert
         Assert.That(result, Is.Null);
     }
+
+    /// <summary>
+    /// Tests GetStorageModel returns the correct storage by id.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetStorageModel_ReturnsCorrectStorage()
+    {
+        // Setup
+        var id = Guid.NewGuid();
+        var storage = new CloudStorageModel
+        {
+            Id = id,
+            RCloneConfig = "conf",
+            CloudOwnerName = "A".Unique(),
+            CloudOwnerEmail = "B".Unique(),
+        };
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storage);
+            context.SaveChanges();
+        }
+
+        // Execute
+        var result = await this.testee.GetStorageModel(id);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Id, Is.EqualTo(id));
+    }
+
+    /// <summary>
+    /// Tests GetStorageModel returns null for non-existing id.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetStorageModel_ReturnsNullIfNotFound()
+    {
+        // Execute
+        var result = await this.testee.GetStorageModel(Guid.NewGuid());
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests GetDownloadedStorageModels returns only downloaded storages.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetDownloadedStorageModels_ReturnsOnlyDownloaded()
+    {
+        // Setup
+        var downloaded = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            IsDownloaded = true,
+            CloudOwnerName = "X".Unique(),
+            CloudOwnerEmail = "Y".Unique(),
+            RCloneConfig = "rclone.conf",
+        };
+        var notDownloaded = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            IsDownloaded = false,
+            CloudOwnerName = "P".Unique(),
+            CloudOwnerEmail = "Q".Unique(),
+            RCloneConfig = "rclone.conf",
+        };
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(downloaded);
+            context.CloudStorages.Add(notDownloaded);
+            context.SaveChanges();
+        }
+
+        // Execute
+        var result = await this.testee.GetDownloadedStorageModels();
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo(downloaded.Id));
+    }
+
+    /// <summary>
+    /// Tests GetStorage returns mapped DTO if storage exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetStorage_ReturnsMappedDTOIfExists()
+    {
+        // Setup
+        var id = Guid.NewGuid();
+        var storage = new CloudStorageModel
+        {
+            Id = id,
+            RCloneConfig = "rclone.conf",
+            CloudOwnerName = "Map".Unique(),
+            CloudOwnerEmail = "Test".Unique(),
+        };
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storage);
+            context.SaveChanges();
+        }
+
+        // Execute
+        var dto = await this.testee.GetStorage(id);
+
+        // Assert
+        Assert.That(dto, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dto!.Id, Is.EqualTo(id));
+            Assert.That(dto.CloudOwnerName, Is.EqualTo(storage.CloudOwnerName));
+        }
+    }
+
+    /// <summary>
+    /// Tests GetStorage returns null if storage does not exist.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetStorage_ReturnsNullIfStorageNotFound()
+    {
+        // Execute
+        var dto = await this.testee.GetStorage(Guid.NewGuid());
+
+        // Assert
+        Assert.That(dto, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests MarkStorageAsDownloaded sets IsDownloaded to true.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task MarkStorageAsDownloaded_SetsDownloadedTrue()
+    {
+        // Setup
+        var id = Guid.NewGuid();
+        var storage = new CloudStorageModel
+        {
+            Id = id,
+            IsDownloaded = false,
+            RCloneConfig = "mark.conf",
+            CloudOwnerName = "Mark".Unique(),
+            CloudOwnerEmail = "Download".Unique(),
+        };
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storage);
+            context.SaveChanges();
+        }
+
+        // Execute
+        await this.testee.MarkStorageAsDownloaded(id);
+
+        // Assert
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var refreshed = context.CloudStorages.FirstOrDefault(x => x.Id == id);
+            Assert.That(refreshed, Is.Not.Null);
+            Assert.That(refreshed!.IsDownloaded, Is.True);
+        }
+    }
+
+    /// <summary>
+    /// Tests MarkStorageAsDownloaded does nothing if storage not found.
+    /// </summary>
+    [Test]
+    public void MarkStorageAsDownloaded_NoExceptionIfStorageNotFound() =>
+        Assert.DoesNotThrowAsync(async () => await this.testee.MarkStorageAsDownloaded(Guid.NewGuid()));
 }

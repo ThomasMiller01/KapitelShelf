@@ -53,6 +53,8 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
             // increment counter for task progress
             i++;
 
+            this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
+
             // download new data
             var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
             var localPath = this.fileStorage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
