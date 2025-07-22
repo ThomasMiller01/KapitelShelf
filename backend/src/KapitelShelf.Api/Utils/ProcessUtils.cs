@@ -18,11 +18,21 @@ public static class ProcessUtils
     /// <param name="process">The executable to run (e.g., "rclone", "bash", "cmd.exe").</param>
     /// <param name="arguments">Command-line arguments for the process.</param>
     /// <param name="workingDirectory">Optional working directory for the process.</param>
+    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onStderr">Called when stderr gets written to.</param>
+    /// <param name="stdoutSeperator">Use a custom stdout seperator.</param>
+    /// <param name="onProcessStarted">Called once the process is started.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Exit code, standard output, and standard error.</returns>
     public static async Task<(int ExitCode, string Stdout, string Stderr)> RunProcessAsync(
         string process,
         string arguments,
-        string? workingDirectory = null)
+        string? workingDirectory = null,
+        Action<string>? onStdout = null,
+        Action<string>? onStderr = null,
+        string? stdoutSeperator = null,
+        Action<Process>? onProcessStarted = null,
+        CancellationToken cancellationToken = default)
     {
         var processObj = new Process
         {
@@ -40,30 +50,81 @@ public static class ProcessUtils
             },
         };
 
+        processObj.Start();
+        onProcessStarted?.Invoke(processObj);
+
         var stdout = new StringBuilder();
         var stderr = new StringBuilder();
 
-        processObj.OutputDataReceived += (s, e) =>
-        {
-            if (e.Data != null)
+        var stdoutTask = Task.Run(
+            async () =>
             {
-                stdout.AppendLine(e.Data);
-            }
-        };
+                var sb = new StringBuilder();
+                var buffer = new char[1];
+                using var reader = processObj.StandardOutput;
+                while (true)
+                {
+                    int read = await reader.ReadAsync(buffer, 0, 1);
+                    if (read == 0)
+                    {
+                        break;
+                    }
 
-        processObj.ErrorDataReceived += (s, e) =>
-        {
-            if (e.Data != null)
+                    char ch = buffer[0];
+
+                    var isLineEnding = ch is '\r' or '\n';
+                    var isSeperator = stdoutSeperator is not null && sb.ToString().EndsWith(stdoutSeperator, StringComparison.InvariantCulture);
+
+                    if (isLineEnding || isSeperator)
+                    {
+                        if (sb.Length > 0)
+                        {
+                            stdout.AppendLine(sb.ToString());
+                            onStdout?.Invoke(sb.ToString());
+
+                            sb.Clear();
+                        }
+
+                        // Handle possible \r\n sequence: skip \n if it immediately follows \r
+                        if (ch == '\r')
+                        {
+                            // peek ahead to see if the next char is '\n'
+                            int next = reader.Peek();
+                            if (next == '\n')
+                            {
+                                await reader.ReadAsync(buffer, 0, 1); // consume the \n
+                            }
+                        }
+                    }
+                    else
+                    {
+                        sb.Append(ch);
+                    }
+                }
+
+                // Final flush if something left
+                if (sb.Length > 0)
+                {
+                    stdout.AppendLine(sb.ToString());
+                    onStdout?.Invoke(sb.ToString());
+                }
+            },
+            cancellationToken);
+
+        var stderrTask = Task.Run(
+            async () =>
             {
-                stderr.AppendLine(e.Data);
-            }
-        };
+                using var reader = processObj.StandardError;
+                string? line;
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    stderr.AppendLine(line);
+                    onStderr?.Invoke(line);
+                }
+            },
+            cancellationToken);
 
-        processObj.Start();
-        processObj.BeginOutputReadLine();
-        processObj.BeginErrorReadLine();
-
-        await processObj.WaitForExitAsync();
+        await Task.WhenAll(stdoutTask, stderrTask, processObj.WaitForExitAsync(cancellationToken));
 
         return (processObj.ExitCode, stdout.ToString(), stderr.ToString());
     }

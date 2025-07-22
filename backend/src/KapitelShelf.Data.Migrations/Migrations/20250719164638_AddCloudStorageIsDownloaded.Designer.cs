@@ -3,6 +3,7 @@ using System;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -12,9 +13,11 @@ using NpgsqlTypes;
 namespace KapitelShelf.Data.Migrations.Migrations
 {
     [DbContext(typeof(KapitelShelfDBContext))]
-    partial class KapitelShelfDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250719164638_AddCloudStorageIsDownloaded")]
+    partial class AddCloudStorageIsDownloaded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

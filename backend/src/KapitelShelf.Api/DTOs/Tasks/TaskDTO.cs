@@ -20,14 +20,29 @@ public class TaskDTO
     public string Category { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the description.
+    /// </summary>
+    public string? Description { get; set; } = null;
+
+    /// <summary>
     /// Gets or sets the state.
     /// </summary>
     public TaskState State { get; set; }
 
     /// <summary>
-    /// Gets or sets the job progress, if the job is current running.
+    /// Gets or sets the job progress, if the task is current running.
     /// </summary>
     public int? Progress { get; set; }
+
+    /// <summary>
+    /// Gets or sets the job message, if the task is current running.
+    /// </summary>
+    public string? Message { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating, whether the cancelation of the task is requested.
+    /// </summary>
+    public bool? IsCancelationRequested { get; set; }
 
     /// <summary>
     /// Gets or sets the finished reason, if the task is finished.

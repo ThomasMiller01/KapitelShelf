@@ -207,6 +207,12 @@ export interface CloudStorageDTO {
      * @memberof CloudStorageDTO
      */
     'cloudOwnerName'?: string | null;
+    /**
+     * Gets or sets a value indicating whether the data for this storage is downloaded.
+     * @type {boolean}
+     * @memberof CloudStorageDTO
+     */
+    'isDownloaded'?: boolean;
 }
 
 
@@ -863,17 +869,35 @@ export interface TaskDTO {
      */
     'category'?: string | null;
     /**
+     * Gets or sets the description.
+     * @type {string}
+     * @memberof TaskDTO
+     */
+    'description'?: string | null;
+    /**
      * 
      * @type {TaskState}
      * @memberof TaskDTO
      */
     'state'?: TaskState;
     /**
-     * Gets or sets the job progress, if the job is current running.
+     * Gets or sets the job progress, if the task is current running.
      * @type {number}
      * @memberof TaskDTO
      */
     'progress'?: number | null;
+    /**
+     * Gets or sets the job message, if the task is current running.
+     * @type {string}
+     * @memberof TaskDTO
+     */
+    'message'?: string | null;
+    /**
+     * Gets or sets a value indicating, whether the cancelation of the task is requested.
+     * @type {boolean}
+     * @memberof TaskDTO
+     */
+    'isCancelationRequested'?: boolean | null;
     /**
      * 
      * @type {FinishedReasonNullable}
@@ -2074,6 +2098,40 @@ export const CloudStorageApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
+         * @summary Get a cloud storage.
+         * @param {string} storageId The cloud storage id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageStoragesStorageIdGet: async (storageId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storageId' is not null or undefined
+            assertParamExists('cloudstorageStoragesStorageIdGet', 'storageId', storageId)
+            const localVarPath = `/cloudstorage/storages/{storageId}`
+                .replace(`{${"storageId"}}`, encodeURIComponent(String(storageId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary List all directories.
          * @param {string} storageId The cloud storage id.
          * @param {string} [path] The start path of the directories to list.
@@ -2190,6 +2248,19 @@ export const CloudStorageApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get a cloud storage.
+         * @param {string} storageId The cloud storage id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cloudstorageStoragesStorageIdGet(storageId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CloudStorageDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cloudstorageStoragesStorageIdGet(storageId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CloudStorageApi.cloudstorageStoragesStorageIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary List all directories.
          * @param {string} storageId The cloud storage id.
          * @param {string} [path] The start path of the directories to list.
@@ -2263,6 +2334,16 @@ export const CloudStorageApiFactory = function (configuration?: Configuration, b
          */
         cloudstorageStoragesStorageIdDelete(storageId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.cloudstorageStoragesStorageIdDelete(storageId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get a cloud storage.
+         * @param {string} storageId The cloud storage id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageStoragesStorageIdGet(storageId: string, options?: RawAxiosRequestConfig): AxiosPromise<CloudStorageDTO> {
+            return localVarFp.cloudstorageStoragesStorageIdGet(storageId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2345,6 +2426,18 @@ export class CloudStorageApi extends BaseAPI {
      */
     public cloudstorageStoragesStorageIdDelete(storageId: string, options?: RawAxiosRequestConfig) {
         return CloudStorageApiFp(this.configuration).cloudstorageStoragesStorageIdDelete(storageId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get a cloud storage.
+     * @param {string} storageId The cloud storage id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CloudStorageApi
+     */
+    public cloudstorageStoragesStorageIdGet(storageId: string, options?: RawAxiosRequestConfig) {
+        return CloudStorageApiFp(this.configuration).cloudstorageStoragesStorageIdGet(storageId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

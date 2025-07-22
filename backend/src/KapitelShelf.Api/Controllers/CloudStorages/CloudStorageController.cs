@@ -82,6 +82,31 @@ public class CloudStorageController(ILogger<CloudStorageController> logger, Clou
     }
 
     /// <summary>
+    /// Get a cloud storage.
+    /// </summary>
+    /// <param name="storageId">The cloud storage id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("storages/{storageId}")]
+    public async Task<ActionResult<CloudStorageDTO>> GetCloudStorage(Guid storageId)
+    {
+        try
+        {
+            var storage = await this.logic.GetStorage(storageId);
+            if (storage is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(storage);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching cloud storage with id '{StorageId}'.", storageId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Delete a cloud storage.
     /// </summary>
     /// <param name="storageId">The cloud storage id.</param>

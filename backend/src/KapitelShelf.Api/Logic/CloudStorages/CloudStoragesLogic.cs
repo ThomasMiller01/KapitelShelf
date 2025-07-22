@@ -6,19 +6,21 @@ using System.Text.Json;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
+using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
-using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 
 namespace KapitelShelf.Api.Logic.CloudStorages;
 
 /// <summary>
 /// The cloud storages base logic.
 /// </summary>
-public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ICloudStorage fileStorage)
+public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ISchedulerFactory schedulerFactory)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -26,7 +28,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
     private readonly KapitelShelfSettings settings = settings;
 
-    private readonly ICloudStorage fileStorage = fileStorage;
+    private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
     /// <summary>
     /// Check if the cloud is configured.
@@ -106,7 +108,14 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         }
 
         storage.CloudDirectory = directory;
+        storage.IsDownloaded = false;
         await context.SaveChangesAsync();
+
+        // start initial download of the cloud directory
+        var scheduler = await this.schedulerFactory.GetScheduler();
+
+        // fire and forget task to get early response to frontend
+        _ = InitialStorageDownload.Schedule(scheduler, mapper.Map<CloudStorageDTO>(storage), options: TaskScheduleOptionsDTO.RestartPreset);
     }
 
     /// <summary>
@@ -122,6 +131,67 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
                 .Where(x => x.Type == this.mapper.Map<CloudType>(cloudType))
                 .Select(x => this.mapper.Map<CloudConfigurationDTO>(x))
                 .FirstAsync();
+    }
+
+    /// <summary>
+    /// Get the cloud storage.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>The storage model.</returns>
+    public async Task<CloudStorageModel?> GetStorageModel(Guid storageId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.CloudStorages
+                .Where(x => x.Id == storageId)
+                .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Get all storages that are downloaded.
+    /// </summary>
+    /// <returns>The storage models.</returns>
+    public async Task<List<CloudStorageModel>> GetDownloadedStorageModels()
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.CloudStorages
+                .Where(x => x.IsDownloaded)
+                .ToListAsync();
+    }
+
+    /// <summary>
+    /// Get the cloud storage.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>The storage dto.</returns>
+    public async Task<CloudStorageDTO?> GetStorage(Guid storageId)
+    {
+        var storageModel = await this.GetStorageModel(storageId);
+        return this.mapper.Map<CloudStorageDTO>(storageModel);
+    }
+
+    /// <summary>
+    /// Mark the storage as downloaded.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A task.</returns>
+    public async Task MarkStorageAsDownloaded(Guid storageId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var storage = await context.CloudStorages
+                .Where(x => x.Id == storageId)
+                .FirstOrDefaultAsync();
+
+        if (storage is null)
+        {
+            return;
+        }
+
+        storage.IsDownloaded = true;
+
+        await context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -192,8 +262,9 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             return null;
         }
 
-        // delete storage location
-        this.fileStorage.DeleteDirectory(this.mapper.Map<CloudStorageDTO>(storage));
+        // delete cloud data
+        var scheduler = await this.schedulerFactory.GetScheduler();
+        await RemoveStorageData.Schedule(scheduler, this.mapper.Map<CloudStorageDTO>(storage));
 
         context.CloudStorages.Remove(storage);
         await context.SaveChangesAsync();

@@ -38,4 +38,9 @@ public class CloudStorageDTO
     /// Gets or sets the cloud owner name.
     /// </summary>
     public string CloudOwnerName { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the data for this storage is downloaded.
+    /// </summary>
+    public bool IsDownloaded { get; set; } = false;
 }

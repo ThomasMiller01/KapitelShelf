@@ -13,6 +13,8 @@
   - [Merge two Series](#merge-two-series)
 - [Metadata](#metadata)
 - [File Handling](#file-handling)
+- [Tasks](#tasks)
+- [Cloud Storage](#cloud-storage)
 
 ## User Profiles
 
@@ -200,3 +202,125 @@ You can exclude/include metadata sources by clicking on them.
 If a **file is available** for the book, you can download it using the `Download` button below the cover image.
 
 ![Download Book File](./.attachments/references/file_handling/download_book.png)
+
+## Tasks
+
+KapitelShelf uses tasks to perform background operations, such as recurring actions or handling long-running actions.
+
+> Tasks start automatically as part of the system's routines or they may be triggered by user actions (e.g. configuring a new cloud storage).
+
+### Viewing Tasks
+
+You can quickly access the tasks page using the shortcut in your profile context menu. This menu also displays the number of currently running tasks.
+
+![Tasks Context Menu](./.attachments/references/tasks/tasks_context_menu.png)
+
+Alternatively, you can reach the tasks page via the settings sidebar. The tasks entry will appear only after you clicked on the settings option.
+
+![Tasks Sidebar Entry](./.attachments/references/tasks/tasks_sidebar_entry.png)
+
+### Common Attributes
+
+Each task displays several common attributes:
+
+| Attribute      | Description                                                                           |
+| -------------- | ------------------------------------------------------------------------------------- |
+| Type (icon)    | Tasks can either be cronjobs (run at a scheduled time), recurring or single execution |
+| Name           | The name of the task                                                                  |
+| Description    | The task description, often has more detailed information                             |
+| Category       | The general category of the task, color coded for easier readability.                 |
+| Next execution | The time when the task will be executed next                                          |
+| Last execution | The time when the task was last executed                                              |
+
+Some specific tasks and types can have additional attributes.
+
+#### Running Task
+
+| Attribute | Description                                                                               |
+| --------- | ----------------------------------------------------------------------------------------- |
+| Progress  | The progress percentage, until the task is finished.                                      |
+| Message   | A message set by the task. Can be download speed, ETA (Estimated Time of Arrival) or more |
+
+#### Finished Task
+
+| Attribute       | Description                                                   |
+| --------------- | ------------------------------------------------------------- |
+| Finished Reason | The reason for the task to finish. Can be completed or error. |
+
+#### Type Cronjob
+
+| Attribute | Description            |
+| --------- | ---------------------- |
+| Execution | The execution schedule |
+
+### Tasks View
+
+![Tasks view](./.attachments/references/tasks/tasks_view.png)
+
+## Cloud Storage
+
+KapitelShelf allows you to import books automatically from your cloud storages.
+
+You can reach the cloud storages page via the settings sidebar. The cloud storages entry will appear only after you clicked on the settings option.
+
+![Cloud Storages Sidebar Entry](./.attachments/references/tasks/tasks_sidebar_entry.png)
+
+### Configure new Cloud
+
+Before a cloud storage can be created, the corresponding cloud first has to be configured.
+This configuration depends on the cloud and can be different.
+
+1. Just click the "Configure" button of the cloud you want to use.
+2. Then follow the instructions.
+
+![Configure Cloud](./.attachments/references/cloud_storage/configure_cloud.png)
+
+### Add new storage
+
+After configuring the cloud, you can add your first cloud storage.
+
+1. Click the "Add Storage" button
+2. You will be redirected to the cloud authentication
+3. Login with your account
+
+![Add Cloud Storage](./.attachments/references/cloud_storage/add_cloud_storage.png)
+
+#### !! Configure directory !!
+
+After adding the storage, you have to configure which directory from your cloud should be used by KapitelShelf.
+
+1. Click the red "Configure" button and select the directory to use.
+
+![Configure Directory](./.attachments/references/cloud_storage/configure_directory.png)
+
+#### Initial Download
+
+After the directory is configured, KapitelShelf will start a [Task](#tasks) that will initially download the cloud directory.
+
+![Initial Download Task](./.attachments/references/cloud_storage/initial_download_task.png)
+
+### Automatic Sync
+
+The cloud storage will automatically sync with your cloud every 5 minutes.
+
+Depending on the cloud, either a bi-directional sync or a uni-directional sync is supported.
+
+> You can lookup if your storage supports bi-directional synching here: https://rclone.org/bisync/#supported-backends
+
+![Sync Storages Task](./.attachments/references/cloud_storage/sync_storages_task.png)
+
+#### Bi-directional Sync
+
+The bi-directional sync will propagate any changes from the cloud locally, and any local changes to the cloud. This allows KapitelShelf to add new files and update existing metadata, an you automatically having a backuped copy in the cloud.
+
+> The `bisync` feature of `rclone` is currently in beta. If you always want to use `sync` (uni-directionally), see [Disable rcloen bisync in Settings](#disable-rclone-bisync-in-settings).
+
+#### Uni-directional Sync
+
+The uni-directional sync will propagate any changes from the cloud locally.
+
+#### Disable rclone bisync in Settings
+
+Because `rclone bisync` is still in beta, you can disable its use in the Settings. Instead `rclone sync` will be used for uni-directional synching.
+
+> _Coming Soon_

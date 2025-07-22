@@ -87,7 +87,7 @@ builder.Services.AddSingleton<UsersLogic>();
 builder.Services.AddSingleton<TasksLogic>();
 
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
-builder.Services.AddSingleton<CloudStorage>();
+builder.Services.AddSingleton<ICloudStorage, CloudStorage>();
 
 builder.Services.AddSingleton<CloudStoragesLogic>();
 builder.Services.AddSingleton<OneDriveLogic>();

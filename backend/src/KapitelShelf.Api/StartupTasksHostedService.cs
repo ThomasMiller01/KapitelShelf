@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Tasks.Maintenance;
 using Quartz;
 
@@ -19,18 +20,8 @@ public class StartupTasksHostedService(ISchedulerFactory schedulerFactory) : IHo
     {
         var scheduler = await this.schedulerFactory.GetScheduler(cancellationToken);
 
-        // Cleanup Finished Tasks
-        var job = JobBuilder.Create<CleanupFinishedTasks>()
-            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
-            .Build();
-
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
-            .StartNow()
-            .WithCronSchedule("0 */15 * ? * *")
-            .Build();
-
-        await scheduler.ScheduleJob(job, [trigger], replace: true, cancellationToken: cancellationToken);
+        await CleanupFinishedTasks.Schedule(scheduler);
+        await SyncStorageData.Schedule(scheduler);
     }
 
     /// <inheritdoc/>

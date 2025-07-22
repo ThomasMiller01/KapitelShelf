@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Tasks;
 using Quartz;
 using Quartz.Impl.Matchers;
 
@@ -31,6 +32,8 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
         var i = 0;
         foreach (var jobKey in jobsToCheck)
         {
+            this.CheckForInterrupt(context);
+
             // increment counter for task progress
             i++;
 
@@ -62,8 +65,40 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
             }
 
             // notify job progress
-            var progress = (int)Math.Floor((double)i / groups.Count * 100);
-            DataStore.SetProgress(JobKey(context), progress);
+            this.DataStore.SetProgress(JobKey(context), i, groups.Count);
         }
+    }
+
+    /// <inheritdoc/>
+    public override async Task Kill() => await Task.CompletedTask;
+
+    /// <summary>
+    /// Schedule this task.
+    /// </summary>
+    /// <param name="scheduler">The scheduler.</param>
+    /// <param name="options">The task schedule options.</param>
+    /// <returns>The job key.</returns>
+    public static async Task<string> Schedule(IScheduler scheduler, TaskScheduleOptionsDTO? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(scheduler);
+
+        var job = JobBuilder.Create<CleanupFinishedTasks>()
+            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
+            .WithDescription("Restart failed tasks and delete completed ones.")
+            .Build();
+
+        var trigger = TriggerBuilder.Create()
+            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
+            .StartNow()
+            .WithCronSchedule("0 */15 * ? * *")
+            .Build();
+
+        await PreScheduleSteps(scheduler, job, options);
+
+        await scheduler.ScheduleJob(job, [trigger], replace: true);
+
+        await PostScheduleSteps(scheduler, job, options);
+
+        return job.Key.ToString();
     }
 }

@@ -1,18 +1,45 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { Badge, Button, Grid, Stack, Tooltip, Typography } from "@mui/material";
+import type { BadgeProps } from "@mui/material";
+import {
+  Badge,
+  Button,
+  Grid,
+  Stack,
+  styled,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { shouldForwardProp } from "@mui/system";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosResponse, RawAxiosRequestConfig } from "axios";
 import { type ReactElement, useState } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
+import { useNotification } from "../../hooks/useNotification";
 import { cloudstorageApi } from "../../lib/api/KapitelShelf.Api";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { CloudTypeToString } from "../../utils/CloudStorageUtils";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
+import { CloudStorageDownloadStatus } from "./CloudStorageDownloadStatus";
 import { CloudStorageIcon } from "./CloudStorageIcon";
 import { ConfigureCloudDirectoryDialog } from "./ConfigureCloudDirectory/ConfigureCloudDirectoryDialog";
+
+interface DownloadingBadgeProps extends BadgeProps {
+  isMobile?: boolean;
+}
+
+const DownloadingBadge = styled(Badge, {
+  shouldForwardProp: (prop) => prop !== "isMobile" && shouldForwardProp(prop),
+})<DownloadingBadgeProps>(({ isMobile }) => ({
+  "& .MuiBadge-badge": {
+    right: isMobile ? 5 : 15,
+    top: 10,
+    padding: "0 4px",
+  },
+}));
 
 interface CloudStorageCardProps {
   cloudstorage: CloudStorageDTO;
@@ -29,6 +56,7 @@ export const CloudStorageCard = ({
   update,
 }: CloudStorageCardProps): ReactElement => {
   const { isMobile } = useMobile();
+  const { triggerNavigate } = useNotification();
 
   const [openDirectoryDialog, setOpenDirectoryDialog] = useState(false);
 
@@ -53,6 +81,12 @@ export const CloudStorageCard = ({
       );
 
       update();
+
+      triggerNavigate({
+        operation: `Downloading from ${CloudTypeToString(cloudstorage.type)}`,
+        itemName: directory,
+        url: "/settings/tasks",
+      });
     },
   });
 
@@ -95,11 +129,14 @@ export const CloudStorageCard = ({
     >
       {/* Type */}
       <Grid>
-        <CloudStorageIcon
-          type={cloudstorage.type}
-          disabled={cloudstorage.needsReAuthentication}
-          sx={{ mx: isMobile ? "5px" : "15px" }}
-        />
+        <DownloadingBadgeComponent cloudstorage={cloudstorage}>
+          <CloudStorageIcon
+            type={cloudstorage.type}
+            disabled={cloudstorage.needsReAuthentication}
+            fontSize="large"
+            sx={{ mx: isMobile ? "5px" : "15px" }}
+          />
+        </DownloadingBadgeComponent>
       </Grid>
 
       {/* Re-Authenticate */}
@@ -223,5 +260,35 @@ const CloudStorageDirectory: React.FC<CloudStorageDirectoryProps> = ({
         <EditIcon fontSize="small" />
       </IconButtonWithTooltip>
     </Stack>
+  );
+};
+
+interface DownloadingBadgeComponentProps {
+  cloudstorage: CloudStorageDTO;
+  children: ReactElement | ReactElement[];
+}
+
+const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
+  cloudstorage,
+  children,
+}) => {
+  const { isMobile } = useMobile();
+
+  // download could not be started yet, first the cloud directory has to be set
+  if (cloudstorage.cloudDirectory === null) {
+    return children;
+  }
+
+  return (
+    <DownloadingBadge
+      badgeContent={<CloudStorageDownloadStatus cloudstorage={cloudstorage} />}
+      isMobile={isMobile}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "right",
+      }}
+    >
+      {children}
+    </DownloadingBadge>
   );
 };
