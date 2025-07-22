@@ -41,6 +41,11 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
         var storages = await this.logic.GetDownloadedStorageModels();
+        if (storages.Count == 0)
+        {
+            // no storages to sync
+            return;
+        }
 
         this.progressIncrement = 100 / storages.Count;
         this.executionContext = context;

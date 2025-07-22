@@ -13,6 +13,8 @@
   - [Merge two Series](#merge-two-series)
 - [Metadata](#metadata)
 - [File Handling](#file-handling)
+- [Tasks](#tasks)
+- [Cloud Storage](#cloud-storage)
 
 ## User Profiles
 
@@ -200,3 +202,63 @@ You can exclude/include metadata sources by clicking on them.
 If a **file is available** for the book, you can download it using the `Download` button below the cover image.
 
 ![Download Book File](./.attachments/references/file_handling/download_book.png)
+
+## Tasks
+
+KapitelShelf uses tasks to perform background operations, such as recurring actions or handling long-running actions.
+
+> Tasks start automatically as part of the system's routines or they may be triggered by user actions (e.g. configuring a new cloud storage).
+
+### Viewing Tasks
+
+You can quickly access the tasks page using the shortcut in your profile context menu. This menu also displays the number of currently running tasks.
+
+![Tasks Context Menu](./.attachments/references/tasks/tasks_context_menu.png)
+
+Alternatively, you can reach the tasks page via the settings sidebar. The tasks entry will appear only after you clicked on the settings option.
+
+![Tasks Sidebar Entry](./.attachments/references/tasks/tasks_sidebar_entry.png)
+
+### Common Attributes
+
+Each task displays several common attributes:
+
+| Attribute      | Description                                                                           |
+| -------------- | ------------------------------------------------------------------------------------- |
+| Type (icon)    | Tasks can either be cronjobs (run at a scheduled time), recurring or single execution |
+| Name           | The name of the task                                                                  |
+| Description    | The task description, often has more detailed information                             |
+| Category       | The general category of the task, color coded for easier readability.                 |
+| Next execution | The time when the task will be executed next                                          |
+| Last execution | The time when the task was last executed                                              |
+
+Some specific tasks and types can have additional attributes.
+
+#### Running Task
+
+| Attribute | Description                                                                               |
+| --------- | ----------------------------------------------------------------------------------------- |
+| Progress  | The progress percentage, until the task is finished.                                      |
+| Message   | A message set by the task. Can be download speed, ETA (Estimated Time of Arrival) or more |
+
+#### Finished Task
+
+| Attribute       | Description                                                   |
+| --------------- | ------------------------------------------------------------- |
+| Finished Reason | The reason for the task to finish. Can be completed or error. |
+
+#### Type Cronjob
+
+| Attribute | Description            |
+| --------- | ---------------------- |
+| Execution | The execution schedule |
+
+### Tasks View
+
+![Tasks view](./.attachments/references/tasks/tasks_view.png)
+
+## Cloud Storage
+
+TODO
+
+![Initial Download Task](./.attachments/references/cloud_storage/initial_download_task.png)
