@@ -18,6 +18,7 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Initially download data from a cloud storage.
 /// </summary>
+[DisallowConcurrentExecution]
 public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
 {
     private readonly ILogger<TaskBase> logger = logger;
@@ -145,12 +146,10 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
         var job = JobBuilder.Create<SyncStorageData>()
             .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
             .WithDescription($"Sync cloud data for configured storages")
-            .RequestRecovery() // re-execute after possible hard-shutdown
             .Build();
 
         var trigger = TriggerBuilder.Create()
             .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
-            .StartNow()
             .WithCronSchedule("0 */5 * ? * *")
             .Build();
 

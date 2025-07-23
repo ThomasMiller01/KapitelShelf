@@ -118,16 +118,31 @@ public class EPUBParser : BookParserBase
             return null;
         }
 
+        string? dateString = null;
+
         var releaseDate = metadata.Dates.FirstOrDefault()?.Date;
         if (releaseDate is not null and not "0101-01-01T00:00:00+00:00")
         {
-            return DateTime.Parse(releaseDate, CultureInfo.InvariantCulture).ToUniversalTime();
+            dateString = releaseDate;
         }
 
         var metaItem = metadata.MetaItems.FirstOrDefault(x => x.Name == CalibreTimestampMetaName);
-        if (metaItem is not null)
+        if (dateString is null && metaItem is not null)
         {
-            return DateTime.Parse(metaItem.Content, CultureInfo.InvariantCulture).ToUniversalTime();
+            dateString = metaItem.Content;
+        }
+
+        // Try year-only format first
+        if (DateTime.TryParseExact(dateString, "yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var yearDate))
+        {
+            // Return Jan 1 of that year in UTC
+            return DateTime.SpecifyKind(yearDate, DateTimeKind.Utc);
+        }
+
+        // Fallback to general parsing (ISO, etc.)
+        if (DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
+        {
+            return parsedDate.ToUniversalTime();
         }
 
         // no release date found

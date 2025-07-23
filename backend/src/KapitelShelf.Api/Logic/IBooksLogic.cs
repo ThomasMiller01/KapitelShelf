@@ -71,6 +71,13 @@ public interface IBooksLogic
     void DeleteFiles(Guid bookId);
 
     /// <summary>
+    /// Check if the passed file is already imported as a book.
+    /// </summary>
+    /// <param name="file">The file to check.</param>
+    /// <returns>True if the file is already imported, otherwise false.</returns>
+    Task<bool> BookFileExists(IFormFile file);
+
+    /// <summary>
     /// Cleans up the database by removing orphaned entities such as authors, series, categories, tags, locations, and files.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>

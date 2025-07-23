@@ -28,6 +28,7 @@ public class TextParser : BookParserBase
         var bookDto = new BookDTO
         {
             Title = title,
+            Description = string.Empty,
         };
 
         return new BookParsingResult

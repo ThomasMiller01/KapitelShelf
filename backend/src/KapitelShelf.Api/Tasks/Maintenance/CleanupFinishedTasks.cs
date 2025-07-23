@@ -89,7 +89,6 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
 
         var trigger = TriggerBuilder.Create()
             .WithIdentity("Cleanup Finished Tasks", "Maintenance")
-            .StartNow()
             .WithCronSchedule("0 */15 * ? * *")
             .Build();
 

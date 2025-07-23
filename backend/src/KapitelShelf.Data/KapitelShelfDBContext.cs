@@ -88,6 +88,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     public DbSet<CloudStorageModel> CloudStorages => Set<CloudStorageModel>();
 
     /// <summary>
+    /// Gets the failed cloud file imports table.
+    /// </summary>
+    public DbSet<FailedCloudFileImportModel> FailedCloudFileImports => Set<FailedCloudFileImportModel>();
+
+    /// <summary>
     /// Gets the book search view.
     /// </summary>
     public DbSet<BookSearchView> BookSearchView => Set<BookSearchView>();
@@ -201,6 +206,19 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
         modelBuilder.Entity<CloudStorageModel>()
             .HasIndex(c => new { c.Type, c.CloudOwnerEmail })
             .IsUnique();
+
+        // Failed Cloud File Imports
+        modelBuilder.Entity<FailedCloudFileImportModel>()
+            .HasOne(b => b.Storage)
+            .WithMany()
+            .HasForeignKey(b => b.StorageId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FailedCloudFileImportModel>()
+            .HasOne(b => b.FileInfo)
+            .WithMany()
+            .HasForeignKey(b => b.FileInfoId)
+            .OnDelete(DeleteBehavior.Cascade);
 #pragma warning restore CA1062 // Validate arguments of public methods
 
         base.OnModelCreating(modelBuilder);

@@ -6,11 +6,13 @@ using System.Text.Json;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
+using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Data;
+using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -270,5 +272,49 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         await context.SaveChangesAsync();
 
         return this.mapper.Map<CloudStorageDTO>(storage);
+    }
+
+    /// <summary>
+    /// Add a fail to import a cloud file.
+    /// </summary>
+    /// <param name="storage">The cloud storage.</param>
+    /// <param name="fileInfo">The file info.</param>
+    /// <param name="errorMessage">The error message.</param>
+    /// <returns>A task.</returns>
+    public async Task AddCloudFileImportFail(CloudStorageDTO storage, FileInfoDTO fileInfo, string errorMessage)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+        ArgumentNullException.ThrowIfNull(fileInfo);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var failedCLoudFileImport = new FailedCloudFileImportModel
+        {
+            StorageId = storage.Id,
+            FileInfo = this.mapper.Map<FileInfoModel>(fileInfo),
+            ErrorMessaget = errorMessage,
+        };
+
+        context.FailedCloudFileImports.Add(failedCLoudFileImport);
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Check if the import for this storage and file failed before.
+    /// </summary>
+    /// <param name="storage">The cloud storage.</param>
+    /// <param name="file">The file.</param>
+    /// <returns>True if the import failed before, otherwise false.</returns>
+    public async Task<bool> CloudFileImportFailed(CloudStorageDTO storage, IFormFile file)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+        ArgumentNullException.ThrowIfNull(file);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.FailedCloudFileImports
+            .AsNoTracking()
+            .Include(x => x.FileInfo)
+            .AnyAsync(x => x.StorageId == storage.Id && x.FileInfo.Sha256 == file.Checksum());
     }
 }
