@@ -11,12 +11,12 @@ namespace KapitelShelf.Api.Tasks;
 /// <summary>
 /// The base class for all tasks to inherit from.
 /// </summary>
-public abstract class TaskBase(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger) : IJob
+public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger) : IJob
 {
 #pragma warning disable SA1401 // Fields should be private
     internal readonly ILogger<TaskBase> Logger = logger;
 
-    internal readonly TaskRuntimeDataStore DataStore = dataStore;
+    internal readonly ITaskRuntimeDataStore DataStore = dataStore;
 #pragma warning restore SA1401 // Fields should be private
 
     /// <inheritdoc/>

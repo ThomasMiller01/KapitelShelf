@@ -114,7 +114,7 @@ builder.Services.AddQuartzHostedService(options =>
     // let jobs finish gracefully
     options.WaitForJobsToComplete = true;
 });
-builder.Services.AddSingleton<TaskRuntimeDataStore>();
+builder.Services.AddSingleton<ITaskRuntimeDataStore, TaskRuntimeDataStore>();
 builder.Services.AddHostedService<StartupTasksHostedService>();
 
 // healthchecks

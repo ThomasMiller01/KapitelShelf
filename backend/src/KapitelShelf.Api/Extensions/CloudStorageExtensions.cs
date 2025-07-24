@@ -26,7 +26,7 @@ public static class CloudStorageExtensions
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The rclone output.</returns>
     /// <exception cref="InvalidOperationException">The rclone command returned an error.</exception>
-    public static async Task<string> ExecuteRCloneCommand(
+    public static virtual async Task<string> ExecuteRCloneCommand(
         this CloudStorageModel cloudStorage,
         string rclonePath,
         List<string> arguments,

@@ -13,7 +13,7 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Deletes all the local data of a cloud storage.
 /// </summary>
-public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage) : TaskBase(dataStore, logger)
+public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStorage fileStorage = fileStorage;
 

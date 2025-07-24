@@ -19,10 +19,8 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// Initially download data from a cloud storage.
 /// </summary>
 [DisallowConcurrentExecution]
-public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
+public partial class SyncStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
 {
-    private readonly ILogger<TaskBase> logger = logger;
-
     private readonly ICloudStorage fileStorage = fileStorage;
 
     private readonly CloudStoragesLogic logic = logic;
@@ -127,7 +125,7 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Could not kill rclone process");
+            this.Logger.LogError(ex, "Could not kill rclone process");
         }
 
         await Task.CompletedTask;

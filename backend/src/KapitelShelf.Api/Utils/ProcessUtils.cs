@@ -129,3 +129,34 @@ public static class ProcessUtils
         return (processObj.ExitCode, stdout.ToString(), stderr.ToString());
     }
 }
+
+/// <summary>
+/// The interface for a proces.
+/// </summary>
+public interface IProcess
+{
+    /// <summary>
+    /// Gets a value indicating whether the process has exited.
+    /// </summary>
+    bool HasExited { get; }
+
+    /// <summary>
+    /// Kill the process.
+    /// </summary>
+    /// <param name="entireProcessTree">A valud indicating whether to kill the entire process tree.</param>
+    void Kill(bool entireProcessTree);
+}
+
+/// <summary>
+/// The process wrapper.
+/// </summary>
+public class ProcessWrapper(Process process) : IProcess
+{
+    private readonly Process process = process;
+
+    /// <inheritdoc/>
+    public bool HasExited => this.process.HasExited;
+
+    /// <inheritdoc/>
+    public void Kill(bool entireProcessTree) => this.process.Kill(entireProcessTree);
+}
