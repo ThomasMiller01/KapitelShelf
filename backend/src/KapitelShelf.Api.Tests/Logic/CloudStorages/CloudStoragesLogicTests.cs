@@ -4,6 +4,8 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
@@ -600,4 +602,173 @@ public class CloudStoragesLogicTests
     [Test]
     public void MarkStorageAsDownloaded_NoExceptionIfStorageNotFound() =>
         Assert.DoesNotThrowAsync(async () => await this.testee.MarkStorageAsDownloaded(Guid.NewGuid()));
+
+    /// <summary>
+    /// Tests for AddCloudFileImportFail and CloudFileImportFailed.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddCloudFileImportFail_AddsEntry()
+    {
+        // Setup
+        var storageModel = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            CloudOwnerName = "FailImport".Unique(),
+            CloudOwnerEmail = "fail@test.com".Unique(),
+            RCloneConfig = "test",
+        };
+        var fileInfoDto = new FileInfoDTO
+        {
+            FilePath = "/path/to/file.pdf",
+            FileSizeBytes = 1234,
+            MimeType = "application/pdf",
+            Sha256 = "fakesha256".Unique(),
+        };
+        var errorMessage = "Test error message";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.AddCloudFileImportFail(this.mapper.Map<CloudStorageDTO>(storageModel), fileInfoDto, errorMessage);
+
+        // Assert
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var importFail = context.FailedCloudFileImports
+                .Include(x => x.FileInfo)
+                .FirstOrDefault(x => x.StorageId == storageModel.Id && x.FileInfo.Sha256 == fileInfoDto.Sha256);
+
+            Assert.That(importFail, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(importFail!.ErrorMessaget, Is.EqualTo(errorMessage));
+                Assert.That(importFail.FileInfo.FilePath, Is.EqualTo(fileInfoDto.FilePath));
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests AddCloudFileImportFail throws ArgumentNullException for null storage.
+    /// </summary>
+    [Test]
+    public void AddCloudFileImportFail_ThrowsIfStorageNull()
+    {
+        var fileInfoDto = new FileInfoDTO
+        {
+            FilePath = "/path",
+            FileSizeBytes = 1,
+            MimeType = "application/pdf",
+            Sha256 = "sha",
+        };
+
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.testee.AddCloudFileImportFail(null!, fileInfoDto, "error"));
+    }
+
+    /// <summary>
+    /// Tests AddCloudFileImportFail throws ArgumentNullException for null fileInfo.
+    /// </summary>
+    [Test]
+    public void AddCloudFileImportFail_ThrowsIfFileInfoNull()
+    {
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            CloudOwnerName = "fail".Unique(),
+            CloudOwnerEmail = "fail".Unique(),
+        };
+
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.testee.AddCloudFileImportFail(storageDto, null!, "error"));
+    }
+
+    /// <summary>
+    /// Tests CloudFileImportFailed returns true if a failure exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task CloudFileImportFailed_ReturnsTrueIfExists()
+    {
+        // Setup
+        var storageModel = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            CloudOwnerName = "fail2".Unique(),
+            CloudOwnerEmail = "fail2".Unique(),
+            RCloneConfig = "test",
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            await context.SaveChangesAsync();
+        }
+
+        var file = BookParserHelper.BluePixelBytes.ToFile("TestFile");
+        await this.testee.AddCloudFileImportFail(this.mapper.Map<CloudStorageDTO>(storageModel), file.ToFileInfo("Test"), "fail");
+
+        // Execute
+        var result = await this.testee.CloudFileImportFailed(this.mapper.Map<CloudStorageDTO>(storageModel), file);
+
+        // Assert
+        Assert.That(result, Is.True);
+    }
+
+    /// <summary>
+    /// Tests CloudFileImportFailed returns false if no fail exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task CloudFileImportFailed_ReturnsFalseIfNotExists()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            CloudOwnerName = "fail3".Unique(),
+            CloudOwnerEmail = "fail3".Unique(),
+        };
+
+        var file = BookParserHelper.BluePixelBytes.ToFile("TestFile");
+
+        // Execute
+        var result = await this.testee.CloudFileImportFailed(storageDto, file);
+
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    /// <summary>
+    /// Tests CloudFileImportFailed throws ArgumentNullException if storage is null.
+    /// </summary>
+    [Test]
+    public void CloudFileImportFailed_ThrowsIfStorageNull()
+    {
+        var file = BookParserHelper.BluePixelBytes.ToFile("TestFile");
+
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.testee.CloudFileImportFailed(null!, file));
+    }
+
+    /// <summary>
+    /// Tests CloudFileImportFailed throws ArgumentNullException if file is null.
+    /// </summary>
+    [Test]
+    public void CloudFileImportFailed_ThrowsIfFileNull()
+    {
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            CloudOwnerName = "fail4".Unique(),
+            CloudOwnerEmail = "fail4".Unique(),
+        };
+
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.testee.CloudFileImportFailed(storageDto, null!));
+    }
 }

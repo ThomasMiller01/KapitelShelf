@@ -164,6 +164,26 @@ public class BookParserManagerTests
         Assert.That(result.Book.Title, Is.EqualTo("Another Book"));
     }
 
+    /// <summary>
+    /// Tests SupportedFilEndings returns all extensions.
+    /// </summary>
+    [Test]
+    public void SupportedFileEndings_ContainAll()
+    {
+        // Use two different parser types for two extensions
+        this.testee = new BookParserManager(
+        [
+            typeof(MockParser),
+            typeof(AnotherMockParser)
+        ],
+        []);
+
+        var result = this.testee.SupportedFileEndings();
+
+        Assert.That(result, Contains.Item("mock"));
+        Assert.That(result, Contains.Item("another"));
+    }
+
     // Mock parser types for testing
     private sealed class MockParser : IBookParser
     {
