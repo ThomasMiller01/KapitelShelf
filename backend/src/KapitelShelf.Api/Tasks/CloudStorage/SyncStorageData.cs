@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
@@ -13,6 +14,8 @@ using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using Quartz;
 
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
+
 namespace KapitelShelf.Api.Tasks.CloudStorage;
 
 /// <summary>
@@ -23,14 +26,20 @@ public partial class SyncStorageData(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
     ICloudStorage fileStorage,
-    CloudStoragesLogic logic,
+    ICloudStoragesLogic logic,
     IMapper mapper,
     KapitelShelfSettings settings,
     IProcessUtils processUtils) : TaskBase(dataStore, logger)
 {
+#pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
+#pragma warning disable SA1401 // Fields should be private
+    internal IProcess? rcloneProcess = null;
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
+
     private readonly ICloudStorage fileStorage = fileStorage;
 
-    private readonly CloudStoragesLogic logic = logic;
+    private readonly ICloudStoragesLogic logic = logic;
 
     private readonly IMapper mapper = mapper;
 
@@ -39,8 +48,6 @@ public partial class SyncStorageData(
     private readonly IProcessUtils processUtils = processUtils;
 
     private IJobExecutionContext? executionContext = null;
-
-    private ProcessWrapper? rcloneProcess = null;
 
     private double progressBase = 0;
     private double progressIncrement = 0;
