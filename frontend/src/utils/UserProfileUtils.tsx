@@ -1,11 +1,11 @@
 import CheeryChino from "../assets/users/CheeryChino.png";
 import Chico from "../assets/users/Chico.png";
 import Freshavocado from "../assets/users/Freshavocado.png";
+import LittleStinky from "../assets/users/LittleStinky.png";
 import MonsieurRead from "../assets/users/MonsieurRead.png";
 import MuggyMalheur from "../assets/users/MuggyMalheur.png";
 import Readini from "../assets/users/Readini.png";
 import Riley from "../assets/users/Riley.png";
-import SunnyTome from "../assets/users/SunnyTome.png";
 import Tailywink from "../assets/users/Tailywink.png";
 import { ProfileImageTypeDTO } from "../lib/api/KapitelShelf.Api/api";
 
@@ -27,7 +27,7 @@ export const ProfileImageTypeToSrc = {
   [ProfileImageTypeDTO.NUMBER_1]: Readini,
   [ProfileImageTypeDTO.NUMBER_2]: MuggyMalheur,
   [ProfileImageTypeDTO.NUMBER_3]: CheeryChino,
-  [ProfileImageTypeDTO.NUMBER_4]: SunnyTome,
+  [ProfileImageTypeDTO.NUMBER_4]: LittleStinky,
   [ProfileImageTypeDTO.NUMBER_5]: Freshavocado,
   [ProfileImageTypeDTO.NUMBER_6]: Tailywink,
   [ProfileImageTypeDTO.NUMBER_7]: Riley,
@@ -39,7 +39,7 @@ export const ProfileImageTypeToName = {
   [ProfileImageTypeDTO.NUMBER_1]: "Readini",
   [ProfileImageTypeDTO.NUMBER_2]: "Muggy Malheur",
   [ProfileImageTypeDTO.NUMBER_3]: "Cheery Chino",
-  [ProfileImageTypeDTO.NUMBER_4]: "Sunny Tome",
+  [ProfileImageTypeDTO.NUMBER_4]: "Little Stinky",
   [ProfileImageTypeDTO.NUMBER_5]: "FR E SH A VOCA DO",
   [ProfileImageTypeDTO.NUMBER_6]: "Tailywink",
   [ProfileImageTypeDTO.NUMBER_7]: "Riley",

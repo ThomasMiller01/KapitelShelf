@@ -19,7 +19,7 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The OneDrive cloud storage logic.
 /// </summary>
-public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, CloudStoragesLogic baseLogic, ICloudStorage fileStorage)
+public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ICloudStoragesLogic baseLogic, ICloudStorage fileStorage)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -27,7 +27,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
 
     private readonly KapitelShelfSettings settings = settings;
 
-    private readonly CloudStoragesLogic baseLogic = baseLogic;
+    private readonly ICloudStoragesLogic baseLogic = baseLogic;
 
     private readonly ICloudStorage fileStorage = fileStorage;
 

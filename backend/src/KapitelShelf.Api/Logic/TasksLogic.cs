@@ -13,7 +13,7 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// The tasks logic.
 /// </summary>
-public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, TaskRuntimeDataStore dataStore)
+public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, ITaskRuntimeDataStore dataStore)
 {
     /// <summary>
     /// The mapper.
@@ -28,7 +28,7 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, Task
     /// <summary>
     /// The task runtime data store.
     /// </summary>
-    private readonly TaskRuntimeDataStore dataStore = dataStore;
+    private readonly ITaskRuntimeDataStore dataStore = dataStore;
 
     /// <summary>
     /// Get all tasks.

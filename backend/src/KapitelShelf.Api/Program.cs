@@ -90,10 +90,10 @@ builder.Services.AddSingleton<TasksLogic>();
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<ICloudStorage, CloudStorage>();
 
-builder.Services.AddSingleton<CloudStoragesLogic>();
+builder.Services.AddSingleton<ICloudStoragesLogic, CloudStoragesLogic>();
 builder.Services.AddSingleton<OneDriveLogic>();
 
-builder.Services.AddSingleton<ProcessUtils>();
+builder.Services.AddSingleton<IProcessUtils, ProcessUtils>();
 
 // background tasks using Quartz.NET
 builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));
