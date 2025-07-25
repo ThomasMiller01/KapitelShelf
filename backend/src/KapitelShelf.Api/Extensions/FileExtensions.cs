@@ -82,9 +82,9 @@ public static class FileExtensions
     /// <returns>The file.</returns>
     public static IFormFile ToFile(this string filePath)
     {
-        var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-        var fileInfo = new FileInfo(filePath);
-        return new FormFile(fileStream, 0, fileInfo.Length, "file", fileInfo.Name);
+        var bytes = File.ReadAllBytes(filePath);
+        var ms = new MemoryStream(bytes);
+        return new FormFile(ms, 0, ms.Length, "file", Path.GetFileName(filePath));
     }
 
     /// <summary>

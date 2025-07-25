@@ -18,11 +18,11 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// Scan the cloud storages for books.
 /// </summary>
 [DisallowConcurrentExecution]
-public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, IMapper mapper, IBooksLogic booksLogic, IBookParserManager bookParserManager) : TaskBase(dataStore, logger)
+public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, ICloudStoragesLogic logic, IMapper mapper, IBooksLogic booksLogic, IBookParserManager bookParserManager) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStorage fileStorage = fileStorage;
 
-    private readonly CloudStoragesLogic logic = logic;
+    private readonly ICloudStoragesLogic logic = logic;
 
     private readonly IMapper mapper = mapper;
 
