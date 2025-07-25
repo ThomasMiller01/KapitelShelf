@@ -18,7 +18,15 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Initially download data from a cloud storage.
 /// </summary>
-public partial class InitialStorageDownload(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, ICloudStoragesLogic logic, ISchedulerFactory schedulerFactory, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
+public partial class InitialStorageDownload(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    ICloudStorage fileStorage,
+    ICloudStoragesLogic logic,
+    ISchedulerFactory schedulerFactory,
+    IMapper mapper,
+    KapitelShelfSettings settings,
+    IProcessUtils processUtils) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStorage fileStorage = fileStorage;
 
@@ -29,6 +37,8 @@ public partial class InitialStorageDownload(ITaskRuntimeDataStore dataStore, ILo
     private readonly IMapper mapper = mapper;
 
     private readonly KapitelShelfSettings settings = settings;
+
+    private readonly IProcessUtils processUtils = processUtils;
 
     private IJobExecutionContext? executionContext = null;
 
@@ -80,6 +90,7 @@ public partial class InitialStorageDownload(ITaskRuntimeDataStore dataStore, ILo
                     "--stats=1s",
                     "--stats-one-line"
                 ],
+                this.processUtils,
                 onStdout: this.DownloadProgressHandler,
                 stdoutSeperator: "xfr", // rclone transfer number
                 onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
@@ -98,6 +109,7 @@ public partial class InitialStorageDownload(ITaskRuntimeDataStore dataStore, ILo
                     "--stats=1s",
                     "--stats-one-line"
                 ],
+                this.processUtils,
                 onStdout: this.DownloadProgressHandler,
                 stdoutSeperator: "xfr", // rclone transfer number
                 onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),

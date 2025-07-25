@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
@@ -11,6 +10,7 @@ using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Utils;
 using Quartz;
 
 namespace KapitelShelf.Api.Tasks.CloudStorage;
@@ -19,7 +19,14 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// Initially download data from a cloud storage.
 /// </summary>
 [DisallowConcurrentExecution]
-public partial class SyncStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
+public partial class SyncStorageData(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    ICloudStorage fileStorage,
+    CloudStoragesLogic logic,
+    IMapper mapper,
+    KapitelShelfSettings settings,
+    IProcessUtils processUtils) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStorage fileStorage = fileStorage;
 
@@ -29,9 +36,11 @@ public partial class SyncStorageData(ITaskRuntimeDataStore dataStore, ILogger<Ta
 
     private readonly KapitelShelfSettings settings = settings;
 
+    private readonly IProcessUtils processUtils = processUtils;
+
     private IJobExecutionContext? executionContext = null;
 
-    private Process? rcloneProcess = null;
+    private ProcessWrapper? rcloneProcess = null;
 
     private double progressBase = 0;
     private double progressIncrement = 0;
@@ -80,9 +89,10 @@ public partial class SyncStorageData(ITaskRuntimeDataStore dataStore, ILogger<Ta
                     "--stats=1s",
                     "--stats-one-line"
                     ],
+                    this.processUtils,
                     onStdout: this.DownloadProgressHandler,
                     stdoutSeperator: "xfr", // rclone transfer number
-                    onProcessStarted: p => this.rcloneProcess = p,
+                    onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
                     cancellationToken: context.CancellationToken);
             }
             else
@@ -98,9 +108,10 @@ public partial class SyncStorageData(ITaskRuntimeDataStore dataStore, ILogger<Ta
                         "--stats=1s",
                         "--stats-one-line"
                     ],
+                    this.processUtils,
                     onStdout: this.DownloadProgressHandler,
                     stdoutSeperator: "xfr", // rclone transfer number
-                    onProcessStarted: p => this.rcloneProcess = p,
+                    onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
                     cancellationToken: context.CancellationToken);
             }
 

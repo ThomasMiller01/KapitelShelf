@@ -11,6 +11,7 @@ using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
+using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.CloudStorage;
@@ -22,7 +23,12 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The cloud storages base logic.
 /// </summary>
-public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ISchedulerFactory schedulerFactory) : ICloudStoragesLogic
+public class CloudStoragesLogic(
+    IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
+    IMapper mapper,
+    KapitelShelfSettings settings,
+    ISchedulerFactory schedulerFactory,
+    IProcessUtils processUtils) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -31,6 +37,8 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
     private readonly KapitelShelfSettings settings = settings;
 
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
+
+    private readonly IProcessUtils processUtils = processUtils;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
@@ -190,7 +198,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         try
         {
-            var output = await cloudStorage.ExecuteRCloneCommand(this.settings.CloudStorage.RClone, ["lsjson", $"\"{StaticConstants.CloudStorageRCloneConfigName}:{path}\"", "--dirs-only", "--fast-list"]);
+            var output = await cloudStorage.ExecuteRCloneCommand(this.settings.CloudStorage.RClone, ["lsjson", $"\"{StaticConstants.CloudStorageRCloneConfigName}:{path}\"", "--dirs-only", "--fast-list"], this.processUtils);
             var entries = JsonSerializer.Deserialize<List<RCloneListJsonDTO>>(output);
             ArgumentNullException.ThrowIfNull(entries);
 

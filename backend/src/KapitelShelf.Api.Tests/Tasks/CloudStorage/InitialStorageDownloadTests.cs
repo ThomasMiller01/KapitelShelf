@@ -5,7 +5,6 @@
 using System.Diagnostics;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
-using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
@@ -33,6 +32,7 @@ public class InitialStorageDownloadTests
     private ISchedulerFactory schedulerFactory;
     private IMapper mapper;
     private KapitelShelfSettings settings;
+    private IProcessUtils processUtils;
     private IJobExecutionContext context;
 
     private CloudStorageDTO storage;
@@ -54,7 +54,14 @@ public class InitialStorageDownloadTests
         {
             CloudStorage = new CloudStorageSettings { RClone = "rclone" },
         };
+        this.processUtils = Substitute.For<IProcessUtils>();
         this.context = Substitute.For<IJobExecutionContext>();
+
+        // setupo job key
+        var jobKey = new JobKey("UnitTestJob", "TestGroup");
+        var jobDetail = Substitute.For<IJobDetail>();
+        jobDetail.Key.Returns(jobKey);
+        this.context.JobDetail.Returns(jobDetail);
 
         this.storageId = Guid.NewGuid();
         this.storage = new CloudStorageDTO
@@ -71,7 +78,8 @@ public class InitialStorageDownloadTests
             this.logic,
             this.schedulerFactory,
             this.mapper,
-            this.settings)
+            this.settings,
+            this.processUtils)
         {
             StorageId = storageId,
         };
@@ -115,15 +123,16 @@ public class InitialStorageDownloadTests
 
         // Simulate sync command for non-bisync
         StaticConstants.StoragesSupportRCloneBisync.Clear(); // For sync, not bisync
-        storageModel.ExecuteRCloneCommand(
+        this.processUtils.RunProcessAsync(
             Arg.Any<string>(),
-            Arg.Any<List<string>>(),
-            Arg.Any<Action<string>>(),
-            Arg.Any<Action<string>>(),
             Arg.Any<string>(),
-            Arg.Any<Action<Process>>(),
+            Arg.Any<string?>(),
+            Arg.Any<Action<string>?>(),
+            Arg.Any<Action<string>?>(),
+            Arg.Any<string?>(),
+            Arg.Any<Action<Process>?>(),
             Arg.Any<CancellationToken>())
-            .Returns(Task.CompletedTask);
+            .Returns(Task.FromResult((0, string.Empty, string.Empty)));
 
         // Execute
         await this.testee.ExecuteTask(this.context);

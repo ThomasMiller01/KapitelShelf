@@ -8,6 +8,7 @@ using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ public class CloudStoragesLogicTests
     private IMapper mapper;
     private KapitelShelfSettings settings;
     private ISchedulerFactory schedulerFactory;
+    private IProcessUtils processUtils;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -88,7 +90,8 @@ public class CloudStoragesLogicTests
             },
         };
         this.schedulerFactory = Substitute.For<ISchedulerFactory>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory);
+        this.processUtils = Substitute.For<IProcessUtils>();
+        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils);
     }
 
     /// <summary>

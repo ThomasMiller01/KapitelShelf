@@ -19,6 +19,7 @@ public static class CloudStorageExtensions
     /// <param name="cloudStorage">The cloud storage.</param>
     /// <param name="rclonePath">The rclone executable.</param>
     /// <param name="arguments">The arguments.</param>
+    /// <param name="processUtils">The process utils.</param>
     /// <param name="onStdout">Called when stdout gets written to.</param>
     /// <param name="onStderr">Called when stderr gets written to.</param>
     /// <param name="stdoutSeperator">Custom stdout seperator.</param>
@@ -30,19 +31,21 @@ public static class CloudStorageExtensions
         this CloudStorageModel cloudStorage,
         string rclonePath,
         List<string> arguments,
+        IProcessUtils processUtils,
         Action<string>? onStdout = null,
         Action<string>? onStderr = null,
         string? stdoutSeperator = null,
         Action<Process>? onProcessStarted = null,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(arguments);
         ArgumentNullException.ThrowIfNull(cloudStorage);
+        ArgumentNullException.ThrowIfNull(arguments);
+        ArgumentNullException.ThrowIfNull(processUtils);
 
         arguments.Add("--config");
         arguments.Add($"\"{cloudStorage.RCloneConfig}\"");
 
-        var (exitCode, stdout, stderr) = await ProcessUtils.RunProcessAsync(
+        var (exitCode, stdout, stderr) = await processUtils.RunProcessAsync(
             rclonePath,
             string.Join(" ", arguments),
             onStdout: onStdout,
