@@ -34,10 +34,10 @@ public enum ProfileImageType
     CheeryChino = 3,
 
     /// <summary>
-    /// A collected ray-less sun.
+    /// A little stinky cheese.
     /// </summary>
     /// <remmarks>Stuff with Faces</remmarks>
-    SunnyTome = 4,
+    LittleStinky = 4,
 
     /// <summary>
     /// A happy acovado.

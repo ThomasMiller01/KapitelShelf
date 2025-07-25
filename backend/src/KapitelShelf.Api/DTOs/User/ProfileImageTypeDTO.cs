@@ -30,9 +30,9 @@ public enum ProfileImageTypeDTO
     CheeryChino = 3,
 
     /// <summary>
-    /// The "Sunny Tome" profile image.
+    /// The "Little Stinky" profile image.
     /// </summary>
-    SunnyTome = 4,
+    LittleStinky = 4,
 
     /// <summary>
     /// The "FR E SH A VOCA DO" profile image.
