@@ -11,6 +11,7 @@ using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
@@ -1537,6 +1538,74 @@ public class BooksLogicTests
 
         // Assert
         this.bookStorage.Received(1).DeleteDirectory(id);
+    }
+
+    /// <summary>
+    /// Tests BookFileExists returns true when a file with the same SHA256 exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task BookFileExists_ReturnsTrue_WhenFileWithSameChecksumExists()
+    {
+        // Setup
+        var file = BookParserHelper.CoverBytes.ToFile("TestFile");
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var location = new LocationModel
+            {
+                FileInfo = this.mapper.Map<FileInfoModel>(file.ToFileInfo("TestFile")),
+            };
+            var book = new BookModel
+            {
+                Title = "TestBook".Unique(),
+                Description = "Description",
+                Location = location,
+            };
+            var series = new SeriesModel
+            {
+                Name = "TestSeries".Unique(),
+                Books = [book],
+            };
+            context.Series.Add(series);
+            context.SaveChanges();
+        }
+
+        // Execute
+        var result = await this.testee.BookFileExists(file);
+
+        // Assert
+        Assert.That(result, Is.True);
+    }
+
+    /// <summary>
+    /// Tests BookFileExists returns false when file checksum does not exist.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task BookFileExists_ReturnsFalse_WhenFileWithChecksumDoesNotExist()
+    {
+        // Setup
+        var file = BookParserHelper.RedDotBytes.ToFile("TestFile2");
+
+        // Execute
+        var result = await this.testee.BookFileExists(file);
+
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    /// <summary>
+    /// Tests BookFileExists throws ArgumentNullException when file is null.
+    /// </summary>
+    [Test]
+    public void BookFileExists_ThrowsArgumentNullException_WhenFileIsNull()
+    {
+        // Execute and Assert
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        {
+            await this.testee.BookFileExists(null!);
+        });
     }
 
     /// <summary>

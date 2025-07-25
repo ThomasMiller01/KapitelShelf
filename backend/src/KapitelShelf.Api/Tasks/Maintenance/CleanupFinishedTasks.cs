@@ -11,7 +11,7 @@ namespace KapitelShelf.Api.Tasks.Maintenance;
 /// <summary>
 /// Remove finished jobs and restart error jobs.
 /// </summary>
-public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ISchedulerFactory schedulerFactory) : TaskBase(dataStore, logger)
+public class CleanupFinishedTasks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ISchedulerFactory schedulerFactory) : TaskBase(dataStore, logger)
 {
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
@@ -89,7 +89,6 @@ public class CleanupFinishedTasks(TaskRuntimeDataStore dataStore, ILogger<TaskBa
 
         var trigger = TriggerBuilder.Create()
             .WithIdentity("Cleanup Finished Tasks", "Maintenance")
-            .StartNow()
             .WithCronSchedule("0 */15 * ? * *")
             .Build();
 

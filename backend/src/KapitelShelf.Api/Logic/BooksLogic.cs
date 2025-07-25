@@ -450,6 +450,22 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     public void DeleteFiles(Guid bookId) => this.bookStorage.DeleteDirectory(bookId);
 
     /// <inheritdoc/>
+    public async Task<bool> BookFileExists(IFormFile file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        var checksum = file.Checksum();
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.Books
+            .AsNoTracking()
+            .Include(x => x.Location)
+                .ThenInclude(x => x!.FileInfo)
+            .AnyAsync(x => x.Location!.FileInfo!.Sha256 == checksum);
+    }
+
+    /// <inheritdoc/>
     public async Task CleanupDatabase()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

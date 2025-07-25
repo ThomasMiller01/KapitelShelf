@@ -91,6 +91,18 @@ public class BookParserManager : IBookParserManager
         return await parser.ParseBulk(file);
     }
 
+    /// <inheritdoc/>
+    public List<string> SupportedFileEndings()
+    {
+        return this.parserTypes
+            .SelectMany(t =>
+            {
+                // throwaway instance to get the supported extensions
+                var parser = (IBookParser)Activator.CreateInstance(t)!;
+                return parser.SupportedExtensions;
+            }).ToList();
+    }
+
     /// <summary>
     /// Extracts the file extension from the given file.
     /// </summary>

@@ -191,6 +191,36 @@ public class EPUBParserTests
     }
 
     /// <summary>
+    /// Tests ParseReleaseDate parses from meta "calibre:timestamp".
+    /// </summary>
+    [Test]
+    public void ParseReleaseDate_ParsesFromYearOnly()
+    {
+        // Setup
+        var date = 2013;
+        var dates = new List<EpubMetadataDate>
+        {
+            new(date.ToString(CultureInfo.InvariantCulture)),
+        };
+
+        var metadata = new EpubMetadata(
+            dates: dates,
+            metaItems: []);
+
+        // Execute
+        var parsed = EPUBParser.ParseReleaseDate(metadata);
+
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(parsed, Is.Not.Null);
+            Assert.That(parsed!.Value.Day, Is.EqualTo(1));
+            Assert.That(parsed!.Value.Month, Is.EqualTo(1));
+            Assert.That(parsed!.Value.Year, Is.EqualTo(date));
+        });
+    }
+
+    /// <summary>
     /// Tests ParseSeries parses null and zero for missing series info.
     /// </summary>
     [Test]

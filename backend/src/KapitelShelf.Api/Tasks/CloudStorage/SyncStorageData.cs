@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
@@ -11,28 +11,43 @@ using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Utils;
 using Quartz;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Tasks.CloudStorage;
 
 /// <summary>
 /// Initially download data from a cloud storage.
 /// </summary>
-public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
+[DisallowConcurrentExecution]
+public partial class SyncStorageData(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    ICloudStorage fileStorage,
+    ICloudStoragesLogic logic,
+    IMapper mapper,
+    KapitelShelfSettings settings,
+    IProcessUtils processUtils) : TaskBase(dataStore, logger)
 {
-    private readonly ILogger<TaskBase> logger = logger;
+#pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
+#pragma warning disable SA1401 // Fields should be private
+    internal IProcess? rcloneProcess = null;
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
 
     private readonly ICloudStorage fileStorage = fileStorage;
 
-    private readonly CloudStoragesLogic logic = logic;
+    private readonly ICloudStoragesLogic logic = logic;
 
     private readonly IMapper mapper = mapper;
 
     private readonly KapitelShelfSettings settings = settings;
 
-    private IJobExecutionContext? executionContext = null;
+    private readonly IProcessUtils processUtils = processUtils;
 
-    private Process? rcloneProcess = null;
+    private IJobExecutionContext? executionContext = null;
 
     private double progressBase = 0;
     private double progressIncrement = 0;
@@ -81,9 +96,10 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
                     "--stats=1s",
                     "--stats-one-line"
                     ],
+                    this.processUtils,
                     onStdout: this.DownloadProgressHandler,
                     stdoutSeperator: "xfr", // rclone transfer number
-                    onProcessStarted: p => this.rcloneProcess = p,
+                    onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
                     cancellationToken: context.CancellationToken);
             }
             else
@@ -99,9 +115,10 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
                         "--stats=1s",
                         "--stats-one-line"
                     ],
+                    this.processUtils,
                     onStdout: this.DownloadProgressHandler,
                     stdoutSeperator: "xfr", // rclone transfer number
-                    onProcessStarted: p => this.rcloneProcess = p,
+                    onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
                     cancellationToken: context.CancellationToken);
             }
 
@@ -126,7 +143,7 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Could not kill rclone process");
+            this.Logger.LogError(ex, "Could not kill rclone process");
         }
 
         await Task.CompletedTask;
@@ -145,12 +162,10 @@ public partial class SyncStorageData(TaskRuntimeDataStore dataStore, ILogger<Tas
         var job = JobBuilder.Create<SyncStorageData>()
             .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
             .WithDescription($"Sync cloud data for configured storages")
-            .RequestRecovery() // re-execute after possible hard-shutdown
             .Build();
 
         var trigger = TriggerBuilder.Create()
             .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
-            .StartNow()
             .WithCronSchedule("0 */5 * ? * *")
             .Build();
 

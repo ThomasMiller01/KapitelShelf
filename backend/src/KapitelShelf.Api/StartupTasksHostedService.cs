@@ -22,6 +22,7 @@ public class StartupTasksHostedService(ISchedulerFactory schedulerFactory) : IHo
 
         await CleanupFinishedTasks.Schedule(scheduler);
         await SyncStorageData.Schedule(scheduler);
+        await ScanForBooks.Schedule(scheduler);
     }
 
     /// <inheritdoc/>

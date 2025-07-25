@@ -6,11 +6,14 @@ using System.Text.Json;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
+using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
+using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
+using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -20,7 +23,12 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The cloud storages base logic.
 /// </summary>
-public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ISchedulerFactory schedulerFactory)
+public class CloudStoragesLogic(
+    IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
+    IMapper mapper,
+    KapitelShelfSettings settings,
+    ISchedulerFactory schedulerFactory,
+    IProcessUtils processUtils) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -30,11 +38,9 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
-    /// <summary>
-    /// Check if the cloud is configured.
-    /// </summary>
-    /// <param name="cloudType">The cloud type.</param>
-    /// <returns>True if the cloud is configured, otherwise false.</returns>
+    private readonly IProcessUtils processUtils = processUtils;
+
+    /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -44,12 +50,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             .AnyAsync();
     }
 
-    /// <summary>
-    /// Configure the the cloud.
-    /// </summary>
-    /// <param name="cloudType">The cloud type.</param>
-    /// <param name="configureCloudDto">The configure cloud dto.</param>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task Configure(CloudTypeDTO cloudType, ConfigureCloudDTO configureCloudDto)
     {
         ArgumentNullException.ThrowIfNull(configureCloudDto);
@@ -86,12 +87,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         await context.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// Configure the the cloud directory.
-    /// </summary>
-    /// <param name="storageId">The storage id.</param>
-    /// <param name="directory">The cloud directory.</param>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task ConfigureDirectory(Guid storageId, string directory)
     {
         ArgumentNullException.ThrowIfNull(directory);
@@ -118,11 +114,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         _ = InitialStorageDownload.Schedule(scheduler, mapper.Map<CloudStorageDTO>(storage), options: TaskScheduleOptionsDTO.RestartPreset);
     }
 
-    /// <summary>
-    /// Get the cloud configuration.
-    /// </summary>
-    /// <param name="cloudType">The cloud type.</param>
-    /// <returns>The cloud configuration.</returns>
+    /// <inheritdoc/>
     public async Task<CloudConfigurationDTO> GetConfiguration(CloudTypeDTO cloudType)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -133,11 +125,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
                 .FirstAsync();
     }
 
-    /// <summary>
-    /// Get the cloud storage.
-    /// </summary>
-    /// <param name="storageId">The storage id.</param>
-    /// <returns>The storage model.</returns>
+    /// <inheritdoc/>
     public async Task<CloudStorageModel?> GetStorageModel(Guid storageId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -147,10 +135,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
                 .FirstOrDefaultAsync();
     }
 
-    /// <summary>
-    /// Get all storages that are downloaded.
-    /// </summary>
-    /// <returns>The storage models.</returns>
+    /// <inheritdoc/>
     public async Task<List<CloudStorageModel>> GetDownloadedStorageModels()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -160,22 +145,14 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
                 .ToListAsync();
     }
 
-    /// <summary>
-    /// Get the cloud storage.
-    /// </summary>
-    /// <param name="storageId">The storage id.</param>
-    /// <returns>The storage dto.</returns>
+    /// <inheritdoc/>
     public async Task<CloudStorageDTO?> GetStorage(Guid storageId)
     {
         var storageModel = await this.GetStorageModel(storageId);
         return this.mapper.Map<CloudStorageDTO>(storageModel);
     }
 
-    /// <summary>
-    /// Mark the storage as downloaded.
-    /// </summary>
-    /// <param name="storageId">The storage id.</param>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task MarkStorageAsDownloaded(Guid storageId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -194,11 +171,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         await context.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// List all the cloud storages.
-    /// </summary>
-    /// <param name="cloudType">The cloud type.</param>
-    /// <returns>The cloud storages.</returns>
+    /// <inheritdoc/>
     public async Task<List<CloudStorageDTO>> ListCloudStorages(CloudTypeDTO cloudType)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -209,12 +182,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             .ToList();
     }
 
-    /// <summary>
-    /// List all the cloud storages.
-    /// </summary>
-    /// <param name="storageId">The storage id.</param>
-    /// <param name="path">The start path of the directories to list.</param>
-    /// <returns>The cloud storages.</returns>
+    /// <inheritdoc/>
     public async Task<List<CloudStorageDirectoryDTO>> ListCloudStorageDirectories(Guid storageId, string path)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -230,7 +198,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         try
         {
-            var output = await cloudStorage.ExecuteRCloneCommand(this.settings.CloudStorage.RClone, ["lsjson", $"\"{StaticConstants.CloudStorageRCloneConfigName}:{path}\"", "--dirs-only", "--fast-list"]);
+            var output = await cloudStorage.ExecuteRCloneCommand(this.settings.CloudStorage.RClone, ["lsjson", $"\"{StaticConstants.CloudStorageRCloneConfigName}:{path}\"", "--dirs-only", "--fast-list"], this.processUtils);
             var entries = JsonSerializer.Deserialize<List<RCloneListJsonDTO>>(output);
             ArgumentNullException.ThrowIfNull(entries);
 
@@ -247,11 +215,7 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         }
     }
 
-    /// <summary>
-    /// Delete a cloud storage.
-    /// </summary>
-    /// <param name="storageId">The storage id.</param>
-    /// <returns>The cloud storages.</returns>
+    /// <inheritdoc/>
     public async Task<CloudStorageDTO?> DeleteCloudStorage(Guid storageId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -270,5 +234,38 @@ public class CloudStoragesLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         await context.SaveChangesAsync();
 
         return this.mapper.Map<CloudStorageDTO>(storage);
+    }
+
+    /// <inheritdoc/>
+    public async Task AddCloudFileImportFail(CloudStorageDTO storage, FileInfoDTO fileInfo, string errorMessage)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+        ArgumentNullException.ThrowIfNull(fileInfo);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var failedCLoudFileImport = new FailedCloudFileImportModel
+        {
+            StorageId = storage.Id,
+            FileInfo = this.mapper.Map<FileInfoModel>(fileInfo),
+            ErrorMessaget = errorMessage,
+        };
+
+        context.FailedCloudFileImports.Add(failedCLoudFileImport);
+        await context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> CloudFileImportFailed(CloudStorageDTO storage, IFormFile file)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+        ArgumentNullException.ThrowIfNull(file);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.FailedCloudFileImports
+            .AsNoTracking()
+            .Include(x => x.FileInfo)
+            .AnyAsync(x => x.StorageId == storage.Id && x.FileInfo.Sha256 == file.Checksum());
     }
 }

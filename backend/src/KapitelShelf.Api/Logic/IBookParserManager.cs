@@ -31,4 +31,10 @@ public interface IBookParserManager
     /// <param name="file">The file.</param>
     /// <returns>True if it is a bulk file, otherwise false.</returns>
     bool IsBulkFile(IFormFile file);
+
+    /// <summary>
+    /// Get a list of the supported file endings.
+    /// </summary>
+    /// <returns>The supported file endings.</returns>
+    List<string> SupportedFileEndings();
 }

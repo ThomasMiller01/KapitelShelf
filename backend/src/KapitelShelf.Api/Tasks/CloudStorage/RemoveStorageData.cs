@@ -13,7 +13,7 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Deletes all the local data of a cloud storage.
 /// </summary>
-public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage) : TaskBase(dataStore, logger)
+public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStorage fileStorage = fileStorage;
 
@@ -66,6 +66,7 @@ public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
 
             try
             {
+                // try to delete the file
                 File.Delete(file);
             }
             catch (Exception ex)
@@ -76,7 +77,15 @@ public class RemoveStorageData(TaskRuntimeDataStore dataStore, ILogger<TaskBase>
             this.DataStore.SetProgress(JobKey(context), i, totalFiles);
         }
 
-        Directory.Delete(storagePath, true);
+        try
+        {
+            // try to delete the directory
+            Directory.Delete(storagePath);
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Could not delete directory '{Directory}' in cloud storage", storagePath);
+        }
 
         await Task.CompletedTask;
     }

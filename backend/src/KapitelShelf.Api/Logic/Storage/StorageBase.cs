@@ -54,6 +54,9 @@ public class StorageBase(KapitelShelfSettings settings) : IStorageBase
         await using var stream = new FileStream(fullFilePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
+        // Reset stream position before computing hash
+        stream.Seek(0, SeekOrigin.Begin);
+
         return new FileInfoDTO
         {
             FilePath = filePath,

@@ -11,6 +11,7 @@ using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
+using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -92,6 +93,8 @@ builder.Services.AddSingleton<ICloudStorage, CloudStorage>();
 builder.Services.AddSingleton<CloudStoragesLogic>();
 builder.Services.AddSingleton<OneDriveLogic>();
 
+builder.Services.AddSingleton<ProcessUtils>();
+
 // background tasks using Quartz.NET
 builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));
 builder.Services.AddQuartz(q =>
@@ -114,7 +117,7 @@ builder.Services.AddQuartzHostedService(options =>
     // let jobs finish gracefully
     options.WaitForJobsToComplete = true;
 });
-builder.Services.AddSingleton<TaskRuntimeDataStore>();
+builder.Services.AddSingleton<ITaskRuntimeDataStore, TaskRuntimeDataStore>();
 builder.Services.AddHostedService<StartupTasksHostedService>();
 
 // healthchecks

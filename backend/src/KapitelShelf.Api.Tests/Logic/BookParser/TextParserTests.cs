@@ -84,7 +84,11 @@ public class TextParserTests
 
         var result = await this.testee.Parse(file);
 
-        Assert.That(result.Book.Title, Is.EqualTo("this.is my book"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Book.Title, Is.EqualTo("this.is my book"));
+            Assert.That(result.Book.Description, Is.EqualTo(string.Empty));
+        });
     }
 
     /// <summary>

@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Security.Cryptography;
+using KapitelShelf.Api.DTOs.FileInfo;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace KapitelShelf.Api.Extensions;
@@ -38,9 +39,22 @@ public static class FileExtensions
     /// <summary>
     /// Calculate the SHA256 checksum of a file.
     /// </summary>
+    /// <param name="file">The file.</param>
+    /// <returns>The SHA256 checksum.</returns>
+    public static string Checksum(this IFormFile file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        using var stream = file.OpenReadStream();
+        return stream.Checksum();
+    }
+
+    /// <summary>
+    /// Calculate the SHA256 checksum of a file.
+    /// </summary>
     /// <param name="stream">The file stream.</param>
     /// <returns>The SHA256 checksum.</returns>
-    public static string Checksum(this FileStream stream)
+    public static string Checksum(this Stream stream)
     {
         using var sha = SHA256.Create();
         var hash = sha.ComputeHash(stream);
@@ -59,5 +73,36 @@ public static class FileExtensions
 
         var stream = new MemoryStream(bytes);
         return new FormFile(stream, 0, bytes.Length, "file", fileName);
+    }
+
+    /// <summary>
+    /// Read a file from the filePath.
+    /// </summary>
+    /// <param name="filePath">The file path.</param>
+    /// <returns>The file.</returns>
+    public static IFormFile ToFile(this string filePath)
+    {
+        var bytes = File.ReadAllBytes(filePath);
+        var ms = new MemoryStream(bytes);
+        return new FormFile(ms, 0, ms.Length, "file", Path.GetFileName(filePath));
+    }
+
+    /// <summary>
+    /// Convert a form file to a file info..
+    /// </summary>
+    /// <param name="file">The file.</param>
+    /// <param name="filePath">The file path.</param>
+    /// <returns>The file info.</returns>
+    public static FileInfoDTO ToFileInfo(this IFormFile file, string filePath)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        return new FileInfoDTO
+        {
+            FilePath = filePath,
+            FileSizeBytes = file.Length,
+            MimeType = file.GetMimeType(),
+            Sha256 = file.Checksum(),
+        };
     }
 }

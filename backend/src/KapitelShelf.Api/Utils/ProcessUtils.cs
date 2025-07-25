@@ -10,21 +10,10 @@ namespace KapitelShelf.Api.Utils;
 /// <summary>
 /// The process utils.
 /// </summary>
-public static class ProcessUtils
+public class ProcessUtils : IProcessUtils
 {
-    /// <summary>
-    /// Executes an external process asynchronously and captures stdout/stderr.
-    /// </summary>
-    /// <param name="process">The executable to run (e.g., "rclone", "bash", "cmd.exe").</param>
-    /// <param name="arguments">Command-line arguments for the process.</param>
-    /// <param name="workingDirectory">Optional working directory for the process.</param>
-    /// <param name="onStdout">Called when stdout gets written to.</param>
-    /// <param name="onStderr">Called when stderr gets written to.</param>
-    /// <param name="stdoutSeperator">Use a custom stdout seperator.</param>
-    /// <param name="onProcessStarted">Called once the process is started.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Exit code, standard output, and standard error.</returns>
-    public static async Task<(int ExitCode, string Stdout, string Stderr)> RunProcessAsync(
+    /// <inheritdoc/>
+    public async Task<(int ExitCode, string Stdout, string Stderr)> RunProcessAsync(
         string process,
         string arguments,
         string? workingDirectory = null,
@@ -128,4 +117,18 @@ public static class ProcessUtils
 
         return (processObj.ExitCode, stdout.ToString(), stderr.ToString());
     }
+}
+
+/// <summary>
+/// The process wrapper.
+/// </summary>
+public class ProcessWrapper(Process process) : IProcess
+{
+    private readonly Process process = process;
+
+    /// <inheritdoc/>
+    public bool HasExited => this.process.HasExited;
+
+    /// <inheritdoc/>
+    public void Kill(bool entireProcessTree) => this.process.Kill(entireProcessTree);
 }

@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
@@ -11,6 +10,7 @@ using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Utils;
 using Quartz;
 
 namespace KapitelShelf.Api.Tasks.CloudStorage;
@@ -18,13 +18,19 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Initially download data from a cloud storage.
 /// </summary>
-public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, CloudStoragesLogic logic, ISchedulerFactory schedulerFactory, IMapper mapper, KapitelShelfSettings settings) : TaskBase(dataStore, logger)
+public partial class InitialStorageDownload(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    ICloudStorage fileStorage,
+    ICloudStoragesLogic logic,
+    ISchedulerFactory schedulerFactory,
+    IMapper mapper,
+    KapitelShelfSettings settings,
+    IProcessUtils processUtils) : TaskBase(dataStore, logger)
 {
-    private readonly ILogger<TaskBase> logger = logger;
-
     private readonly ICloudStorage fileStorage = fileStorage;
 
-    private readonly CloudStoragesLogic logic = logic;
+    private readonly ICloudStoragesLogic logic = logic;
 
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
@@ -32,9 +38,11 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
 
     private readonly KapitelShelfSettings settings = settings;
 
+    private readonly IProcessUtils processUtils = processUtils;
+
     private IJobExecutionContext? executionContext = null;
 
-    private Process? rcloneProcess = null;
+    private IProcess? rcloneProcess = null;
 
     /// <summary>
     /// Sets the storage id.
@@ -82,9 +90,10 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
                     "--stats=1s",
                     "--stats-one-line"
                 ],
+                this.processUtils,
                 onStdout: this.DownloadProgressHandler,
                 stdoutSeperator: "xfr", // rclone transfer number
-                onProcessStarted: p => this.rcloneProcess = p,
+                onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
                 cancellationToken: context.CancellationToken);
         }
         else
@@ -100,9 +109,10 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
                     "--stats=1s",
                     "--stats-one-line"
                 ],
+                this.processUtils,
                 onStdout: this.DownloadProgressHandler,
                 stdoutSeperator: "xfr", // rclone transfer number
-                onProcessStarted: p => this.rcloneProcess = p,
+                onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
                 cancellationToken: context.CancellationToken);
         }
 
@@ -126,7 +136,7 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Could not kill rclone process");
+            this.Logger.LogError(ex, "Could not kill rclone process");
         }
 
         await Task.CompletedTask;
@@ -177,7 +187,7 @@ public partial class InitialStorageDownload(TaskRuntimeDataStore dataStore, ILog
         var isEmpty = !Directory.EnumerateFileSystemEntries(storagePath).Any();
         if (isEmpty)
         {
-            this.logger.LogInformation("Directory is empty, nothing to do.");
+            this.Logger.LogInformation("Directory is empty, nothing to do.");
             return;
         }
 
