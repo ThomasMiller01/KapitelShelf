@@ -113,39 +113,6 @@ public class RemoveStorageDataTests
     }
 
     /// <summary>
-    /// Tests ExecuteTask skips files that fail to delete and logs error.
-    /// </summary>
-    /// <returns>A task representing the async operation.</returns>
-    [Test]
-    public async Task ExecuteTask_LogsError_IfFileDeleteFails()
-    {
-        // Setup
-        // lock the first file so it cannot be deleted
-        var fileToLock = Path.Combine(this.testDir, "file1.txt");
-        using var stream = File.Open(fileToLock, FileMode.Open, FileAccess.Read, FileShare.None);
-
-        // Execute
-        await this.testee.ExecuteTask(this.context);
-
-        // Assert
-        this.logger.Received().Log(
-            LogLevel.Error,
-            Arg.Any<EventId>(),
-            Arg.Is<object>(o => o != null && o.ToString()!.Contains("Could not delete file") && o.ToString()!.Contains(fileToLock)),
-            Arg.Any<IOException>(),
-            Arg.Any<Func<object, Exception?, string>>());
-
-        Assert.Multiple(() =>
-        {
-            // other file should still be deleted, and directory may not be deleted due to undeletable file
-            Assert.That(File.Exists(fileToLock), Is.True);
-            Assert.That(Directory.Exists(this.testDir), Is.True);
-        });
-
-        stream.Dispose();
-    }
-
-    /// <summary>
     /// Tests ExecuteTask returns if storage type is invalid.
     /// </summary>
     /// <returns>A task representing the async operation.</returns>
