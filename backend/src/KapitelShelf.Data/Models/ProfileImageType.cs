@@ -62,4 +62,10 @@ public enum ProfileImageType
     /// </summary>
     /// <remmarks>Chicks</remmarks>
     Chico = 8,
+
+    /// <summary>
+    /// A chonky wild boar.
+    /// </summary>
+    /// <remmarks>Quirky Companions</remmarks>
+    LeChonkyBoy = 9,
 }

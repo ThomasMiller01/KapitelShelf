@@ -53,4 +53,9 @@ public enum ProfileImageTypeDTO
     /// The "Chico" profile image.
     /// </summary>
     Chico = 8,
+
+    /// <summary>
+    /// The "Le Chonky Boy" profile image.
+    /// </summary>
+    LeChonkyBoy = 9,
 }

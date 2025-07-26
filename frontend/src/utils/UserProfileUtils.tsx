@@ -1,6 +1,7 @@
 import CheeryChino from "../assets/users/CheeryChino.png";
 import Chico from "../assets/users/Chico.png";
 import Freshavocado from "../assets/users/Freshavocado.png";
+import LeChonkyBoy from "../assets/users/LeChonkyBoy.png";
 import LittleStinky from "../assets/users/LittleStinky.png";
 import MonsieurRead from "../assets/users/MonsieurRead.png";
 import MuggyMalheur from "../assets/users/MuggyMalheur.png";
@@ -32,6 +33,7 @@ export const ProfileImageTypeToSrc = {
   [ProfileImageTypeDTO.NUMBER_6]: Tailywink,
   [ProfileImageTypeDTO.NUMBER_7]: Riley,
   [ProfileImageTypeDTO.NUMBER_8]: Chico,
+  [ProfileImageTypeDTO.NUMBER_9]: LeChonkyBoy,
 };
 
 export const ProfileImageTypeToName = {
@@ -44,6 +46,7 @@ export const ProfileImageTypeToName = {
   [ProfileImageTypeDTO.NUMBER_6]: "Tailywink",
   [ProfileImageTypeDTO.NUMBER_7]: "Riley",
   [ProfileImageTypeDTO.NUMBER_8]: "Chico",
+  [ProfileImageTypeDTO.NUMBER_9]: "Le Chonky Boy",
 };
 
 export const ProfileImageCategories = {
@@ -57,6 +60,7 @@ export const ProfileImageCategories = {
   "Quirky Companions": [
     ProfileImageTypeDTO.NUMBER_1,
     ProfileImageTypeDTO.NUMBER_6,
+    ProfileImageTypeDTO.NUMBER_9,
   ],
   Chicks: [ProfileImageTypeDTO.NUMBER_7, ProfileImageTypeDTO.NUMBER_8],
 };
