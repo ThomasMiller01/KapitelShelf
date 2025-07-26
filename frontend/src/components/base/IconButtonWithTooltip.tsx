@@ -3,7 +3,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import React from "react";
 
 interface ButtonWithTooltipProps extends IconButtonProps {
-  tooltip: string;
+  tooltip: string | undefined;
 
   // Link component
   to?: string;

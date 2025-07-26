@@ -17,6 +17,7 @@ import { type ReactElement, useEffect, useState } from "react";
 
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useMobile } from "../../hooks/useMobile";
+import { useSetting } from "../../hooks/useSetting";
 import {
   type MetadataDTO,
   MetadataSources,
@@ -70,18 +71,10 @@ const MetadataDialog = ({
     return (): void => clearTimeout(handle);
   }, [searchTitle]);
 
-  const [selectedSources, setSelectedSources] = useState<number[]>(() => {
-    const stored = getItem(STORAGE_KEY);
-    if (!stored) {
-      return STORAGE_DEFAULT_VALUE;
-    }
-
-    try {
-      return JSON.parse(stored) as number[];
-    } catch {
-      return STORAGE_DEFAULT_VALUE;
-    }
-  });
+  const [selectedSources, setSelectedSources] = useSetting<number[]>(
+    STORAGE_KEY,
+    STORAGE_DEFAULT_VALUE
+  );
   const handleSourceClick = (source: number): void => {
     setSelectedSources((prev) => {
       const updated = prev.includes(source)
