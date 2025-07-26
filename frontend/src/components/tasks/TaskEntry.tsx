@@ -71,7 +71,7 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
 
       {/* Progress */}
       {task.state === TaskState.NUMBER_1 && (
-        <Grid size={{ xs: 6, lg: 1 }}>
+        <Grid size={{ xs: 3, lg: 1 }}>
           <Property label="Progress">
             <CircularProgressWithLabel progress={task.progress} />
           </Property>
@@ -80,7 +80,7 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
 
       {/* Message */}
       {task.state === TaskState.NUMBER_1 && task.message !== null && (
-        <Grid size={{ xs: 6, lg: 2 }}>
+        <Grid size={{ xs: 9, lg: 2 }}>
           <Property label="Message">
             <Tooltip title={task.message}>
               <Typography variant="subtitle1">{task.message}</Typography>
@@ -108,7 +108,7 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
       )}
 
       {/* Next Execution */}
-      <Grid size={{ xs: 6, lg: 2 }}>
+      <Grid size={{ xs: 6, lg: 1.5 }}>
         <Property
           label="Next Execution"
           tooltip={FormatTime(task.nextExecution)}
@@ -118,7 +118,7 @@ export const TaskEntry: React.FC<TaskEntryProps> = ({ task }) => {
       </Grid>
 
       {/* Last Execution */}
-      <Grid size={{ xs: 6, lg: 2 }}>
+      <Grid size={{ xs: 6, lg: 1.5 }}>
         <Property
           label="Last Execution"
           tooltip={FormatTime(task.lastExecution)}
