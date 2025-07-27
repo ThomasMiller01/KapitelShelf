@@ -79,36 +79,6 @@ public class SeriesLogicTests
     }
 
     /// <summary>
-    /// Tests GetSeriesSummaryAsync returns paged results.
-    /// </summary>
-    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-    [Test]
-    [Obsolete("This test is obsolete because the method it tests is deprecated.")]
-    public async Task GetSeriesSummaryAsync_ReturnsPagedResult()
-    {
-        // Setup
-        var series = new SeriesModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "SummarySeries".Unique(),
-            UpdatedAt = DateTime.UtcNow,
-            Books = [],
-        };
-
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            context.Series.Add(series);
-            await context.SaveChangesAsync();
-        }
-
-        // Execute
-        var result = await this.testee.GetSeriesSummaryAsync(1, 10);
-
-        // Assert
-        Assert.That(result, Is.Not.Null);
-    }
-
-    /// <summary>
     /// Tests GetSeriesAsync returns paged results.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>

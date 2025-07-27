@@ -1080,59 +1080,6 @@
         "deprecated": true
       }
     },
-    "/series/summary": {
-      "get": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Fetch all series summaries.",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "description": "The page number.",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "description": "The page size.",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 24
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeriesSummaryDTOPagedResult"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeriesSummaryDTOPagedResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeriesSummaryDTOPagedResult"
-                }
-              }
-            }
-          }
-        },
-        "deprecated": true
-      }
-    },
     "/series": {
       "get": {
         "tags": [
@@ -2463,56 +2410,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SeriesDTO"
-            },
-            "description": "Gets or sets the items.",
-            "nullable": true
-          },
-          "totalCount": {
-            "type": "integer",
-            "description": "Gets or sets the total number of items.",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false,
-        "description": "The paginated result."
-      },
-      "SeriesSummaryDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Gets or sets the series id.",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "description": "Gets or sets the name.",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "Gets or sets the creation time.",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "Gets or sets the update time.",
-            "format": "date-time"
-          },
-          "lastVolume": {
-            "$ref": "#/components/schemas/BookDTO"
-          }
-        },
-        "additionalProperties": false,
-        "description": "The series dto."
-      },
-      "SeriesSummaryDTOPagedResult": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SeriesSummaryDTO"
             },
             "description": "Gets or sets the items.",
             "nullable": true
