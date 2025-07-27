@@ -25,30 +25,6 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
     private readonly SeriesLogic logic = logic;
 
     /// <summary>
-    /// Fetch all series summaries.
-    /// </summary>
-    /// <param name="page">The page number.</param>
-    /// <param name="pageSize">The page size.</param>
-    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpGet("summary")]
-    [Obsolete("Use GET /series instead", false)]
-    public async Task<ActionResult<PagedResult<SeriesSummaryDTO>>> GetSeriesSummary(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 24)
-    {
-        try
-        {
-            var series = await this.logic.GetSeriesSummaryAsync(page, pageSize);
-            return Ok(series);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error fetching series summaries");
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
-
-    /// <summary>
     /// Fetch all series.
     /// </summary>
     /// <param name="page">The page number.</param>

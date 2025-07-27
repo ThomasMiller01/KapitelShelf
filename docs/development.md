@@ -14,6 +14,14 @@ When contributing to KapitelShelf, all feature and bugfix changes must be submit
 
 A properly formatted, squashed commit allows our release tooling to automatically generate accurate changelogs and version bumps.
 
+### PR Title
+
+The PR title must follow conventional commits, as defined by [conventionalcommits.org](https://www.conventionalcommits.org/en/v1.0.0/#summary). This is required to allow [commit-and-tag-version](https://www.npmjs.com/package/commit-and-tag-version) to automatically create a changelog based on the commits.
+
+### Breaking Changes
+
+PRs that introduce breaking changes must append a `!` after the type, as detailed [here](https://www.conventionalcommits.org/en/v1.0.0/#summary).
+
 ## Publishing a new Release
 
 When publishing a new version of any component (e.g. the Helm chart, the API client, or frontend packages), please follow these steps:

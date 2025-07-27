@@ -777,62 +777,6 @@ export interface SeriesDTOPagedResult {
     'totalCount'?: number;
 }
 /**
- * The series dto.
- * @export
- * @interface SeriesSummaryDTO
- */
-export interface SeriesSummaryDTO {
-    /**
-     * Gets or sets the series id.
-     * @type {string}
-     * @memberof SeriesSummaryDTO
-     */
-    'id'?: string;
-    /**
-     * Gets or sets the name.
-     * @type {string}
-     * @memberof SeriesSummaryDTO
-     */
-    'name'?: string | null;
-    /**
-     * Gets or sets the creation time.
-     * @type {string}
-     * @memberof SeriesSummaryDTO
-     */
-    'createdAt'?: string;
-    /**
-     * Gets or sets the update time.
-     * @type {string}
-     * @memberof SeriesSummaryDTO
-     */
-    'updatedAt'?: string;
-    /**
-     * 
-     * @type {BookDTO}
-     * @memberof SeriesSummaryDTO
-     */
-    'lastVolume'?: BookDTO;
-}
-/**
- * The paginated result.
- * @export
- * @interface SeriesSummaryDTOPagedResult
- */
-export interface SeriesSummaryDTOPagedResult {
-    /**
-     * Gets or sets the items.
-     * @type {Array<SeriesSummaryDTO>}
-     * @memberof SeriesSummaryDTOPagedResult
-     */
-    'items'?: Array<SeriesSummaryDTO> | null;
-    /**
-     * Gets or sets the total number of items.
-     * @type {number}
-     * @memberof SeriesSummaryDTOPagedResult
-     */
-    'totalCount'?: number;
-}
-/**
  * The tag dto.
  * @export
  * @interface TagDTO
@@ -3347,47 +3291,6 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * 
-         * @summary Fetch all series summaries.
-         * @param {number} [page] The page number.
-         * @param {number} [pageSize] The page size.
-         * @param {*} [options] Override http request option.
-         * @deprecated
-         * @throws {RequiredError}
-         */
-        seriesSummaryGet: async (page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/series/summary`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (pageSize !== undefined) {
-                localVarQueryParameter['pageSize'] = pageSize;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -3509,21 +3412,6 @@ export const SeriesApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
-        /**
-         * 
-         * @summary Fetch all series summaries.
-         * @param {number} [page] The page number.
-         * @param {number} [pageSize] The page size.
-         * @param {*} [options] Override http request option.
-         * @deprecated
-         * @throws {RequiredError}
-         */
-        async seriesSummaryGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeriesSummaryDTOPagedResult>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSummaryGet(page, pageSize, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSummaryGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
     }
 };
 
@@ -3620,18 +3508,6 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          */
         seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Fetch all series summaries.
-         * @param {number} [page] The page number.
-         * @param {number} [pageSize] The page size.
-         * @param {*} [options] Override http request option.
-         * @deprecated
-         * @throws {RequiredError}
-         */
-        seriesSummaryGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<SeriesSummaryDTOPagedResult> {
-            return localVarFp.seriesSummaryGet(page, pageSize, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -3744,20 +3620,6 @@ export class SeriesApi extends BaseAPI {
      */
     public seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig) {
         return SeriesApiFp(this.configuration).seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Fetch all series summaries.
-     * @param {number} [page] The page number.
-     * @param {number} [pageSize] The page size.
-     * @param {*} [options] Override http request option.
-     * @deprecated
-     * @throws {RequiredError}
-     * @memberof SeriesApi
-     */
-    public seriesSummaryGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
-        return SeriesApiFp(this.configuration).seriesSummaryGet(page, pageSize, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
