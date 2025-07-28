@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
 using System.Text.Json;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
@@ -9,6 +10,7 @@ using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
@@ -28,7 +30,8 @@ public class CloudStoragesLogic(
     IMapper mapper,
     KapitelShelfSettings settings,
     ISchedulerFactory schedulerFactory,
-    IProcessUtils processUtils) : ICloudStoragesLogic
+    IProcessUtils processUtils,
+    ICloudStorage storage) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -39,6 +42,8 @@ public class CloudStoragesLogic(
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
     private readonly IProcessUtils processUtils = processUtils;
+
+    private readonly ICloudStorage storage = storage;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
@@ -267,5 +272,59 @@ public class CloudStoragesLogic(
             .AsNoTracking()
             .Include(x => x.FileInfo)
             .AnyAsync(x => x.StorageId == storage.Id && x.FileInfo.Sha256 == file.Checksum());
+    }
+
+    /// <inheritdoc/>
+    public async Task SyncStorage(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+
+        var storageModel = await this.GetStorageModel(storage.Id);
+        ArgumentNullException.ThrowIfNull(storageModel);
+
+        var localPath = this.storage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
+
+        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
+        {
+            // use rclone bisync
+            await storageModel.ExecuteRCloneCommand(
+                this.settings.CloudStorage.RClone,
+                [
+                    "bisync",
+                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
+                    $"\"{localPath}\"",
+                    "--resilient",
+                    "--recover",
+                    "--conflict-resolve=newer",
+                    "--max-lock=2m",
+                    "--progress",
+                    "--stats=1s",
+                    "--stats-one-line"
+                ],
+                this.processUtils,
+                onStdout: onStdout,
+                stdoutSeperator: "xfr", // rclone transfer number
+                onProcessStarted: onProcessStarted,
+                cancellationToken: cancellationToken);
+        }
+        else
+        {
+            // use rclone clone
+            await storageModel.ExecuteRCloneCommand(
+                this.settings.CloudStorage.RClone,
+                [
+                    "sync",
+                        $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
+                        $"\"{localPath}\"",
+                        "--progress",
+                        "--stats=1s",
+                        "--stats-one-line"
+                ],
+                this.processUtils,
+                onStdout: onStdout,
+                stdoutSeperator: "xfr", // rclone transfer number
+                onProcessStarted: onProcessStarted,
+                cancellationToken: cancellationToken);
+        }
     }
 }

@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Data.Models.CloudStorage;
@@ -108,4 +109,14 @@ public interface ICloudStoragesLogic
     /// <param name="file">The file.</param>
     /// <returns>True if the import failed before, otherwise false.</returns>
     Task<bool> CloudFileImportFailed(CloudStorageDTO storage, IFormFile file);
+
+    /// <summary>
+    /// Sync a single storage.
+    /// </summary>
+    /// <param name="storage">The storage to sync.</param>
+    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onProcessStarted">Called when the process got started.</param>
+    /// <param name="cancellationToken">The cancelation token.</param>
+    /// <returns>A task.</returns>
+    Task SyncStorage(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
 }

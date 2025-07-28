@@ -154,16 +154,20 @@ public partial class InitialStorageDownload(
         ArgumentNullException.ThrowIfNull(scheduler);
         ArgumentNullException.ThrowIfNull(storage);
 
-        var job = JobBuilder.Create<InitialStorageDownload>()
-            .WithIdentity($"Downloading cloud data from {storage.Type}", "Cloud Storage")
-            .WithDescription($"Initial download for '{storage.CloudDirectory}'")
-            .UsingJobData("StorageId", storage.Id)
-            .RequestRecovery() // re-execute after possible hard-shutdown
+        var internalTask = new InternalTask<InitialStorageDownload>
+        {
+            Title = $"Downloading cloud data from {storage.Type}",
+            Category = "Cloud Storage",
+            Description = $"Initial download for '{storage.CloudDirectory}'",
+            ShouldRecover = true,
+            StartNow = true,
+        };
+
+        var job = internalTask.JobDetail
+            .UsingJobData("StorageId", storage.Id.ToString())
             .Build();
 
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Downloading cloud data from {storage.Type}", "Cloud Storage")
-            .StartNow()
+        var trigger = internalTask.Trigger
             .Build();
 
         await PreScheduleSteps(scheduler, job, options);

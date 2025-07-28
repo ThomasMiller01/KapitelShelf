@@ -106,18 +106,22 @@ public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
         ArgumentNullException.ThrowIfNull(scheduler);
         ArgumentNullException.ThrowIfNull(storage);
 
-        var job = JobBuilder.Create<RemoveStorageData>()
-            .WithIdentity($"Removing local cloud data of {storage.Type}", "Cloud Storage")
-            .WithDescription($"Delete local data of '{storage.CloudOwnerName}'")
+        var internalTask = new InternalTask<RemoveStorageData>
+        {
+            Title = $"Removing local cloud data of {storage.Type}",
+            Category = "Cloud Storage",
+            Description = $"Delete local data of '{storage.CloudOwnerName}'",
+            ShouldRecover = true,
+            StartNow = true,
+        };
+
+        var job = internalTask.JobDetail
             .UsingJobData("StorageOwnerEmail", storage.CloudOwnerEmail)
             .UsingJobData("StorageType", storage.Type.ToString())
             .UsingJobData("RemoveOnlyCloudData", removeOnlyCloudData)
-            .RequestRecovery() // re-execute after possible hard-shutdown
             .Build();
 
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Removing local '{storage.CloudOwnerName}' of {storage.Type}", "Cloud Storage")
-            .StartNow()
+        var trigger = internalTask.Trigger
             .Build();
 
         await PreScheduleSteps(scheduler, job, options);

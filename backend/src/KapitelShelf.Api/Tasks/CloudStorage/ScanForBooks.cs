@@ -113,14 +113,18 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
-        var job = JobBuilder.Create<ScanForBooks>()
-            .WithIdentity("Scan Cloud Storages for Books", "Cloud Storage")
-            .WithDescription("Scan the cloud storages for new books to import")
+        var internalTask = new InternalTask<ScanForBooks>
+        {
+            Title = "Scan Cloud Storages for Books",
+            Category = "Cloud Storage",
+            Description = "Scan the cloud storages for new books to import",
+            Cronjob = "0 3/5 * ? * *", // execution time shifted from sync storages to not interfere
+        };
+
+        var job = internalTask.JobDetail
             .Build();
 
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity("Scan Cloud Storages for Books", "Cloud Storage")
-            .WithCronSchedule("0 3/5 * ? * *") // execution time shifted from sync storages to not interfere
+        var trigger = internalTask.Trigger
             .Build();
 
         await PreScheduleSteps(scheduler, job, options);

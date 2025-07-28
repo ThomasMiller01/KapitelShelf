@@ -30,7 +30,6 @@ public class SyncStorageDataTests
     private ICloudStorage fileStorage;
     private ICloudStoragesLogic logic;
     private IMapper mapper;
-    private KapitelShelfSettings settings;
     private IProcessUtils processUtils;
     private IJobExecutionContext context;
     private CloudStorageDTO storage;
@@ -48,10 +47,6 @@ public class SyncStorageDataTests
         this.fileStorage = Substitute.For<ICloudStorage>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
         this.mapper = Substitute.For<IMapper>();
-        this.settings = new KapitelShelfSettings
-        {
-            CloudStorage = new CloudStorageSettings { RClone = "rclone" },
-        };
         this.processUtils = Substitute.For<IProcessUtils>();
         this.context = Substitute.For<IJobExecutionContext>();
 
@@ -74,11 +69,8 @@ public class SyncStorageDataTests
         this.testee = new SyncStorageData(
             this.dataStore,
             this.logger,
-            this.fileStorage,
             this.logic,
-            this.mapper,
-            this.settings,
-            this.processUtils);
+            this.mapper);
     }
 
     /// <summary>
