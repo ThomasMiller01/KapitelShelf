@@ -18,11 +18,11 @@ namespace KapitelShelf.Api.Controllers.CloudStorages;
 /// <param name="logic">The tasks logic.</param>
 [ApiController]
 [Route("cloudstorage/onedrive")]
-public class OneDriveController(ILogger<OneDriveController> logger, CloudStoragesLogic baseLogic, OneDriveLogic logic) : ControllerBase
+public class OneDriveController(ILogger<OneDriveController> logger, ICloudStoragesLogic baseLogic, OneDriveLogic logic) : ControllerBase
 {
     private readonly ILogger<OneDriveController> logger = logger;
 
-    private readonly CloudStoragesLogic baseLogic = baseLogic;
+    private readonly ICloudStoragesLogic baseLogic = baseLogic;
 
     private readonly OneDriveLogic logic = logic;
 

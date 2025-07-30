@@ -77,14 +77,17 @@ public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
             this.DataStore.SetProgress(JobKey(context), i, totalFiles);
         }
 
-        try
+        // try to delete the directory itself
+        if (!Directory.Exists(storagePath))
         {
-            // try to delete the directory
-            Directory.Delete(storagePath);
-        }
-        catch (Exception ex)
-        {
-            this.Logger.LogError(ex, "Could not delete directory '{Directory}' in cloud storage", storagePath);
+            try
+            {
+                Directory.Delete(storagePath);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Could not delete directory '{Directory}' in cloud storage", storagePath);
+            }
         }
 
         await Task.CompletedTask;

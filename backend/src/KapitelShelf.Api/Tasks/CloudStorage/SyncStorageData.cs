@@ -38,8 +38,8 @@ public partial class SyncStorageData(
 
     private IJobExecutionContext? executionContext = null;
 
-    private double progressBase = 0;
-    private double progressIncrement = 0;
+    private int currentStorageIndex = 0;
+    private int totalStorageIndex = 0;
 
     /// <summary>
     /// Sets a value to only sync a single storage.
@@ -49,6 +49,8 @@ public partial class SyncStorageData(
     /// <inheritdoc/>
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
+        this.executionContext = context;
+
         if (this.ForSingleStorageId.HasValue)
         {
             // sync a single storage
@@ -149,8 +151,8 @@ public partial class SyncStorageData(
             return;
         }
 
-        this.progressIncrement = 100;
-        this.executionContext = context;
+        this.currentStorageIndex = 0;
+        this.totalStorageIndex = 1;
 
         this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
 
@@ -173,9 +175,9 @@ public partial class SyncStorageData(
             return;
         }
 
-        this.progressIncrement = 100 / storages.Count;
-        this.executionContext = context;
+        this.totalStorageIndex = storages.Count;
 
+        var i = 0;
         foreach (var storageModel in storages)
         {
             this.CheckForInterrupt(context);
@@ -185,7 +187,8 @@ public partial class SyncStorageData(
             var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
             await this.logic.SyncStorage(storage, this.DownloadProgressHandler, this.OnProcessStarted);
 
-            this.progressBase += this.progressIncrement;
+            i++;
+            this.currentStorageIndex = i;
         }
     }
 
@@ -210,16 +213,9 @@ public partial class SyncStorageData(
         var percentMatch = MatchProgressPercentage().Match(data);
         if (percentMatch.Success)
         {
-            if (int.TryParse(percentMatch.Groups[1].Value, out int percentage))
+            if (int.TryParse(percentMatch.Groups[1].Value, out int itemPercentage))
             {
-                // Calculate global progress:
-                // - Each storage is mapped to 'progressIncrement' percent of total bar.
-                // - For the current storage, percentage is from 0 to 100%.
-                // - So progress for this storage is: progressBase + percentage * (progressIncrement / 100.0)
-                // - Example: progressBase = 40, progressIncrement = 20, percentage = 50
-                //   => progress = 40 + (50 * 0.2) = 50
-                int progress = (int)Math.Round(this.progressBase + (percentage / 100.0 * (this.progressIncrement / 100.0)));
-                this.DataStore.SetProgress(JobKey(this.executionContext), progress);
+                this.DataStore.SetProgress(JobKey(this.executionContext), this.currentStorageIndex, this.totalStorageIndex, itemPercentage);
             }
         }
 

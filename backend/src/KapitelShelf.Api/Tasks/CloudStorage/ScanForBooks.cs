@@ -40,9 +40,7 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
             return;
         }
 
-        var progressIncrement = 100 / storages.Count;
-        var progressBase = 0;
-
+        var i = 0;
         foreach (var storageModel in storages)
         {
             this.CheckForInterrupt(context);
@@ -59,15 +57,10 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
                 files.AddRange(Directory.EnumerateFiles(localPath, $"*.{extension}", SearchOption.AllDirectories));
             }
 
-            int totalFiles = files.Count;
-
-            int i = 0;
+            int j = 0;
             foreach (var filePath in files)
             {
                 this.CheckForInterrupt(context);
-
-                // increment counter for task progress
-                i++;
 
                 var file = filePath.ToFile();
 
@@ -89,17 +82,13 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
                     await this.logic.AddCloudFileImportFail(storage, file.ToFileInfo(filePath), ex.Message);
                 }
 
-                // Calculate global progress:
-                // - Each storage is mapped to 'progressIncrement' percent of total bar.
-                // - For the current storage, percentage is from 0 to 100%.
-                // - So progress for this storage is: progressBase + percentage * (progressIncrement / 100.0)
-                // - Example: progressBase = 40, progressIncrement = 20, percentage = 50
-                //   => progress = 40 + (50 * 0.2) = 50
-                int progress = (int)Math.Round(progressBase + ((double)i / totalFiles * progressIncrement));
-                this.DataStore.SetProgress(JobKey(context), progress);
+                var itemPercentage = (int)Math.Floor((double)j / files.Count * 100);
+                this.DataStore.SetProgress(JobKey(context), i, storages.Count, itemPercentage);
+
+                j++;
             }
 
-            progressBase += progressIncrement;
+            i++;
         }
     }
 
