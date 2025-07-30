@@ -94,29 +94,30 @@ public partial class SyncStorageData(
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
-        var jobBase = JobBuilder.Create<SyncStorageData>();
+        var internalTask = new InternalTask<SyncStorageData>
+        {
+            Title = "Sync Cloud Storages",
+            Category = "Cloud Storage",
+            Description = "Sync cloud data for configured storages",
+            Cronjob = "0 */5 * ? * *",
+        };
 
+        var jobDetail = internalTask.JobDetail;
+
+        // sync a single storage
         if (forSingleStorage is not null)
         {
-            // sync a single storage
-            jobBase = jobBase
-                .WithIdentity($"Sync Cloud Storage for {forSingleStorage.Type}", "Cloud Storage")
-                .WithDescription($"Sync cloud data for '{forSingleStorage.CloudDirectory}'")
+            // update internal task
+            internalTask.Title = $"Sync Cloud Storage for {forSingleStorage.Type}";
+            internalTask.Description = $"Sync cloud data for '{forSingleStorage.CloudDirectory}'";
+
+            jobDetail = internalTask.JobDetail
                 .UsingJobData("ForSingleStorageId", forSingleStorage.Id.ToString());
         }
-        else
-        {
-            // sync all storages
-            jobBase = jobBase
-                .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
-                .WithDescription($"Sync cloud data for configured storages");
-        }
 
-        var job = jobBase.Build();
+        var job = jobDetail.Build();
 
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
-            .WithCronSchedule("0 */5 * ? * *")
+        var trigger = internalTask.Trigger
             .Build();
 
         await PreScheduleSteps(scheduler, job, options);
@@ -175,14 +176,9 @@ public partial class SyncStorageData(
         this.progressIncrement = 100 / storages.Count;
         this.executionContext = context;
 
-        var i = 0;
         foreach (var storageModel in storages)
         {
             this.CheckForInterrupt(context);
-
-            // increment counter for task progress
-            i++;
-
             this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
 
             // download new data
