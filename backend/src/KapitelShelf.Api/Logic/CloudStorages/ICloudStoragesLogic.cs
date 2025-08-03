@@ -129,4 +129,11 @@ public interface ICloudStoragesLogic
     /// <param name="onFileDelete">Called after a file was deleted with: (filepath, totalFiles, fileIndex).</param>
     /// <remarks>This method is possibly long running.</remarks>
     void DeleteStorageData(CloudStorageDTO storage, bool removeOnlyCloudData = false, Action<string, int, int>? onFileDelete = null);
+
+    /// <summary>
+    /// Sync a single cloud storage task.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A task.</returns>
+    Task SyncSingleStorageTask(Guid storageId);
 }

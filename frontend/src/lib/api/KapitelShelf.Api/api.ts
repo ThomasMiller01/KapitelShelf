@@ -1861,7 +1861,7 @@ export const CloudStorageApiAxiosParamCreator = function (configuration?: Config
     return {
         /**
          * 
-         * @summary Configure the OneDrive cloud.
+         * @summary Configure the cloud storage.
          * @param {CloudTypeDTO} [cloudType] The cloud type.
          * @param {ConfigureCloudDTO} [configureCloudDTO] The configure cloud dto.
          * @param {*} [options] Override http request option.
@@ -1900,7 +1900,7 @@ export const CloudStorageApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
-         * @summary Check if OneDrive cloud is configured.
+         * @summary Check if cloud storage is configured.
          * @param {CloudTypeDTO} [cloudType] The cloud type.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2114,6 +2114,40 @@ export const CloudStorageApiAxiosParamCreator = function (configuration?: Config
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Sync a cloud storage.
+         * @param {string} storageId The storage id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageStoragesStorageIdSyncPut: async (storageId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storageId' is not null or undefined
+            assertParamExists('cloudstorageStoragesStorageIdSyncPut', 'storageId', storageId)
+            const localVarPath = `/cloudstorage/storages/{storageId}/sync`
+                .replace(`{${"storageId"}}`, encodeURIComponent(String(storageId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -2126,7 +2160,7 @@ export const CloudStorageApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary Configure the OneDrive cloud.
+         * @summary Configure the cloud storage.
          * @param {CloudTypeDTO} [cloudType] The cloud type.
          * @param {ConfigureCloudDTO} [configureCloudDTO] The configure cloud dto.
          * @param {*} [options] Override http request option.
@@ -2140,7 +2174,7 @@ export const CloudStorageApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Check if OneDrive cloud is configured.
+         * @summary Check if cloud storage is configured.
          * @param {CloudTypeDTO} [cloudType] The cloud type.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2218,6 +2252,19 @@ export const CloudStorageApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['CloudStorageApi.cloudstorageStoragesStorageIdListDirectoriesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Sync a cloud storage.
+         * @param {string} storageId The storage id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cloudstorageStoragesStorageIdSyncPut(storageId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cloudstorageStoragesStorageIdSyncPut(storageId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CloudStorageApi.cloudstorageStoragesStorageIdSyncPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -2230,7 +2277,7 @@ export const CloudStorageApiFactory = function (configuration?: Configuration, b
     return {
         /**
          * 
-         * @summary Configure the OneDrive cloud.
+         * @summary Configure the cloud storage.
          * @param {CloudTypeDTO} [cloudType] The cloud type.
          * @param {ConfigureCloudDTO} [configureCloudDTO] The configure cloud dto.
          * @param {*} [options] Override http request option.
@@ -2241,7 +2288,7 @@ export const CloudStorageApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 
-         * @summary Check if OneDrive cloud is configured.
+         * @summary Check if cloud storage is configured.
          * @param {CloudTypeDTO} [cloudType] The cloud type.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2301,6 +2348,16 @@ export const CloudStorageApiFactory = function (configuration?: Configuration, b
         cloudstorageStoragesStorageIdListDirectoriesGet(storageId: string, path?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<CloudStorageDirectoryDTO>> {
             return localVarFp.cloudstorageStoragesStorageIdListDirectoriesGet(storageId, path, options).then((request) => request(axios, basePath));
         },
+        /**
+         * 
+         * @summary Sync a cloud storage.
+         * @param {string} storageId The storage id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloudstorageStoragesStorageIdSyncPut(storageId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.cloudstorageStoragesStorageIdSyncPut(storageId, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -2313,7 +2370,7 @@ export const CloudStorageApiFactory = function (configuration?: Configuration, b
 export class CloudStorageApi extends BaseAPI {
     /**
      * 
-     * @summary Configure the OneDrive cloud.
+     * @summary Configure the cloud storage.
      * @param {CloudTypeDTO} [cloudType] The cloud type.
      * @param {ConfigureCloudDTO} [configureCloudDTO] The configure cloud dto.
      * @param {*} [options] Override http request option.
@@ -2326,7 +2383,7 @@ export class CloudStorageApi extends BaseAPI {
 
     /**
      * 
-     * @summary Check if OneDrive cloud is configured.
+     * @summary Check if cloud storage is configured.
      * @param {CloudTypeDTO} [cloudType] The cloud type.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2396,6 +2453,18 @@ export class CloudStorageApi extends BaseAPI {
      */
     public cloudstorageStoragesStorageIdListDirectoriesGet(storageId: string, path?: string, options?: RawAxiosRequestConfig) {
         return CloudStorageApiFp(this.configuration).cloudstorageStoragesStorageIdListDirectoriesGet(storageId, path, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Sync a cloud storage.
+     * @param {string} storageId The storage id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CloudStorageApi
+     */
+    public cloudstorageStoragesStorageIdSyncPut(storageId: string, options?: RawAxiosRequestConfig) {
+        return CloudStorageApiFp(this.configuration).cloudstorageStoragesStorageIdSyncPut(storageId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

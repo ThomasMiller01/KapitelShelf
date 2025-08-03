@@ -9,7 +9,7 @@ import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCar
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import SeriesCard from "../../components/SeriesCard";
 import { seriesApi } from "../../lib/api/KapitelShelf.Api";
-import type { SeriesSummaryDTO } from "../../lib/api/KapitelShelf.Api/api";
+import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 const PAGE_SIZE = 24;
 
@@ -59,7 +59,7 @@ const SeriesList = (): ReactElement => {
       <Grid container spacing={2}>
         {data?.pages
           .flatMap((p) => p.items)
-          .filter((series): series is SeriesSummaryDTO => Boolean(series))
+          .filter((series): series is SeriesDTO => Boolean(series))
           .map((series) => (
             <Grid key={series.id}>
               <SeriesCard series={series} />

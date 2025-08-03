@@ -1,11 +1,18 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SyncIcon from "@mui/icons-material/Sync";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import type { BadgeProps } from "@mui/material";
 import {
   Badge,
   Button,
   Grid,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   styled,
   Tooltip,
@@ -105,6 +112,27 @@ export const CloudStorageCard = ({
     },
   });
 
+  const { mutate: syncStorage } = useMutation({
+    mutationKey: ["cloudstorage-sync", cloudstorage.id],
+    mutationFn: async () => {
+      if (cloudstorage.id === undefined) {
+        return;
+      }
+
+      await cloudstorageApi.cloudstorageStoragesStorageIdSyncPut(
+        cloudstorage.id
+      );
+
+      update();
+
+      triggerNavigate({
+        operation: `Sync Storage`,
+        itemName: CloudTypeToString(cloudstorage.type),
+        url: "/settings/tasks",
+      });
+    },
+  });
+
   const onConfigureDirectory = (directory: string): void => {
     configureDirectory(directory);
     setOpenDirectoryDialog(false);
@@ -190,13 +218,14 @@ export const CloudStorageCard = ({
 
       {/* Operations */}
       <Grid>
-        <Stack spacing={0.8} alignItems="start">
+        <Stack spacing={0.8} direction="row" alignItems="start">
           <IconButtonWithTooltip
             tooltip="Delete"
             onClick={() => deleteStorage()}
           >
             <DeleteIcon />
           </IconButtonWithTooltip>
+          <OptionsMenu onSyncClick={syncStorage} />
         </Stack>
       </Grid>
 
@@ -292,3 +321,53 @@ const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
     </DownloadingBadge>
   );
 };
+
+interface OptionsMenuProps {
+  onSyncClick: () => void;
+}
+
+const OptionsMenu = ({ onSyncClick }: OptionsMenuProps): ReactElement => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = (): void => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <IconButton onClick={handleClick}>
+        <MoreVertIcon />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <OptionMenuItem
+          text="Started Storage Sync"
+          icon={<SyncIcon />}
+          onClick={() => {
+            onSyncClick();
+            handleClose();
+          }}
+        />
+      </Menu>
+    </>
+  );
+};
+
+interface OptionMenuItemProps {
+  text: string;
+  icon?: ReactElement;
+  onClick: () => void;
+}
+
+const OptionMenuItem = ({
+  text,
+  icon,
+  onClick,
+}: OptionMenuItemProps): ReactElement => (
+  <MenuItem onClick={onClick}>
+    {icon && <ListItemIcon>{icon}</ListItemIcon>}
+    <ListItemText>{text}</ListItemText>
+  </MenuItem>
+);

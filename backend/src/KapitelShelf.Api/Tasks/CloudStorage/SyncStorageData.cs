@@ -113,6 +113,10 @@ public partial class SyncStorageData(
             internalTask.Title = $"Sync Cloud Storage for {forSingleStorage.Type}";
             internalTask.Description = $"Sync cloud data for '{forSingleStorage.CloudDirectory}'";
 
+            // start immediately, no cronjob
+            internalTask.StartNow = true;
+            internalTask.Cronjob = null;
+
             jobDetail = internalTask.JobDetail
                 .UsingJobData("ForSingleStorageId", forSingleStorage.Id.ToString());
         }

@@ -384,4 +384,17 @@ public class CloudStoragesLogic(
             }
         }
     }
+
+    /// <inheritdoc/>
+    public async Task SyncSingleStorageTask(Guid storageId)
+    {
+        var storage = await this.GetStorage(storageId);
+        if (storage is null)
+        {
+            throw new InvalidOperationException(StaticConstants.CloudStorageStorageNotFoundExceptionKey);
+        }
+
+        var scheduler = await this.schedulerFactory.GetScheduler();
+        await SyncStorageData.Schedule(scheduler, forSingleStorage: storage);
+    }
 }

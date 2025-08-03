@@ -512,7 +512,7 @@
         "tags": [
           "CloudStorage"
         ],
-        "summary": "Check if OneDrive cloud is configured.",
+        "summary": "Check if cloud storage is configured.",
         "parameters": [
           {
             "name": "cloudType",
@@ -552,7 +552,7 @@
         "tags": [
           "CloudStorage"
         ],
-        "summary": "Configure the OneDrive cloud.",
+        "summary": "Configure the cloud storage.",
         "parameters": [
           {
             "name": "cloudType",
@@ -690,6 +690,31 @@
             "name": "storageId",
             "in": "path",
             "description": "The cloud storage id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/cloudstorage/storages/{storageId}/sync": {
+      "put": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Sync a cloud storage.",
+        "parameters": [
+          {
+            "name": "storageId",
+            "in": "path",
+            "description": "The storage id.",
             "required": true,
             "schema": {
               "type": "string",
