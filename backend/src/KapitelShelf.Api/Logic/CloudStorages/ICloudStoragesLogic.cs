@@ -118,5 +118,15 @@ public interface ICloudStoragesLogic
     /// <param name="onProcessStarted">Called when the process got started.</param>
     /// <param name="cancellationToken">The cancelation token.</param>
     /// <returns>A task.</returns>
+    /// <remarks>This method is possibly long running.</remarks>
     Task SyncStorage(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Delete the data of a storage.
+    /// </summary>
+    /// <param name="storage">The storage whose data to delete.</param>
+    /// <param name="removeOnlyCloudData">Only delete the cloud data or everything including the config.</param>
+    /// <param name="onFileDelete">Called after a file was deleted with: (filepath, totalFiles, fileIndex).</param>
+    /// <remarks>This method is possibly long running.</remarks>
+    void DeleteStorageData(CloudStorageDTO storage, bool removeOnlyCloudData = false, Action<string, int, int>? onFileDelete = null);
 }

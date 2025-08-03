@@ -13,6 +13,7 @@ using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Quartz;
 using Testcontainers.PostgreSql;
@@ -34,6 +35,7 @@ public class CloudStoragesLogicTests
     private ISchedulerFactory schedulerFactory;
     private IProcessUtils processUtils;
     private ICloudStorage storage;
+    private ILogger<CloudStoragesLogic> logger;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -94,7 +96,8 @@ public class CloudStoragesLogicTests
         this.schedulerFactory = Substitute.For<ISchedulerFactory>();
         this.processUtils = Substitute.For<IProcessUtils>();
         this.storage = Substitute.For<ICloudStorage>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage);
+        this.logger = Substitute.For<ILogger<CloudStoragesLogic>>();
+        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger);
     }
 
     /// <summary>

@@ -31,7 +31,8 @@ public class CloudStoragesLogic(
     KapitelShelfSettings settings,
     ISchedulerFactory schedulerFactory,
     IProcessUtils processUtils,
-    ICloudStorage storage) : ICloudStoragesLogic
+    ICloudStorage storage,
+    ILogger<CloudStoragesLogic> logger) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -44,6 +45,8 @@ public class CloudStoragesLogic(
     private readonly IProcessUtils processUtils = processUtils;
 
     private readonly ICloudStorage storage = storage;
+
+    private readonly ILogger<CloudStoragesLogic> logger = logger;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
@@ -299,7 +302,8 @@ public class CloudStoragesLogic(
                     "--max-lock=2m",
                     "--progress",
                     "--stats=1s",
-                    "--stats-one-line"
+                    "--stats-one-line",
+                    "--max-delete=100",
                 ],
                 this.processUtils,
                 onStdout: onStdout,
@@ -325,6 +329,59 @@ public class CloudStoragesLogic(
                 stdoutSeperator: "xfr", // rclone transfer number
                 onProcessStarted: onProcessStarted,
                 cancellationToken: cancellationToken);
+        }
+    }
+
+    /// <inheritdoc/>
+    public void DeleteStorageData(CloudStorageDTO storage, bool removeOnlyCloudData = false, Action<string, int, int>? onFileDelete = null)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+
+        // remove complete storage directory
+        var subpath = string.Empty;
+        if (removeOnlyCloudData)
+        {
+            // only remove synched cloud data, keep config
+            subpath = StaticConstants.CloudStorageCloudDataSubPath;
+        }
+
+        var storagePath = this.storage.FullPath(storage, subpath);
+        if (!Directory.Exists(storagePath))
+        {
+            // directory is already deleted
+            return;
+        }
+
+        var files = Directory.EnumerateFiles(storagePath, "*", SearchOption.AllDirectories).ToList();
+        for (int i = 0; i < files.Count; i++)
+        {
+            var file = files[i];
+
+            try
+            {
+                // try to delete the file
+                File.Delete(file);
+            }
+            catch (Exception ex)
+            {
+                // keep deleting other files
+                this.logger.LogError(ex, "Could not delete file '{File}' in cloud storage", file);
+            }
+
+            onFileDelete?.Invoke(file, files.Count, i);
+        }
+
+        // try to delete the directory itself
+        if (Directory.Exists(storagePath))
+        {
+            try
+            {
+                Directory.Delete(storagePath, recursive: true);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Could not delete directory '{Directory}' in cloud storage", storagePath);
+            }
         }
     }
 }

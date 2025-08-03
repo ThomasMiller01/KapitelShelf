@@ -6,8 +6,6 @@ using System.Diagnostics;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Logic.CloudStorages;
-using KapitelShelf.Api.Logic.Storage;
-using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
@@ -27,50 +25,29 @@ public class SyncStorageDataTests
     private SyncStorageData testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
-    private ICloudStorage fileStorage;
     private ICloudStoragesLogic logic;
     private IMapper mapper;
-    private IProcessUtils processUtils;
     private IJobExecutionContext context;
-    private CloudStorageDTO storage;
-    private CloudStorageModel storageModel;
 
     /// <summary>
     /// Sets up testee and dependencies.
     /// </summary>
     [SetUp]
-    public void SetUp()
+    public void Setup()
     {
         // Setup
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
-        this.fileStorage = Substitute.For<ICloudStorage>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
-        this.mapper = Substitute.For<IMapper>();
-        this.processUtils = Substitute.For<IProcessUtils>();
+        this.mapper = Testhelper.CreateMapper();
         this.context = Substitute.For<IJobExecutionContext>();
 
-        // Setup job key
         var jobKey = new JobKey("UnitTestJob", "TestGroup");
         var jobDetail = Substitute.For<IJobDetail>();
         jobDetail.Key.Returns(jobKey);
         this.context.JobDetail.Returns(jobDetail);
 
-        this.storage = new CloudStorageDTO
-        {
-            Id = Guid.NewGuid(),
-            CloudDirectory = "TestDir",
-            Type = CloudTypeDTO.OneDrive,
-        };
-
-        this.storageModel = Substitute.For<CloudStorageModel>();
-        this.mapper.Map<CloudStorageDTO>(this.storageModel).Returns(this.storage);
-
-        this.testee = new SyncStorageData(
-            this.dataStore,
-            this.logger,
-            this.logic,
-            this.mapper);
+        this.testee = new SyncStorageData(this.dataStore, this.logger, this.logic, this.mapper);
     }
 
     /// <summary>
@@ -87,105 +64,204 @@ public class SyncStorageDataTests
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.processUtils.DidNotReceiveWithAnyArgs().RunProcessAsync(
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<Process>?>(),
-            Arg.Any<CancellationToken>());
+        await this.logic.DidNotReceiveWithAnyArgs().SyncStorage(Arg.Any<CloudStorageDTO>(), Arg.Any<Action<string>?>(), Arg.Any<Action<Process>?>());
+        this.dataStore.DidNotReceiveWithAnyArgs().SetMessage(Arg.Any<string>(), Arg.Any<string>());
     }
 
     /// <summary>
-    /// Tests ExecuteTask executes bisync for supported storages.
+    /// Tests ExecuteTask syncs all storages if found.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_ExecutesBisync_IfSupported()
+    public async Task ExecuteTask_SyncsAllStorages()
     {
         // Setup
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
+        var storage = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "TestDir",
+            Type = CloudType.OneDrive,
+        };
 
-        StaticConstants.StoragesSupportRCloneBisync.Clear();
-        StaticConstants.StoragesSupportRCloneBisync.Add(CloudTypeDTO.OneDrive);
-
-        this.logic.GetDownloadedStorageModels().Returns([this.storageModel]);
-        this.fileStorage.FullPath(this.storage, Arg.Any<string>()).Returns(tempDir);
-
-        this.processUtils.RunProcessAsync(
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<Process>?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult((0, string.Empty, string.Empty)));
+        var storages = new List<CloudStorageModel> { storage };
+        this.logic.GetDownloadedStorageModels().Returns(storages);
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.processUtils.Received().RunProcessAsync(
-            Arg.Any<string>(),
-            Arg.Is<string>(args => args.Contains("bisync")),
-            Arg.Any<string?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<Process>?>(),
-            Arg.Any<CancellationToken>());
-
-        Directory.Delete(tempDir, true);
+        await this.logic.Received(1)
+                .SyncStorage(Arg.Is<CloudStorageDTO>(x => x.Id == storage.Id), Arg.Any<Action<string>>(), Arg.Any<Action<Process>>());
+        this.dataStore.Received().SetMessage(Arg.Any<string>(), Arg.Is<string>(msg => msg.Contains("Synching")));
     }
 
     /// <summary>
-    /// Tests ExecuteTask executes sync for non-bisync storages.
+    /// Tests ExecuteTask syncs multiple storages.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_ExecutesSync_IfNotBisync()
+    public async Task ExecuteTask_SyncsMultipleStorages()
     {
         // Setup
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
+        var storage1 = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "OtherDir",
+            Type = CloudType.OneDrive,
+        };
+        var storage2 = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "OtherDir2",
+            Type = CloudType.OneDrive,
+        };
 
-        StaticConstants.StoragesSupportRCloneBisync.Clear();
-
-        this.logic.GetDownloadedStorageModels().Returns([this.storageModel]);
-        this.fileStorage.FullPath(this.storage, Arg.Any<string>()).Returns(tempDir);
-
-        this.processUtils.RunProcessAsync(
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<Process>?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult((0, string.Empty, string.Empty)));
+        var storages = new List<CloudStorageModel> { storage1, storage2 };
+        this.logic.GetDownloadedStorageModels().Returns(storages);
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.processUtils.Received().RunProcessAsync(
-            Arg.Any<string>(),
-            Arg.Is<string>(args => args.Contains("sync")),
-            Arg.Any<string?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<Process>?>(),
-            Arg.Any<CancellationToken>());
-
-        Directory.Delete(tempDir, true);
+        await this.logic.Received(1)
+            .SyncStorage(Arg.Is<CloudStorageDTO>(x => x.Id == storage1.Id), Arg.Any<Action<string>>(), Arg.Any<Action<Process>>());
+        await this.logic.Received(1)
+            .SyncStorage(Arg.Is<CloudStorageDTO>(x => x.Id == storage2.Id), Arg.Any<Action<string>>(), Arg.Any<Action<Process>>());
     }
+
+    /// <summary>
+    /// Tests ExecuteTask throws if GetDownloadedStorageModels fails.
+    /// </summary>
+    [Test]
+    public void ExecuteTask_Throws_IfLogicThrows()
+    {
+        // Setup
+        this.logic.GetDownloadedStorageModels().Returns(Task.FromException<List<CloudStorageModel>>(new ArgumentException("fail")));
+
+        // Execute + Assert
+        Assert.ThrowsAsync<ArgumentException>(() => this.testee.ExecuteTask(this.context));
+    }
+
+    /// <summary>
+    /// Tests ExecuteTask syncs a single storage when ForSingleStorageId is set and found.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ExecuteTask_SyncsSingleStorage_IfForSingleStorageIdSet()
+    {
+        // Setup
+        var storage = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "OtherDir",
+            Type = CloudType.OneDrive,
+        };
+
+        this.testee.ForSingleStorageId = storage.Id;
+        this.logic.GetStorageModel(storage.Id).Returns(storage);
+
+        // Execute
+        await this.testee.ExecuteTask(this.context);
+
+        // Assert
+        await this.logic.Received(1)
+            .SyncStorage(Arg.Is<CloudStorageDTO>(x => x.Id == storage.Id), Arg.Any<Action<string>>(), Arg.Any<Action<Process>>());
+        this.dataStore.Received().SetMessage(Arg.Any<string>(), Arg.Is<string>(msg => msg.Contains("Synching")));
+    }
+
+    /// <summary>
+    /// Tests ExecuteTask skips single storage if not found.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ExecuteTask_SkipsIfSingleStorageMissing()
+    {
+        // Setup
+        var missingId = Guid.NewGuid();
+        this.testee.ForSingleStorageId = missingId;
+        this.logic.GetStorageModel(missingId).Returns((CloudStorageModel?)null);
+
+        // Execute
+        await this.testee.ExecuteTask(this.context);
+
+        // Assert
+        await this.logic.DidNotReceiveWithAnyArgs().SyncStorage(Arg.Any<CloudStorageDTO>(), Arg.Any<Action<string>?>(), Arg.Any<Action<Process>?>());
+    }
+
+    /// <summary>
+    /// Tests ExecuteTask throws if GetStorageModel fails.
+    /// </summary>
+    [Test]
+    public void ExecuteTask_SingleStorage_Throws_IfLogicThrows()
+    {
+        // Setup
+        var id = Guid.NewGuid();
+        this.testee.ForSingleStorageId = id;
+        this.logic.GetStorageModel(id).Returns(Task.FromException<CloudStorageModel?>(new ArgumentException("fail")));
+
+        // Execute + Assert
+        Assert.ThrowsAsync<ArgumentException>(() => this.testee.ExecuteTask(this.context));
+    }
+
+    /// <summary>
+    /// Tests DownloadProgressHandler sets progress and message for valid output.
+    /// </summary>
+    [Test]
+    public void DownloadProgressHandler_SetsProgress_AndMessage()
+    {
+        // Setup
+        this.testee.executionContext = this.context;
+        this.testee.currentStorageIndex = 0;
+        this.testee.totalStorageIndex = 1;
+
+        var progressLine = "100.0 MiB / 200.0 MiB, 50%, 5.0 MiB/s, ETA 2m0s";
+
+        // Execute
+        this.testee.DownloadProgressHandler(progressLine);
+
+        // Assert
+        this.dataStore.Received().SetProgress(Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Is<int>(x => x >= 0 && x <= 100));
+        this.dataStore.Received().SetMessage(Arg.Any<string>(), Arg.Is<string>(x => x.Contains("ETA")));
+    }
+
+    /// <summary>
+    /// Tests DownloadProgressHandler ignores non-ETA lines.
+    /// </summary>
+    [Test]
+    public void DownloadProgressHandler_IgnoresNonEtaLine()
+    {
+        // Setup
+        this.testee.executionContext = this.context;
+
+        // Execute
+        this.testee.DownloadProgressHandler("no progress here");
+
+        // Assert
+        this.dataStore.DidNotReceiveWithAnyArgs().SetProgress(Arg.Any<string>(), Arg.Any<int>());
+    }
+
+    /// <summary>
+    /// Tests DownloadProgressHandler handles malformed lines.
+    /// </summary>
+    [Test]
+    public void DownloadProgressHandler_HandlesMalformedData()
+    {
+        // Setup
+        this.testee.executionContext = this.context;
+
+        // Execute
+        this.testee.DownloadProgressHandler("random string, ETA ");
+
+        // Assert
+        this.dataStore.DidNotReceive().SetMessage(Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    /// <summary>
+    /// Tests DownloadProgressHandler throws if executionContext not set.
+    /// </summary>
+    [Test]
+    public void DownloadProgressHandler_ThrowsIfNoExecutionContext() =>
+        Assert.Throws<ArgumentNullException>(() => this.testee.DownloadProgressHandler("100.0 MiB / 200.0 MiB, 50%, 5.0 MiB/s, ETA 2m0s"));
 
     /// <summary>
     /// Tests Kill terminates rclone process if not exited.
@@ -208,16 +284,57 @@ public class SyncStorageDataTests
     }
 
     /// <summary>
-    /// Tests Kill does nothing if process is null.
+    /// Tests Kill does nothing if process has exited.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Kill_DoesNothing_IfProcessHasExited()
+    {
+        // Setup
+        var process = Substitute.For<IProcess>();
+        process.HasExited.Returns(true);
+
+        this.testee.rcloneProcess = process;
+
+        // Execute
+        await this.testee.Kill();
+
+        // Assert
+        process.DidNotReceive().Kill(Arg.Any<bool>());
+    }
+
+    /// <summary>
+    /// Tests Kill does nothing if rcloneProcess is null.
     /// </summary>
     [Test]
     public void Kill_DoesNothing_IfNoProcess() =>
         Assert.DoesNotThrowAsync(this.testee.Kill);
 
     /// <summary>
-    /// Tests Schedule creates and schedules the job.
+    /// Tests Kill logs error if Kill throws.
     /// </summary>
-    /// <returns>A task with the job key string.</returns>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Kill_LogsError_IfExceptionThrown()
+    {
+        // Setup
+        var process = Substitute.For<IProcess>();
+        process.HasExited.Returns(false);
+        process.When(x => x.Kill(entireProcessTree: true)).Do(x => throw new InvalidOperationException("fail"));
+
+        this.testee.rcloneProcess = process;
+
+        // Execute
+        await this.testee.Kill();
+
+        // Assert
+        this.logger.Received().LogError(Arg.Any<Exception>(), "Could not kill rclone process");
+    }
+
+    /// <summary>
+    /// Tests Schedule creates and schedules the job for all storages.
+    /// </summary>
+    /// <returns>A task.</returns>
     [Test]
     public async Task Schedule_CreatesAndSchedulesJob_ReturnsJobKey()
     {
@@ -228,7 +345,35 @@ public class SyncStorageDataTests
         var jobKey = await SyncStorageData.Schedule(scheduler);
 
         // Assert
-        Assert.That(jobKey, Is.Not.Null.And.Contains("Sync Cloud Storages"));
+        Assert.That(jobKey, Is.Not.Null.And.Contain("Sync Cloud Storages"));
+        await scheduler.Received().ScheduleJob(
+            Arg.Any<IJobDetail>(),
+            Arg.Any<IReadOnlyCollection<ITrigger>>(),
+            true,
+            Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests Schedule creates and schedules the job for a single storage.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Schedule_SingleStorage_CreatesAndSchedulesJobWithCustomTitle()
+    {
+        // Setup
+        var scheduler = Substitute.For<IScheduler>();
+        var storage = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "Special",
+        };
+
+        // Execute
+        var jobKey = await SyncStorageData.Schedule(scheduler, null, storage);
+
+        // Assert
+        Assert.That(jobKey, Is.Not.Null);
         await scheduler.Received().ScheduleJob(
             Arg.Any<IJobDetail>(),
             Arg.Any<IReadOnlyCollection<ITrigger>>(),

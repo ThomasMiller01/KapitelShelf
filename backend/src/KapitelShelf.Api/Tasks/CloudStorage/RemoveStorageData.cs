@@ -4,8 +4,7 @@
 
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Logic.Storage;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Logic.CloudStorages;
 using Quartz;
 
 namespace KapitelShelf.Api.Tasks.CloudStorage;
@@ -13,9 +12,11 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Deletes all the local data of a cloud storage.
 /// </summary>
-public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage) : TaskBase(dataStore, logger)
+public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic) : TaskBase(dataStore, logger)
 {
-    private readonly ICloudStorage fileStorage = fileStorage;
+    private readonly ICloudStoragesLogic logic = logic;
+
+    private IJobExecutionContext? executionContext = null;
 
     /// <summary>
     /// Sets the storage owner email.
@@ -41,54 +42,15 @@ public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
             return;
         }
 
+        // set context for onFileDelete callback
+        this.executionContext = context;
+
         var partialStorage = new CloudStorageDTO
         {
             CloudOwnerEmail = StorageOwnerEmail,
             Type = type,
         };
-        var storagePath = this.fileStorage.FullPath(partialStorage, this.RemoveOnlyCloudData ? StaticConstants.CloudStorageCloudDataSubPath : string.Empty);
-        if (!Directory.Exists(storagePath))
-        {
-            // directory was already deleted
-            return;
-        }
-
-        var files = Directory.EnumerateFiles(storagePath, "*", SearchOption.AllDirectories);
-
-        int totalFiles = files.Count();
-        int i = 0;
-        foreach (var file in files)
-        {
-            this.CheckForInterrupt(context);
-
-            // increment counter for task progress
-            i++;
-
-            try
-            {
-                // try to delete the file
-                File.Delete(file);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Could not delete file '{File}' in cloud storage", file);
-            }
-
-            this.DataStore.SetProgress(JobKey(context), i, totalFiles);
-        }
-
-        // try to delete the directory itself
-        if (!Directory.Exists(storagePath))
-        {
-            try
-            {
-                Directory.Delete(storagePath);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Could not delete directory '{Directory}' in cloud storage", storagePath);
-            }
-        }
+        this.logic.DeleteStorageData(partialStorage, this.RemoveOnlyCloudData, onFileDelete: this.OnFileDelete);
 
         await Task.CompletedTask;
     }
@@ -134,5 +96,15 @@ public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
         await PostScheduleSteps(scheduler, job, options);
 
         return job.Key.ToString();
+    }
+
+#pragma warning disable IDE0060 // Remove unused parameter
+    private void OnFileDelete(string filePath, int totalFiles, int fileIndex)
+#pragma warning restore IDE0060 // Remove unused parameter
+    {
+        ArgumentNullException.ThrowIfNull(this.executionContext);
+
+        this.CheckForInterrupt(this.executionContext);
+        this.DataStore.SetProgress(JobKey(this.executionContext), fileIndex, totalFiles);
     }
 }

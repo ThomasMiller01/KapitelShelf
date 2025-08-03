@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
@@ -22,6 +23,7 @@ public class RemoveStorageDataTests
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
     private ICloudStorage fileStorage;
+    private ICloudStoragesLogic cloudStoragesLogic;
     private IJobExecutionContext context;
 
     private string testDir;
@@ -35,6 +37,7 @@ public class RemoveStorageDataTests
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
         this.fileStorage = Substitute.For<ICloudStorage>();
+        this.cloudStoragesLogic = Substitute.For<ICloudStoragesLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
         // set up job key
@@ -57,7 +60,7 @@ public class RemoveStorageDataTests
             return string.IsNullOrEmpty(subPath) ? this.testDir : Path.Combine(this.testDir, subPath);
         });
 
-        this.testee = new RemoveStorageData(this.dataStore, this.logger, this.fileStorage)
+        this.testee = new RemoveStorageData(this.dataStore, this.logger, this.cloudStoragesLogic)
         {
             StorageOwnerEmail = "email@test.com",
             StorageType = CloudTypeDTO.OneDrive.ToString(),

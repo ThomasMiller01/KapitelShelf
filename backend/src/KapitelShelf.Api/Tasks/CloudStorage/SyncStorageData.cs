@@ -29,17 +29,17 @@ public partial class SyncStorageData(
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1401 // Fields should be private
     internal IProcess? rcloneProcess = null;
+
+    internal IJobExecutionContext? executionContext = null;
+
+    internal int currentStorageIndex = 0;
+    internal int totalStorageIndex = 0;
 #pragma warning restore SA1401 // Fields should be private
 #pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
 
     private readonly ICloudStoragesLogic logic = logic;
 
     private readonly IMapper mapper = mapper;
-
-    private IJobExecutionContext? executionContext = null;
-
-    private int currentStorageIndex = 0;
-    private int totalStorageIndex = 0;
 
     /// <summary>
     /// Sets a value to only sync a single storage.
@@ -137,7 +137,7 @@ public partial class SyncStorageData(
     /// <param name="context">The job context.</param>
     /// <returns>A task.</returns>
     /// <exception cref="ArgumentNullException">The single storage id is null.</exception>
-    private async Task SyncSingleStorage(IJobExecutionContext context)
+    internal async Task SyncSingleStorage(IJobExecutionContext context)
     {
         if (!ForSingleStorageId.HasValue)
         {
@@ -166,7 +166,7 @@ public partial class SyncStorageData(
     /// </summary>
     /// <param name="context">The job context.</param>
     /// <returns>A task.</returns>
-    private async Task SyncAllStorages(IJobExecutionContext context)
+    internal async Task SyncAllStorages(IJobExecutionContext context)
     {
         var storages = await this.logic.GetDownloadedStorageModels();
         if (storages.Count == 0)
@@ -177,9 +177,10 @@ public partial class SyncStorageData(
 
         this.totalStorageIndex = storages.Count;
 
-        var i = 0;
-        foreach (var storageModel in storages)
+        for (int i = 0; i < storages.Count; i++)
         {
+            var storageModel = storages[i];
+
             this.CheckForInterrupt(context);
             this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
 
@@ -187,18 +188,15 @@ public partial class SyncStorageData(
             var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
             await this.logic.SyncStorage(storage, this.DownloadProgressHandler, this.OnProcessStarted);
 
-            i++;
             this.currentStorageIndex = i;
         }
     }
-
-    private void OnProcessStarted(Process process) => this.rcloneProcess = new ProcessWrapper(process);
 
     /// <summary>
     /// Set the progress based on the rclone output during download.
     /// </summary>
     /// <param name="data">The stdout data.</param>
-    private void DownloadProgressHandler(string data)
+    internal void DownloadProgressHandler(string data)
     {
         ArgumentNullException.ThrowIfNull(this.executionContext);
 
@@ -241,6 +239,8 @@ public partial class SyncStorageData(
             this.DataStore.SetMessage(JobKey(executionContext), message);
         }
     }
+
+    private void OnProcessStarted(Process process) => this.rcloneProcess = new ProcessWrapper(process);
 
     [GeneratedRegex(@"(\d+)%")]
     private static partial Regex MatchProgressPercentage();
