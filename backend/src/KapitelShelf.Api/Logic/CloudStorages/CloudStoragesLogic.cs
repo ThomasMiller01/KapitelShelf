@@ -313,16 +313,16 @@ public class CloudStoragesLogic(
         }
         else
         {
-            // use rclone clone
+            // use rclone sync
             await storageModel.ExecuteRCloneCommand(
                 this.settings.CloudStorage.RClone,
                 [
                     "sync",
-                        $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
-                        $"\"{localPath}\"",
-                        "--progress",
-                        "--stats=1s",
-                        "--stats-one-line"
+                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
+                    $"\"{localPath}\"",
+                    "--progress",
+                    "--stats=1s",
+                    "--stats-one-line"
                 ],
                 this.processUtils,
                 onStdout: onStdout,
