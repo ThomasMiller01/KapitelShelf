@@ -2,10 +2,13 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.CloudStorages;
 using Quartz;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Tasks.CloudStorage;
 
@@ -14,9 +17,13 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// </summary>
 public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic) : TaskBase(dataStore, logger)
 {
-    private readonly ICloudStoragesLogic logic = logic;
+#pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
+#pragma warning disable SA1401 // Fields should be private
+    internal IJobExecutionContext? executionContext = null;
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
 
-    private IJobExecutionContext? executionContext = null;
+    private readonly ICloudStoragesLogic logic = logic;
 
     /// <summary>
     /// Sets the storage owner email.
@@ -98,9 +105,7 @@ public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
         return job.Key.ToString();
     }
 
-#pragma warning disable IDE0060 // Remove unused parameter
-    private void OnFileDelete(string filePath, int totalFiles, int fileIndex)
-#pragma warning restore IDE0060 // Remove unused parameter
+    internal void OnFileDelete(string filePath, int totalFiles, int fileIndex)
     {
         ArgumentNullException.ThrowIfNull(this.executionContext);
 
