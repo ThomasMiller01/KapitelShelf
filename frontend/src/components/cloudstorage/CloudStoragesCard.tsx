@@ -1,6 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SearchIcon from "@mui/icons-material/Search";
 import SyncIcon from "@mui/icons-material/Sync";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import type { BadgeProps } from "@mui/material";
@@ -126,7 +127,7 @@ export const CloudStorageCard = ({
       update();
 
       triggerNavigate({
-        operation: `Sync Storage`,
+        operation: `Started Storage Sync`,
         itemName: CloudTypeToString(cloudstorage.type),
         url: "/settings/tasks",
       });
@@ -218,7 +219,7 @@ export const CloudStorageCard = ({
 
       {/* Operations */}
       <Grid>
-        <Stack spacing={0.8} direction="row" alignItems="start">
+        <Stack spacing={1} direction="row" alignItems="start">
           <IconButtonWithTooltip
             tooltip="Delete"
             onClick={() => deleteStorage()}
@@ -343,10 +344,17 @@ const OptionsMenu = ({ onSyncClick }: OptionsMenuProps): ReactElement => {
       </IconButton>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         <OptionMenuItem
-          text="Started Storage Sync"
+          text="Sync with Cloud"
           icon={<SyncIcon />}
           onClick={() => {
             onSyncClick();
+            handleClose();
+          }}
+        />
+        <OptionMenuItem
+          text="Scan for Books"
+          icon={<SearchIcon />}
+          onClick={() => {
             handleClose();
           }}
         />
