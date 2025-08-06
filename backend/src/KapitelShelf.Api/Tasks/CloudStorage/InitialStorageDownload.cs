@@ -191,7 +191,7 @@ public partial class InitialStorageDownload(
         var isEmpty = !Directory.EnumerateFileSystemEntries(storagePath).Any();
         if (isEmpty)
         {
-            this.Logger.LogInformation("Directory is empty, nothing to do.");
+            this.Logger.LogDebug("Directory is empty, nothing to do.");
             return;
         }
 

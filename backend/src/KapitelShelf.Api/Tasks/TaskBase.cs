@@ -3,8 +3,11 @@
 // </copyright>
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.Tasks;
 using Quartz;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Tasks;
 
@@ -26,11 +29,11 @@ public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
         {
             ArgumentNullException.ThrowIfNull(context);
 
-            this.DataStore.SetProgress(this.JobKey(context), 0);
+            this.DataStore.SetProgress(JobKey(context), 0);
 
             await this.ExecuteTask(context);
 
-            this.DataStore.ClearData(this.JobKey(context));
+            this.DataStore.ClearData(JobKey(context));
         }
         catch (JobExecutionException)
         {
@@ -65,7 +68,7 @@ public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
     /// </summary>
     /// <param name="context">The job context.</param>
     /// <returns>The job key.</returns>
-    public string JobKey(IJobExecutionContext context)
+    public static string JobKey(IJobExecutionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -145,7 +148,7 @@ public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
     /// <param name="job">The job.</param>
     /// <param name="timeout">The timeout.</param>
     /// <returns>A task.</returns>
-    private static async Task InterruptAndWait(IScheduler scheduler, IJobDetail job, int timeout = 30)
+    internal static async Task InterruptAndWait(IScheduler scheduler, IJobDetail job, int timeout = 30)
     {
         var logger = LoggerFactory.Create(x => x.AddConsole()).CreateLogger<TaskBase>();
 
@@ -176,11 +179,13 @@ public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
         {
             if (runningContext.JobInstance is TaskBase taskInstance)
             {
-                logger.LogWarning("Killing job with key '{JobKey}'", runningContext.JobDetail.Key.ToString());
+                logger.LogWarning("Killing job with key '{JobKey}'", JobKey(runningContext));
                 await taskInstance.Kill();
             }
-
-            // else: cannot kill job :(
+            else
+            {
+                logger.LogError("Job with key '{JobKey}' could not be killed", JobKey(runningContext));
+            }
         }
     }
 }
