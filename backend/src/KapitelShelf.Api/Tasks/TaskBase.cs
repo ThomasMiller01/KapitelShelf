@@ -136,7 +136,7 @@ public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
             var listener = scheduler.ListenerManager.GetJobListener(WaitForTaskListener.PublicName);
             if (listener is not null)
             {
-                await ((WaitForTaskListener)listener).WaitAsync();
+                await ((WaitForTaskListener)listener).WaitAsync(60);
             }
         }
     }
