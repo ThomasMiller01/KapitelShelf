@@ -2411,7 +2411,8 @@
           6,
           7,
           8,
-          9
+          9,
+          10
         ],
         "type": "integer",
         "description": "The profile image enum.",

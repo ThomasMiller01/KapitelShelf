@@ -68,4 +68,10 @@ public enum ProfileImageType
     /// </summary>
     /// <remmarks>Quirky Companions</remmarks>
     LeChonkyBoy = 9,
+
+    /// <summary>
+    /// A blond cute girl.
+    /// </summary>
+    /// <remmarks>Chicks</remmarks>
+    Ellie = 10,
 }

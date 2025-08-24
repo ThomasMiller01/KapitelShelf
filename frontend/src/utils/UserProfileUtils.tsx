@@ -1,5 +1,6 @@
 import CheeryChino from "../assets/users/CheeryChino.png";
 import Chico from "../assets/users/Chico.png";
+import Ellie from "../assets/users/Ellie.png";
 import Freshavocado from "../assets/users/Freshavocado.png";
 import LeChonkyBoy from "../assets/users/LeChonkyBoy.png";
 import LittleStinky from "../assets/users/LittleStinky.png";
@@ -34,6 +35,7 @@ export const ProfileImageTypeToSrc = {
   [ProfileImageTypeDTO.NUMBER_7]: Riley,
   [ProfileImageTypeDTO.NUMBER_8]: Chico,
   [ProfileImageTypeDTO.NUMBER_9]: LeChonkyBoy,
+  [ProfileImageTypeDTO.NUMBER_10]: Ellie,
 };
 
 export const ProfileImageTypeToName = {
@@ -47,6 +49,7 @@ export const ProfileImageTypeToName = {
   [ProfileImageTypeDTO.NUMBER_7]: "Riley",
   [ProfileImageTypeDTO.NUMBER_8]: "Chico",
   [ProfileImageTypeDTO.NUMBER_9]: "Le Chonky Boy",
+  [ProfileImageTypeDTO.NUMBER_10]: "Ellie",
 };
 
 export const ProfileImageCategories = {
@@ -62,7 +65,11 @@ export const ProfileImageCategories = {
     ProfileImageTypeDTO.NUMBER_6,
     ProfileImageTypeDTO.NUMBER_9,
   ],
-  Chicks: [ProfileImageTypeDTO.NUMBER_7, ProfileImageTypeDTO.NUMBER_8],
+  Chicks: [
+    ProfileImageTypeDTO.NUMBER_7,
+    ProfileImageTypeDTO.NUMBER_8,
+    ProfileImageTypeDTO.NUMBER_10,
+  ],
 };
 
 export const UserProfileColors = [
