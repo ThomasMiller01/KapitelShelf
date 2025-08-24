@@ -32,7 +32,9 @@ public class CloudStoragesLogic(
     ISchedulerFactory schedulerFactory,
     IProcessUtils processUtils,
     ICloudStorage storage,
-    ILogger<CloudStoragesLogic> logger) : ICloudStoragesLogic
+    ILogger<CloudStoragesLogic> logger,
+    IBookParserManager bookParserManager,
+    IBooksLogic booksLogic) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -47,6 +49,10 @@ public class CloudStoragesLogic(
     private readonly ICloudStorage storage = storage;
 
     private readonly ILogger<CloudStoragesLogic> logger = logger;
+
+    private readonly IBookParserManager bookParserManager = bookParserManager;
+
+    private readonly IBooksLogic booksLogic = booksLogic;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
@@ -396,5 +402,58 @@ public class CloudStoragesLogic(
 
         var scheduler = await this.schedulerFactory.GetScheduler();
         await SyncStorageData.Schedule(scheduler, forSingleStorage: storage);
+    }
+
+    /// <inheritdoc/>
+    public async Task ScanStorageForBooks(CloudStorageDTO storage, Action<int, int>? onFileScanned = null)
+    {
+        // download new data
+        var localPath = this.storage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
+
+        var files = new List<string>();
+        foreach (var extension in this.bookParserManager.SupportedFileEndings())
+        {
+            files.AddRange(Directory.EnumerateFiles(localPath, $"*.{extension}", SearchOption.AllDirectories));
+        }
+
+        int j = 0;
+        foreach (var filePath in files)
+        {
+            var file = filePath.ToFile();
+
+            var fileImported = await this.booksLogic.BookFileExists(file);
+            var fileImportFailedBefore = await this.CloudFileImportFailed(storage, file);
+            if (fileImported || fileImportFailedBefore)
+            {
+                // ignore file
+                continue;
+            }
+
+            try
+            {
+                // import book
+                await this.booksLogic.ImportBookAsync(file);
+            }
+            catch (Exception ex)
+            {
+                await this.AddCloudFileImportFail(storage, file.ToFileInfo(filePath), ex.Message);
+            }
+
+            onFileScanned?.Invoke(files.Count, j);
+            j++;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task ScanSingleStorageTask(Guid storageId)
+    {
+        var storage = await this.GetStorage(storageId);
+        if (storage is null)
+        {
+            throw new InvalidOperationException(StaticConstants.CloudStorageStorageNotFoundExceptionKey);
+        }
+
+        var scheduler = await this.schedulerFactory.GetScheduler();
+        await ScanForBooks.Schedule(scheduler, forSingleStorage: storage);
     }
 }

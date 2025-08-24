@@ -136,4 +136,19 @@ public interface ICloudStoragesLogic
     /// <param name="storageId">The storage id.</param>
     /// <returns>A task.</returns>
     Task SyncSingleStorageTask(Guid storageId);
+
+    /// <summary>
+    /// Scan the cloud storages for new books to import.
+    /// </summary>
+    /// <param name="storage">The cloud storage.</param>
+    /// <param name="onFileScanned">Called after each file was scanned with: (totalFiles, fileIndex).</param>
+    /// <returns>A task.</returns>
+    Task ScanStorageForBooks(CloudStorageDTO storage, Action<int, int>? onFileScanned = null);
+
+    /// <summary>
+    /// Scan a single cloud storage for new books to import task.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A task.</returns>
+    Task ScanSingleStorageTask(Guid storageId);
 }

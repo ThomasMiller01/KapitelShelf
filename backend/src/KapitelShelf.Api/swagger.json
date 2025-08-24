@@ -729,6 +729,31 @@
         }
       }
     },
+    "/cloudstorage/storages/{storageId}/scan": {
+      "put": {
+        "tags": [
+          "CloudStorage"
+        ],
+        "summary": "Scan a cloud storage for new books to import.",
+        "parameters": [
+          {
+            "name": "storageId",
+            "in": "path",
+            "description": "The storage id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/cloudstorage/storages/{storageId}/list/directories": {
       "get": {
         "tags": [

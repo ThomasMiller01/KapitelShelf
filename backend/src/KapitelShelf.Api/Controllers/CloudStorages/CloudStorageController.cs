@@ -152,6 +152,26 @@ public class CloudStorageController(ILogger<CloudStorageController> logger, IClo
     }
 
     /// <summary>
+    /// Scan a cloud storage for new books to import.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("storages/{storageId}/scan")]
+    public async Task<IActionResult> Scan(Guid storageId)
+    {
+        try
+        {
+            await this.logic.ScanSingleStorageTask(storageId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error scanning '{StorageId}' storage", storageId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// List all directories.
     /// </summary>
     /// <param name="storageId">The cloud storage id.</param>

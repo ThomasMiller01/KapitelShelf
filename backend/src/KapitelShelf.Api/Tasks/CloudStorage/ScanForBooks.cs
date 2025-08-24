@@ -5,11 +5,7 @@
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Extensions;
-using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
-using KapitelShelf.Api.Logic.Storage;
-using KapitelShelf.Api.Settings;
 using Quartz;
 
 namespace KapitelShelf.Api.Tasks.CloudStorage;
@@ -18,78 +14,29 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// Scan the cloud storages for books.
 /// </summary>
 [DisallowConcurrentExecution]
-public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStorage fileStorage, ICloudStoragesLogic logic, IMapper mapper, IBooksLogic booksLogic, IBookParserManager bookParserManager) : TaskBase(dataStore, logger)
+public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic, IMapper mapper) : TaskBase(dataStore, logger)
 {
-    private readonly ICloudStorage fileStorage = fileStorage;
-
     private readonly ICloudStoragesLogic logic = logic;
 
     private readonly IMapper mapper = mapper;
 
-    private readonly IBooksLogic booksLogic = booksLogic;
-
-    private readonly IBookParserManager bookParserManager = bookParserManager;
+    /// <summary>
+    /// Sets a value to only sync a single storage.
+    /// </summary>
+    public Guid? ForSingleStorageId { private get; set; }
 
     /// <inheritdoc/>
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
-        var storages = await this.logic.GetDownloadedStorageModels();
-        if (storages.Count == 0)
+        if (this.ForSingleStorageId.HasValue)
         {
-            // no storages to sync
+            // scan a single storage
+            await this.ScanSingleStorage(context);
             return;
         }
 
-        var i = 0;
-        foreach (var storageModel in storages)
-        {
-            this.CheckForInterrupt(context);
-
-            this.DataStore.SetMessage(JobKey(context), $"Scanning '{storageModel.CloudDirectory}' [{storageModel.Type}]");
-
-            // download new data
-            var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
-            var localPath = this.fileStorage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
-
-            var files = new List<string>();
-            foreach (var extension in this.bookParserManager.SupportedFileEndings())
-            {
-                files.AddRange(Directory.EnumerateFiles(localPath, $"*.{extension}", SearchOption.AllDirectories));
-            }
-
-            int j = 0;
-            foreach (var filePath in files)
-            {
-                this.CheckForInterrupt(context);
-
-                var file = filePath.ToFile();
-
-                var fileImported = await this.booksLogic.BookFileExists(file);
-                var fileImportFailedBefore = await this.logic.CloudFileImportFailed(storage, file);
-                if (fileImported || fileImportFailedBefore)
-                {
-                    // ignore file
-                    continue;
-                }
-
-                try
-                {
-                    // import book
-                    await this.booksLogic.ImportBookAsync(file);
-                }
-                catch (Exception ex)
-                {
-                    await this.logic.AddCloudFileImportFail(storage, file.ToFileInfo(filePath), ex.Message);
-                }
-
-                var itemPercentage = (int)Math.Floor((double)j / files.Count * 100);
-                this.DataStore.SetProgress(JobKey(context), i, storages.Count, itemPercentage);
-
-                j++;
-            }
-
-            i++;
-        }
+        // scan all storages
+        await this.ScanAllStorages(context);
     }
 
     /// <summary>
@@ -97,8 +44,9 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
     /// </summary>
     /// <param name="scheduler">The scheduler.</param>
     /// <param name="options">The task schedule options.</param>
+    /// <param name="forSingleStorage">Sync only for a single storage.</param>
     /// <returns>The job key.</returns>
-    public static async Task<string> Schedule(IScheduler scheduler, TaskScheduleOptionsDTO? options = null)
+    public static async Task<string> Schedule(IScheduler scheduler, TaskScheduleOptionsDTO? options = null, CloudStorageDTO? forSingleStorage = null)
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
@@ -110,8 +58,24 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
             Cronjob = "0 3/5 * ? * *", // execution time shifted from sync storages to not interfere
         };
 
-        var job = internalTask.JobDetail
-            .Build();
+        var jobDetail = internalTask.JobDetail;
+
+        // sync a single storage
+        if (forSingleStorage is not null)
+        {
+            // update internal task
+            internalTask.Title = $"Scan Cloud Storage of {forSingleStorage.Type}";
+            internalTask.Description = $"Scan cloud data of '{forSingleStorage.CloudDirectory}' for new books to import";
+
+            // start immediately, no cronjob
+            internalTask.StartNow = true;
+            internalTask.Cronjob = null;
+
+            jobDetail = internalTask.JobDetail
+                .UsingJobData("ForSingleStorageId", forSingleStorage.Id.ToString());
+        }
+
+        var job = jobDetail.Build();
 
         var trigger = internalTask.Trigger
             .Build();
@@ -127,4 +91,72 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
 
     /// <inheritdoc/>
     public override async Task Kill() => await Task.CompletedTask;
+
+    /// <summary>
+    /// Scan a single storage for books.
+    /// </summary>
+    /// <param name="context">The job context.</param>
+    /// <returns>A task.</returns>
+    /// <exception cref="ArgumentNullException">The single storage id is null.</exception>
+    internal async Task ScanSingleStorage(IJobExecutionContext context)
+    {
+        if (!ForSingleStorageId.HasValue)
+        {
+            throw new ArgumentNullException(nameof(this.ForSingleStorageId));
+        }
+
+        var storageModel = await this.logic.GetStorageModel(this.ForSingleStorageId.Value);
+        if (storageModel is null)
+        {
+            // storage deleted
+            return;
+        }
+
+        this.DataStore.SetMessage(JobKey(context), $"Scanning '{storageModel.CloudDirectory}' [{storageModel.Type}]");
+
+        // check for interrupts and update task progress
+        void OnFileScanned(int totalFiles, int fileIndex)
+        {
+            this.CheckForInterrupt(context);
+            this.DataStore.SetProgress(JobKey(context), fileIndex, totalFiles);
+        }
+
+        // download new data
+        var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+        await this.logic.ScanStorageForBooks(storage, onFileScanned: OnFileScanned);
+    }
+
+    /// <summary>
+    /// Scan all storages for new books to import.
+    /// </summary>
+    /// <param name="context">The job context.</param>
+    /// <returns>A task.</returns>
+    internal async Task ScanAllStorages(IJobExecutionContext context)
+    {
+        var storages = await this.logic.GetDownloadedStorageModels();
+        if (storages.Count == 0)
+        {
+            // no storages to scan
+            return;
+        }
+
+        for (int i = 0; i < storages.Count; i++)
+        {
+            var storageModel = storages[i];
+
+            this.DataStore.SetMessage(JobKey(context), $"Scanning '{storageModel.CloudDirectory}' [{storageModel.Type}]");
+
+            void OnFileScanned(int totalFiles, int fileIndex)
+            {
+                this.CheckForInterrupt(context);
+
+                var itemPercentage = (int)Math.Floor((double)fileIndex / totalFiles * 100);
+                this.DataStore.SetProgress(JobKey(context), i, storages.Count, itemPercentage);
+            }
+
+            // download new data
+            var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+            await this.logic.ScanStorageForBooks(storage, onFileScanned: OnFileScanned);
+        }
+    }
 }

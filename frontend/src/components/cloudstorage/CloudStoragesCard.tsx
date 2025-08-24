@@ -134,6 +134,27 @@ export const CloudStorageCard = ({
     },
   });
 
+  const { mutate: scanStorage } = useMutation({
+    mutationKey: ["cloudstorage-scan", cloudstorage.id],
+    mutationFn: async () => {
+      if (cloudstorage.id === undefined) {
+        return;
+      }
+
+      await cloudstorageApi.cloudstorageStoragesStorageIdScanPut(
+        cloudstorage.id
+      );
+
+      update();
+
+      triggerNavigate({
+        operation: `Started Storage Scan`,
+        itemName: CloudTypeToString(cloudstorage.type),
+        url: "/settings/tasks",
+      });
+    },
+  });
+
   const onConfigureDirectory = (directory: string): void => {
     configureDirectory(directory);
     setOpenDirectoryDialog(false);
@@ -226,7 +247,7 @@ export const CloudStorageCard = ({
           >
             <DeleteIcon />
           </IconButtonWithTooltip>
-          <OptionsMenu onSyncClick={syncStorage} />
+          <OptionsMenu onSyncClick={syncStorage} onScanClick={scanStorage} />
         </Stack>
       </Grid>
 
@@ -325,9 +346,13 @@ const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
 
 interface OptionsMenuProps {
   onSyncClick: () => void;
+  onScanClick: () => void;
 }
 
-const OptionsMenu = ({ onSyncClick }: OptionsMenuProps): ReactElement => {
+const OptionsMenu = ({
+  onSyncClick,
+  onScanClick,
+}: OptionsMenuProps): ReactElement => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
@@ -355,6 +380,7 @@ const OptionsMenu = ({ onSyncClick }: OptionsMenuProps): ReactElement => {
           text="Scan for Books"
           icon={<SearchIcon />}
           onClick={() => {
+            onScanClick();
             handleClose();
           }}
         />
