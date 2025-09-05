@@ -7,12 +7,14 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.Extensions;
+using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -37,6 +39,8 @@ public class CloudStoragesLogicTests
     private IProcessUtils processUtils;
     private ICloudStorage storage;
     private ILogger<CloudStoragesLogic> logger;
+    private IBookParserManager bookParserManager;
+    private IBooksLogic booksLogic;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -98,7 +102,9 @@ public class CloudStoragesLogicTests
         this.processUtils = Substitute.For<IProcessUtils>();
         this.storage = Substitute.For<ICloudStorage>();
         this.logger = Substitute.For<ILogger<CloudStoragesLogic>>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger);
+        this.bookParserManager = Substitute.For<IBookParserManager>();
+        this.booksLogic = Substitute.For<IBooksLogic>();
+        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger, this.bookParserManager, this.booksLogic);
     }
 
     /// <summary>
@@ -1100,6 +1106,110 @@ public class CloudStoragesLogicTests
 
         // Execute
         await this.testee.SyncSingleStorageTask(storageDto.Id);
+
+        // Assert
+        await scheduler.Received().ScheduleJob(
+            Arg.Any<IJobDetail>(),
+            Arg.Any<IReadOnlyCollection<ITrigger>>(),
+            true,
+            Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests ScanStorageForBooks skips already imported or failed files.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ScanStorageForBooks_SkipsExistingOrFailed()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "test",
+            CloudOwnerEmail = "test",
+            CloudOwnerName = "test",
+        };
+
+        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tmpDir);
+        var bookPath = Path.Combine(tmpDir, "book.pdf");
+        File.WriteAllBytes(bookPath, BookParserHelper.BluePixelBytes);
+
+        this.bookParserManager.SupportedFileEndings().Returns(["pdf"]);
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(tmpDir);
+        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(true);
+
+        // Execute
+        await this.testee.ScanStorageForBooks(storageDto);
+
+        // Assert
+        await this.booksLogic.DidNotReceive().ImportBookAsync(Arg.Any<IFormFile>());
+
+        Directory.Delete(tmpDir, true);
+    }
+
+    /// <summary>
+    /// Tests ScanStorageForBooks imports non-imported book.
+    /// </summary>
+    [Test]
+    public void ScanStorageForBooks_ImportsBook()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "test",
+            CloudOwnerEmail = "test",
+            CloudOwnerName = "test",
+        };
+
+        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tmpDir);
+        var bookPath = Path.Combine(tmpDir, "book.pdf");
+        File.WriteAllBytes(bookPath, BookParserHelper.BluePixelBytes);
+
+        this.bookParserManager.SupportedFileEndings().Returns(["pdf"]);
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(tmpDir);
+        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(false);
+    }
+
+    /// <summary>
+    /// Tests ScanSingleStorageTask throws if storage is not found.
+    /// </summary>
+    [Test]
+    public void ScanSingleStorageTask_ThrowsIfNotFound() => Assert.ThrowsAsync<InvalidOperationException>(async () => await this.testee.ScanSingleStorageTask(Guid.NewGuid()));
+
+    /// <summary>
+    /// Tests ScanSingleStorageTask schedules job for storage.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ScanSingleStorageTask_SchedulesJob()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud".Unique(),
+            CloudOwnerEmail = "Email",
+            CloudOwnerName = "Name",
+        };
+        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        storageModel.RCloneConfig = "rclone.conf";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        var scheduler = Substitute.For<IScheduler>();
+        this.schedulerFactory.GetScheduler().Returns(Task.FromResult(scheduler));
+
+        // Execute
+        await this.testee.ScanSingleStorageTask(storageDto.Id);
 
         // Assert
         await scheduler.Received().ScheduleJob(

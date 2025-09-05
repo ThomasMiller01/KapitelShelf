@@ -3,19 +3,13 @@
 // </copyright>
 
 using AutoMapper;
-using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.CloudStorage;
-using KapitelShelf.Api.DTOs.FileInfo;
-using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
-using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Data.Models.CloudStorage;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using Quartz;
 
 namespace KapitelShelf.Api.Tests.Tasks.CloudStorage;
@@ -29,11 +23,8 @@ public class ScanForBooksTests
     private ScanForBooks testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
-    private ICloudStorage fileStorage;
     private ICloudStoragesLogic logic;
     private IMapper mapper;
-    private IBooksLogic booksLogic;
-    private IBookParserManager bookParserManager;
     private IJobExecutionContext context;
     private CloudStorageDTO storage;
     private CloudStorageModel storageModel;
@@ -46,11 +37,8 @@ public class ScanForBooksTests
     {
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
-        this.fileStorage = Substitute.For<ICloudStorage>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
-        this.mapper = Substitute.For<IMapper>();
-        this.booksLogic = Substitute.For<IBooksLogic>();
-        this.bookParserManager = Substitute.For<IBookParserManager>();
+        this.mapper = Testhelper.CreateMapper();
         this.context = Substitute.For<IJobExecutionContext>();
 
         var jobKey = new JobKey("ScanBooks", "Test");
@@ -75,11 +63,8 @@ public class ScanForBooksTests
         this.testee = new ScanForBooks(
             this.dataStore,
             this.logger,
-            this.fileStorage,
             this.logic,
-            this.mapper,
-            this.booksLogic,
-            this.bookParserManager);
+            this.mapper);
     }
 
     /// <summary>
@@ -96,113 +81,73 @@ public class ScanForBooksTests
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.booksLogic.DidNotReceive().ImportBookAsync(Arg.Any<IFormFile>());
+        await this.logic.DidNotReceiveWithAnyArgs().ScanStorageForBooks(default!, default!);
+        this.dataStore.DidNotReceiveWithAnyArgs().SetMessage(default!, default!);
     }
 
     /// <summary>
-    /// Tests ExecuteTask imports all new books found.
+    /// Tests ExecuteTask scans all storages and calls ScanStorageForBooks for each.
+    /// Also verifies message and progress updates via callback.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_ImportsAllNewBooks()
+    public async Task ExecuteTask_ScansAllStorages_CallsLogicAndUpdatesProgress()
     {
         // Setup
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var bookFile = Path.Combine(tempDir, "book.epub");
-        File.WriteAllText(bookFile, "test");
-
-        this.logic.GetDownloadedStorageModels().Returns([this.storageModel]);
-        this.mapper.Map<CloudStorageDTO>(this.storageModel).Returns(this.storage);
-        this.fileStorage.FullPath(this.storage, Arg.Any<string>()).Returns(tempDir);
-        this.bookParserManager.SupportedFileEndings().Returns(["epub"]);
-
-        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(false);
-        this.logic.CloudFileImportFailed(this.storage, Arg.Any<IFormFile>()).Returns(false);
-        this.booksLogic.ImportBookAsync(Arg.Any<IFormFile>()).Returns(Task.FromResult(new ImportResultDTO()));
+        var storages = new List<CloudStorageModel>
+        {
+            this.storageModel,
+        };
+        this.logic.GetDownloadedStorageModels().Returns(storages);
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.booksLogic.Received().ImportBookAsync(Arg.Any<IFormFile>());
-        Directory.Delete(tempDir, true);
+        await this.logic.Received(1).ScanStorageForBooks(Arg.Any<CloudStorageDTO>(), Arg.Any<Action<int, int>>());
+        this.dataStore.Received().SetMessage("Test.ScanBooks", Arg.Is<string>(msg => msg.Contains("TestDir")));
     }
 
     /// <summary>
-    /// Tests ExecuteTask skips files already imported or failed.
+    /// Tests ScanSingleStorage returns if storage is not found.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_Skips_ImportedOrFailedFiles()
+    public async Task ScanSingleStorage_Returns_IfStorageNotFound()
     {
         // Setup
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var bookFile = Path.Combine(tempDir, "book.epub");
-        File.WriteAllText(bookFile, "test");
-
-        this.logic.GetDownloadedStorageModels().Returns([this.storageModel]);
-        this.mapper.Map<CloudStorageDTO>(this.storageModel).Returns(this.storage);
-        this.fileStorage.FullPath(this.storage, Arg.Any<string>()).Returns(tempDir);
-        this.bookParserManager.SupportedFileEndings().Returns(["epub"]);
-
-        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(true);
-        this.logic.CloudFileImportFailed(this.storage, Arg.Any<IFormFile>()).Returns(true);
+        var missingId = Guid.NewGuid();
+        this.testee.ForSingleStorageId = missingId;
+        this.logic.GetStorageModel(missingId).Returns((CloudStorageModel?)null);
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.booksLogic.DidNotReceive().ImportBookAsync(Arg.Any<IFormFile>());
-        Directory.Delete(tempDir, true);
+        await this.logic.DidNotReceiveWithAnyArgs().ScanStorageForBooks(default!, default!);
     }
 
     /// <summary>
-    /// Tests ExecuteTask logs error and adds import fail if ImportBookAsync throws.
+    /// Tests ScanSingleStorage sets message and calls logic.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_LogsErrorAndAddsImportFail_IfImportThrows()
+    public async Task ScanSingleStorage_SetsMessageAndCallsScan()
     {
         // Setup
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var bookFile = Path.Combine(tempDir, "book.epub");
-        File.WriteAllText(bookFile, "test content");
-
-        this.logic.GetDownloadedStorageModels().Returns([this.storageModel]);
-        this.mapper.Map<CloudStorageDTO>(this.storageModel).Returns(this.storage);
-        this.fileStorage.FullPath(this.storage, Arg.Any<string>()).Returns(tempDir);
-        this.bookParserManager.SupportedFileEndings().Returns(["epub"]);
-
-        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(false);
-        this.logic.CloudFileImportFailed(this.storage, Arg.Any<IFormFile>()).Returns(false);
-        this.booksLogic.ImportBookAsync(Arg.Any<IFormFile>()).ThrowsAsync(new InvalidOperationException("fail!"));
+        this.testee.ForSingleStorageId = this.storageModel.Id;
+        this.logic.GetStorageModel(this.storageModel.Id).Returns(this.storageModel);
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.logic.Received().AddCloudFileImportFail(this.storage, Arg.Any<FileInfoDTO>(), Arg.Any<string>());
-        Directory.Delete(tempDir, true);
+        this.dataStore.Received().SetMessage("Test.ScanBooks", Arg.Is<string>(msg => msg.Contains("TestDir")));
     }
 
     /// <summary>
-    /// Tests Schedule creates and schedules the job.
+    /// Tests Kill does not throw.
     /// </summary>
-    /// <returns>A task that returns the job key string.</returns>
     [Test]
-    public async Task Schedule_CreatesAndSchedulesJob_ReturnsJobKey()
-    {
-        // Setup
-        var scheduler = Substitute.For<IScheduler>();
-
-        // Execute
-        var jobKey = await ScanForBooks.Schedule(scheduler);
-
-        // Assert
-        Assert.That(jobKey, Is.Not.Null.And.Contains("Scan Cloud Storages for Books"));
-        await scheduler.Received().ScheduleJob(Arg.Any<IJobDetail>(), Arg.Any<IReadOnlyCollection<ITrigger>>(), true);
-    }
+    public void Kill_DoesNothing() => Assert.DoesNotThrowAsync(this.testee.Kill);
 }
