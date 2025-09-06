@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { type ReactElement, useEffect, useState } from "react";
 
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useMobile } from "../../hooks/useMobile";
 import { useSetting } from "../../hooks/useSetting";
 import {
@@ -49,7 +48,6 @@ const MetadataDialog = ({
   onConfirm,
 }: MetadataDialogProps): ReactElement => {
   const { isMobile } = useMobile();
-  const [getItem, setItem] = useLocalStorage();
 
   const [searchTitle, setSearchTitle] = useState(initialTitle);
   const [lockedInTitle, setLockedInTitle] = useState(initialTitle);
@@ -80,7 +78,6 @@ const MetadataDialog = ({
       const updated = prev.includes(source)
         ? prev.filter((s) => s !== source)
         : [...prev, source];
-      setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
   };

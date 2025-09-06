@@ -1,4 +1,6 @@
+// @ts-expect-error swiper is installed
 import "swiper/css";
+// @ts-expect-error swiper is installed
 import "swiper/css/navigation";
 
 import { Box, Typography } from "@mui/material";
@@ -72,7 +74,7 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
         autoHeight
         style={{ margin: "0 8px", padding: "18px 0" }}
       >
-        {React.Children.map(children, (child, i) => (
+        {React.Children.map(children, (child, _) => (
           <SwiperSlide>
             <Box sx={{ width: itemWidth }}>{child}</Box>
           </SwiperSlide>
