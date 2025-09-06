@@ -29,6 +29,7 @@ import { useNotification } from "../../hooks/useNotification";
 import { cloudstorageApi } from "../../lib/api/KapitelShelf.Api";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CloudTypeToString } from "../../utils/CloudStorageUtils";
+import DeleteDialog from "../base/feedback/DeleteDialog";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
 import { CloudStorageDownloadStatus } from "./CloudStorageDownloadStatus";
@@ -67,6 +68,7 @@ export const CloudStorageCard = ({
   const { triggerNavigate } = useNotification();
 
   const [openDirectoryDialog, setOpenDirectoryDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const { mutate: startOAuthFlow } = useMutation({
     mutationKey: ["cloudstorage-re-oauth-flow", cloudstorage.id],
@@ -243,7 +245,7 @@ export const CloudStorageCard = ({
         <Stack spacing={1} direction="row" alignItems="start">
           <IconButtonWithTooltip
             tooltip="Delete"
-            onClick={() => deleteStorage()}
+            onClick={() => setOpenDeleteDialog(true)}
           >
             <DeleteIcon />
           </IconButtonWithTooltip>
@@ -257,6 +259,13 @@ export const CloudStorageCard = ({
         onCancel={() => setOpenDirectoryDialog(false)}
         onConfirm={onConfigureDirectory}
         cloudType={cloudstorage.type}
+      />
+      <DeleteDialog
+        open={openDeleteDialog}
+        onCancel={() => setOpenDeleteDialog(false)}
+        onConfirm={deleteStorage}
+        title="Confirm to delete this cloud storage"
+        description="Are you sure you want to delete this cloud storage? This action cannot be undone."
       />
     </Grid>
   );
