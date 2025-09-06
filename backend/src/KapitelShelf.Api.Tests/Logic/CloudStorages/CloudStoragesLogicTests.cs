@@ -2,16 +2,21 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.Extensions;
+using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Quartz;
 using Testcontainers.PostgreSql;
@@ -32,6 +37,10 @@ public class CloudStoragesLogicTests
     private KapitelShelfSettings settings;
     private ISchedulerFactory schedulerFactory;
     private IProcessUtils processUtils;
+    private ICloudStorage storage;
+    private ILogger<CloudStoragesLogic> logger;
+    private IBookParserManager bookParserManager;
+    private IBooksLogic booksLogic;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -91,7 +100,11 @@ public class CloudStoragesLogicTests
         };
         this.schedulerFactory = Substitute.For<ISchedulerFactory>();
         this.processUtils = Substitute.For<IProcessUtils>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils);
+        this.storage = Substitute.For<ICloudStorage>();
+        this.logger = Substitute.For<ILogger<CloudStoragesLogic>>();
+        this.bookParserManager = Substitute.For<IBookParserManager>();
+        this.booksLogic = Substitute.For<IBooksLogic>();
+        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger, this.bookParserManager, this.booksLogic);
     }
 
     /// <summary>
@@ -773,5 +786,427 @@ public class CloudStoragesLogicTests
 
         Assert.ThrowsAsync<ArgumentNullException>(async () =>
             await this.testee.CloudFileImportFailed(storageDto, null!));
+    }
+
+    /// <summary>
+    /// Tests SyncStorage throws ArgumentNullException if storage is null.
+    /// </summary>
+    [Test]
+    public void SyncStorage_ThrowsIfStorageNull() => Assert.ThrowsAsync<ArgumentNullException>(() => this.testee.SyncStorage(null!));
+
+    /// <summary>
+    /// Tests SyncStorage throws ArgumentNullException if storage model is null.
+    /// </summary>
+    [Test]
+    public void SyncStorage_ThrowsIfStorageModelNull()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+        };
+
+        // Execute and Assert
+        Assert.ThrowsAsync<ArgumentNullException>(() => this.testee.SyncStorage(storageDto));
+    }
+
+    /// <summary>
+    /// Tests SyncStorage calls processUtils.RunProcessAsync with bisync if supported.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SyncStorage_CallsProcessUtilsWithBisyncIfSupported()
+    {
+        // Setup
+        StaticConstants.StoragesSupportRCloneBisync.Add(CloudTypeDTO.OneDrive);
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud".Unique(),
+            CloudOwnerEmail = "Email",
+            CloudOwnerName = "Name",
+        };
+        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        storageModel.RCloneConfig = "rclone.conf";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns("localPath");
+        this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<string?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
+            .Returns((0, string.Empty, string.Empty));
+
+        // Execute
+        await this.testee.SyncStorage(storageDto);
+
+        // Assert
+        await this.processUtils.Received().RunProcessAsync(
+            Arg.Is<string>(s => s == this.settings.CloudStorage.RClone),
+            Arg.Is<string>(args => args.Contains("bisync")),
+            Arg.Any<string?>(),
+            Arg.Any<Action<string>?>(),
+            Arg.Any<Action<string>?>(),
+            Arg.Any<string?>(),
+            Arg.Any<Action<Process>?>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests SyncStorage calls processUtils.RunProcessAsync with sync if bisync not supported.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SyncStorage_CallsProcessUtilsWithSyncIfNotBisync()
+    {
+        // Setup
+        StaticConstants.StoragesSupportRCloneBisync.Remove(CloudTypeDTO.OneDrive);
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud".Unique(),
+            CloudOwnerEmail = "Email",
+            CloudOwnerName = "Name",
+        };
+        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        storageModel.RCloneConfig = "rclone.conf";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns("localPath");
+        this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<string?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
+            .Returns((0, string.Empty, string.Empty));
+
+        // Execute
+        await this.testee.SyncStorage(storageDto);
+
+        // Assert
+        await this.processUtils.Received().RunProcessAsync(
+            Arg.Is<string>(s => s == this.settings.CloudStorage.RClone),
+            Arg.Is<string>(args => args.Contains("sync")),
+            Arg.Any<string?>(),
+            Arg.Any<Action<string>?>(),
+            Arg.Any<Action<string>?>(),
+            Arg.Any<string?>(),
+            Arg.Any<Action<Process>?>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests DeleteStorageData throws ArgumentNullException if storage is null.
+    /// </summary>
+    [Test]
+    public void DeleteStorageData_ThrowsIfNull() => Assert.Throws<ArgumentNullException>(() => this.testee.DeleteStorageData(null!));
+
+    /// <summary>
+    /// Tests DeleteStorageData does nothing if directory does not exist.
+    /// </summary>
+    [Test]
+    public void DeleteStorageData_DoesNothingIfDirectoryMissing()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud",
+        };
+        this.storage.FullPath(Arg.Any<CloudStorageDTO>(), Arg.Any<string>()).Returns("doesnotexist");
+
+        // Execute & Assert
+        Assert.DoesNotThrow(() => this.testee.DeleteStorageData(storageDto, false));
+    }
+
+    /// <summary>
+    /// Tests DeleteStorageData deletes all files and directory, and calls onFileDelete.
+    /// </summary>
+    [Test]
+    public void DeleteStorageData_DeletesAllFilesAndCallsOnFileDelete()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud",
+        };
+
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        var file1 = Path.Combine(tempDir, "f1.txt");
+        var file2 = Path.Combine(tempDir, "f2.txt");
+        File.WriteAllText(file1, "foo");
+        File.WriteAllText(file2, "bar");
+
+        this.storage.FullPath(storageDto, string.Empty).Returns(tempDir);
+
+        var deleted = new List<string>();
+        void OnFileDelete(string file, int total, int idx)
+        {
+            deleted.Add(file);
+        }
+
+        // Execute
+        this.testee.DeleteStorageData(storageDto, false, OnFileDelete);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(deleted, Does.Contain(file1));
+            Assert.That(deleted, Does.Contain(file2));
+            Assert.That(Directory.Exists(tempDir), Is.False);
+        });
+    }
+
+    /// <summary>
+    /// Tests DeleteStorageData only removes cloud data if removeOnlyCloudData is true.
+    /// </summary>
+    [Test]
+    public void DeleteStorageData_RemovesOnlyCloudDataIfFlagTrue()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud",
+        };
+
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(tempDir);
+
+        // Execute
+        this.testee.DeleteStorageData(storageDto, true);
+
+        // Assert
+        Assert.That(Directory.Exists(tempDir), Is.False);
+    }
+
+    /// <summary>
+    /// Tests SyncSingleStorageTask throws if storage is not found.
+    /// </summary>
+    [Test]
+    public void SyncSingleStorageTask_ThrowsIfNotFound() => Assert.ThrowsAsync<InvalidOperationException>(async () => await this.testee.SyncSingleStorageTask(Guid.NewGuid()));
+
+    /// <summary>
+    /// Tests SyncSingleStorageTask schedules job for storage.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SyncSingleStorageTask_SchedulesJob()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud".Unique(),
+            CloudOwnerEmail = "Email",
+            CloudOwnerName = "Name",
+        };
+        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        storageModel.RCloneConfig = "rclone.conf";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        var scheduler = Substitute.For<IScheduler>();
+        this.schedulerFactory.GetScheduler().Returns(Task.FromResult(scheduler));
+
+        // Execute
+        await this.testee.SyncSingleStorageTask(storageDto.Id);
+
+        // Assert
+        await scheduler.Received().ScheduleJob(
+            Arg.Any<IJobDetail>(),
+            Arg.Any<IReadOnlyCollection<ITrigger>>(),
+            true,
+            Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests ScanStorageForBooks skips already imported or failed files.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ScanStorageForBooks_SkipsExistingOrFailed()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "test",
+            CloudOwnerEmail = "test",
+            CloudOwnerName = "test",
+        };
+
+        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tmpDir);
+        var bookPath = Path.Combine(tmpDir, "book.pdf");
+        File.WriteAllBytes(bookPath, BookParserHelper.BluePixelBytes);
+
+        this.bookParserManager.SupportedFileEndings().Returns(["pdf"]);
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(tmpDir);
+        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(true);
+
+        // Execute
+        await this.testee.ScanStorageForBooks(storageDto);
+
+        // Assert
+        await this.booksLogic.DidNotReceive().ImportBookAsync(Arg.Any<IFormFile>());
+
+        Directory.Delete(tmpDir, true);
+    }
+
+    /// <summary>
+    /// Tests ScanStorageForBooks imports non-imported book.
+    /// </summary>
+    [Test]
+    public void ScanStorageForBooks_ImportsBook()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "test",
+            CloudOwnerEmail = "test",
+            CloudOwnerName = "test",
+        };
+
+        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tmpDir);
+        var bookPath = Path.Combine(tmpDir, "book.pdf");
+        File.WriteAllBytes(bookPath, BookParserHelper.BluePixelBytes);
+
+        this.bookParserManager.SupportedFileEndings().Returns(["pdf"]);
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(tmpDir);
+        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(false);
+    }
+
+    /// <summary>
+    /// Tests ScanSingleStorageTask throws if storage is not found.
+    /// </summary>
+    [Test]
+    public void ScanSingleStorageTask_ThrowsIfNotFound() => Assert.ThrowsAsync<InvalidOperationException>(async () => await this.testee.ScanSingleStorageTask(Guid.NewGuid()));
+
+    /// <summary>
+    /// Tests ScanSingleStorageTask schedules job for storage.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ScanSingleStorageTask_SchedulesJob()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud".Unique(),
+            CloudOwnerEmail = "Email",
+            CloudOwnerName = "Name",
+        };
+        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        storageModel.RCloneConfig = "rclone.conf";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        var scheduler = Substitute.For<IScheduler>();
+        this.schedulerFactory.GetScheduler().Returns(Task.FromResult(scheduler));
+
+        // Execute
+        await this.testee.ScanSingleStorageTask(storageDto.Id);
+
+        // Assert
+        await scheduler.Received().ScheduleJob(
+            Arg.Any<IJobDetail>(),
+            Arg.Any<IReadOnlyCollection<ITrigger>>(),
+            true,
+            Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests for DownloadStorageInitially and CleanStorageDirectory.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task DownloadStorageInitially_CreatesDirectoryAndCallsRCloneBisync()
+    {
+        // Setup
+        StaticConstants.StoragesSupportRCloneBisync.Add(CloudTypeDTO.OneDrive);
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud".Unique(),
+            CloudOwnerEmail = "email",
+            CloudOwnerName = "name",
+        };
+        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        storageModel.RCloneConfig = "rclone.conf";
+
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(path);
+        this.dbContextFactory.CreateDbContextAsync(Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(new KapitelShelfDBContext(this.dbOptions)));
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        // Execute
+        await this.testee.DownloadStorageInitially(storageDto);
+
+        // Assert
+        Assert.That(Directory.Exists(path), Is.True);
+
+        // Cleanup
+        Directory.Delete(path, true);
+    }
+
+    /// <summary>
+    /// Tests CleanStorageDirectory does nothing if directory is empty.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task CleanStorageDirectory_DoesNothingIfEmpty()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud",
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(path);
+        this.storage.FullPath(storageDto).Returns(path);
+
+        // Execute
+        await this.testee.CleanStorageDirectory(storageDto);
+
+        // Assert
+        await this.schedulerFactory.DidNotReceive().GetScheduler();
+        Directory.Delete(path);
     }
 }

@@ -26,6 +26,19 @@ public class TaskRuntimeDataStore : ITaskRuntimeDataStore
     }
 
     /// <inheritdoc/>
+    public void SetProgress(string jobKey, int current, int total, int itemPercentage)
+    {
+        if (total <= 0)
+        {
+            SetProgress(jobKey, 0);
+            return;
+        }
+
+        var globalPercentage = (int)Math.Floor(((current * 100.0) + itemPercentage) / total);
+        SetProgress(jobKey, globalPercentage);
+    }
+
+    /// <inheritdoc/>
     public int? GetProgress(string jobKey) => this.progress.TryGetValue(jobKey, out var percentage) ? percentage : null;
 
     /// <inheritdoc/>

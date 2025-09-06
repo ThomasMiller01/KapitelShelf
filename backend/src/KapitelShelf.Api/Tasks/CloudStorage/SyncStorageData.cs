@@ -2,15 +2,13 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
-using KapitelShelf.Api.Logic.Storage;
-using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using Quartz;
 
@@ -25,105 +23,43 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 public partial class SyncStorageData(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
-    ICloudStorage fileStorage,
     ICloudStoragesLogic logic,
-    IMapper mapper,
-    KapitelShelfSettings settings,
-    IProcessUtils processUtils) : TaskBase(dataStore, logger)
+    IMapper mapper) : TaskBase(dataStore, logger)
 {
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1401 // Fields should be private
     internal IProcess? rcloneProcess = null;
+
+    internal IJobExecutionContext? executionContext = null;
+
+    internal int currentStorageIndex = 0;
+    internal int totalStorageIndex = 0;
 #pragma warning restore SA1401 // Fields should be private
 #pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
-
-    private readonly ICloudStorage fileStorage = fileStorage;
 
     private readonly ICloudStoragesLogic logic = logic;
 
     private readonly IMapper mapper = mapper;
 
-    private readonly KapitelShelfSettings settings = settings;
-
-    private readonly IProcessUtils processUtils = processUtils;
-
-    private IJobExecutionContext? executionContext = null;
-
-    private double progressBase = 0;
-    private double progressIncrement = 0;
+    /// <summary>
+    /// Sets a value to only sync a single storage.
+    /// </summary>
+    public Guid? ForSingleStorageId { private get; set; }
 
     /// <inheritdoc/>
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
-        var storages = await this.logic.GetDownloadedStorageModels();
-        if (storages.Count == 0)
+        this.executionContext = context;
+
+        if (this.ForSingleStorageId.HasValue)
         {
-            // no storages to sync
+            // sync a single storage
+            await this.SyncSingleStorage(context);
             return;
         }
 
-        this.progressIncrement = 100 / storages.Count;
-        this.executionContext = context;
-
-        var i = 0;
-        foreach (var storageModel in storages)
-        {
-            this.CheckForInterrupt(context);
-
-            // increment counter for task progress
-            i++;
-
-            this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
-
-            // download new data
-            var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
-            var localPath = this.fileStorage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
-
-            if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
-            {
-                // use rclone bisync
-                await storageModel.ExecuteRCloneCommand(
-                    this.settings.CloudStorage.RClone,
-                    [
-                        "bisync",
-                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
-                    $"\"{localPath}\"",
-                    "--resilient",
-                    "--recover",
-                    "--conflict-resolve=newer",
-                    "--max-lock=2m",
-                    "--progress",
-                    "--stats=1s",
-                    "--stats-one-line"
-                    ],
-                    this.processUtils,
-                    onStdout: this.DownloadProgressHandler,
-                    stdoutSeperator: "xfr", // rclone transfer number
-                    onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
-                    cancellationToken: context.CancellationToken);
-            }
-            else
-            {
-                // use rclone clone
-                await storageModel.ExecuteRCloneCommand(
-                    this.settings.CloudStorage.RClone,
-                    [
-                        "sync",
-                        $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
-                        $"\"{localPath}\"",
-                        "--progress",
-                        "--stats=1s",
-                        "--stats-one-line"
-                    ],
-                    this.processUtils,
-                    onStdout: this.DownloadProgressHandler,
-                    stdoutSeperator: "xfr", // rclone transfer number
-                    onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
-                    cancellationToken: context.CancellationToken);
-            }
-
-            this.progressBase += this.progressIncrement;
-        }
+        // sync all storages
+        await this.SyncAllStorages(context);
     }
 
     /// <inheritdoc/>
@@ -154,19 +90,40 @@ public partial class SyncStorageData(
     /// </summary>
     /// <param name="scheduler">The scheduler.</param>
     /// <param name="options">The task schedule options.</param>
+    /// <param name="forSingleStorage">Sync only for a single storage.</param>
     /// <returns>The job key.</returns>
-    public static async Task<string> Schedule(IScheduler scheduler, TaskScheduleOptionsDTO? options = null)
+    public static async Task<string> Schedule(IScheduler scheduler, TaskScheduleOptionsDTO? options = null, CloudStorageDTO? forSingleStorage = null)
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
-        var job = JobBuilder.Create<SyncStorageData>()
-            .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
-            .WithDescription($"Sync cloud data for configured storages")
-            .Build();
+        var internalTask = new InternalTask<SyncStorageData>
+        {
+            Title = "Sync Cloud Storages",
+            Category = "Cloud Storage",
+            Description = "Sync cloud data for configured storages",
+            Cronjob = "0 */5 * ? * *",
+        };
 
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Sync Cloud Storages", "Cloud Storage")
-            .WithCronSchedule("0 */5 * ? * *")
+        var jobDetail = internalTask.JobDetail;
+
+        // sync a single storage
+        if (forSingleStorage is not null)
+        {
+            // update internal task
+            internalTask.Title = $"Sync Cloud Storage for {forSingleStorage.Type}";
+            internalTask.Description = $"Sync cloud data for '{forSingleStorage.CloudDirectory}'";
+
+            // start immediately, no cronjob
+            internalTask.StartNow = true;
+            internalTask.Cronjob = null;
+
+            jobDetail = internalTask.JobDetail
+                .UsingJobData("ForSingleStorageId", forSingleStorage.Id.ToString());
+        }
+
+        var job = jobDetail.Build();
+
+        var trigger = internalTask.Trigger
             .Build();
 
         await PreScheduleSteps(scheduler, job, options);
@@ -179,10 +136,71 @@ public partial class SyncStorageData(
     }
 
     /// <summary>
+    /// Sync a single storage.
+    /// </summary>
+    /// <param name="context">The job context.</param>
+    /// <returns>A task.</returns>
+    /// <exception cref="ArgumentNullException">The single storage id is null.</exception>
+    internal async Task SyncSingleStorage(IJobExecutionContext context)
+    {
+        if (!ForSingleStorageId.HasValue)
+        {
+            throw new ArgumentNullException(nameof(this.ForSingleStorageId));
+        }
+
+        var storageModel = await this.logic.GetStorageModel(this.ForSingleStorageId.Value);
+        if (storageModel is null)
+        {
+            // storage already deleted
+            return;
+        }
+
+        this.currentStorageIndex = 0;
+        this.totalStorageIndex = 1;
+
+        this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
+
+        // download new data
+        var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+        await this.logic.SyncStorage(storage, this.DownloadProgressHandler, this.OnProcessStarted);
+    }
+
+    /// <summary>
+    /// Sync all storages.
+    /// </summary>
+    /// <param name="context">The job context.</param>
+    /// <returns>A task.</returns>
+    internal async Task SyncAllStorages(IJobExecutionContext context)
+    {
+        var storages = await this.logic.GetDownloadedStorageModels();
+        if (storages.Count == 0)
+        {
+            // no storages to sync
+            return;
+        }
+
+        this.totalStorageIndex = storages.Count;
+
+        for (int i = 0; i < storages.Count; i++)
+        {
+            var storageModel = storages[i];
+
+            this.CheckForInterrupt(context);
+            this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
+
+            // download new data
+            var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+            await this.logic.SyncStorage(storage, this.DownloadProgressHandler, this.OnProcessStarted);
+
+            this.currentStorageIndex = i;
+        }
+    }
+
+    /// <summary>
     /// Set the progress based on the rclone output during download.
     /// </summary>
     /// <param name="data">The stdout data.</param>
-    private void DownloadProgressHandler(string data)
+    internal void DownloadProgressHandler(string data)
     {
         ArgumentNullException.ThrowIfNull(this.executionContext);
 
@@ -197,16 +215,9 @@ public partial class SyncStorageData(
         var percentMatch = MatchProgressPercentage().Match(data);
         if (percentMatch.Success)
         {
-            if (int.TryParse(percentMatch.Groups[1].Value, out int percentage))
+            if (int.TryParse(percentMatch.Groups[1].Value, out int itemPercentage))
             {
-                // Calculate global progress:
-                // - Each storage is mapped to 'progressIncrement' percent of total bar.
-                // - For the current storage, percentage is from 0 to 100%.
-                // - So progress for this storage is: progressBase + percentage * (progressIncrement / 100.0)
-                // - Example: progressBase = 40, progressIncrement = 20, percentage = 50
-                //   => progress = 40 + (50 * 0.2) = 50
-                int progress = (int)Math.Round(this.progressBase + (percentage / 100.0 * (this.progressIncrement / 100.0)));
-                this.DataStore.SetProgress(JobKey(this.executionContext), progress);
+                this.DataStore.SetProgress(JobKey(this.executionContext), this.currentStorageIndex, this.totalStorageIndex, itemPercentage);
             }
         }
 
@@ -232,6 +243,8 @@ public partial class SyncStorageData(
             this.DataStore.SetMessage(JobKey(executionContext), message);
         }
     }
+
+    private void OnProcessStarted(Process process) => this.rcloneProcess = new ProcessWrapper(process);
 
     [GeneratedRegex(@"(\d+)%")]
     private static partial Regex MatchProgressPercentage();

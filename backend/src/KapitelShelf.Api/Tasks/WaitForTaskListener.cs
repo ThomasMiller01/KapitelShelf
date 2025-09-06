@@ -34,7 +34,7 @@ public class WaitForTaskListener(string jobKey) : IJobListener
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        if (context.JobDetail.Key.ToString() == jobKey)
+        if (context.JobDetail.Key.ToString() == this.jobKey)
         {
             this.task.TrySetResult(jobException == null);
         }
@@ -45,6 +45,7 @@ public class WaitForTaskListener(string jobKey) : IJobListener
     /// <summary>
     /// Wait for the task to finish.
     /// </summary>
+    /// <param name="timeout">Stop waiting after timeout in seconds.</param>
     /// <returns>True if task succeeded, otherwise false.</returns>
-    public Task<bool> WaitAsync() => this.task.Task;
+    public Task<bool> WaitAsync(int timeout = 60) => this.task.Task.WaitAsync(new CancellationTokenSource(timeout * 1000).Token);
 }

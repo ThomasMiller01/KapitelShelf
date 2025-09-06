@@ -109,7 +109,7 @@ public class TaskBaseTests
     public void JobKey_ReturnsCorrectKey()
     {
         // Execute
-        var result = this.testee.JobKey(this.context);
+        var result = TaskBase.JobKey(this.context);
 
         // Assert
         Assert.That(result, Is.EqualTo("TestGroup.UnitTestJob"));
@@ -140,7 +140,7 @@ public class TaskBaseTests
     /// Tests JobKey and CheckForInterrupt throw ArgumentNullException if context is null.
     /// </summary>
     [Test]
-    public void JobKey_ThrowsArgumentNullException_IfNull() => Assert.Throws<ArgumentNullException>(() => this.testee.JobKey(null!));
+    public void JobKey_ThrowsArgumentNullException_IfNull() => Assert.Throws<ArgumentNullException>(() => TaskBase.JobKey(null!));
 
     /// <summary>
     /// Tests Kill completes without error.
@@ -161,6 +161,118 @@ public class TaskBaseTests
         // Execute and Assert
         Assert.DoesNotThrowAsync(async () => await TaskBase.PreScheduleSteps(scheduler, job, null));
         Assert.DoesNotThrowAsync(async () => await TaskBase.PostScheduleSteps(scheduler, job, null));
+    }
+
+    /// <summary>
+    /// Tests InterruptAndWait completes if job is not running (already finished).
+    /// </summary>
+    [Test]
+    public void InterruptAndWait_JobNotRunning_CompletesImmediately()
+    {
+        // Setup
+        var scheduler = Substitute.For<IScheduler>();
+        var job = Substitute.For<IJobDetail>();
+        var jobKey = new JobKey("JobA", "GroupA");
+        job.Key.Returns(jobKey);
+
+        scheduler.Interrupt(jobKey).Returns(Task.FromResult(false));
+        scheduler.GetCurrentlyExecutingJobs().Returns(Task.FromResult<IReadOnlyCollection<IJobExecutionContext>>([]));
+
+        // Execute & Assert
+        Assert.DoesNotThrowAsync(async () => await TaskBase.InterruptAndWait(scheduler, job, 2));
+    }
+
+    /// <summary>
+    /// Tests InterruptAndWait waits for job to finish within timeout.
+    /// </summary>
+    [Test]
+    public void InterruptAndWait_JobRunning_FinishesWithinTimeout()
+    {
+        // Setup
+        var scheduler = Substitute.For<IScheduler>();
+        var job = Substitute.For<IJobDetail>();
+        var jobKey = new JobKey("JobB", "GroupB");
+        job.Key.Returns(jobKey);
+
+        var context = Substitute.For<IJobExecutionContext>();
+        context.JobDetail.Returns(job);
+
+        // first call: running, second call: finished
+        scheduler.Interrupt(jobKey).Returns(Task.FromResult(false));
+        scheduler.GetCurrentlyExecutingJobs()
+            .Returns(
+                Task.FromResult<IReadOnlyCollection<IJobExecutionContext>>([context]),
+                Task.FromResult<IReadOnlyCollection<IJobExecutionContext>>([]));
+
+        // Execute & Assert
+        Assert.DoesNotThrowAsync(async () => await TaskBase.InterruptAndWait(scheduler, job, 2));
+    }
+
+    /// <summary>
+    /// Tests InterruptAndWait calls Kill if job does not finish in time and JobInstance is TaskBase.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task InterruptAndWait_JobDoesNotFinish_CallsKillOnTaskBase()
+    {
+        // Setup
+        var scheduler = Substitute.For<IScheduler>();
+        var job = Substitute.For<IJobDetail>();
+        var jobKey = new JobKey("JobC", "GroupC");
+        job.Key.Returns(jobKey);
+
+        var taskBase = Substitute.For<TaskBase>(Substitute.For<ITaskRuntimeDataStore>(), Substitute.For<ILogger<TaskBase>>());
+        var context = Substitute.For<IJobExecutionContext>();
+        context.JobDetail.Returns(job);
+        context.JobInstance.Returns(taskBase);
+
+        // job never finishes
+        scheduler.Interrupt(jobKey).Returns(Task.FromResult(false));
+        scheduler.GetCurrentlyExecutingJobs().Returns(Task.FromResult<IReadOnlyCollection<IJobExecutionContext>>([context]));
+
+        // Run InterruptAndWait with a very short timeout so it triggers Kill
+        Assert.DoesNotThrowAsync(async () => await TaskBase.InterruptAndWait(scheduler, job, 1));
+
+        // Assert Kill was called
+        await taskBase.Received().Kill();
+    }
+
+    /// <summary>
+    /// Tests InterruptAndWait does not throw or call Kill if JobInstance is not TaskBase.
+    /// </summary>
+    [Test]
+    public void InterruptAndWait_JobDoesNotFinish_NoKillIfNotTaskBase()
+    {
+        // Setup
+        var scheduler = Substitute.For<IScheduler>();
+        var job = Substitute.For<IJobDetail>();
+        var jobKey = new JobKey("JobD", "GroupD");
+        job.Key.Returns(jobKey);
+
+        var dummyJob = Substitute.For<IJob>();
+        var context = Substitute.For<IJobExecutionContext>();
+        context.JobDetail.Returns(job);
+        context.JobInstance.Returns(dummyJob);
+
+        scheduler.Interrupt(jobKey).Returns(Task.FromResult(false));
+        scheduler.GetCurrentlyExecutingJobs().Returns(Task.FromResult<IReadOnlyCollection<IJobExecutionContext>>([context]));
+
+        // Run InterruptAndWait with a short timeout
+        Assert.DoesNotThrowAsync(async () => await TaskBase.InterruptAndWait(scheduler, job, 1));
+    }
+
+    /// <summary>
+    /// Tests InterruptAndWait throws ArgumentNullException if scheduler or job is null.
+    /// </summary>
+    [Test]
+    public void InterruptAndWait_ThrowsIfNullArgs()
+    {
+        // Assert
+        var job = Substitute.For<IJobDetail>();
+        Assert.ThrowsAsync<NullReferenceException>(async () => await TaskBase.InterruptAndWait(null!, job, 1));
+
+        var scheduler = Substitute.For<IScheduler>();
+        Assert.ThrowsAsync<NullReferenceException>(async () => await TaskBase.InterruptAndWait(scheduler, null!, 1));
     }
 
     /// <summary>

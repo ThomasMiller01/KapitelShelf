@@ -82,14 +82,20 @@ public class CleanupFinishedTasks(ITaskRuntimeDataStore dataStore, ILogger<TaskB
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
-        var job = JobBuilder.Create<CleanupFinishedTasks>()
-            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
-            .WithDescription("Restart failed tasks and delete completed ones.")
+        var internalTask = new InternalTask<CleanupFinishedTasks>
+        {
+            Title = "Cleanup Finished Tasks",
+            Category = "Maintenance",
+            Description = "Restart failed tasks and delete completed ones.",
+            ShouldRecover = true,
+            StartNow = true,
+            Cronjob = "0 */15 * ? * *", // every 15 minutes
+        };
+
+        var job = internalTask.JobDetail
             .Build();
 
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity("Cleanup Finished Tasks", "Maintenance")
-            .WithCronSchedule("0 */15 * ? * *")
+        var trigger = internalTask.Trigger
             .Build();
 
         await PreScheduleSteps(scheduler, job, options);

@@ -20,7 +20,11 @@ public class StartupTasksHostedService(ISchedulerFactory schedulerFactory) : IHo
     {
         var scheduler = await this.schedulerFactory.GetScheduler(cancellationToken);
 
+        // Maintenance
         await CleanupFinishedTasks.Schedule(scheduler);
+        await CleanupDatabase.Schedule(scheduler);
+
+        // CloudStorage
         await SyncStorageData.Schedule(scheduler);
         await ScanForBooks.Schedule(scheduler);
     }

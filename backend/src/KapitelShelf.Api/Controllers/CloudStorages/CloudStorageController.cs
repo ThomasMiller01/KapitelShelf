@@ -23,7 +23,7 @@ public class CloudStorageController(ILogger<CloudStorageController> logger, IClo
     private readonly ICloudStoragesLogic logic = logic;
 
     /// <summary>
-    /// Check if OneDrive cloud is configured.
+    /// Check if cloud storage is configured.
     /// </summary>
     /// <param name="cloudType">The cloud type.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
@@ -42,7 +42,7 @@ public class CloudStorageController(ILogger<CloudStorageController> logger, IClo
     }
 
     /// <summary>
-    /// Configure the OneDrive cloud.
+    /// Configure the cloud storage.
     /// </summary>
     /// <param name="cloudType">The cloud type.</param>
     /// <param name="configureCloudDto">The configure cloud dto.</param>
@@ -127,6 +127,46 @@ public class CloudStorageController(ILogger<CloudStorageController> logger, IClo
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error deleting cloud storage with id '{StorageId}'.", storageId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Sync a cloud storage.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("storages/{storageId}/sync")]
+    public async Task<IActionResult> Sync(Guid storageId)
+    {
+        try
+        {
+            await this.logic.SyncSingleStorageTask(storageId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error synching '{StorageId}' storage", storageId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Scan a cloud storage for new books to import.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("storages/{storageId}/scan")]
+    public async Task<IActionResult> Scan(Guid storageId)
+    {
+        try
+        {
+            await this.logic.ScanSingleStorageTask(storageId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error scanning '{StorageId}' storage", storageId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

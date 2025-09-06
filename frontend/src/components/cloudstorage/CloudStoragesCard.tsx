@@ -1,11 +1,19 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SearchIcon from "@mui/icons-material/Search";
+import SyncIcon from "@mui/icons-material/Sync";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import type { BadgeProps } from "@mui/material";
 import {
   Badge,
   Button,
   Grid,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   styled,
   Tooltip,
@@ -105,6 +113,48 @@ export const CloudStorageCard = ({
     },
   });
 
+  const { mutate: syncStorage } = useMutation({
+    mutationKey: ["cloudstorage-sync", cloudstorage.id],
+    mutationFn: async () => {
+      if (cloudstorage.id === undefined) {
+        return;
+      }
+
+      await cloudstorageApi.cloudstorageStoragesStorageIdSyncPut(
+        cloudstorage.id
+      );
+
+      update();
+
+      triggerNavigate({
+        operation: `Started Storage Sync`,
+        itemName: CloudTypeToString(cloudstorage.type),
+        url: "/settings/tasks",
+      });
+    },
+  });
+
+  const { mutate: scanStorage } = useMutation({
+    mutationKey: ["cloudstorage-scan", cloudstorage.id],
+    mutationFn: async () => {
+      if (cloudstorage.id === undefined) {
+        return;
+      }
+
+      await cloudstorageApi.cloudstorageStoragesStorageIdScanPut(
+        cloudstorage.id
+      );
+
+      update();
+
+      triggerNavigate({
+        operation: `Started Storage Scan`,
+        itemName: CloudTypeToString(cloudstorage.type),
+        url: "/settings/tasks",
+      });
+    },
+  });
+
   const onConfigureDirectory = (directory: string): void => {
     configureDirectory(directory);
     setOpenDirectoryDialog(false);
@@ -190,13 +240,14 @@ export const CloudStorageCard = ({
 
       {/* Operations */}
       <Grid>
-        <Stack spacing={0.8} alignItems="start">
+        <Stack spacing={1} direction="row" alignItems="start">
           <IconButtonWithTooltip
             tooltip="Delete"
             onClick={() => deleteStorage()}
           >
             <DeleteIcon />
           </IconButtonWithTooltip>
+          <OptionsMenu onSyncClick={syncStorage} onScanClick={scanStorage} />
         </Stack>
       </Grid>
 
@@ -292,3 +343,65 @@ const DownloadingBadgeComponent: React.FC<DownloadingBadgeComponentProps> = ({
     </DownloadingBadge>
   );
 };
+
+interface OptionsMenuProps {
+  onSyncClick: () => void;
+  onScanClick: () => void;
+}
+
+const OptionsMenu = ({
+  onSyncClick,
+  onScanClick,
+}: OptionsMenuProps): ReactElement => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = (): void => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <IconButton onClick={handleClick}>
+        <MoreVertIcon />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <OptionMenuItem
+          text="Sync with Cloud"
+          icon={<SyncIcon />}
+          onClick={() => {
+            onSyncClick();
+            handleClose();
+          }}
+        />
+        <OptionMenuItem
+          text="Scan for Books"
+          icon={<SearchIcon />}
+          onClick={() => {
+            onScanClick();
+            handleClose();
+          }}
+        />
+      </Menu>
+    </>
+  );
+};
+
+interface OptionMenuItemProps {
+  text: string;
+  icon?: ReactElement;
+  onClick: () => void;
+}
+
+const OptionMenuItem = ({
+  text,
+  icon,
+  onClick,
+}: OptionMenuItemProps): ReactElement => (
+  <MenuItem onClick={onClick}>
+    {icon && <ListItemIcon>{icon}</ListItemIcon>}
+    <ListItemText>{text}</ListItemText>
+  </MenuItem>
+);

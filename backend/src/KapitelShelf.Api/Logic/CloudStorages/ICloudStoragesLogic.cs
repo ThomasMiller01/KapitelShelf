@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Data.Models.CloudStorage;
@@ -108,4 +109,63 @@ public interface ICloudStoragesLogic
     /// <param name="file">The file.</param>
     /// <returns>True if the import failed before, otherwise false.</returns>
     Task<bool> CloudFileImportFailed(CloudStorageDTO storage, IFormFile file);
+
+    /// <summary>
+    /// Sync a single storage.
+    /// </summary>
+    /// <param name="storage">The storage to sync.</param>
+    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onProcessStarted">Called when the process got started.</param>
+    /// <param name="cancellationToken">The cancelation token.</param>
+    /// <returns>A task.</returns>
+    /// <remarks>This method is possibly long running.</remarks>
+    Task SyncStorage(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Delete the data of a storage.
+    /// </summary>
+    /// <param name="storage">The storage whose data to delete.</param>
+    /// <param name="removeOnlyCloudData">Only delete the cloud data or everything including the config.</param>
+    /// <param name="onFileDelete">Called after a file was deleted with: (filepath, totalFiles, fileIndex).</param>
+    /// <remarks>This method is possibly long running.</remarks>
+    void DeleteStorageData(CloudStorageDTO storage, bool removeOnlyCloudData = false, Action<string, int, int>? onFileDelete = null);
+
+    /// <summary>
+    /// Sync a single cloud storage task.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A task.</returns>
+    Task SyncSingleStorageTask(Guid storageId);
+
+    /// <summary>
+    /// Scan the cloud storages for new books to import.
+    /// </summary>
+    /// <param name="storage">The cloud storage.</param>
+    /// <param name="onFileScanned">Called after each file was scanned with: (totalFiles, fileIndex).</param>
+    /// <returns>A task.</returns>
+    Task ScanStorageForBooks(CloudStorageDTO storage, Action<int, int>? onFileScanned = null);
+
+    /// <summary>
+    /// Scan a single cloud storage for new books to import task.
+    /// </summary>
+    /// <param name="storageId">The storage id.</param>
+    /// <returns>A task.</returns>
+    Task ScanSingleStorageTask(Guid storageId);
+
+    /// <summary>
+    /// Initally download the storage data, if it is not present on disk yet.
+    /// </summary>
+    /// <param name="storage">The storage to download.</param>
+    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onProcessStarted">Called when the process got started.</param>
+    /// <param name="cancellationToken">The cancelation token.</param>
+    /// <returns>A task.</returns>
+    Task DownloadStorageInitially(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Clean the storage directory if it exists.
+    /// </summary>
+    /// <param name="storage">The storage.</param>
+    /// <returns>A task.</returns>
+    Task CleanStorageDirectory(CloudStorageDTO storage);
 }

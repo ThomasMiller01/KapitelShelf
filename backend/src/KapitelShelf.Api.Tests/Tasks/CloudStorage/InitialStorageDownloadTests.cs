@@ -6,8 +6,6 @@ using System.Diagnostics;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Logic.CloudStorages;
-using KapitelShelf.Api.Logic.Storage;
-using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
@@ -19,7 +17,7 @@ using Quartz;
 namespace KapitelShelf.Api.Tests.Tasks.CloudStorage;
 
 /// <summary>
-/// UnitTests fot the InitialStorageDownload class.
+/// Unit tests for InitialStorageDownload.
 /// </summary>
 [TestFixture]
 public class InitialStorageDownloadTests
@@ -27,142 +25,77 @@ public class InitialStorageDownloadTests
     private InitialStorageDownload testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
-    private ICloudStorage fileStorage;
     private ICloudStoragesLogic logic;
-    private ISchedulerFactory schedulerFactory;
     private IMapper mapper;
-    private KapitelShelfSettings settings;
-    private IProcessUtils processUtils;
     private IJobExecutionContext context;
 
-    private CloudStorageDTO storage;
-    private Guid storageId;
-
     /// <summary>
-    /// Sets up the testee and dependencies.
+    /// Sets up testee and dependencies.
     /// </summary>
     [SetUp]
-    public void SetUp()
+    public void Setup()
     {
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
-        this.fileStorage = Substitute.For<ICloudStorage>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
-        this.schedulerFactory = Substitute.For<ISchedulerFactory>();
-        this.mapper = Substitute.For<IMapper>();
-        this.settings = new KapitelShelfSettings
-        {
-            CloudStorage = new CloudStorageSettings { RClone = "rclone" },
-        };
-        this.processUtils = Substitute.For<IProcessUtils>();
+        this.mapper = Testhelper.CreateMapper();
         this.context = Substitute.For<IJobExecutionContext>();
 
-        // setupo job key
-        var jobKey = new JobKey("UnitTestJob", "TestGroup");
         var jobDetail = Substitute.For<IJobDetail>();
-        jobDetail.Key.Returns(jobKey);
+        jobDetail.Key.Returns(new JobKey("DownloadJob", "Group"));
         this.context.JobDetail.Returns(jobDetail);
 
-        this.storageId = Guid.NewGuid();
-        this.storage = new CloudStorageDTO
-        {
-            Id = storageId,
-            CloudDirectory = "TestDir",
-            Type = CloudTypeDTO.OneDrive,
-        };
-
-        this.testee = new InitialStorageDownload(
-            this.dataStore,
-            this.logger,
-            this.fileStorage,
-            this.logic,
-            this.schedulerFactory,
-            this.mapper,
-            this.settings,
-            this.processUtils)
-        {
-            StorageId = storageId,
-        };
+        this.testee = new InitialStorageDownload(this.dataStore, this.logger, this.logic, this.mapper);
     }
 
     /// <summary>
-    /// Tests ExecuteTask returns when storage does not exist.
+    /// Tests ExecuteTask returns if storage is missing.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_Returns_IfStorageNotFound()
+    public async Task ExecuteTask_Returns_IfStorageMissing()
     {
         // Setup
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-        this.logic.GetStorageModel(this.storageId).Returns((CloudStorageModel)null);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+        var id = Guid.NewGuid();
+        this.testee.StorageId = id;
+        this.logic.GetStorageModel(id).Returns((CloudStorageModel?)null);
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.logic.DidNotReceive().MarkStorageAsDownloaded(this.storageId);
+        await this.logic.DidNotReceiveWithAnyArgs().DownloadStorageInitially(default!, default!, default!, default);
     }
 
     /// <summary>
-    /// Tests ExecuteTask executes download and marks as downloaded.
+    /// Tests ExecuteTask cleans directory and starts download.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_DownloadsAndMarksAsDownloaded()
+    public async Task ExecuteTask_CleansAndDownloads()
     {
         // Setup
-        var storageModel = Substitute.For<CloudStorageModel>();
-        this.logic.GetStorageModel(this.storageId).Returns(storageModel);
-        this.mapper.Map<CloudStorageDTO>(storageModel).Returns(this.storage);
+        var storageModel = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudType.OneDrive,
+            CloudDirectory = "Books",
+        };
 
-        this.fileStorage.FullPath(this.storage, Arg.Any<string>()).Returns("TestPath");
-        this.fileStorage.FullPath(this.storage).Returns("TestPath");
-
-        Directory.CreateDirectory("TestPath"); // Make sure the directory exists for the test
-
-        // Simulate sync command for non-bisync
-        StaticConstants.StoragesSupportRCloneBisync.Clear(); // For sync, not bisync
-        this.processUtils.RunProcessAsync(
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
-            Arg.Any<Action<Process>?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult((0, string.Empty, string.Empty)));
+        this.testee.StorageId = storageModel.Id;
+        this.logic.GetStorageModel(storageModel.Id).Returns(storageModel);
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        await this.logic.Received().MarkStorageAsDownloaded(this.storage.Id);
-
-        // Cleanup
-        Directory.Delete("TestPath", true);
-    }
-
-    /// <summary>
-    /// Tests Kill terminates running process if exists.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task Kill_TerminatesRcloneProcess_IfNotExited()
-    {
-        // Setup
-        var process = Substitute.For<IProcess>();
-        process.HasExited.Returns(false);
-        this.testee.GetType()
-            .GetField("rcloneProcess", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            ?.SetValue(this.testee, process);
-
-        // Execute
-        await this.testee.Kill();
-
-        // Assert
-        process.Received().Kill(entireProcessTree: true);
+        await this.logic.Received().CleanStorageDirectory(Arg.Is<CloudStorageDTO>(s => s.Id == storageModel.Id));
+        await this.logic.Received().DownloadStorageInitially(
+            Arg.Any<CloudStorageDTO>(),
+            Arg.Any<Action<string>>(),
+            Arg.Any<Action<Process>>(),
+            this.context.CancellationToken);
+        this.dataStore.Received().SetProgress(Arg.Any<string>(), 20);
     }
 
     /// <summary>
@@ -172,26 +105,69 @@ public class InitialStorageDownloadTests
     public void Kill_DoesNothing_IfNoProcess() => Assert.DoesNotThrowAsync(this.testee.Kill);
 
     /// <summary>
+    /// Tests Kill terminates process if running.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Kill_TerminatesProcess_IfRunning()
+    {
+        var process = Substitute.For<IProcess>();
+        process.HasExited.Returns(false);
+        this.testee.GetType().GetField("rcloneProcess", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(this.testee, process);
+
+        await this.testee.Kill();
+
+        process.Received().Kill(entireProcessTree: true);
+    }
+
+    /// <summary>
+    /// Tests Kill logs error if process.Kill throws.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Kill_LogsError_IfKillFails()
+    {
+        var process = Substitute.For<IProcess>();
+        process.HasExited.Returns(false);
+        process.When(x => x.Kill(entireProcessTree: true)).Do(x => throw new InvalidOperationException("fail"));
+
+        this.testee.GetType().GetField("rcloneProcess", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(this.testee, process);
+
+        await this.testee.Kill();
+
+        this.logger.Received().LogError(Arg.Any<Exception>(), "Could not kill rclone process");
+    }
+
+    /// <summary>
+    /// Tests DownloadProgressHandler sets progress and message.
+    /// </summary>
+    [Test]
+    public void DownloadProgressHandler_SetsProgressAndMessage()
+    {
+        this.testee.GetType().GetField("executionContext", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(this.testee, this.context);
+
+        var line = "100.0 MiB / 200.0 MiB, 50%, 5.0 MiB/s, ETA 2m0s";
+
+        this.testee.GetType().GetMethod("DownloadProgressHandler", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .Invoke(this.testee, [line]);
+
+        this.dataStore.Received().SetProgress(Arg.Any<string>(), Arg.Is<int>(x => x >= 20 && x <= 100));
+        this.dataStore.Received().SetMessage(Arg.Any<string>(), Arg.Is<string>(msg => msg.Contains("ETA")));
+    }
+
+    /// <summary>
     /// Tests Schedule creates and schedules the job.
     /// </summary>
-    /// <returns>The job key string.</returns>
+    /// <returns>A task.</returns>
     [Test]
-    public async Task Schedule_CreatesAndSchedulesJob_ReturnsJobKey()
+    public async Task Schedule_CreatesAndSchedulesJob()
     {
-        // Setup
         var scheduler = Substitute.For<IScheduler>();
-        var storage = new CloudStorageDTO
-        {
-            Id = Guid.NewGuid(),
-            CloudDirectory = "dir",
-            Type = CloudTypeDTO.OneDrive,
-        };
+        var storage = new CloudStorageDTO { Id = Guid.NewGuid(), Type = CloudTypeDTO.OneDrive, CloudDirectory = "One" };
 
-        // Execute
         var jobKey = await InitialStorageDownload.Schedule(scheduler, storage);
 
-        // Assert
-        Assert.That(jobKey, Is.Not.Null.And.Contains("Downloading cloud data"));
-        await scheduler.Received().ScheduleJob(Arg.Any<IJobDetail>(), Arg.Any<ITrigger>());
+        Assert.That(jobKey, Is.Not.Null.And.Contain("Downloading cloud data"));
+        await scheduler.Received().ScheduleJob(Arg.Any<IJobDetail>(), Arg.Any<ITrigger>(), Arg.Any<CancellationToken>());
     }
 }

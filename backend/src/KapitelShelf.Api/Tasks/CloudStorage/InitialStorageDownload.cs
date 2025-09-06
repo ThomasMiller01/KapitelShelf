@@ -6,10 +6,7 @@ using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
-using KapitelShelf.Api.Logic.Storage;
-using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using Quartz;
 
@@ -21,24 +18,12 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 public partial class InitialStorageDownload(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
-    ICloudStorage fileStorage,
     ICloudStoragesLogic logic,
-    ISchedulerFactory schedulerFactory,
-    IMapper mapper,
-    KapitelShelfSettings settings,
-    IProcessUtils processUtils) : TaskBase(dataStore, logger)
+    IMapper mapper) : TaskBase(dataStore, logger)
 {
-    private readonly ICloudStorage fileStorage = fileStorage;
-
     private readonly ICloudStoragesLogic logic = logic;
 
-    private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
-
     private readonly IMapper mapper = mapper;
-
-    private readonly KapitelShelfSettings settings = settings;
-
-    private readonly IProcessUtils processUtils = processUtils;
 
     private IJobExecutionContext? executionContext = null;
 
@@ -62,61 +47,18 @@ public partial class InitialStorageDownload(
         var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
 
         // clean directory
-        await this.CleanDirectory(storage);
+        await this.logic.CleanStorageDirectory(storage);
         this.DataStore.SetProgress(JobKey(context), 20);
 
         // set context for progress handler
         this.executionContext = context;
 
         // download new data
-        var localPath = this.fileStorage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
-        if (!Directory.Exists(localPath))
-        {
-            Directory.CreateDirectory(localPath);
-        }
-
-        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
-        {
-            // use rclone bisync
-            await storageModel.ExecuteRCloneCommand(
-                this.settings.CloudStorage.RClone,
-                [
-                    "bisync",
-                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
-                    $"\"{localPath}\"",
-                    "--resync",
-                    "--max-lock=2m",
-                    "--progress",
-                    "--stats=1s",
-                    "--stats-one-line"
-                ],
-                this.processUtils,
-                onStdout: this.DownloadProgressHandler,
-                stdoutSeperator: "xfr", // rclone transfer number
-                onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
-                cancellationToken: context.CancellationToken);
-        }
-        else
-        {
-            // use rclone clone
-            await storageModel.ExecuteRCloneCommand(
-                this.settings.CloudStorage.RClone,
-                [
-                    "sync",
-                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
-                    $"\"{localPath}\"",
-                    "--progress",
-                    "--stats=1s",
-                    "--stats-one-line"
-                ],
-                this.processUtils,
-                onStdout: this.DownloadProgressHandler,
-                stdoutSeperator: "xfr", // rclone transfer number
-                onProcessStarted: p => this.rcloneProcess = new ProcessWrapper(p),
-                cancellationToken: context.CancellationToken);
-        }
-
-        await this.logic.MarkStorageAsDownloaded(storage.Id);
+        await this.logic.DownloadStorageInitially(
+            storage,
+            this.DownloadProgressHandler,
+            p => this.rcloneProcess = new ProcessWrapper(p),
+            context.CancellationToken);
     }
 
     /// <inheritdoc/>
@@ -154,16 +96,20 @@ public partial class InitialStorageDownload(
         ArgumentNullException.ThrowIfNull(scheduler);
         ArgumentNullException.ThrowIfNull(storage);
 
-        var job = JobBuilder.Create<InitialStorageDownload>()
-            .WithIdentity($"Downloading cloud data from {storage.Type}", "Cloud Storage")
-            .WithDescription($"Initial download for '{storage.CloudDirectory}'")
-            .UsingJobData("StorageId", storage.Id)
-            .RequestRecovery() // re-execute after possible hard-shutdown
+        var internalTask = new InternalTask<InitialStorageDownload>
+        {
+            Title = $"Downloading cloud data from {storage.Type}",
+            Category = "Cloud Storage",
+            Description = $"Initial download for '{storage.CloudDirectory}'",
+            ShouldRecover = true,
+            StartNow = true,
+        };
+
+        var job = internalTask.JobDetail
+            .UsingJobData("StorageId", storage.Id.ToString())
             .Build();
 
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity($"Downloading cloud data from {storage.Type}", "Cloud Storage")
-            .StartNow()
+        var trigger = internalTask.Trigger
             .Build();
 
         await PreScheduleSteps(scheduler, job, options);
@@ -173,27 +119,6 @@ public partial class InitialStorageDownload(
         await PostScheduleSteps(scheduler, job, options);
 
         return job.Key.ToString();
-    }
-
-    /// <summary>
-    /// Clean the storage directory if it exists.
-    /// </summary>
-    /// <param name="storage">The storage.</param>
-    private async Task CleanDirectory(CloudStorageDTO storage)
-    {
-        var storagePath = this.fileStorage.FullPath(storage);
-
-        // check if the directory is empty
-        var isEmpty = !Directory.EnumerateFileSystemEntries(storagePath).Any();
-        if (isEmpty)
-        {
-            this.Logger.LogInformation("Directory is empty, nothing to do.");
-            return;
-        }
-
-        // schedule task for removing cloud data
-        var scheduler = await this.schedulerFactory.GetScheduler();
-        await RemoveStorageData.Schedule(scheduler, storage, removeOnlyCloudData: true, options: TaskScheduleOptionsDTO.WaitPreset);
     }
 
     /// <summary>

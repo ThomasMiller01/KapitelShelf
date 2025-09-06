@@ -512,7 +512,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         var orphanFileInfos = await context.FileInfos
         .Where(fi =>
                 !context.Books
-                    .Include(x => x.Location)
+                    .Include(x => x.Cover)
                     .Where(x => x.Cover != null)
                     .Any(b => b.Cover!.Id == fi.Id)
                 && !context.Locations

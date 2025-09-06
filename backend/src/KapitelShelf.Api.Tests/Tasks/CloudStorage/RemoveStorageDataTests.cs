@@ -3,7 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
-using KapitelShelf.Api.Logic.Storage;
+using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ using Quartz;
 namespace KapitelShelf.Api.Tests.Tasks.CloudStorage;
 
 /// <summary>
-/// UnitTests for the RemoveStorageData class.
+/// Unit tests for RemoveStorageData.
 /// </summary>
 [TestFixture]
 public class RemoveStorageDataTests
@@ -21,115 +21,124 @@ public class RemoveStorageDataTests
     private RemoveStorageData testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
-    private ICloudStorage fileStorage;
+    private ICloudStoragesLogic logic;
     private IJobExecutionContext context;
 
-    private string testDir;
-
     /// <summary>
-    /// Sets up the testee and dependencies.
+    /// Sets up testee and dependencies.
     /// </summary>
     [SetUp]
     public void SetUp()
     {
+        // Setup
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
-        this.fileStorage = Substitute.For<ICloudStorage>();
+        this.logic = Substitute.For<ICloudStoragesLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
-        // set up job key
-        var jobKey = new JobKey("RemoveJob", "RemoveGroup");
+        var jobKey = new JobKey("UnitTestJob", "TestGroup");
         var jobDetail = Substitute.For<IJobDetail>();
         jobDetail.Key.Returns(jobKey);
         this.context.JobDetail.Returns(jobDetail);
 
-        // create a test directory with files
-        this.testDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        Directory.CreateDirectory(this.testDir);
-        File.WriteAllText(Path.Combine(this.testDir, "file1.txt"), "Hello1");
-        File.WriteAllText(Path.Combine(this.testDir, "file2.txt"), "Hello2");
+        this.testee = new RemoveStorageData(this.dataStore, this.logger, this.logic);
+    }
 
-        // substitute FullPath to return our testDir
-        this.fileStorage.FullPath(Arg.Any<CloudStorageDTO>(), Arg.Any<string>()).Returns(callInfo =>
+    /// <summary>
+    /// Tests ExecuteTask does nothing if storage type is invalid.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ExecuteTask_Returns_IfInvalidStorageType()
+    {
+        // Setup
+        this.testee.StorageOwnerEmail = "test@example.com";
+        this.testee.StorageType = "notARealType";
+
+        // Execute
+        await this.testee.ExecuteTask(this.context);
+
+        // Assert
+        this.logic.DidNotReceiveWithAnyArgs().DeleteStorageData(Arg.Any<CloudStorageDTO>(), Arg.Any<bool>(), Arg.Any<Action<string, int, int>?>());
+    }
+
+    /// <summary>
+    /// Tests ExecuteTask calls DeleteStorageData with correct arguments.
+    /// </summary>
+    /// <param name="cloudType">The cloud type.</param>
+    /// <returns>A task.</returns>
+    [Test]
+    [TestCaseSource(nameof(AllCloudTypes))]
+    public async Task ExecuteTask_CallsDeleteStorageData(CloudTypeDTO cloudType)
+    {
+        // Setup
+        this.testee.StorageOwnerEmail = "owner@example.com";
+        this.testee.StorageType = cloudType.ToString();
+        this.testee.RemoveOnlyCloudData = true;
+
+        CloudStorageDTO? receivedStorage = null;
+        bool? receivedRemoveOnlyCloud = null;
+        Action<string, int, int>? receivedCallback = null;
+
+        this.logic.When(x => x.DeleteStorageData(Arg.Any<CloudStorageDTO>(), Arg.Any<bool>(), Arg.Any<Action<string, int, int>>()))
+            .Do(call =>
+            {
+                receivedStorage = call.ArgAt<CloudStorageDTO>(0);
+                receivedRemoveOnlyCloud = call.ArgAt<bool>(1);
+                receivedCallback = call.ArgAt<Action<string, int, int>>(2);
+            });
+
+        // Execute
+        await this.testee.ExecuteTask(this.context);
+
+        // Assert
+        Assert.That(receivedStorage, Is.Not.Null);
+        Assert.Multiple(() =>
         {
-            // support possible subpath logic
-            var subPath = callInfo.ArgAt<string>(1);
-            return string.IsNullOrEmpty(subPath) ? this.testDir : Path.Combine(this.testDir, subPath);
+            Assert.That(receivedStorage.CloudOwnerEmail, Is.EqualTo("owner@example.com"));
+            Assert.That(receivedStorage.Type, Is.EqualTo(cloudType));
+            Assert.That(receivedRemoveOnlyCloud, Is.True);
+            Assert.That(receivedCallback, Is.Not.Null);
         });
-
-        this.testee = new RemoveStorageData(this.dataStore, this.logger, this.fileStorage)
-        {
-            StorageOwnerEmail = "email@test.com",
-            StorageType = CloudTypeDTO.OneDrive.ToString(),
-            RemoveOnlyCloudData = false,
-        };
     }
 
     /// <summary>
-    /// Cleans up any created test directories.
+    /// Tests ExecuteTask sets executionContext for callback.
     /// </summary>
-    [TearDown]
-    public void TearDown()
-    {
-        if (Directory.Exists(this.testDir))
-        {
-            Directory.Delete(this.testDir, true);
-        }
-    }
-
-    /// <summary>
-    /// Tests ExecuteTask deletes all files and directory when present.
-    /// </summary>
-    /// <returns>A task representing the async operation.</returns>
+    /// <param name="cloudType">The cloud type.</param>
+    /// <returns>A task.</returns>
     [Test]
-    public async Task ExecuteTask_DeletesAllFilesAndDirectory_WhenPresent()
+    [TestCaseSource(nameof(AllCloudTypes))]
+    public async Task ExecuteTask_SetsExecutionContextForCallback(CloudTypeDTO cloudType)
     {
         // Setup
-        // Directory and files already created in SetUp
+        this.testee.StorageOwnerEmail = "foo@example.com";
+        this.testee.StorageType = cloudType.ToString();
+        this.testee.RemoveOnlyCloudData = false;
+
+        Action<string, int, int>? callback = null;
+
+        this.logic.When(x => x.DeleteStorageData(Arg.Any<CloudStorageDTO>(), Arg.Any<bool>(), Arg.Any<Action<string, int, int>?>()))
+            .Do(call => callback = call.ArgAt<Action<string, int, int>>(2));
 
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
-        Assert.That(Directory.Exists(this.testDir), Is.False);
-        this.dataStore.Received().SetProgress(Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>());
+        Assert.That(callback, Is.Not.Null);
+
+        // call the callback, it should set progress using DataStore (and not throw)
+        this.testee.executionContext = this.context;
+        Assert.DoesNotThrow(() => callback.Invoke("foo.txt", 5, 2));
+
+        this.dataStore.Received().SetProgress(Arg.Any<string>(), 2, 5);
     }
 
     /// <summary>
-    /// Tests ExecuteTask returns if directory does not exist.
+    /// Tests OnFileDelete throws if executionContext is null.
     /// </summary>
-    /// <returns>A task representing the async operation.</returns>
     [Test]
-    public async Task ExecuteTask_Returns_IfDirectoryNotExists()
-    {
-        // Setup
-        Directory.Delete(this.testDir, true);
-
-        // Execute
-        await this.testee.ExecuteTask(this.context);
-
-        // Assert
-        this.dataStore.DidNotReceive().SetProgress(Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>());
-    }
-
-    /// <summary>
-    /// Tests ExecuteTask returns if storage type is invalid.
-    /// </summary>
-    /// <returns>A task representing the async operation.</returns>
-    [Test]
-    public async Task ExecuteTask_Returns_IfStorageTypeInvalid()
-    {
-        // Setup
-        this.testee.StorageType = "NonExistingType";
-
-        // Execute
-        await this.testee.ExecuteTask(this.context);
-
-        // Assert
-        // Should not try to delete anything
-        this.dataStore.DidNotReceive().SetProgress(Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>());
-        Assert.That(Directory.Exists(this.testDir), Is.True);
-    }
+    public void OnFileDelete_Throws_IfNoExecutionContext() => Assert.Throws<ArgumentNullException>(() => this.testee.OnFileDelete("somefile", 3, 1));
 
     /// <summary>
     /// Tests Kill does nothing.
@@ -140,24 +149,34 @@ public class RemoveStorageDataTests
     /// <summary>
     /// Tests Schedule creates and schedules the job.
     /// </summary>
-    /// <returns>A task representing the async operation. Returns the job key string.</returns>
+    /// <param name="cloudType">The cloud type.</param>
+    /// <returns>A task.</returns>
     [Test]
-    public async Task Schedule_CreatesAndSchedulesJob_ReturnsJobKey()
+    [TestCaseSource(nameof(AllCloudTypes))]
+    public async Task Schedule_CreatesAndSchedulesJob_ReturnsJobKey(CloudTypeDTO cloudType)
     {
         // Setup
         var scheduler = Substitute.For<IScheduler>();
         var storage = new CloudStorageDTO
         {
-            CloudOwnerEmail = "email@test.com",
-            CloudOwnerName = "Owner",
-            Type = CloudTypeDTO.OneDrive,
+            Id = Guid.NewGuid(),
+            Type = cloudType,
+            CloudOwnerEmail = "test@kapitelshelf.com",
+            CloudOwnerName = "Test",
         };
 
         // Execute
-        var jobKey = await RemoveStorageData.Schedule(scheduler, storage);
+        var jobKey = await RemoveStorageData.Schedule(scheduler, storage, true);
 
         // Assert
-        Assert.That(jobKey, Is.Not.Null.And.Contains("Removing local cloud data"));
-        await scheduler.Received().ScheduleJob(Arg.Any<IJobDetail>(), Arg.Any<ITrigger>());
+        Assert.That(jobKey, Is.Not.Null.And.Contain("Removing local cloud data"));
+        await scheduler.Received().ScheduleJob(
+            Arg.Any<IJobDetail>(),
+            Arg.Any<ITrigger>());
     }
+
+    /// <summary>
+    /// Provides all valid CloudTypeDTO enum values.
+    /// </summary>
+    private static IEnumerable<CloudTypeDTO> AllCloudTypes() => Enum.GetValues<CloudTypeDTO>().Cast<CloudTypeDTO>();
 }
