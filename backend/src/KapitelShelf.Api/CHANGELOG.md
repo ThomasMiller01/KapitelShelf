@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.3.0](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.2.1...api@0.3.0) (2025-09-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove deprecated `/series/summary` endpoint (#286)
+
+### Features
+
+* add "Chico" profile image ([#268](https://github.com/ThomasMiller01/KapitelShelf/issues/268)) ([47a7254](https://github.com/ThomasMiller01/KapitelShelf/commit/47a725469b330992e004b394b7ec6864763fd191))
+* add "Ellie" profile avatar ([#290](https://github.com/ThomasMiller01/KapitelShelf/issues/290)) ([289fd42](https://github.com/ThomasMiller01/KapitelShelf/commit/289fd42fe6586b6be241a69f23a943b72530ce3f))
+* add "Le Chonky Boy" profile image ([#284](https://github.com/ThomasMiller01/KapitelShelf/issues/284)) ([ef39365](https://github.com/ThomasMiller01/KapitelShelf/commit/ef3936505fe925173b61918a0c2ae72bd58132f3))
+* add "Little Stinky" profile image ([#282](https://github.com/ThomasMiller01/KapitelShelf/issues/282)) ([7c5f04b](https://github.com/ThomasMiller01/KapitelShelf/commit/7c5f04bddef61289debaaf81e7ef46adcec95533))
+* add basic support for OneDrive cloud storages ([#274](https://github.com/ThomasMiller01/KapitelShelf/issues/274)) ([b0e4004](https://github.com/ThomasMiller01/KapitelShelf/commit/b0e4004b5ccfda12e6383744ce91f372197fd91d))
+* add profile image "Riley" ([#262](https://github.com/ThomasMiller01/KapitelShelf/issues/262)) ([e2304e8](https://github.com/ThomasMiller01/KapitelShelf/commit/e2304e8b313b9ba3f2ad351938e6534415bd11f4))
+* add profile images "Muggy Malheur", "Cheery Chino", "Sunny Tome", "FR E SH A VOCA DO" and "Tailywink" ([#260](https://github.com/ThomasMiller01/KapitelShelf/issues/260)) ([acbb14b](https://github.com/ThomasMiller01/KapitelShelf/commit/acbb14bcb0e97837936c6bb842de6d10458dfd08))
+* add support for background tasks ([#264](https://github.com/ThomasMiller01/KapitelShelf/issues/264)) ([1d681ec](https://github.com/ThomasMiller01/KapitelShelf/commit/1d681ec54458de65a41e82cd4aa4d5dada003445))
+* change user profile image and color ([#258](https://github.com/ThomasMiller01/KapitelShelf/issues/258)) ([befd5fb](https://github.com/ThomasMiller01/KapitelShelf/commit/befd5fbee8c997bc343d4db1bf3a957e2b08f73a))
+* display last visited books on home page ([#253](https://github.com/ThomasMiller01/KapitelShelf/issues/253)) ([34a697c](https://github.com/ThomasMiller01/KapitelShelf/commit/34a697cec3b0fd4c68c977da58bcb1b54eaf8c4b))
+* download/remove/sync cloud storages ([#276](https://github.com/ThomasMiller01/KapitelShelf/issues/276)) ([07b9d6a](https://github.com/ThomasMiller01/KapitelShelf/commit/07b9d6a17e48feb8e509273381323490a9299c56))
+* manage user via api ([#245](https://github.com/ThomasMiller01/KapitelShelf/issues/245)) ([321a789](https://github.com/ThomasMiller01/KapitelShelf/commit/321a78932189ed0c0e2c863f7b3e38304784f466))
+* merge a series into another one ([#233](https://github.com/ThomasMiller01/KapitelShelf/issues/233)) ([3f8a315](https://github.com/ThomasMiller01/KapitelShelf/commit/3f8a315b4c5341879fde70b256af083d81355889))
+* put migrator into api docker image to prevent mismatched api and migrator versions ([#227](https://github.com/ThomasMiller01/KapitelShelf/issues/227)) ([197e2e8](https://github.com/ThomasMiller01/KapitelShelf/commit/197e2e891dfc4cfd9be8965316715818479ff307))
+* remove deprecated `/series/summary` endpoint ([#286](https://github.com/ThomasMiller01/KapitelShelf/issues/286)) ([e48d58a](https://github.com/ThomasMiller01/KapitelShelf/commit/e48d58acbc49cf824f23512bf7954c50cc1f62a5))
+* return https cover images for google metadata ([575ba70](https://github.com/ThomasMiller01/KapitelShelf/commit/575ba70b99fe8fdef26c9f0de648f64cebef5745))
+* scan cloud storages to import files ([#281](https://github.com/ThomasMiller01/KapitelShelf/issues/281)) ([9288c8d](https://github.com/ThomasMiller01/KapitelShelf/commit/9288c8d0bad20def63ed407dd4320b0fa47b15cb))
+* search-bar & search-results page ([#218](https://github.com/ThomasMiller01/KapitelShelf/issues/218)) ([2f2c500](https://github.com/ThomasMiller01/KapitelShelf/commit/2f2c500d7398dbb60ac15c75a8a85d7a81c62170))
+
+
+### Bug Fixes
+
+* amazon metadata source did not return any books ([#221](https://github.com/ThomasMiller01/KapitelShelf/issues/221)) ([fea0be9](https://github.com/ThomasMiller01/KapitelShelf/commit/fea0be9ccac9f089128f728286a42534ff658728))
+* load metadata cover via proxy ([51604d4](https://github.com/ThomasMiller01/KapitelShelf/commit/51604d4d6d84266b67797b431e2b2641d2a3bc95))
+
 ## [0.2.2](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.2.1...api@0.2.2) (2025-06-25)
 
 
