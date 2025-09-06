@@ -1,5 +1,48 @@
 # Changelog
 
+## [0.3.0](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.2.2...frontend@0.3.0) (2025-09-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove deprecated `/series/summary` endpoint (#286)
+
+### Features
+
+* add "Chico" profile image ([#268](https://github.com/ThomasMiller01/KapitelShelf/issues/268)) ([47a7254](https://github.com/ThomasMiller01/KapitelShelf/commit/47a725469b330992e004b394b7ec6864763fd191))
+* add "Ellie" profile avatar ([#290](https://github.com/ThomasMiller01/KapitelShelf/issues/290)) ([289fd42](https://github.com/ThomasMiller01/KapitelShelf/commit/289fd42fe6586b6be241a69f23a943b72530ce3f))
+* add "Le Chonky Boy" profile image ([#284](https://github.com/ThomasMiller01/KapitelShelf/issues/284)) ([ef39365](https://github.com/ThomasMiller01/KapitelShelf/commit/ef3936505fe925173b61918a0c2ae72bd58132f3))
+* add "Little Stinky" profile image ([#282](https://github.com/ThomasMiller01/KapitelShelf/issues/282)) ([7c5f04b](https://github.com/ThomasMiller01/KapitelShelf/commit/7c5f04bddef61289debaaf81e7ef46adcec95533))
+* add basic support for OneDrive cloud storages ([#274](https://github.com/ThomasMiller01/KapitelShelf/issues/274)) ([b0e4004](https://github.com/ThomasMiller01/KapitelShelf/commit/b0e4004b5ccfda12e6383744ce91f372197fd91d))
+* add confirmation dialog to delete cloud storage action ([#293](https://github.com/ThomasMiller01/KapitelShelf/issues/293)) ([5c7adba](https://github.com/ThomasMiller01/KapitelShelf/commit/5c7adbabd665189aba1bde0023131b9253be7df3))
+* add profile image "Riley" ([#262](https://github.com/ThomasMiller01/KapitelShelf/issues/262)) ([e2304e8](https://github.com/ThomasMiller01/KapitelShelf/commit/e2304e8b313b9ba3f2ad351938e6534415bd11f4))
+* add profile images "Muggy Malheur", "Cheery Chino", "Sunny Tome", "FR E SH A VOCA DO" and "Tailywink" ([#260](https://github.com/ThomasMiller01/KapitelShelf/issues/260)) ([acbb14b](https://github.com/ThomasMiller01/KapitelShelf/commit/acbb14bcb0e97837936c6bb842de6d10458dfd08))
+* add support for background tasks ([#264](https://github.com/ThomasMiller01/KapitelShelf/issues/264)) ([1d681ec](https://github.com/ThomasMiller01/KapitelShelf/commit/1d681ec54458de65a41e82cd4aa4d5dada003445))
+* change user profile image and color ([#258](https://github.com/ThomasMiller01/KapitelShelf/issues/258)) ([befd5fb](https://github.com/ThomasMiller01/KapitelShelf/commit/befd5fbee8c997bc343d4db1bf3a957e2b08f73a))
+* change user profiles ([#248](https://github.com/ThomasMiller01/KapitelShelf/issues/248)) ([1f4658e](https://github.com/ThomasMiller01/KapitelShelf/commit/1f4658e5a6f1673f43a63235504b2e8a0fcbe3bc))
+* create user profile ([#255](https://github.com/ThomasMiller01/KapitelShelf/issues/255)) ([0a203dd](https://github.com/ThomasMiller01/KapitelShelf/commit/0a203dd4c3e025bcec5f1b9e683aabc9a1eb39d9))
+* display last visited books on home page ([#253](https://github.com/ThomasMiller01/KapitelShelf/issues/253)) ([34a697c](https://github.com/ThomasMiller01/KapitelShelf/commit/34a697cec3b0fd4c68c977da58bcb1b54eaf8c4b))
+* download/remove/sync cloud storages ([#276](https://github.com/ThomasMiller01/KapitelShelf/issues/276)) ([07b9d6a](https://github.com/ThomasMiller01/KapitelShelf/commit/07b9d6a17e48feb8e509273381323490a9299c56))
+* hide task categories ([#285](https://github.com/ThomasMiller01/KapitelShelf/issues/285)) ([5da3b20](https://github.com/ThomasMiller01/KapitelShelf/commit/5da3b20e4b3212485dab0ae917bacdfa47cf502a))
+* manage the user profile ([#257](https://github.com/ThomasMiller01/KapitelShelf/issues/257)) ([288bd39](https://github.com/ThomasMiller01/KapitelShelf/commit/288bd395e49f9495b23cf0a4561e223949d37db6))
+* manage user via api ([#245](https://github.com/ThomasMiller01/KapitelShelf/issues/245)) ([321a789](https://github.com/ThomasMiller01/KapitelShelf/commit/321a78932189ed0c0e2c863f7b3e38304784f466))
+* merge a series into another one ([#233](https://github.com/ThomasMiller01/KapitelShelf/issues/233)) ([3f8a315](https://github.com/ThomasMiller01/KapitelShelf/commit/3f8a315b4c5341879fde70b256af083d81355889))
+* navigate to book after creation ([#234](https://github.com/ThomasMiller01/KapitelShelf/issues/234)) ([164259a](https://github.com/ThomasMiller01/KapitelShelf/commit/164259af2c959459c3cb81a6b5ba5d35ad79752c))
+* remove deprecated `/series/summary` endpoint ([#286](https://github.com/ThomasMiller01/KapitelShelf/issues/286)) ([e48d58a](https://github.com/ThomasMiller01/KapitelShelf/commit/e48d58acbc49cf824f23512bf7954c50cc1f62a5))
+* search-bar & search-results page ([#218](https://github.com/ThomasMiller01/KapitelShelf/issues/218)) ([2f2c500](https://github.com/ThomasMiller01/KapitelShelf/commit/2f2c500d7398dbb60ac15c75a8a85d7a81c62170))
+* select user profile ([#247](https://github.com/ThomasMiller01/KapitelShelf/issues/247)) ([1b23eb9](https://github.com/ThomasMiller01/KapitelShelf/commit/1b23eb95f3a743a41b1d6a5b4351bbe7503cb4b8))
+* set notifications limit to 5 ([faa2ab0](https://github.com/ThomasMiller01/KapitelShelf/commit/faa2ab0a29fd44b1216efaecc43dc0855554b415))
+* shown welcome screen once ([#241](https://github.com/ThomasMiller01/KapitelShelf/issues/241)) ([446d35a](https://github.com/ThomasMiller01/KapitelShelf/commit/446d35a42cc612463d00120165481f13df0a2482))
+* wizard profile image ([#254](https://github.com/ThomasMiller01/KapitelShelf/issues/254)) ([de2b4af](https://github.com/ThomasMiller01/KapitelShelf/commit/de2b4af112a5d1204e9c578201b613e4c8f53db2))
+
+
+### Bug Fixes
+
+* anchor ref attribute spelling error ([#231](https://github.com/ThomasMiller01/KapitelShelf/issues/231)) ([b2b2cc0](https://github.com/ThomasMiller01/KapitelShelf/commit/b2b2cc06867c82fe551b260bd5411b67f9147540))
+* cover image doesnt fill available space ([#222](https://github.com/ThomasMiller01/KapitelShelf/issues/222)) ([11492c4](https://github.com/ThomasMiller01/KapitelShelf/commit/11492c4978eb7d49e493c991a9432c7018526bbf))
+* load metadata cover via proxy ([51604d4](https://github.com/ThomasMiller01/KapitelShelf/commit/51604d4d6d84266b67797b431e2b2641d2a3bc95))
+* no space between location and page number on search suggestions ([#224](https://github.com/ThomasMiller01/KapitelShelf/issues/224)) ([804ecaf](https://github.com/ThomasMiller01/KapitelShelf/commit/804ecaf11ef9f944d9eacdc409930f4de619bbc8))
+
 ## [0.2.3](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.2.2...frontend@0.2.3) (2025-06-25)
 
 
