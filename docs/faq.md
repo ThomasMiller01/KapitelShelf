@@ -8,4 +8,4 @@ This URI is not allowed to be any kind of wildcard, see specification [RFC 6749]
 
 Because KapitelShelf allows its API to be hosted behind any domain, it is not possible to use a single Azure Application for the entire KapitelShelf community.
 
-> Tools like [rclone](https://rclone.org/) ca use a "default" Azure Application, because their server always runs locally under a specific url (like `http://127.0.0.1:53682`)
+> Tools like [rclone](https://rclone.org/) can use a "default" Azure Application, as their server always runs locally under a specific url (like `http://127.0.0.1:53682`), instead of being configurable (like at KapitelShelf).
