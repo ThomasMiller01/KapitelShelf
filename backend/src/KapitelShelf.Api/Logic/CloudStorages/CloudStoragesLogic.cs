@@ -456,4 +456,80 @@ public class CloudStoragesLogic(
         var scheduler = await this.schedulerFactory.GetScheduler();
         await ScanForBooks.Schedule(scheduler, forSingleStorage: storage);
     }
+
+    /// <inheritdoc/>
+    public async Task DownloadStorageInitially(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(storage);
+
+        var storageModel = await this.GetStorageModel(storage.Id);
+        ArgumentNullException.ThrowIfNull(storageModel);
+
+        var localPath = this.storage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
+        if (!Directory.Exists(localPath))
+        {
+            Directory.CreateDirectory(localPath);
+        }
+
+        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
+        {
+            // use rclone bisync
+            await storageModel.ExecuteRCloneCommand(
+                this.settings.CloudStorage.RClone,
+                [
+                    "bisync",
+                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
+                    $"\"{localPath}\"",
+                    "--resync",
+                    "--max-lock=2m",
+                    "--progress",
+                    "--stats=1s",
+                    "--stats-one-line"
+                ],
+                this.processUtils,
+                onStdout: onStdout,
+                stdoutSeperator: "xfr", // rclone transfer number
+                onProcessStarted: onProcessStarted,
+                cancellationToken: cancellationToken);
+        }
+        else
+        {
+            // use rclone sync
+            await storageModel.ExecuteRCloneCommand(
+                this.settings.CloudStorage.RClone,
+                [
+                    "sync",
+                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
+                    $"\"{localPath}\"",
+                    "--progress",
+                    "--stats=1s",
+                    "--stats-one-line"
+                ],
+                this.processUtils,
+                onStdout: onStdout,
+                stdoutSeperator: "xfr", // rclone transfer number
+                onProcessStarted: onProcessStarted,
+                cancellationToken: cancellationToken);
+        }
+
+        await this.MarkStorageAsDownloaded(storage.Id);
+    }
+
+    /// <inheritdoc/>
+    public async Task CleanStorageDirectory(CloudStorageDTO storage)
+    {
+        var storagePath = this.storage.FullPath(storage);
+
+        // check if the directory is empty
+        var isEmpty = !Directory.EnumerateFileSystemEntries(storagePath).Any();
+        if (isEmpty)
+        {
+            this.logger.LogDebug("Directory is empty, nothing to do.");
+            return;
+        }
+
+        // schedule task for removing cloud data
+        var scheduler = await this.schedulerFactory.GetScheduler();
+        await RemoveStorageData.Schedule(scheduler, storage, removeOnlyCloudData: true, options: TaskScheduleOptionsDTO.WaitPreset);
+    }
 }

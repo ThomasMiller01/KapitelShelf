@@ -1218,4 +1218,72 @@ public class CloudStoragesLogicTests
             true,
             Arg.Any<CancellationToken>());
     }
+
+    /// <summary>
+    /// Tests for DownloadStorageInitially and CleanStorageDirectory.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task DownloadStorageInitially_CreatesDirectoryAndCallsRCloneBisync()
+    {
+        // Setup
+        StaticConstants.StoragesSupportRCloneBisync.Add(CloudTypeDTO.OneDrive);
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud".Unique(),
+            CloudOwnerEmail = "email",
+            CloudOwnerName = "name",
+        };
+        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        storageModel.RCloneConfig = "rclone.conf";
+
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(path);
+        this.dbContextFactory.CreateDbContextAsync(Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(new KapitelShelfDBContext(this.dbOptions)));
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        // Execute
+        await this.testee.DownloadStorageInitially(storageDto);
+
+        // Assert
+        Assert.That(Directory.Exists(path), Is.True);
+
+        // Cleanup
+        Directory.Delete(path, true);
+    }
+
+    /// <summary>
+    /// Tests CleanStorageDirectory does nothing if directory is empty.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task CleanStorageDirectory_DoesNothingIfEmpty()
+    {
+        // Setup
+        var storageDto = new CloudStorageDTO
+        {
+            Id = Guid.NewGuid(),
+            Type = CloudTypeDTO.OneDrive,
+            CloudDirectory = "cloud",
+        };
+
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(path);
+        this.storage.FullPath(storageDto).Returns(path);
+
+        // Execute
+        await this.testee.CleanStorageDirectory(storageDto);
+
+        // Assert
+        await this.schedulerFactory.DidNotReceive().GetScheduler();
+        Directory.Delete(path);
+    }
 }

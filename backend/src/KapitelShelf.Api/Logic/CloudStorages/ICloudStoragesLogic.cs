@@ -151,4 +151,21 @@ public interface ICloudStoragesLogic
     /// <param name="storageId">The storage id.</param>
     /// <returns>A task.</returns>
     Task ScanSingleStorageTask(Guid storageId);
+
+    /// <summary>
+    /// Initally download the storage data, if it is not present on disk yet.
+    /// </summary>
+    /// <param name="storage">The storage to download.</param>
+    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onProcessStarted">Called when the process got started.</param>
+    /// <param name="cancellationToken">The cancelation token.</param>
+    /// <returns>A task.</returns>
+    Task DownloadStorageInitially(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Clean the storage directory if it exists.
+    /// </summary>
+    /// <param name="storage">The storage.</param>
+    /// <returns>A task.</returns>
+    Task CleanStorageDirectory(CloudStorageDTO storage);
 }
