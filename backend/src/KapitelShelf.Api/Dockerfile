@@ -32,7 +32,7 @@ RUN dotnet restore "./KapitelShelf.Api.csproj" && \
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS production
 
 # versions
-ARG RCLONE_VERSION=v1.65.2
+ARG RCLONE_VERSION=v1.71.0
 
 WORKDIR /app
 

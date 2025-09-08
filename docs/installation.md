@@ -60,6 +60,7 @@ docker run -d \
     -e KapitelShelf__Database__Host=host.docker.internal:5432 \
     -e KapitelShelf__Database__Username=kapitelshelf \
     -e KapitelShelf__Database__Password=kapitelshelf \
+    -e KapitelShelf__Domain=https://localhost:5261 \
     -v ./data:/var/lib/kapitelshelf/data
     --restart unless-stopped \
     thomasmiller01/kapitelshelf-api
@@ -73,3 +74,4 @@ docker run -d \
 | `KapitelShelf__Database__Host`     | `host.docker.internal:5432`  | `KapitelShelf.Database.Host`     |
 | `KapitelShelf__Database__Username` | `kapitelshelf`               | `KapitelShelf.Database.Username` |
 | `KapitelShelf__Database__Password` | `kapitelshelf`               | `KapitelShelf.Database.Password` |
+| `KapitelShelf__Domain`             | `https://localhost:5261`     | `KapitelShelf.Domain`            |

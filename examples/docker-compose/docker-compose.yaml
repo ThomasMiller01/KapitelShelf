@@ -30,6 +30,7 @@ services:
       KapitelShelf__Database__Host: host.docker.internal:5432
       KapitelShelf__Database__Username: kapitelshelf
       KapitelShelf__Database__Password: kapitelshelf
+      KapitelShelf__Domain: http://localhost:5261
     ports:
       - "5261:5261"
     volumes:

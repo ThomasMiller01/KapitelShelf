@@ -1,9 +1,11 @@
 # setup.ps1
 # Downloads the latest rclone.exe for Windows x64 and puts it in ./3rd-party
 
+$RCLONE_VERSION = "v1.71.0"
+
 $ErrorActionPreference = "Stop"
 
-$downloadUrl = "https://downloads.rclone.org/rclone-current-windows-amd64.zip"
+$downloadUrl = "https://github.com/rclone/rclone/releases/download/$RCLONE_VERSION/rclone-$RCLONE_VERSION-windows-amd64.zip"
 $targetDir = Join-Path $PSScriptRoot ".." "3rd-party"
 
 if (-not (Test-Path $targetDir)) {
