@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.3.0...helm@0.3.1) (2025-09-08)
+
+### Bug Fixes
+
+* set domain for cloudstorage configuration ([#301](https://github.com/ThomasMiller01/KapitelShelf/issues/301)) ([14adff3](https://github.com/ThomasMiller01/KapitelShelf/commit/14adff34ef30fe32b6c3eaa6e54a01fc980bf579))
+
 ## [0.3.0](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.2.2...helm@0.3.0) (2025-09-06)
 
 
