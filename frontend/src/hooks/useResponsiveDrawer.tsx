@@ -17,7 +17,7 @@ export const useResponsiveDrawer = (): [boolean, () => void] => {
 
     const stored = getItem(OPEN_KEY);
     if (stored === null) {
-      // desktop defaults to open
+      // defaults to open
       return true;
     }
 

@@ -168,4 +168,24 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
+
+    /// <summary>
+    /// Get the user settings of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{userId}/settings")]
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetUserSettingsByUserId(Guid userId)
+    {
+        try
+        {
+            var settings = await this.logic.GetSettingsByUserId(userId);
+            return Ok(settings);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching user settings");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
 }

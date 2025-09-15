@@ -179,4 +179,19 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             TotalCount = totalCount,
         };
     }
+
+    /// <summary>
+    /// Get the settings of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task<List<UserSettingDTO>> GetSettingsByUserId(Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.UserSettings
+            .Where(x => x.UserId == userId)
+            .Select(x => this.mapper.Map<UserSettingDTO>(x))
+            .ToListAsync();
+    }
 }
