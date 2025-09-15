@@ -26,6 +26,7 @@ export const ProfileList = (): ReactElement => {
       const { data } = await usersApi.usersGet();
       return data;
     },
+    refetchOnMount: "always",
   });
 
   if (isLoading) {
