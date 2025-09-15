@@ -6,7 +6,7 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Data;
-using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Testcontainers.PostgreSql;

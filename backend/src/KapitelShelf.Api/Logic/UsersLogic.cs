@@ -7,7 +7,7 @@ using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Data;
-using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic;

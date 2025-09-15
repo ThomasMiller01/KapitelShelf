@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Data.Models;
+namespace KapitelShelf.Data.Models.User;
 
 /// <summary>
 /// The profile image enum.
