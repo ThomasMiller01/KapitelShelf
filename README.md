@@ -14,7 +14,7 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 - Shelves and filtering (tags, categories, series, location) _(planned)_
 - Import and sync books from cloud storages (OneDrive)
   - Bulk import from CSV ([see Guide](docs/references.md#import-in-bulk-from-csv))
-- Full user metadata editing (notes, read status, favorite) _(planned)_
+- Full user metadata editing (notes, read status, favourite) _(planned)_
   - Import metadata from Amazon, Google and OpenLibrary ([see Guide](docs/references.md#import-metadata-for-a-book))
 - User Profiles that sync settings across devices
 - Responsive UI (desktop, tablet, mobile)
