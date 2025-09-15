@@ -2,8 +2,8 @@ import { Container, Stack, TextField } from "@mui/material";
 import type { ReactElement } from "react";
 
 import { ProfileImage } from "../../components/ProfileImage";
-import { useUserProfile } from "../../contexts/UserProfileContext";
 import { useMobile } from "../../hooks/useMobile";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import { ProfileImageTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 export const ProfileDetails = (): ReactElement => {

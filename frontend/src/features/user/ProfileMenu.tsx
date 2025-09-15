@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 
 import FancyText from "../../components/FancyText";
 import { TasksMenuItem } from "../../components/tasks/TasksMenuItem";
-import { useUserProfile } from "../../contexts/UserProfileContext";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import {
   ProfileImageTypeDTO,
   type UserDTO,

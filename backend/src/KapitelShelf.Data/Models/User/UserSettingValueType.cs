@@ -23,4 +23,14 @@ public enum UserSettingValueType
     /// The "boolean" type.
     /// </summary>
     TBoolean = 2,
+
+    /// <summary>
+    /// The "string[]" type.
+    /// </summary>
+    TStringArray = 3,
+
+    /// <summary>
+    /// The "int[]" type.
+    /// </summary>
+    TIntegerArray = 4,
 }

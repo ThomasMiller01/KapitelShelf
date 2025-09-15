@@ -10,6 +10,7 @@ import { ApiNotificationListener } from "./contexts/notification/ApiNotification
 import { NotificationProvider } from "./contexts/notification/NotificationProvider";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProfileProvider } from "./contexts/UserProfileContext";
+import { UserSettingsProvider } from "./contexts/UserSettingsContext";
 import AppRoutes from "./routes/routes";
 
 const queryClient = new QueryClient();
@@ -17,21 +18,23 @@ const queryClient = new QueryClient();
 function App(): ReactElement {
   return (
     <UserProfileProvider>
-      <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <NotificationProvider>
-            <BrowserRouter>
-              <ApiNotificationListener />
-              <LocalizationProvider
-                dateAdapter={AdapterDayjs}
-                adapterLocale="de"
-              >
-                <AppRoutes />
-              </LocalizationProvider>
-            </BrowserRouter>
-          </NotificationProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      <UserSettingsProvider>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <NotificationProvider>
+              <BrowserRouter>
+                <ApiNotificationListener />
+                <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale="de"
+                >
+                  <AppRoutes />
+                </LocalizationProvider>
+              </BrowserRouter>
+            </NotificationProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </UserSettingsProvider>
     </UserProfileProvider>
   );
 }

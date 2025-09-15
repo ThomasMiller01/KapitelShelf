@@ -3,8 +3,8 @@ import { useMutation } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useUserProfile } from "../../contexts/UserProfileContext";
 import EditableProfileDetails from "../../features/user/EditableProfileDetails";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import { usersApi } from "../../lib/api/KapitelShelf.Api";
 import type {
   CreateUserDTO,

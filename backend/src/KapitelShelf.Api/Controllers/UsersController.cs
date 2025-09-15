@@ -154,7 +154,7 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     {
         try
         {
-            var books = await this.logic.GetLastVisitedBooks(userId, page, pageSize);
+            var books = await this.logic.GetLastVisitedBooksAsync(userId, page, pageSize);
             if (books is null)
             {
                 return NotFound();
@@ -175,16 +175,37 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     /// <param name="userId">The id of the user.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("{userId}/settings")]
-    public async Task<ActionResult<PagedResult<BookDTO>>> GetUserSettingsByUserId(Guid userId)
+    public async Task<ActionResult<List<UserSettingDTO>>> GetUserSettingsByUserId(Guid userId)
     {
         try
         {
-            var settings = await this.logic.GetSettingsByUserId(userId);
+            var settings = await this.logic.GetSettingsByUserIdAsync(userId);
             return Ok(settings);
         }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error fetching user settings");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Get the user settings of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <param name="settingDto">The setting.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{userId}/settings")]
+    public async Task<ActionResult<List<UserSettingDTO>>> GetUserSettingsByUserId(Guid userId, [FromBody] UserSettingDTO settingDto)
+    {
+        try
+        {
+            await this.logic.UpdateSettingAsync(userId, settingDto);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error updating user setting");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

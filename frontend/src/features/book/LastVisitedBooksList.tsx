@@ -6,7 +6,7 @@ import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCar
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import BookCard from "../../components/BookCard";
 import { ScrollableList } from "../../components/ScrollableList";
-import { useUserProfile } from "../../contexts/UserProfileContext";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import { usersApi } from "../../lib/api/KapitelShelf.Api";
 
 const PAGE_SIZE = 24;

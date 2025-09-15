@@ -1,38 +1,30 @@
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { useLocalStorage } from "./useLocalStorage";
 import { useMobile } from "./useMobile";
+import { useSetting } from "./useSetting";
 
 const OPEN_KEY = "sidebar.open";
 
 export const useResponsiveDrawer = (): [boolean, () => void] => {
   const { isMobile } = useMobile();
-  const [getItem, setItem] = useLocalStorage();
+  const [setting, setSetting] = useSetting<boolean>(OPEN_KEY, true);
 
-  const getInitialState = useCallback((): boolean => {
+  const [localOpen, setLocalOpen] = useState(false);
+
+  // sync setting to localOpen when switching to mobile
+  useEffect(() => {
     if (isMobile) {
-      // mobile defaults to closed
-      return false;
+      setLocalOpen(false);
     }
+  }, [isMobile]);
 
-    const stored = getItem(OPEN_KEY);
-    if (stored === null) {
-      // defaults to open
-      return true;
-    }
-
-    return stored === "true";
-  }, [getItem, isMobile]);
-
-  const [open, setOpen] = useState(getInitialState);
+  const open = isMobile ? localOpen : setting;
 
   const toggleDrawer = (): void => {
-    const newValue = !open;
-    setOpen(newValue);
-
-    if (!isMobile) {
-      // store new value only on desktop
-      setItem(OPEN_KEY, String(newValue));
+    if (isMobile) {
+      setLocalOpen((prev) => !prev);
+    } else {
+      setSetting(!setting);
     }
   };
 

@@ -27,5 +27,11 @@ public class UserMappingProfile : Profile
 
         CreateMap<ProfileImageType, ProfileImageTypeDTO>()
             .ReverseMap();
+
+        CreateMap<UserSettingModel, UserSettingDTO>()
+            .ReverseMap();
+
+        CreateMap<UserSettingValueType, UserSettingValueTypeDTO>()
+            .ReverseMap();
     }
 }
