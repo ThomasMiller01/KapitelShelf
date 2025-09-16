@@ -29,9 +29,7 @@ export const NoItemsFoundCard = ({
       py: extraSmall ? 2 : 10,
     }}
   >
-    {useLogo && (
-      <img src="/kapitelshelf.png" alt="KapitelShelf Logo" width={120} />
-    )}
+    {useLogo && <img src="/logo.png" alt="KapitelShelf Logo" width={120} />}
     <Typography
       variant={extraSmall ? "body1" : small ? "h6" : "h5"}
       my={small || extraSmall ? 0 : 4}

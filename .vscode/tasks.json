@@ -9,33 +9,7 @@
     {
       "label": "Sync: Mobile",
       "type": "shell",
-      "command": "npm run sync:frontend:mobile",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Open: Android",
-      "type": "shell",
-      "command": "npm run open:frontend:android",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Open: IOS",
-      "type": "shell",
-      "command": "npm run open:frontend:ios",
+      "command": "cd ./frontend && npm run mobile:sync",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",

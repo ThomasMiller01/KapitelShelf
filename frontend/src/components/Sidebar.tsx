@@ -35,7 +35,7 @@ export const Sidebar = ({ open, onClose }: SidebarProps): ReactElement => {
       open={open}
       onClose={onClose}
       name="KapitelShelf"
-      logo="/kapitelshelf.png"
+      logo="/logo.png"
     >
       <Stack justifyContent="space-between" height="100%">
         <List>

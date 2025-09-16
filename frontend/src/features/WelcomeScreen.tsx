@@ -2,7 +2,7 @@ import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import KapitelShelfLogo from "/kapitelshelf.png";
+import KapitelShelfLogo from "/logo.png";
 
 import FancyText from "../components/FancyText";
 import { useMobile } from "../hooks/useMobile";

@@ -8,9 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "mobile": "npm run build && npx cap copy && node scripts/sync-version-to-mobile.cjs",
-    "android": "npx cap open android",
-    "ios": "npx cap open ios"
+    "mobile:sync": "npm run build && npx cap copy && npm run mobile:sync:icon && node scripts/sync-version-to-mobile.cjs",
+    "mobile:sync:icon": "npx @capacitor/assets generate --assetPath ./public --iconBackgroundColor \"#111111\"",
+    "mobile:open:android": "npx cap open android",
+    "mobile:open:ios": "npx cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
@@ -42,6 +43,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.22.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
