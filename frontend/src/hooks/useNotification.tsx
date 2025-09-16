@@ -38,7 +38,7 @@ export const useNotification = (): NotificationResult => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const [loadingNotifId, setLoadingNotifId] = useState<SnackbarKey>();
-  const loadingTimeout = useRef<number>(undefined);
+  const loadingTimeout = useRef<NodeJS.Timeout>(undefined);
   const triggerLoading = useCallback(
     ({ open, close, delay = 0, ...props }: triggerLoadingProps) => {
       if (open) {

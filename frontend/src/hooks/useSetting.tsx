@@ -3,13 +3,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 import { GET_KEY, UserSettingsContext } from "../contexts/UserSettingsContext";
 import type { UserSettingDTO } from "../lib/api/KapitelShelf.Api/api";
+import type { UserSettingValueType } from "../utils/UserProfileUtils";
 import {
   UserSettingValueCoerceToType,
   UserSettingValueFromDto,
 } from "../utils/UserProfileUtils";
 import { useUserProfile } from "./useUserProfile";
 
-export const useSetting = <T extends string | number | boolean>(
+export const useSetting = <T extends UserSettingValueType>(
   key: string,
   defaultValue: T
 ): [T, Dispatch<SetStateAction<T>>] => {
