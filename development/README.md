@@ -1,8 +1,8 @@
 # Setup Development Environment
 
 VSCode Tasks:
-Dev: Build: Dev -> build everything for dev env
-Dev: Run All -> start dev env
+
+- **Dev: Run All** -> start development environment locally
 
 ## Requirements
 
@@ -16,10 +16,15 @@ Strongly suggest:
 - helm
 - [helm-docs](https://github.com/norwoodj/helm-docs)
 
-Building mobile apps locally:
+### Mobile development requirements
 
-- java
-- Android Studio
+If you want to build and run the mobile app locally, you also need:
+
+- Java JDK 17 (required for Android/Gradle)
+- Android Studio (includes SDK, emulator, platform tools)
+- CocoaPods (for iOS, only on macOS)
+
+➡️ See [SetupForMobile.md](./SetupForMobile.md) for full setup and build instructions.
 
 ## Swagger
 

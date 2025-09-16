@@ -7,9 +7,9 @@
       "problemMatcher": []
     },
     {
-      "label": "Sync: Mobile",
+      "label": "Mobile: Build Android",
       "type": "shell",
-      "command": "cd ./frontend && npm run mobile:sync",
+      "command": "cd ./frontend && npm run mobile:debug:android",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
