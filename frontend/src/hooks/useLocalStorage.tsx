@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { useUserProfile } from "../contexts/UserProfileContext";
+import { useUserProfile } from "./useUserProfile";
 
 const BASE_LOCAL_STORAGE_KEY = "kapitelshelf";
 

@@ -8,7 +8,7 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import UserProfileCard from "../../components/UserProfileCard";
-import { useUserProfile } from "../../contexts/UserProfileContext";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import { usersApi } from "../../lib/api/KapitelShelf.Api";
 
 export const ProfileList = (): ReactElement => {
@@ -26,6 +26,7 @@ export const ProfileList = (): ReactElement => {
       const { data } = await usersApi.usersGet();
       return data;
     },
+    refetchOnMount: "always",
   });
 
   if (isLoading) {

@@ -7,7 +7,7 @@ using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Data;
-using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic;
@@ -139,7 +139,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <param name="page">The page to get.</param>
     /// <param name="pageSize">The size of the pages.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<PagedResult<BookDTO>> GetLastVisitedBooks(Guid userId, int page, int pageSize)
+    public async Task<PagedResult<BookDTO>> GetLastVisitedBooksAsync(Guid userId, int page, int pageSize)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
         context.ChangeTracker.LazyLoadingEnabled = false;
@@ -178,5 +178,55 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             Items = items,
             TotalCount = totalCount,
         };
+    }
+
+    /// <summary>
+    /// Get the settings of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task<List<UserSettingDTO>> GetSettingsByUserIdAsync(Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.UserSettings
+            .Where(x => x.UserId == userId)
+            .Select(x => this.mapper.Map<UserSettingDTO>(x))
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Update the settings of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <param name="settingDto">The setting.</param>
+    /// <returns>A task.</returns>
+    public async Task UpdateSettingAsync(Guid userId, UserSettingDTO settingDto)
+    {
+        ArgumentNullException.ThrowIfNull(settingDto);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var setting = await context.UserSettings
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.Key == settingDto.Key);
+
+        if (setting is null)
+        {
+            // add new setting
+            setting = this.mapper.Map<UserSettingModel>(settingDto);
+            setting.UserId = userId;
+            context.UserSettings.Add(setting);
+        }
+        else
+        {
+            // update existing setting
+            context.Entry(setting).CurrentValues.SetValues(new
+            {
+                settingDto.Value,
+                settingDto.Type,
+            });
+        }
+
+        await context.SaveChangesAsync();
     }
 }

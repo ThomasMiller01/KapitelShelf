@@ -4,7 +4,7 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.User;
-using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 
 namespace KapitelShelf.Api.Mappings;
 
@@ -26,6 +26,12 @@ public class UserMappingProfile : Profile
         CreateMap<UserDTO, CreateUserDTO>();
 
         CreateMap<ProfileImageType, ProfileImageTypeDTO>()
+            .ReverseMap();
+
+        CreateMap<UserSettingModel, UserSettingDTO>()
+            .ReverseMap();
+
+        CreateMap<UserSettingValueType, UserSettingValueTypeDTO>()
             .ReverseMap();
     }
 }

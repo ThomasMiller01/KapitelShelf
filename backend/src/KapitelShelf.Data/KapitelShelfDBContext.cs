@@ -7,6 +7,7 @@ using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.CloudStorage;
+using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Data;
@@ -66,6 +67,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     /// Gets the users table.
     /// </summary>
     public DbSet<UserModel> Users => Set<UserModel>();
+
+    /// <summary>
+    /// Gets the user settings table.
+    /// </summary>
+    public DbSet<UserSettingModel> UserSettings => Set<UserSettingModel>();
 
     /// <summary>
     /// Gets the user book metadata table.
@@ -168,6 +174,16 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .IsUnique();
 
         // Users
+        modelBuilder.Entity<UserSettingModel>()
+            .HasOne(us => us.User)
+            .WithMany()
+            .HasForeignKey(us => us.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserSettingModel>()
+            .HasIndex(us => new { us.UserId, us.Key })
+            .IsUnique();
+
         modelBuilder.Entity<UserBookMetadataModel>()
             .HasOne(ub => ub.Book)
             .WithMany()

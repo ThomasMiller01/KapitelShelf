@@ -3,6 +3,7 @@
 **Table of Contents:**
 
 - [User Profiles](#user-profiles)
+  - [Settings](#settings)
 - [Library](#library)
 - [Search](#search)
 - Books
@@ -44,6 +45,20 @@ User profiles store the individuell settings and metadata (like ratings and note
 3. This will navigate you to the user profile selection, see [Select a user profile](#select-a-user-profile)
 
 ![Switch to another user profile](./.attachments/references/user_profiles/switch_user_profile.png)
+
+### Settings
+
+Settings allow each profile to customize behavior and layout preferences, such as whether the sidebar should be open or closed.
+
+KapitelShelf automatically syncs settings per user profile across devices, prioritizing them in the following order:
+
+1. **Cloud Storage** (highest priority - if available)
+2. **Local Storage** (used if the cloud is unavailable or offline)
+3. **Default Value** (used only if no prior value is saved in either cloud or local)
+
+On first load, KapitelShelf will attempt to fetch the settings from the cloud. If this fails (e.g. offline), it falls back to locally stored settings. If neither exist, the default is used and synced to both cloud and local storage once possible.
+
+> ⚠️ Settings are saved and synced **per profile**, and automatically reloaded when switching between profiles.
 
 ## Library
 

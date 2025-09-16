@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import type { ReactElement, ReactNode } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 import { usersApi } from "../lib/api/KapitelShelf.Api";
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
 
-interface UserProfileContextProps {
+export interface UserProfileContextProps {
   profile: UserDTO | null;
   setProfile: (profile: UserDTO) => void;
   clearProfile: () => void;
@@ -14,9 +14,9 @@ interface UserProfileContextProps {
 
 const PROFILE_KEY = "current.user.profile";
 
-const UserProfileContext = createContext<UserProfileContextProps | undefined>(
-  undefined
-);
+export const UserProfileContext = createContext<
+  UserProfileContextProps | undefined
+>(undefined);
 
 export const UserProfileProvider = ({
   children,
@@ -83,15 +83,4 @@ export const UserProfileProvider = ({
       {children}
     </UserProfileContext.Provider>
   );
-};
-
-// Custom hook for using the profile context
-export const useUserProfile = (): UserProfileContextProps => {
-  const ctx = useContext(UserProfileContext);
-  if (!ctx) {
-    throw new Error(
-      "useUserProfile() must be used within a UserProfileProvider"
-    );
-  }
-  return ctx;
 };

@@ -7,6 +7,7 @@ using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Testcontainers.PostgreSql;
@@ -326,5 +327,227 @@ public class UsersLogicTests
 
         // Assert
         Assert.That(result, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests GetLastVisitedBooksAsync returns paginated, ordered results.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetLastVisitedBooksAsync_ReturnsPaginatedOrderedBooks()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "visiteduser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#abcdef",
+        };
+
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series 1".Unique(),
+        };
+
+        var book1 = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book 1",
+            Description = "Desc",
+            Author = new AuthorModel
+            {
+                FirstName = "John",
+                LastName = "Doe",
+            },
+            Series = series,
+        };
+
+        var book2 = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book 2",
+            Description = "Desc",
+            Author = new AuthorModel
+            {
+                FirstName = "Jane",
+                LastName = "Smith",
+            },
+            Series = series,
+        };
+
+        var visit1 = new VisitedBooksModel
+        {
+            UserId = user.Id,
+            BookId = book1.Id,
+            VisitedAt = DateTime.UtcNow.AddMinutes(-10),
+            Book = book1,
+        };
+
+        var visit2 = new VisitedBooksModel
+        {
+            UserId = user.Id,
+            BookId = book2.Id,
+            VisitedAt = DateTime.UtcNow.AddMinutes(-5),
+            Book = book2,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Series.Add(series);
+            context.Books.AddRange(book1, book2);
+            context.VisitedBooks.AddRange(visit1, visit2);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetLastVisitedBooksAsync(user.Id, page: 1, pageSize: 10);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items, Has.Count.EqualTo(2));
+            Assert.That(result.TotalCount, Is.EqualTo(2));
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items[0].Title, Is.EqualTo("Book 2")); // newest first
+            Assert.That(result.Items[1].Title, Is.EqualTo("Book 1"));
+        });
+    }
+
+    /// <summary>
+    /// Tests GetSettingsByUserIdAsync returns user settings.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetSettingsByUserIdAsync_ReturnsSettings()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user_with_settings".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var settings = new List<UserSettingModel>
+        {
+            new() { Key = "test1", Value = "abc", Type = UserSettingValueType.TString, UserId = user.Id },
+            new() { Key = "test2", Value = "123", Type = UserSettingValueType.TInteger, UserId = user.Id },
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.UserSettings.AddRange(settings);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetSettingsByUserIdAsync(user.Id);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Any(x => x.Key == "test1" && x.Value == "abc"), Is.True);
+            Assert.That(result.Any(x => x.Key == "test2" && x.Value == "123"), Is.True);
+        });
+    }
+
+    /// <summary>
+    /// Tests UpdateSettingAsync adds a new setting.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task UpdateSettingAsync_AddsNewSetting()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user_add_setting".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+        }
+
+        var setting = new UserSettingDTO
+        {
+            Key = "test_add",
+            Value = "true",
+            Type = UserSettingValueTypeDTO.TBoolean,
+        };
+
+        // Execute
+        await this.testee.UpdateSettingAsync(user.Id, setting);
+
+        // Assert
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var saved = await context2.UserSettings.FirstOrDefaultAsync(s => s.UserId == user.Id && s.Key == "test_add");
+        Assert.That(saved, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved!.Value, Is.EqualTo("true"));
+            Assert.That(saved.Type, Is.EqualTo(UserSettingValueType.TBoolean));
+        });
+    }
+
+    /// <summary>
+    /// Tests UpdateSettingAsync updates an existing setting.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task UpdateSettingAsync_UpdatesExistingSetting()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user_update_settings".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var settings = new List<UserSettingModel>
+        {
+            new() { Key = "test_update", Value = "false", Type = UserSettingValueType.TBoolean, UserId = user.Id },
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.UserSettings.AddRange(settings);
+            await context.SaveChangesAsync();
+        }
+
+        var updatedSetting = new UserSettingDTO
+        {
+            Key = "test_update",
+            Value = "true",
+            Type = UserSettingValueTypeDTO.TBoolean,
+        };
+
+        // Execute
+        await this.testee.UpdateSettingAsync(user.Id, updatedSetting);
+
+        // Assert
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var saved = await context2.UserSettings.FirstOrDefaultAsync(s => s.UserId == user.Id && s.Key == "test_update");
+        Assert.That(saved, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved!.Value, Is.EqualTo("true"));
+            Assert.That(saved.Type, Is.EqualTo(UserSettingValueType.TBoolean));
+        });
     }
 }

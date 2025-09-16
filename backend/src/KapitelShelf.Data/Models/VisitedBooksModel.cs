@@ -2,6 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Data.Models.User;
+
 namespace KapitelShelf.Data.Models;
 
 /// <summary>

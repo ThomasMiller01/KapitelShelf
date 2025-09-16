@@ -6,9 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import { useUserProfile } from "../../contexts/UserProfileContext";
 import EditableProfileDetails from "../../features/user/EditableProfileDetails";
 import { useMobile } from "../../hooks/useMobile";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import { usersApi } from "../../lib/api/KapitelShelf.Api";
 import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
 
