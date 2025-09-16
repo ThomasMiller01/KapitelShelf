@@ -2,9 +2,14 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build: Dev",
+      "label": "Dev: Run All",
+      "command": "${command:multiCommand.openDevEnv}",
+      "problemMatcher": []
+    },
+    {
+      "label": "Sync: Mobile",
       "type": "shell",
-      "command": "npm run build:dev",
+      "command": "npm run sync:frontend:mobile",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -15,8 +20,29 @@
       "problemMatcher": []
     },
     {
-      "label": "Dev: Run All",
-      "command": "${command:multiCommand.openDevEnv}",
+      "label": "Open: Android",
+      "type": "shell",
+      "command": "npm run open:frontend:android",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Open: IOS",
+      "type": "shell",
+      "command": "npm run open:frontend:ios",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "focus": false
+      },
       "problemMatcher": []
     },
     {
