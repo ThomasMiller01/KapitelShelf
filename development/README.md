@@ -16,6 +16,11 @@ Strongly suggest:
 - helm
 - [helm-docs](https://github.com/norwoodj/helm-docs)
 
+Building mobile apps locally:
+
+- java
+- Android Studio
+
 ## Swagger
 
 Generate swagger json
