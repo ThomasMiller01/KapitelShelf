@@ -117,7 +117,7 @@ jobs:
       - name: Write credentials to gradle.properties
         run: |
           echo "KS_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/gradle.properties
-          echo "KS_ALIAS_PASSWORD=${{ secrets.KS_ALIAS_PASSWORD }}" >> android/gradle.properties
+          echo "KS_ALIAS_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/gradle.properties
 
       - name: Setup Java
         uses: actions/setup-java@v4
