@@ -7,7 +7,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Mobile: Build Android",
+      "label": "Mobile: Build Android (debug)",
       "type": "shell",
       "command": "cd ./frontend && npm run mobile:debug:android",
       "presentation": {
