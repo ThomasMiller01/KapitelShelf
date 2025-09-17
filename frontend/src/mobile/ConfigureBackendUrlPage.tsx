@@ -47,6 +47,7 @@ export const ConfigureBackendUrlPage = (): ReactElement => {
 
     setBasePath(basePath);
     SetMobileApiBaseUrl(basePath);
+    window.location.reload();
   };
 
   const isValid = (value?.length ?? 0) > 0 && IsValidUrl(value);

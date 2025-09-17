@@ -14,6 +14,7 @@ export interface DeleteDialogProps {
   description?: string;
   onCancel: () => void;
   onConfirm: () => void;
+  confirmText?: string;
 }
 
 const DeleteDialog = ({
@@ -22,6 +23,7 @@ const DeleteDialog = ({
   description = "Are you sure you want to delete this item? This action cannot be undone.",
   onCancel,
   onConfirm,
+  confirmText = "Delete",
 }: DeleteDialogProps): ReactElement => (
   <Dialog open={open} onClose={onCancel}>
     <DialogTitle textTransform="uppercase">{title}</DialogTitle>
@@ -31,7 +33,7 @@ const DeleteDialog = ({
     <DialogActions>
       <Button onClick={onCancel}>Cancel</Button>
       <Button color="error" variant="contained" onClick={onConfirm}>
-        Delete
+        {confirmText}
       </Button>
     </DialogActions>
   </Dialog>
