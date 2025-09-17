@@ -1,4 +1,4 @@
-name: Publish Helm Chart
+name: Publish Helm
 
 on:
   workflow_dispatch: {} # allow manual run

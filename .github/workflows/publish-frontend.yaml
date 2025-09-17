@@ -1,4 +1,4 @@
-name: Publish Frontend Docker Image
+name: Publish Frontend
 
 on:
   workflow_dispatch: {} # allow manual run
@@ -13,25 +13,11 @@ permissions:
   packages: write
 
 jobs:
-  publish:
+  docker:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log in to DockerHub
-        uses: docker/login-action@v3
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract version from package.json
         working-directory: ./frontend
@@ -50,6 +36,20 @@ jobs:
           
           # combine for x.y tag
           echo "MAJOR_MINOR=$MAJOR.$MINOR" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}      
 
       - name: Build initial docker image and push
         working-directory: ./frontend
@@ -99,6 +99,20 @@ jobs:
           echo "Push 'latest' to ghcr.io"
           docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
           docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [docker, android]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from package.json
+        working-directory: ./frontend
+        id: version
+        run: |
+          # grab the version key
+          VERSION=$(jq -r .version package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Extract CHANGELOG for Release
         id: extract_changelog
