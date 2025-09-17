@@ -149,9 +149,8 @@ jobs:
 
       - name: Rename APK for release
         run: |
-          mkdir -p artifacts
-          ls -lah android/app/build/outputs/apk/release/
-          cp android/app/build/outputs/apk/release/app-release.apk artifacts/KapitelShelf-${{ env.VERSION }}.apk
+          mkdir -p ../artifacts
+          cp android/app/build/outputs/apk/release/app-release.apk ../artifacts/KapitelShelf-${{ env.VERSION }}.apk
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
