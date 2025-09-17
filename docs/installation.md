@@ -79,6 +79,8 @@ docker run -d \
 
 ## Mobile (Android)
 
+> [Why is KapitelShelf only available on Android and not on iOS?](./faq.md#why-is-kapitelshelf-only-available-on-android-and-not-on-ios)
+
 To use the mobile app, you must first have a KapitelShelf backend up and running.
 
 The easiest way to do this is by using either:
