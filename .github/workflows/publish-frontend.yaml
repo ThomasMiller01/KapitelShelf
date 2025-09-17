@@ -139,11 +139,16 @@ jobs:
       - name: Build Android APK (Release)
         run: chmod +x android/gradlew && cd android && ./gradlew clean assembleRelease
 
+      - name: Rename APK for release
+        run: |
+          mkdir -p artifacts
+          cp frontend/android/app/build/outputs/apk/release/app-release.apk artifacts/KapitelShelf-${{ env.VERSION }}.apk
+
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: frontend/android/app/build/outputs/apk/release/app-release.apk
+          path: artifacts/KapitelShelf-${{ env.VERSION }}.apk
 
   release:
     runs-on: ubuntu-latest
@@ -151,12 +156,6 @@ jobs:
     needs: [android]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download Android apk
-        uses: actions/download-artifact@v4
-        with:
-          name: android-apk
-          path: artifacts
 
       - name: Extract version from package.json
         working-directory: ./frontend
@@ -195,14 +194,19 @@ jobs:
           cat release_body.txt >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
+      - name: Download Android apk
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: artifacts
+
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: frontend@${{ env.VERSION }}
-          release_name: "Frontend v${{ env.VERSION }}"
+          name: "Frontend v${{ env.VERSION }}"
           body: ${{ env.RELEASE_BODY }}
-          files: artifacts/app-release.apk
-          draft: false
-          prerelease: false
+          files: |
+            artifacts/KapitelShelf-${{ env.VERSION }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
