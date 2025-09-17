@@ -114,12 +114,12 @@ public interface ICloudStoragesLogic
     /// Sync a single storage.
     /// </summary>
     /// <param name="storage">The storage to sync.</param>
-    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onOutput">Called when output gets written to.</param>
     /// <param name="onProcessStarted">Called when the process got started.</param>
     /// <param name="cancellationToken">The cancelation token.</param>
     /// <returns>A task.</returns>
     /// <remarks>This method is possibly long running.</remarks>
-    Task SyncStorage(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
+    Task SyncStorage(CloudStorageDTO storage, Action<string>? onOutput = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Delete the data of a storage.
@@ -156,11 +156,11 @@ public interface ICloudStoragesLogic
     /// Initally download the storage data, if it is not present on disk yet.
     /// </summary>
     /// <param name="storage">The storage to download.</param>
-    /// <param name="onStdout">Called when stdout gets written to.</param>
+    /// <param name="onOutput">Called when output gets written to.</param>
     /// <param name="onProcessStarted">Called when the process got started.</param>
     /// <param name="cancellationToken">The cancelation token.</param>
     /// <returns>A task.</returns>
-    Task DownloadStorageInitially(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
+    Task DownloadStorageInitially(CloudStorageDTO storage, Action<string>? onOutput = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Clean the storage directory if it exists.

@@ -214,7 +214,7 @@ public class SyncStorageDataTests
         this.testee.currentStorageIndex = 0;
         this.testee.totalStorageIndex = 1;
 
-        var progressLine = "100.0 MiB / 200.0 MiB, 50%, 5.0 MiB/s, ETA 2m0s";
+        var progressLine = /*lang=json,strict*/ "{\"time\":\"2025-09-17T14:59:44.3188582+02:00\",\"level\":\"notice\",\"msg\":\"\\nTransferred:   \\t   16.395 MiB / 16.395 MiB, 100%, 2.287 MiB/s, ETA 0s\\nChecks:                67 / 67, 100%, Listed 143\\nTransferred:            9 / 9, 100%\\nElapsed time:         3.2s\\n\\n\",\"stats\":{\"bytes\":17191001,\"checks\":67,\"deletedDirs\":0,\"deletes\":0,\"elapsedTime\":3.2597123,\"errors\":0,\"eta\":0,\"fatalError\":false,\"listed\":143,\"renames\":0,\"retryError\":false,\"serverSideCopies\":0,\"serverSideCopyBytes\":0,\"serverSideMoveBytes\":0,\"serverSideMoves\":0,\"speed\":2398167,\"totalBytes\":17191001,\"totalChecks\":67,\"totalTransfers\":9,\"transferTime\":2.6947928,\"transfers\":9},\"source\":\"slog/logger.go:256\"}";
 
         // Execute
         this.testee.DownloadProgressHandler(progressLine);

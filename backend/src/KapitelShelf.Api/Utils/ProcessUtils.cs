@@ -3,7 +3,8 @@
 // </copyright>
 
 using System.Diagnostics;
-using System.Text;
+using CliWrap;
+using CliWrap.EventStream;
 
 namespace KapitelShelf.Api.Utils;
 
@@ -19,103 +20,41 @@ public class ProcessUtils : IProcessUtils
         string? workingDirectory = null,
         Action<string>? onStdout = null,
         Action<string>? onStderr = null,
-        string? stdoutSeperator = null,
         Action<Process>? onProcessStarted = null,
         CancellationToken cancellationToken = default)
     {
-        var processObj = new Process
+        var stdout = new System.Text.StringBuilder();
+        var stderr = new System.Text.StringBuilder();
+
+        var cmd = Cli.Wrap(process)
+            .WithArguments(arguments)
+            .WithWorkingDirectory(workingDirectory ?? Environment.CurrentDirectory)
+            .WithValidation(CommandResultValidation.None); // dont throw on non-zero exit code
+
+        await foreach (var cmdEvent in cmd.ListenAsync(cancellationToken))
         {
-            StartInfo = new ProcessStartInfo
+            switch (cmdEvent)
             {
-                FileName = process,
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WorkingDirectory = workingDirectory ?? string.Empty,
-                StandardOutputEncoding = Encoding.UTF8,
-                StandardErrorEncoding = Encoding.UTF8,
-            },
-        };
+                case StandardOutputCommandEvent stdOut:
+                    stdout.AppendLine(stdOut.Text);
+                    onStdout?.Invoke(stdOut.Text);
+                    break;
 
-        processObj.Start();
-        onProcessStarted?.Invoke(processObj);
+                case StandardErrorCommandEvent stdErr:
+                    stderr.AppendLine(stdErr.Text);
+                    onStderr?.Invoke(stdErr.Text);
+                    break;
 
-        var stdout = new StringBuilder();
-        var stderr = new StringBuilder();
+                case ExitedCommandEvent exited:
+                    return (exited.ExitCode, stdout.ToString(), stderr.ToString());
 
-        var stdoutTask = Task.Run(
-            async () =>
-            {
-                var sb = new StringBuilder();
-                var buffer = new char[1];
-                using var reader = processObj.StandardOutput;
-                while (true)
-                {
-                    int read = await reader.ReadAsync(buffer, 0, 1);
-                    if (read == 0)
-                    {
-                        break;
-                    }
+                default:
+                    break;
+            }
+        }
 
-                    char ch = buffer[0];
-
-                    var isLineEnding = ch is '\r' or '\n';
-                    var isSeperator = stdoutSeperator is not null && sb.ToString().EndsWith(stdoutSeperator, StringComparison.InvariantCulture);
-
-                    if (isLineEnding || isSeperator)
-                    {
-                        if (sb.Length > 0)
-                        {
-                            stdout.AppendLine(sb.ToString());
-                            onStdout?.Invoke(sb.ToString());
-
-                            sb.Clear();
-                        }
-
-                        // Handle possible \r\n sequence: skip \n if it immediately follows \r
-                        if (ch == '\r')
-                        {
-                            // peek ahead to see if the next char is '\n'
-                            int next = reader.Peek();
-                            if (next == '\n')
-                            {
-                                await reader.ReadAsync(buffer, 0, 1); // consume the \n
-                            }
-                        }
-                    }
-                    else
-                    {
-                        sb.Append(ch);
-                    }
-                }
-
-                // Final flush if something left
-                if (sb.Length > 0)
-                {
-                    stdout.AppendLine(sb.ToString());
-                    onStdout?.Invoke(sb.ToString());
-                }
-            },
-            cancellationToken);
-
-        var stderrTask = Task.Run(
-            async () =>
-            {
-                using var reader = processObj.StandardError;
-                string? line;
-                while ((line = await reader.ReadLineAsync()) != null)
-                {
-                    stderr.AppendLine(line);
-                    onStderr?.Invoke(line);
-                }
-            },
-            cancellationToken);
-
-        await Task.WhenAll(stdoutTask, stderrTask, processObj.WaitForExitAsync(cancellationToken));
-
-        return (processObj.ExitCode, stdout.ToString(), stderr.ToString());
+        // fallback
+        return (-1, stdout.ToString(), stderr.ToString());
     }
 }
 

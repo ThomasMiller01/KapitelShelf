@@ -4,7 +4,6 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
@@ -204,54 +203,26 @@ public partial class SyncStorageData(
     {
         ArgumentNullException.ThrowIfNull(this.executionContext);
 
-        // filter for correct line
-        // e.g. "86.786 MiB / 1.187 GiB, 7%, 7.005 MiB/s, ETA 2m41s"
-        if (!data.Contains("ETA"))
+        if (!RCloneUtils.TryParseStats(data, out var stats))
         {
+            // ignore non-stats output
             return;
         }
 
-        // extract progress
-        var percentMatch = MatchProgressPercentage().Match(data);
-        if (percentMatch.Success)
+        if (stats.Percent is not null)
         {
-            if (int.TryParse(percentMatch.Groups[1].Value, out int itemPercentage))
-            {
-                this.DataStore.SetProgress(JobKey(this.executionContext), this.currentStorageIndex, this.totalStorageIndex, itemPercentage);
-            }
+            this.DataStore.SetProgress(JobKey(this.executionContext), this.currentStorageIndex, this.totalStorageIndex, (int)stats.Percent);
         }
 
-        // transfer speed
-        string? speed = null;
-        var speedMatch = MatchSpeed().Match(data);
-        if (speedMatch.Success)
+        if (stats.Speed is not null || stats.Eta is not null)
         {
-            speed = speedMatch.Groups[1].Value;
-        }
+            var speedText = RCloneUtils.FormatSpeed(stats.Speed);
+            var etaText = RCloneUtils.FormatEta(stats.Eta);
 
-        // estimated-time-of-arrival
-        string? eta = null;
-        var etaMatch = MatchETA().Match(data);
-        if (etaMatch.Success)
-        {
-            eta = etaMatch.Groups[1].Value;
-        }
-
-        if (speed is not null || eta is not null)
-        {
-            var message = $"{speed}, ETA {eta}";
-            this.DataStore.SetMessage(JobKey(executionContext), message);
+            var message = $"{speedText}, ETA {etaText}";
+            this.DataStore.SetMessage(JobKey(this.executionContext), message);
         }
     }
 
     private void OnProcessStarted(Process process) => this.rcloneProcess = new ProcessWrapper(process);
-
-    [GeneratedRegex(@"(\d+)%")]
-    private static partial Regex MatchProgressPercentage();
-
-    [GeneratedRegex(@"([\d.]+ [KMG]{0,1}i{0,1}B/s)")]
-    private static partial Regex MatchSpeed();
-
-    [GeneratedRegex(@"ETA ([\w\d:]+)")]
-    private static partial Regex MatchETA();
 }
