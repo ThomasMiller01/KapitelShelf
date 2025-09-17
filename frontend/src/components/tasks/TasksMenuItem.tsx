@@ -10,16 +10,17 @@ import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { NavLink } from "react-router-dom";
 
-import { tasksApi } from "../../lib/api/KapitelShelf.Api";
+import { useApi } from "../../contexts/ApiProvider";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
 import { SECOND_MS } from "../../utils/TimeUtils";
 import { TaskStateIcon } from "./TaskStateIcon";
 
 export const TasksMenuItem = (): ReactElement => {
+  const { clients } = useApi();
   const { data: activeTasks } = useQuery({
     queryKey: ["tasks-list-active"],
     queryFn: async () => {
-      const { data } = await tasksApi.tasksGet();
+      const { data } = await clients.tasks.tasksGet();
       return data.filter((x) => x.state === TaskState.NUMBER_1);
     },
     refetchInterval: 5 * SECOND_MS,

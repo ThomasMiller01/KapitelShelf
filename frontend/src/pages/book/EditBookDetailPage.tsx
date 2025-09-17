@@ -8,9 +8,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
+import { useApi } from "../../contexts/ApiProvider";
 import EditableBookDetails from "../../features/book/EditableBookDetails";
 import { useMobile } from "../../hooks/useMobile";
-import { booksApi } from "../../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 interface UploadCoverMutationProps {
@@ -34,6 +34,7 @@ const EditBookDetailPage = (): ReactElement => {
     bookId: string;
   }>();
   const navigate = useNavigate();
+  const { clients } = useApi();
   const { isMobile } = useMobile();
 
   const {
@@ -48,7 +49,7 @@ const EditBookDetailPage = (): ReactElement => {
         return null;
       }
 
-      const { data } = await booksApi.booksBookIdGet(bookId);
+      const { data } = await clients.books.booksBookIdGet(bookId);
       return data;
     },
   });
@@ -60,7 +61,7 @@ const EditBookDetailPage = (): ReactElement => {
         return null;
       }
 
-      await booksApi.booksBookIdPut(bookId, book);
+      await clients.books.booksBookIdPut(bookId, book);
     },
     meta: {
       notify: {
@@ -75,7 +76,10 @@ const EditBookDetailPage = (): ReactElement => {
   const { mutateAsync: mutateUploadCover } = useMutation({
     mutationKey: ["upload-cover"],
     mutationFn: async ({ bookId, coverFile }: UploadCoverMutationProps) => {
-      const { data } = await booksApi.booksBookIdCoverPost(bookId, coverFile);
+      const { data } = await clients.books.booksBookIdCoverPost(
+        bookId,
+        coverFile
+      );
       return data;
     },
     meta: {
@@ -89,7 +93,10 @@ const EditBookDetailPage = (): ReactElement => {
   const { mutateAsync: mutateUploadFile } = useMutation({
     mutationKey: ["upload-file"],
     mutationFn: async ({ bookId, bookFile }: UploadFileMutationProps) => {
-      const { data } = await booksApi.booksBookIdFilePost(bookId, bookFile);
+      const { data } = await clients.books.booksBookIdFilePost(
+        bookId,
+        bookFile
+      );
       return data;
     },
     meta: {

@@ -5,8 +5,8 @@ import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FancyText from "../../components/FancyText";
+import { useApi } from "../../contexts/ApiProvider";
 import EditableBookDetails from "../../features/book/EditableBookDetails";
-import { booksApi } from "../../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 interface UploadCoverMutationProps {
@@ -21,11 +21,12 @@ interface UploadFileMutationProps {
 
 const CreateBookPage = (): ReactElement => {
   const navigate = useNavigate();
+  const { clients } = useApi();
 
   const { mutateAsync: mutateCreateBook } = useMutation({
     mutationKey: ["create-book"],
     mutationFn: async (book: BookDTO) => {
-      const { data } = await booksApi.booksPost(book);
+      const { data } = await clients.books.booksPost(book);
       return data;
     },
     meta: {
@@ -39,7 +40,10 @@ const CreateBookPage = (): ReactElement => {
   const { mutateAsync: mutateUploadCover } = useMutation({
     mutationKey: ["upload-cover"],
     mutationFn: async ({ bookId, coverFile }: UploadCoverMutationProps) => {
-      const { data } = await booksApi.booksBookIdCoverPost(bookId, coverFile);
+      const { data } = await clients.books.booksBookIdCoverPost(
+        bookId,
+        coverFile
+      );
       return data;
     },
     meta: {
@@ -53,7 +57,10 @@ const CreateBookPage = (): ReactElement => {
   const { mutateAsync: mutateUploadFile } = useMutation({
     mutationKey: ["upload-file"],
     mutationFn: async ({ bookId, bookFile }: UploadFileMutationProps) => {
-      const { data } = await booksApi.booksBookIdFilePost(bookId, bookFile);
+      const { data } = await clients.books.booksBookIdFilePost(
+        bookId,
+        bookFile
+      );
       return data;
     },
     meta: {

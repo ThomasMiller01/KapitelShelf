@@ -5,7 +5,7 @@ import { Tooltip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-import { cloudstorageApi } from "../../lib/api/KapitelShelf.Api";
+import { useApi } from "../../contexts/ApiProvider";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 interface CloudStorageDownloadStatusProps extends SvgIconOwnProps {
@@ -15,6 +15,7 @@ interface CloudStorageDownloadStatusProps extends SvgIconOwnProps {
 export const CloudStorageDownloadStatus: React.FC<
   CloudStorageDownloadStatusProps
 > = ({ cloudstorage }) => {
+  const { clients } = useApi();
   const [downloadStatus, setDownloadStatus] = useState(
     cloudstorage.isDownloaded
   );
@@ -30,9 +31,10 @@ export const CloudStorageDownloadStatus: React.FC<
       if (cloudstorage.id === undefined) {
         return null;
       }
-      const { data } = await cloudstorageApi.cloudstorageStoragesStorageIdGet(
-        cloudstorage.id
-      );
+      const { data } =
+        await clients.cloudstorages.cloudstorageStoragesStorageIdGet(
+          cloudstorage.id
+        );
 
       setDownloadStatus(data.isDownloaded);
 

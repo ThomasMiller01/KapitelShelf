@@ -8,12 +8,13 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import UserProfileCard from "../../components/UserProfileCard";
+import { useApi } from "../../contexts/ApiProvider";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { usersApi } from "../../lib/api/KapitelShelf.Api";
 
 export const ProfileList = (): ReactElement => {
   const { setProfile } = useUserProfile();
   const navigate = useNavigate();
+  const { clients } = useApi();
 
   const {
     data: userProfiles,
@@ -23,7 +24,7 @@ export const ProfileList = (): ReactElement => {
   } = useQuery({
     queryKey: ["user-profile-list"],
     queryFn: async () => {
-      const { data } = await usersApi.usersGet();
+      const { data } = await clients.users.usersGet();
       return data;
     },
     refetchOnMount: "always",

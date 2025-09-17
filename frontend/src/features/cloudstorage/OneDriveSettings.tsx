@@ -10,11 +10,12 @@ import { IconButtonWithTooltip } from "../../components/base/IconButtonWithToolt
 import { CloudStorageIcon } from "../../components/cloudstorage/CloudStorageIcon";
 import { CloudStorageCard } from "../../components/cloudstorage/CloudStoragesCard";
 import { ConfigureCloudConfigurationDialog } from "../../components/cloudstorage/ConfigureCloudConfiguration/ConfigureCloudConfigurationDialog";
-import { cloudstorageApi, onedriveApi } from "../../lib/api/KapitelShelf.Api";
+import { useApi } from "../../contexts/ApiProvider";
 import type { ConfigureCloudDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CloudTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 export const OneDriveSettings = (): ReactElement => {
+  const { clients } = useApi();
   const [configureDialogOpen, setConfigureDialogOpen] = useState(false);
 
   const {
@@ -25,7 +26,7 @@ export const OneDriveSettings = (): ReactElement => {
   } = useQuery({
     queryKey: ["cloudstorage-onedrive-isconfigured"],
     queryFn: async () => {
-      const { data } = await cloudstorageApi.cloudstorageIsconfiguredGet(
+      const { data } = await clients.cloudstorages.cloudstorageIsconfiguredGet(
         CloudTypeDTO.NUMBER_0
       );
       return data;
@@ -35,7 +36,7 @@ export const OneDriveSettings = (): ReactElement => {
   const { data: cloudstorages, refetch: updateStorages } = useQuery({
     queryKey: ["cloudstorage-onedrive-list-cloudstorages"],
     queryFn: async () => {
-      const { data } = await cloudstorageApi.cloudstorageStoragesGet(
+      const { data } = await clients.cloudstorages.cloudstorageStoragesGet(
         CloudTypeDTO.NUMBER_0
       );
       return data;
@@ -45,7 +46,7 @@ export const OneDriveSettings = (): ReactElement => {
   const { mutate: startOAuthFlow } = useMutation({
     mutationKey: ["cloudstorage-onedrive-oauth-flow"],
     mutationFn: async () => {
-      const { data } = await onedriveApi.cloudstorageOnedriveOauthGet(
+      const { data } = await clients.onedrive.cloudstorageOnedriveOauthGet(
         window.location.href
       );
       window.location.href = data;
@@ -55,7 +56,7 @@ export const OneDriveSettings = (): ReactElement => {
   const { mutate: configure } = useMutation({
     mutationKey: ["cloudstorage-onedrive-configure"],
     mutationFn: async (configuration: ConfigureCloudDTO) => {
-      await cloudstorageApi.cloudstorageConfigurePut(
+      await clients.cloudstorages.cloudstorageConfigurePut(
         CloudTypeDTO.NUMBER_0,
         configuration
       );
@@ -120,7 +121,7 @@ export const OneDriveSettings = (): ReactElement => {
           <CloudStorageCard
             key={cloudstorage.id}
             cloudstorage={cloudstorage}
-            getOAuthUrl={onedriveApi.cloudstorageOnedriveOauthGet}
+            getOAuthUrl={clients.onedrive.cloudstorageOnedriveOauthGet}
             update={() => updateStorages()}
           />
         ))}

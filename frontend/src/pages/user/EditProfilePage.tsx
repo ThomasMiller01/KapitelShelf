@@ -6,10 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 
 import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import ItemAppBar from "../../components/base/ItemAppBar";
+import { useApi } from "../../contexts/ApiProvider";
 import EditableProfileDetails from "../../features/user/EditableProfileDetails";
 import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { usersApi } from "../../lib/api/KapitelShelf.Api";
 import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 const EditingBadge = styled(Chip, {
@@ -20,6 +20,7 @@ const EditingBadge = styled(Chip, {
 
 export const EditProfilePage = (): ReactElement => {
   const navigate = useNavigate();
+  const { clients } = useApi();
   const { isMobile } = useMobile();
   const { profile, clearProfile, syncProfile } = useUserProfile();
 
@@ -30,7 +31,7 @@ export const EditProfilePage = (): ReactElement => {
         return null;
       }
 
-      await usersApi.usersUserIdDelete(profile.id);
+      await clients.users.usersUserIdDelete(profile.id);
     },
     meta: {
       notify: {
@@ -49,7 +50,7 @@ export const EditProfilePage = (): ReactElement => {
         return null;
       }
 
-      await usersApi.usersUserIdPut(profile.id, user);
+      await clients.users.usersUserIdPut(profile.id, user);
     },
     meta: {
       notify: {

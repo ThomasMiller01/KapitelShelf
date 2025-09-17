@@ -9,11 +9,12 @@ import { Link } from "react-router-dom";
 import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import ItemAppBar from "../../components/base/ItemAppBar";
+import { useApi } from "../../contexts/ApiProvider";
 import { ProfileDetails } from "../../features/user/ProfileDetails";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { usersApi } from "../../lib/api/KapitelShelf.Api";
 
 export const ViewProfilePage = (): ReactElement => {
+  const { clients } = useApi();
   const { profile, clearProfile } = useUserProfile();
 
   const { mutateAsync: mutateDeleteProfile } = useMutation({
@@ -23,7 +24,7 @@ export const ViewProfilePage = (): ReactElement => {
         return null;
       }
 
-      await usersApi.usersUserIdDelete(profile.id);
+      await clients.users.usersUserIdDelete(profile.id);
     },
     meta: {
       notify: {

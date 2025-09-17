@@ -7,9 +7,9 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { Selector } from "../../components/base/Selector";
 import { TaskStateIcon } from "../../components/tasks/TaskStateIcon";
+import { useApi } from "../../contexts/ApiProvider";
 import TasksList from "../../features/tasks/TaskList";
 import { useSetting } from "../../hooks/useSetting";
-import { tasksApi } from "../../lib/api/KapitelShelf.Api";
 import type { TaskDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
 import { SECOND_MS } from "../../utils/TimeUtils";
@@ -17,6 +17,7 @@ import { SECOND_MS } from "../../utils/TimeUtils";
 const HIDDEN_CATEGORIES_KEY = "tasks.hide.categories";
 
 export const TasksPage = (): ReactElement => {
+  const { clients } = useApi();
   const {
     data: tasks,
     isLoading,
@@ -25,7 +26,7 @@ export const TasksPage = (): ReactElement => {
   } = useQuery({
     queryKey: ["tasks-list"],
     queryFn: async () => {
-      const { data } = await tasksApi.tasksGet();
+      const { data } = await clients.tasks.tasksGet();
       return data;
     },
     refetchInterval: 5 * SECOND_MS,

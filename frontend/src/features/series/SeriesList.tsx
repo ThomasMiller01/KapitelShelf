@@ -8,19 +8,20 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import SeriesCard from "../../components/SeriesCard";
-import { seriesApi } from "../../lib/api/KapitelShelf.Api";
+import { useApi } from "../../contexts/ApiProvider";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 const PAGE_SIZE = 24;
 
 const SeriesList = (): ReactElement => {
   const navigate = useNavigate();
+  const { clients } = useApi();
 
   const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
     useInfiniteQuery({
       queryKey: ["series"],
       queryFn: async ({ pageParam = 1 }) => {
-        const { data } = await seriesApi.seriesGet(pageParam, PAGE_SIZE);
+        const { data } = await clients.series.seriesGet(pageParam, PAGE_SIZE);
         return data;
       },
       initialPageParam: 1,

@@ -4,20 +4,21 @@ import { type ReactElement, useCallback } from "react";
 
 import FileUploadDropzone from "../../components/base/FileUploadDropzone";
 import FancyText from "../../components/FancyText";
+import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotification } from "../../hooks/useNotification";
-import { booksApi } from "../../lib/api/KapitelShelf.Api";
 import type { ImportResultDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { BookFileTypes } from "../../utils/FileTypesUtils";
 
 const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();
+  const { clients } = useApi();
   const { triggerNavigate, triggerError } = useNotification();
 
   const { mutateAsync: mutateImportBook } = useMutation({
     mutationKey: ["import-book"],
     mutationFn: async (file: File) => {
-      const { data } = await booksApi.booksImportPost(file);
+      const { data } = await clients.books.booksImportPost(file);
       return data;
     },
     meta: {

@@ -1,7 +1,7 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
-import { metadataApi } from "../lib/api/KapitelShelf.Api";
+import { useApi } from "../contexts/ApiProvider";
 import type {
   MetadataDTO,
   MetadataSources,
@@ -18,12 +18,13 @@ export const useMetadataSource = ({
   source,
   title,
   enabled = true,
-}: useMetadataSourceProps): UseQueryResult<MetadataDTO[]> =>
-  useQuery({
+}: useMetadataSourceProps): UseQueryResult<MetadataDTO[]> => {
+  const { clients } = useApi();
+  return useQuery({
     enabled,
     queryKey: ["metadata-by-source", source, title],
     queryFn: async () => {
-      const { data } = await metadataApi.metadataSourceGet(source, title);
+      const { data } = await clients.metadata.metadataSourceGet(source, title);
       return data;
     },
     meta: {
@@ -36,3 +37,4 @@ export const useMetadataSource = ({
       },
     },
   });
+};

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactElement, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 
+import { ApiProvider } from "./contexts/ApiProvider";
 import { ApiNotificationListener } from "./contexts/notification/ApiNotificationListener";
 import { NotificationProvider } from "./contexts/notification/NotificationProvider";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -22,25 +23,27 @@ function App(): ReactElement {
   }, []);
 
   return (
-    <UserProfileProvider>
-      <UserSettingsProvider>
-        <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <NotificationProvider>
-              <BrowserRouter>
-                <ApiNotificationListener />
-                <LocalizationProvider
-                  dateAdapter={AdapterDayjs}
-                  adapterLocale="de"
-                >
-                  <AppRoutes />
-                </LocalizationProvider>
-              </BrowserRouter>
-            </NotificationProvider>
-          </QueryClientProvider>
-        </ThemeProvider>
-      </UserSettingsProvider>
-    </UserProfileProvider>
+    <ApiProvider>
+      <UserProfileProvider>
+        <UserSettingsProvider>
+          <ThemeProvider>
+            <QueryClientProvider client={queryClient}>
+              <NotificationProvider>
+                <BrowserRouter>
+                  <ApiNotificationListener />
+                  <LocalizationProvider
+                    dateAdapter={AdapterDayjs}
+                    adapterLocale="de"
+                  >
+                    <AppRoutes />
+                  </LocalizationProvider>
+                </BrowserRouter>
+              </NotificationProvider>
+            </QueryClientProvider>
+          </ThemeProvider>
+        </UserSettingsProvider>
+      </UserProfileProvider>
+    </ApiProvider>
   );
 }
 

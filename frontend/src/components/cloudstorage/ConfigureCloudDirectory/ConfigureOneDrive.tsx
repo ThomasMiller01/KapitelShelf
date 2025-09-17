@@ -3,7 +3,7 @@ import { RichTreeView } from "@mui/x-tree-view";
 import { useMutation } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useState } from "react";
 
-import { cloudstorageApi } from "../../../lib/api/KapitelShelf.Api";
+import { useApi } from "../../../contexts/ApiProvider";
 import LoadingCard from "../../base/feedback/LoadingCard";
 
 interface Directory {
@@ -22,6 +22,7 @@ export const ConfigureOneDrive: React.FC<ConfigureOneDriveProps> = ({
   storageId,
   onDirectorySelect,
 }) => {
+  const { clients } = useApi();
   const [items, setItems] = useState<Directory[]>([]);
 
   const getItemId = useCallback((item: Directory) => item.id, []);
@@ -47,7 +48,7 @@ export const ConfigureOneDrive: React.FC<ConfigureOneDriveProps> = ({
       }
 
       const { data } =
-        await cloudstorageApi.cloudstorageStoragesStorageIdListDirectoriesGet(
+        await clients.cloudstorages.cloudstorageStoragesStorageIdListDirectoriesGet(
           storageId,
           path
         );

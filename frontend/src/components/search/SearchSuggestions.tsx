@@ -2,8 +2,8 @@ import { Box, Grid } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useState } from "react";
 
+import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
-import { booksApi } from "../../lib/api/KapitelShelf.Api";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { NoItemsFoundCard } from "../base/feedback/NoItemsFoundCard";
 import BookCard from "../BookCard";
@@ -21,6 +21,7 @@ export const SearchSuggestions = ({
   onClick,
 }: SearchSuggestionsProps): ReactElement => {
   const { isMobile } = useMobile();
+  const { clients } = useApi();
   const { mutateAsync: mutateGetSearchSuggestions, isSuccess } = useMutation({
     mutationKey: ["search-suggestions", searchterm],
     mutationFn: async (term: string) => {
@@ -28,7 +29,7 @@ export const SearchSuggestions = ({
         return [];
       }
 
-      const { data } = await booksApi.booksSearchSuggestionsGet(term);
+      const { data } = await clients.books.booksSearchSuggestionsGet(term);
       return data;
     },
   });
