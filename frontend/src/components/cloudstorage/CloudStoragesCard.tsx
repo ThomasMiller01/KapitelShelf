@@ -24,9 +24,9 @@ import { useMutation } from "@tanstack/react-query";
 import type { AxiosResponse, RawAxiosRequestConfig } from "axios";
 import { type ReactElement, useState } from "react";
 
+import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotification } from "../../hooks/useNotification";
-import { cloudstorageApi } from "../../lib/api/KapitelShelf.Api";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CloudTypeToString } from "../../utils/CloudStorageUtils";
 import DeleteDialog from "../base/feedback/DeleteDialog";
@@ -65,6 +65,7 @@ export const CloudStorageCard = ({
   update,
 }: CloudStorageCardProps): ReactElement => {
   const { isMobile } = useMobile();
+  const { clients } = useApi();
   const { triggerNavigate } = useNotification();
 
   const [openDirectoryDialog, setOpenDirectoryDialog] = useState(false);
@@ -85,7 +86,7 @@ export const CloudStorageCard = ({
         return;
       }
 
-      await cloudstorageApi.cloudstorageStoragesStorageIdConfigureDirectoryPut(
+      await clients.cloudstorages.cloudstorageStoragesStorageIdConfigureDirectoryPut(
         cloudstorage.id,
         directory
       );
@@ -107,7 +108,7 @@ export const CloudStorageCard = ({
         return;
       }
 
-      await cloudstorageApi.cloudstorageStoragesStorageIdDelete(
+      await clients.cloudstorages.cloudstorageStoragesStorageIdDelete(
         cloudstorage.id
       );
 
@@ -122,7 +123,7 @@ export const CloudStorageCard = ({
         return;
       }
 
-      await cloudstorageApi.cloudstorageStoragesStorageIdSyncPut(
+      await clients.cloudstorages.cloudstorageStoragesStorageIdSyncPut(
         cloudstorage.id
       );
 
@@ -143,7 +144,7 @@ export const CloudStorageCard = ({
         return;
       }
 
-      await cloudstorageApi.cloudstorageStoragesStorageIdScanPut(
+      await clients.cloudstorages.cloudstorageStoragesStorageIdScanPut(
         cloudstorage.id
       );
 

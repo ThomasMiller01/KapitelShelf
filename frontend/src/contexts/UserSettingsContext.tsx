@@ -9,13 +9,13 @@ import {
 } from "react";
 
 import { useUserProfile } from "../hooks/useUserProfile";
-import { usersApi } from "../lib/api/KapitelShelf.Api";
 import type { UserSettingDTO } from "../lib/api/KapitelShelf.Api/api";
 import type { UserSettingValueType } from "../utils/UserProfileUtils";
 import {
   UserSettingValueFromDto,
   UserSettingValueToDto,
 } from "../utils/UserProfileUtils";
+import { useApi } from "./ApiProvider";
 
 interface ContextValue {
   getSetting: (key: string) => UserSettingValueType | null;
@@ -35,6 +35,7 @@ export const UserSettingsProvider = ({
 }: {
   children: ReactNode;
 }): ReactElement => {
+  const { clients } = useApi();
   const { profile } = useUserProfile();
   const [settings, setSettings] = useState<UserSettingDTO[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -49,7 +50,7 @@ export const UserSettingsProvider = ({
       setIsLoaded(false);
 
       try {
-        const res = await usersApi.usersUserIdSettingsGet(profile.id);
+        const res = await clients.users.usersUserIdSettingsGet(profile.id);
         setSettings(res.data ?? []);
       } catch {
         // fallback to localstorage if cloud request fails
@@ -63,7 +64,7 @@ export const UserSettingsProvider = ({
     };
 
     void load();
-  }, [profile?.id]);
+  }, [profile?.id, clients.users]);
 
   useEffect(() => {
     if (!profile?.id || !isLoaded) {
@@ -99,9 +100,9 @@ export const UserSettingsProvider = ({
       });
 
       // ignore errors
-      void usersApi.usersUserIdSettingsPut(profile.id, dto);
+      clients.users.usersUserIdSettingsPut(profile.id, dto);
     },
-    [profile?.id]
+    [profile?.id, clients.users]
   );
 
   const value = useMemo<ContextValue>(

@@ -1,4 +1,5 @@
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import EditSquareIcon from "@mui/icons-material/EditSquare";
 import { Box, Grid } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
@@ -8,12 +9,14 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import UserProfileCard from "../../components/UserProfileCard";
+import { useApi } from "../../contexts/ApiProvider";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { usersApi } from "../../lib/api/KapitelShelf.Api";
+import { ClearMobileApiBaseUrl, IsMobileApp } from "../../utils/MobileUtils";
 
 export const ProfileList = (): ReactElement => {
   const { setProfile } = useUserProfile();
   const navigate = useNavigate();
+  const { clients } = useApi();
 
   const {
     data: userProfiles,
@@ -23,7 +26,7 @@ export const ProfileList = (): ReactElement => {
   } = useQuery({
     queryKey: ["user-profile-list"],
     queryFn: async () => {
-      const { data } = await usersApi.usersGet();
+      const { data } = await clients.users.usersGet();
       return data;
     },
     refetchOnMount: "always",
@@ -37,10 +40,21 @@ export const ProfileList = (): ReactElement => {
     );
   }
 
+  const changeMobileApiUrl = (): void => {
+    ClearMobileApiBaseUrl();
+    window.location.reload();
+  };
+
   if (isError || userProfiles === undefined || userProfiles === null) {
     return (
       <Box padding="20px">
-        <RequestErrorCard itemName="User Profiles" onRetry={refetch} />
+        <RequestErrorCard
+          itemName="User Profiles"
+          onRetry={refetch}
+          secondAction={IsMobileApp() ? changeMobileApiUrl : null}
+          secondActionText={IsMobileApp() ? "Change API URL" : null}
+          secondActionIcon={IsMobileApp() ? <EditSquareIcon /> : null}
+        />
       </Box>
     );
   }

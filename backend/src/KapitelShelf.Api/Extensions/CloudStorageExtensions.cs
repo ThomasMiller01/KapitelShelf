@@ -22,7 +22,6 @@ public static class CloudStorageExtensions
     /// <param name="processUtils">The process utils.</param>
     /// <param name="onStdout">Called when stdout gets written to.</param>
     /// <param name="onStderr">Called when stderr gets written to.</param>
-    /// <param name="stdoutSeperator">Custom stdout seperator.</param>
     /// <param name="onProcessStarted">Called once the process started.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The rclone output.</returns>
@@ -34,7 +33,6 @@ public static class CloudStorageExtensions
         IProcessUtils processUtils,
         Action<string>? onStdout = null,
         Action<string>? onStderr = null,
-        string? stdoutSeperator = null,
         Action<Process>? onProcessStarted = null,
         CancellationToken cancellationToken = default)
     {
@@ -50,7 +48,6 @@ public static class CloudStorageExtensions
             string.Join(" ", arguments),
             onStdout: onStdout,
             onStderr: onStderr,
-            stdoutSeperator: stdoutSeperator,
             onProcessStarted: onProcessStarted,
             cancellationToken: cancellationToken);
 

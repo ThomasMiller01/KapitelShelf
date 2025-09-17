@@ -837,7 +837,7 @@ public class CloudStoragesLogicTests
         }
 
         this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns("localPath");
-        this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<string?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
+        this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
             .Returns((0, string.Empty, string.Empty));
 
         // Execute
@@ -850,7 +850,6 @@ public class CloudStoragesLogicTests
             Arg.Any<string?>(),
             Arg.Any<Action<string>?>(),
             Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
             Arg.Any<Action<Process>?>(),
             Arg.Any<CancellationToken>());
     }
@@ -882,7 +881,7 @@ public class CloudStoragesLogicTests
         }
 
         this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns("localPath");
-        this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<string?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
+        this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
             .Returns((0, string.Empty, string.Empty));
 
         // Execute
@@ -895,7 +894,6 @@ public class CloudStoragesLogicTests
             Arg.Any<string?>(),
             Arg.Any<Action<string>?>(),
             Arg.Any<Action<string>?>(),
-            Arg.Any<string?>(),
             Arg.Any<Action<Process>?>(),
             Arg.Any<CancellationToken>());
     }

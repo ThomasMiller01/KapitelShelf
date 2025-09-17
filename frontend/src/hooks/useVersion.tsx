@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { versionApi } from "../lib/api/KapitelShelf.Api";
+import { useApi } from "../contexts/ApiProvider";
 
 declare const __APP_VERSION__: string;
 
@@ -10,10 +10,11 @@ interface VersionInfo {
 }
 
 export const useVersion = (): VersionInfo => {
+  const { clients } = useApi();
   const { data: backendVersion } = useQuery({
     queryKey: ["backend-version"],
     queryFn: async () => {
-      const { data } = await versionApi.versionGet();
+      const { data } = await clients.version.versionGet();
       return data;
     },
   });

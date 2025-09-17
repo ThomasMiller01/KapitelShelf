@@ -19,7 +19,6 @@ public interface IProcessUtils
     /// <param name="workingDirectory">Optional working directory for the process.</param>
     /// <param name="onStdout">Called when stdout gets written to.</param>
     /// <param name="onStderr">Called when stderr gets written to.</param>
-    /// <param name="stdoutSeperator">Use a custom stdout seperator.</param>
     /// <param name="onProcessStarted">Called once the process is started.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Exit code, standard output, and standard error.</returns>
@@ -29,7 +28,6 @@ public interface IProcessUtils
         string? workingDirectory = null,
         Action<string>? onStdout = null,
         Action<string>? onStderr = null,
-        string? stdoutSeperator = null,
         Action<Process>? onProcessStarted = null,
         CancellationToken cancellationToken = default);
 }

@@ -6,12 +6,13 @@ import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCar
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import BookCard from "../../components/BookCard";
 import { ScrollableList } from "../../components/ScrollableList";
+import { useApi } from "../../contexts/ApiProvider";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { usersApi } from "../../lib/api/KapitelShelf.Api";
 
 const PAGE_SIZE = 24;
 
 const LastVisitedBooksList = (): ReactElement => {
+  const { clients } = useApi();
   const { profile } = useUserProfile();
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -21,7 +22,7 @@ const LastVisitedBooksList = (): ReactElement => {
         return null;
       }
 
-      const { data } = await usersApi.usersUserIdLastvisitedbooksGet(
+      const { data } = await clients.users.usersUserIdLastvisitedbooksGet(
         profile?.id,
         1,
         PAGE_SIZE

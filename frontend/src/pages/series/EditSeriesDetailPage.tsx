@@ -8,9 +8,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
+import { useApi } from "../../contexts/ApiProvider";
 import EditableSeriesDetails from "../../features/series/EditableSeriesDetails";
 import { useMobile } from "../../hooks/useMobile";
-import { seriesApi } from "../../lib/api/KapitelShelf.Api";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 const EditingBadge = styled(Chip, {
@@ -24,6 +24,7 @@ const EditSeriesDetailPage = (): ReactElement => {
     seriesId: string;
   }>();
   const navigate = useNavigate();
+  const { clients } = useApi();
   const { isMobile } = useMobile();
 
   const {
@@ -38,7 +39,7 @@ const EditSeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      const { data } = await seriesApi.seriesSeriesIdGet(seriesId);
+      const { data } = await clients.series.seriesSeriesIdGet(seriesId);
       return data;
     },
   });
@@ -50,7 +51,7 @@ const EditSeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      await seriesApi.seriesSeriesIdPut(seriesId, series);
+      await clients.series.seriesSeriesIdPut(seriesId, series);
     },
     meta: {
       notify: {

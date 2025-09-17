@@ -212,7 +212,16 @@ public class CloudStoragesLogic(
 
         try
         {
-            var output = await cloudStorage.ExecuteRCloneCommand(this.settings.CloudStorage.RClone, ["lsjson", $"\"{StaticConstants.CloudStorageRCloneConfigName}:{path}\"", "--dirs-only", "--fast-list"], this.processUtils);
+            var output = await cloudStorage.ExecuteRCloneCommand(
+                this.settings.CloudStorage.RClone,
+                [
+                    "lsjson",
+                    $"\"{StaticConstants.CloudStorageRCloneConfigName}:{path}\"",
+                    "--dirs-only",
+                    "--fast-list"
+                ],
+                this.processUtils);
+
             var entries = JsonSerializer.Deserialize<List<RCloneListJsonDTO>>(output);
             ArgumentNullException.ThrowIfNull(entries);
 
@@ -284,7 +293,7 @@ public class CloudStoragesLogic(
     }
 
     /// <inheritdoc/>
-    public async Task SyncStorage(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default)
+    public async Task SyncStorage(CloudStorageDTO storage, Action<string>? onOutput = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(storage);
 
@@ -306,14 +315,13 @@ public class CloudStoragesLogic(
                     "--recover",
                     "--conflict-resolve=newer",
                     "--max-lock=2m",
-                    "--progress",
-                    "--stats=1s",
-                    "--stats-one-line",
                     "--max-delete=100",
+                    "--stats=1s",
+                    "--stats-log-level=NOTICE",
+                    "--use-json-log",
                 ],
                 this.processUtils,
-                onStdout: onStdout,
-                stdoutSeperator: "xfr", // rclone transfer number
+                onStderr: onOutput,
                 onProcessStarted: onProcessStarted,
                 cancellationToken: cancellationToken);
         }
@@ -326,13 +334,12 @@ public class CloudStoragesLogic(
                     "sync",
                     $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
                     $"\"{localPath}\"",
-                    "--progress",
                     "--stats=1s",
-                    "--stats-one-line"
+                    "--stats-log-level=NOTICE",
+                    "--use-json-log",
                 ],
                 this.processUtils,
-                onStdout: onStdout,
-                stdoutSeperator: "xfr", // rclone transfer number
+                onStderr: onOutput,
                 onProcessStarted: onProcessStarted,
                 cancellationToken: cancellationToken);
         }
@@ -458,7 +465,7 @@ public class CloudStoragesLogic(
     }
 
     /// <inheritdoc/>
-    public async Task DownloadStorageInitially(CloudStorageDTO storage, Action<string>? onStdout = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default)
+    public async Task DownloadStorageInitially(CloudStorageDTO storage, Action<string>? onOutput = null, Action<Process>? onProcessStarted = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(storage);
 
@@ -482,13 +489,12 @@ public class CloudStoragesLogic(
                     $"\"{localPath}\"",
                     "--resync",
                     "--max-lock=2m",
-                    "--progress",
                     "--stats=1s",
-                    "--stats-one-line"
+                    "--stats-log-level=NOTICE",
+                    "--use-json-log",
                 ],
                 this.processUtils,
-                onStdout: onStdout,
-                stdoutSeperator: "xfr", // rclone transfer number
+                onStderr: onOutput,
                 onProcessStarted: onProcessStarted,
                 cancellationToken: cancellationToken);
         }
@@ -501,13 +507,12 @@ public class CloudStoragesLogic(
                     "sync",
                     $"\"{StaticConstants.CloudStorageRCloneConfigName}:{storage.CloudDirectory}\"",
                     $"\"{localPath}\"",
-                    "--progress",
                     "--stats=1s",
-                    "--stats-one-line"
+                    "--stats-log-level=NOTICE",
+                    "--use-json-log",
                 ],
                 this.processUtils,
-                onStdout: onStdout,
-                stdoutSeperator: "xfr", // rclone transfer number
+                onStderr: onOutput,
                 onProcessStarted: onProcessStarted,
                 cancellationToken: cancellationToken);
         }

@@ -22,7 +22,7 @@ export const useLiveTimeUntil = ({
   const [display, setDisplay] = useState(() =>
     FormatTimeUntil(dateStr, allowPast)
   );
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const schedule = (): void => {

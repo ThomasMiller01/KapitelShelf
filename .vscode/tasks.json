@@ -2,9 +2,14 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build: Dev",
+      "label": "Dev: Run All",
+      "command": "${command:multiCommand.openDevEnv}",
+      "problemMatcher": []
+    },
+    {
+      "label": "Mobile: Build Android (debug)",
       "type": "shell",
-      "command": "npm run build:dev",
+      "command": "cd ./frontend && npm run mobile:debug:android",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -12,11 +17,6 @@
         "clear": false,
         "focus": false
       },
-      "problemMatcher": []
-    },
-    {
-      "label": "Dev: Run All",
-      "command": "${command:multiCommand.openDevEnv}",
       "problemMatcher": []
     },
     {

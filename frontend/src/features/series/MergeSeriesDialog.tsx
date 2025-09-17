@@ -17,7 +17,7 @@ import { type ReactElement, useEffect, useState } from "react";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import SeriesCard from "../../components/SeriesCard";
-import { seriesApi } from "../../lib/api/KapitelShelf.Api";
+import { useApi } from "../../contexts/ApiProvider";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 // 600ms after user stops typing
@@ -36,6 +36,7 @@ const MergeSeriesList = ({
   selectedSeries,
   onSelectSeries,
 }: MergeSeriesListProps): ReactElement => {
+  const { clients } = useApi();
   const {
     mutateAsync: mutateGetSeriesSuggestions,
     isSuccess,
@@ -47,7 +48,7 @@ const MergeSeriesList = ({
         return [];
       }
 
-      const { data } = await seriesApi.seriesSearchSuggestionsGet(name);
+      const { data } = await clients.series.seriesSearchSuggestionsGet(name);
       return data;
     },
   });

@@ -10,6 +10,7 @@
 │   └── ...
 ├── /hooks            # custom React hooks
 ├── /lib              # utils, API clients, schemas
+├── /mobile           # mobile specific platform code (for Android/IOS)
 ├── /pages            # route-level pages (BooksPage, HomePage, etc.)
 ├── /routes           # React Router config
 ├── /styles           # custom MUI theme, palette

@@ -3,9 +3,9 @@ import { useMutation } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useApi } from "../../contexts/ApiProvider";
 import EditableProfileDetails from "../../features/user/EditableProfileDetails";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { usersApi } from "../../lib/api/KapitelShelf.Api";
 import type {
   CreateUserDTO,
   UserDTO,
@@ -13,12 +13,13 @@ import type {
 
 export const CreateProfilePage = (): ReactElement => {
   const navigate = useNavigate();
+  const { clients } = useApi();
   const { setProfile } = useUserProfile();
 
   const { mutateAsync: mutateCreateUserProfile } = useMutation({
     mutationKey: ["create-user-profile"],
     mutationFn: async (createUser: CreateUserDTO) =>
-      usersApi.usersPost(createUser),
+      clients.users.usersPost(createUser),
     meta: {
       notify: {
         enabled: true,

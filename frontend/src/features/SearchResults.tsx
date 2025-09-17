@@ -8,7 +8,7 @@ import LoadingCard from "../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
 import BookCard from "../components/BookCard";
-import { booksApi } from "../lib/api/KapitelShelf.Api";
+import { useApi } from "../contexts/ApiProvider";
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 
 const PAGE_SIZE = 24;
@@ -19,12 +19,13 @@ interface SearchResultsProps {
 
 const SearchResults = ({ searchterm }: SearchResultsProps): ReactElement => {
   const navigate = useNavigate();
+  const { clients } = useApi();
 
   const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
     useInfiniteQuery({
       queryKey: ["search-results", searchterm],
       queryFn: async ({ pageParam = 1 }) => {
-        const { data } = await booksApi.booksSearchGet(
+        const { data } = await clients.books.booksSearchGet(
           searchterm,
           pageParam,
           PAGE_SIZE

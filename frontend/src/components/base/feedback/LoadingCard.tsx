@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers */
 import { Box, Typography } from "@mui/material";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
@@ -50,9 +49,7 @@ const LoadingCard = ({
         py: small ? 0 : 10,
       }}
     >
-      {useLogo && (
-        <img src="/kapitelshelf.png" alt="KapitelShelf Logo" width={120} />
-      )}
+      {useLogo && <img src="/logo.png" alt="KapitelShelf Logo" width={120} />}
       <Typography
         variant="h5"
         mt={small ? 0 : 4}

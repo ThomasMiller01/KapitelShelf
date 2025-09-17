@@ -3,13 +3,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 import { GET_KEY, UserSettingsContext } from "../contexts/UserSettingsContext";
 import type { UserSettingDTO } from "../lib/api/KapitelShelf.Api/api";
+import type { UserSettingValueType } from "../utils/UserProfileUtils";
 import {
   UserSettingValueCoerceToType,
   UserSettingValueFromDto,
 } from "../utils/UserProfileUtils";
 import { useUserProfile } from "./useUserProfile";
 
-export const useSetting = <T extends string | number | boolean>(
+export const useSetting = <T extends UserSettingValueType>(
   key: string,
   defaultValue: T
 ): [T, Dispatch<SetStateAction<T>>] => {
@@ -18,33 +19,36 @@ export const useSetting = <T extends string | number | boolean>(
     throw new Error("useSetting must be used inside UserSettingsProvider");
   }
 
+  // freeze the initial default to avoid effect churn when caller passes new literals
+  const defaultRef = useRef<T>(defaultValue);
+
   const { profile } = useUserProfile();
   const { getSetting, setSetting, isLoaded } = ctx;
 
   // helper: load from localStorage manually
   const loadFromLocalStorage = (): T => {
     if (!profile?.id) {
-      return defaultValue;
+      return defaultRef.current;
     }
 
     try {
       const raw = localStorage.getItem(GET_KEY(profile.id));
       if (!raw) {
-        return defaultValue;
+        return defaultRef.current;
       }
 
       const parsed = JSON.parse(raw) as UserSettingDTO[];
       const found = parsed.find((s) => s.key === key);
       if (!found) {
-        return defaultValue;
+        return defaultRef.current;
       }
 
       return UserSettingValueCoerceToType<T>(
         UserSettingValueFromDto(found),
-        defaultValue
+        defaultRef.current
       );
     } catch {
-      return defaultValue;
+      return defaultRef.current;
     }
   };
 
@@ -63,7 +67,7 @@ export const useSetting = <T extends string | number | boolean>(
       const local = loadFromLocalStorage();
       setValue(local);
     }
-  }, [profile?.id, key, defaultValue]);
+  }, [profile?.id, key, defaultRef, loadFromLocalStorage]);
 
   // hydrate from cloud when ready
   useEffect(() => {
@@ -75,10 +79,13 @@ export const useSetting = <T extends string | number | boolean>(
     if (cloud === null) {
       setSetting(key, value); // persist current value (was from local)
     } else {
-      const coerced = UserSettingValueCoerceToType<T>(cloud, defaultValue);
+      const coerced = UserSettingValueCoerceToType<T>(
+        cloud,
+        defaultRef.current
+      );
       setValue((prev) => (Object.is(prev, coerced) ? prev : coerced));
     }
-  }, [isLoaded, key, defaultValue]);
+  }, [isLoaded, key]);
 
   // persist user changes
   useEffect(() => {
@@ -89,7 +96,7 @@ export const useSetting = <T extends string | number | boolean>(
     const cloudVal = getSetting(key);
     const coerced =
       cloudVal !== null
-        ? UserSettingValueCoerceToType<T>(cloudVal, defaultValue)
+        ? UserSettingValueCoerceToType<T>(cloudVal, defaultRef.current)
         : null;
 
     if (coerced === null || !Object.is(coerced, value)) {

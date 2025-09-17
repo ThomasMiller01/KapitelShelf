@@ -9,15 +9,16 @@ import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
+import { useApi } from "../../contexts/ApiProvider";
 import BookDetails from "../../features/book/BookDetails";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { booksApi } from "../../lib/api/KapitelShelf.Api";
 
 const BookDetailPage = (): ReactElement => {
   const { bookId } = useParams<{
     bookId: string;
   }>();
   const navigate = useNavigate();
+  const { clients } = useApi();
   const { profile } = useUserProfile();
 
   const {
@@ -32,7 +33,7 @@ const BookDetailPage = (): ReactElement => {
         return null;
       }
 
-      const { data } = await booksApi.booksBookIdGet(bookId, profile?.id);
+      const { data } = await clients.books.booksBookIdGet(bookId, profile?.id);
       return data;
     },
   });
@@ -44,7 +45,7 @@ const BookDetailPage = (): ReactElement => {
         return null;
       }
 
-      await booksApi.booksBookIdDelete(bookId);
+      await clients.books.booksBookIdDelete(bookId);
     },
     meta: {
       notify: {

@@ -7,9 +7,17 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "mobile:sync": "npm run build && npx cap copy android && npx cap sync android && npm run mobile:sync:icon && node scripts/sync-version-to-mobile.cjs",
+    "mobile:sync:icon": "npx @capacitor/assets generate --assetPath ./public --iconBackgroundColor \"#1E1E1E\"",
+    "mobile:open:android": "npx cap open android",
+    "mobile:debug:android": "npm run mobile:sync && cd ./android && gradlew clean assembleDebug && echo \"✅ APK build -> ./frontend/android/app/outputs/apk/debug\""
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/status-bar": "^7.0.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/playwrite-au-sa": "^5.2.6",
@@ -35,6 +43,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.22.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

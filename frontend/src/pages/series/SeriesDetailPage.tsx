@@ -20,10 +20,10 @@ import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
+import { useApi } from "../../contexts/ApiProvider";
 import MergeSeriesDialog from "../../features/series/MergeSeriesDialog";
 import SeriesBooksList from "../../features/series/SeriesBooksList";
 import { useMobile } from "../../hooks/useMobile";
-import { seriesApi } from "../../lib/api/KapitelShelf.Api";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
 
 const VolumesBadge = styled(Chip, {
@@ -35,6 +35,7 @@ const VolumesBadge = styled(Chip, {
 const SeriesDetailPage = (): ReactElement => {
   const { seriesId } = useParams<{ seriesId: string }>();
   const navigate = useNavigate();
+  const { clients } = useApi();
   const { isMobile } = useMobile();
 
   const {
@@ -49,7 +50,7 @@ const SeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      const { data } = await seriesApi.seriesSeriesIdGet(seriesId);
+      const { data } = await clients.series.seriesSeriesIdGet(seriesId);
       return data;
     },
   });
@@ -61,7 +62,7 @@ const SeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      await seriesApi.seriesSeriesIdDelete(seriesId);
+      await clients.series.seriesSeriesIdDelete(seriesId);
     },
     meta: {
       notify: {
@@ -80,7 +81,7 @@ const SeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      await seriesApi.seriesSeriesIdMergeTargetSeriesIdPut(
+      await clients.series.seriesSeriesIdMergeTargetSeriesIdPut(
         seriesId,
         targetSeriesId
       );

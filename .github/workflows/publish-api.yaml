@@ -1,4 +1,4 @@
-name: Publish Api Docker Image
+name: Publish API
 
 on:
   workflow_dispatch: {} # allow manual run

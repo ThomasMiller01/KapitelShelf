@@ -12,9 +12,9 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import FileUploadButton from "../../components/base/FileUploadButton";
 import ItemList from "../../components/base/ItemList";
+import { useApi } from "../../contexts/ApiProvider";
 import { useCoverImage } from "../../hooks/useCoverImage";
 import { useMobile } from "../../hooks/useMobile";
-import { metadataApi } from "../../lib/api/KapitelShelf.Api";
 import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
 import {
   type AuthorDTO,
@@ -47,6 +47,7 @@ const EditableBookDetails = ({
   action,
 }: EditableBookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
+  const { clients } = useApi();
 
   let initialAuthor = initial?.author?.firstName ?? "";
   if (initial?.author?.lastName) {
@@ -152,7 +153,9 @@ const EditableBookDetails = ({
   const { mutateAsync: mutateProxyCover } = useMutation({
     mutationKey: ["proxy-cover"],
     mutationFn: async (coverUrl: string) =>
-      metadataApi.metadataProxyCoverGet(coverUrl, { responseType: "blob" }),
+      clients.metadata.metadataProxyCoverGet(coverUrl, {
+        responseType: "blob",
+      }),
   });
 
   // import metadata

@@ -18,6 +18,7 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
   - Import metadata from Amazon, Google and OpenLibrary ([see Guide](docs/references.md#import-metadata-for-a-book))
 - User Profiles that sync settings across devices
 - Responsive UI (desktop, tablet, mobile)
+- Available on Web and Android
 - OPDS support for eReaders _(planned)_
 
 ## Installation
