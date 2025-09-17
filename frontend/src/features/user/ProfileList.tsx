@@ -1,4 +1,5 @@
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import EditSquareIcon from "@mui/icons-material/EditSquare";
 import { Box, Grid } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
@@ -10,6 +11,7 @@ import { IconButtonWithTooltip } from "../../components/base/IconButtonWithToolt
 import UserProfileCard from "../../components/UserProfileCard";
 import { useApi } from "../../contexts/ApiProvider";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { ClearMobileApiBaseUrl, IsMobileApp } from "../../utils/MobileUtils";
 
 export const ProfileList = (): ReactElement => {
   const { setProfile } = useUserProfile();
@@ -38,10 +40,21 @@ export const ProfileList = (): ReactElement => {
     );
   }
 
+  const changeMobileApiUrl = (): void => {
+    ClearMobileApiBaseUrl();
+    window.location.reload();
+  };
+
   if (isError || userProfiles === undefined || userProfiles === null) {
     return (
       <Box padding="20px">
-        <RequestErrorCard itemName="User Profiles" onRetry={refetch} />
+        <RequestErrorCard
+          itemName="User Profiles"
+          onRetry={refetch}
+          secondAction={IsMobileApp() ? changeMobileApiUrl : null}
+          secondActionText={IsMobileApp() ? "Change API URL" : null}
+          secondActionIcon={IsMobileApp() ? <EditSquareIcon /> : null}
+        />
       </Box>
     );
   }
