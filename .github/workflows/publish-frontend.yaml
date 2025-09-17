@@ -108,6 +108,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract version from package.json
+        working-directory: ./frontend
+        id: version
+        run: |
+          # grab the version key
+          VERSION=$(jq -r .version package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Decode keystore
         run: |
           mkdir -p android/app/keystore
