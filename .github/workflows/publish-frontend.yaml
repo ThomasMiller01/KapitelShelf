@@ -111,12 +111,12 @@ jobs:
       - name: Decode keystore
         run: |
           mkdir -p android/app/keystore
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android/app/keystore/release-key.jks
-          keytool -list -v -keystore android/app/keystore/release-key.jks -storepass ${{ secrets.KS_PASSWORD }}
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore/release-key.jks
+          keytool -list -v -keystore android/app/keystore/release-key.jks -storepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
 
       - name: Write credentials to gradle.properties
         run: |
-          echo "KS_PASSWORD=${{ secrets.KS_PASSWORD }}" >> android/gradle.properties
+          echo "KS_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/gradle.properties
           echo "KS_ALIAS_PASSWORD=${{ secrets.KS_ALIAS_PASSWORD }}" >> android/gradle.properties
 
       - name: Setup Java
