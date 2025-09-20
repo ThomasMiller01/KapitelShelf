@@ -1,7 +1,6 @@
-/* eslint-disable no-magic-numbers */
-
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
 import { LocationTypeDTO } from "../lib/api/KapitelShelf.Api/api";
+import { GetMobileApiBaseUrl, IsMobileApp } from "./MobileUtils";
 
 export const RealWorldTypes = [
   0, // Physical
@@ -54,5 +53,8 @@ export const FileUrl = (book: BookDTO | undefined): string | undefined => {
     return undefined;
   }
 
-  return `${import.meta.env.VITE_KAPITELSHELF_API}/books/${book.id}/file`;
+  const APIUrl = IsMobileApp()
+    ? GetMobileApiBaseUrl()
+    : import.meta.env.VITE_KAPITELSHELF_API;
+  return `${APIUrl}/books/${book.id}/file`;
 };

@@ -1,4 +1,5 @@
 import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import { GetMobileApiBaseUrl, IsMobileApp } from "./MobileUtils";
 
 export const UrlToFile = async (url: string): Promise<File> => {
   const fileName = url.split("/").pop() ?? "unknown";
@@ -14,7 +15,10 @@ export const CoverUrl = (book: BookDTO | undefined): string | undefined => {
     return undefined;
   }
 
-  return `${import.meta.env.VITE_KAPITELSHELF_API}/books/${book.id}/cover`;
+  const APIUrl = IsMobileApp()
+    ? GetMobileApiBaseUrl()
+    : import.meta.env.VITE_KAPITELSHELF_API;
+  return `${APIUrl}/books/${book.id}/cover`;
 };
 
 export const BookFileUrl = (book: BookDTO | undefined): string | undefined => {
@@ -27,7 +31,10 @@ export const BookFileUrl = (book: BookDTO | undefined): string | undefined => {
     return undefined;
   }
 
-  return `${import.meta.env.VITE_KAPITELSHELF_API}/books/${book.id}/file`;
+  const APIUrl = IsMobileApp()
+    ? GetMobileApiBaseUrl()
+    : import.meta.env.VITE_KAPITELSHELF_API;
+  return `${APIUrl}/books/${book.id}/file`;
 };
 
 export const RenameFile = (file: File, fileName: string): File =>
