@@ -2,9 +2,9 @@ import EditSquareIcon from "@mui/icons-material/EditSquare";
 import { Button, Divider, Paper, Typography } from "@mui/material";
 import { useState } from "react";
 
-import DeleteDialog from "../components/base/feedback/DeleteDialog";
-import { useUserProfile } from "../hooks/useUserProfile";
-import { ClearMobileApiBaseUrl } from "../utils/MobileUtils";
+import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import { useUserProfile } from "../../hooks/useUserProfile";
+import { ClearMobileApiBaseUrl } from "../../utils/MobileUtils";
 
 export const MobileSettings: React.FC = () => {
   const { clearProfile } = useUserProfile();

@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { type ReactElement } from "react";
 
-import { MobileSettings } from "../../mobile/MobileSettingsFeature";
+import { MobileSettings } from "../../features/settings/MobileSettingsFeature";
 import { IsMobileApp } from "../../utils/MobileUtils";
 
 export const SettingsPage = (): ReactElement => (

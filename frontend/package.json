@@ -9,12 +9,13 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "mobile:sync": "npm run build && npx cap copy android && npx cap sync android && npm run mobile:sync:icon && node scripts/sync-version-to-mobile.cjs",
-    "mobile:sync:icon": "npx @capacitor/assets generate --assetPath ./public --iconBackgroundColor \"#1E1E1E\"",
+    "mobile:sync:icon": "npx @capacitor/assets generate --assetPath ./public/mobile --iconBackgroundColor #1E1E1E",
     "mobile:open:android": "npx cap open android",
     "mobile:debug:android": "npm run mobile:sync && cd ./android && gradlew clean assembleDebug && echo \"✅ APK build -> ./frontend/android/app/outputs/apk/debug\""
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^7.1.0",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@capacitor/status-bar": "^7.0.3",

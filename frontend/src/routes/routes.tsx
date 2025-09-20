@@ -4,11 +4,11 @@ import { useRoutes } from "react-router-dom";
 import { MainLayout } from "../components/layout/MainLayout";
 import { SettingsLayout } from "../components/layout/SettingsLayout";
 import { useUserProfile } from "../hooks/useUserProfile";
-import { ConfigureBackendUrlPage } from "../mobile/ConfigureBackendUrlPage";
 import BookDetailPage from "../pages/book/BookDetailPage";
 import CreateBookPage from "../pages/book/CreateBookPage";
 import EditBookDetailPage from "../pages/book/EditBookDetailPage";
 import ImportBookPage from "../pages/book/ImportBookPage";
+import { ConfigureMobileBackendUrlPage } from "../pages/ConfigureMoibleBackendUrlPage";
 import HomePage from "../pages/HomePage";
 import BooksPage from "../pages/LibraryPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
@@ -32,7 +32,7 @@ const AppRoutes = (): ReactElement | null => {
   return useRoutes(
     IsMobileApp() && !IsMobileApiBaseUrlConfigured()
       ? // require mobile app to configure backend URL first, doesnt affect web
-        [{ path: "*", element: <ConfigureBackendUrlPage /> }]
+        [{ path: "*", element: <ConfigureMobileBackendUrlPage /> }]
       : // then show normal routes
         [
           {
