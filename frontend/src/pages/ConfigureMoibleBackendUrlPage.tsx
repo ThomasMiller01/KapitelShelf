@@ -17,7 +17,7 @@ import {
   SetMobileApiBaseUrl,
 } from "../utils/MobileUtils";
 
-export const ConfigureBackendUrlPage = (): ReactElement => {
+export const ConfigureMobileBackendUrlPage = (): ReactElement => {
   const { setBasePath } = useApi();
 
   const initial = useMemo<string | null>(() => GetMobileApiBaseUrl(), []);
