@@ -12,7 +12,7 @@ import { NotificationProvider } from "./contexts/notification/NotificationProvid
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProfileProvider } from "./contexts/UserProfileContext";
 import { UserSettingsProvider } from "./contexts/UserSettingsContext";
-import { InitializeMobile } from "./mobile/InitializeMobile";
+import { InitializeMobile } from "./InitializeMobile";
 import AppRoutes from "./routes/routes";
 
 const queryClient = new QueryClient();
