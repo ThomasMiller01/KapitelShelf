@@ -13,6 +13,7 @@ import { ConfigureCloudConfigurationDialog } from "../../components/cloudstorage
 import { useApi } from "../../contexts/ApiProvider";
 import type { ConfigureCloudDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CloudTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { IsMobileApp } from "../../utils/MobileUtils";
 
 export const OneDriveSettings = (): ReactElement => {
   const { clients } = useApi();
@@ -46,8 +47,11 @@ export const OneDriveSettings = (): ReactElement => {
   const { mutate: startOAuthFlow } = useMutation({
     mutationKey: ["cloudstorage-onedrive-oauth-flow"],
     mutationFn: async () => {
+      const redirectUrl = IsMobileApp()
+        ? "kapitelshelf://auth/callback"
+        : window.location.href;
       const { data } = await clients.onedrive.cloudstorageOnedriveOauthGet(
-        window.location.href
+        redirectUrl
       );
       window.location.href = data;
     },
