@@ -1,13 +1,13 @@
-﻿// <copyright file="UserSettingModel.cs" company="KapitelShelf">
+﻿// <copyright file="SettingsModel.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-namespace KapitelShelf.Data.Models.User;
+namespace KapitelShelf.Data.Models;
 
 /// <summary>
-/// The user setting model.
+/// The global KapitelShelf settings.
 /// </summary>
-public class UserSettingModel
+public class SettingsModel
 {
     /// <summary>
     /// Gets or sets the id.
@@ -27,15 +27,5 @@ public class UserSettingModel
     /// <summary>
     /// Gets or sets the setting value type.
     /// </summary>
-    public UserSettingValueType Type { get; set; }
-
-    /// <summary>
-    /// Gets or sets the id of the user this setting belongs to.
-    /// </summary>
-    public Guid UserId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user this setting belongs to.
-    /// </summary>
-    public UserModel User { get; set; } = null!;
+    public SettingsValueType Type { get; set; }
 }
