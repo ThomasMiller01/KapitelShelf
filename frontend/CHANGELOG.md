@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.1](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.3.0-fix-build...frontend@0.3.1) (2025-09-21)
+
+
+### Features
+
+* Android apk build ([#305](https://github.com/ThomasMiller01/KapitelShelf/issues/305)) ([cb5ea75](https://github.com/ThomasMiller01/KapitelShelf/commit/cb5ea75a4a02d2cd2b5e07f0c3a400de737aa020))
+* Optimize Android App for first release ([#311](https://github.com/ThomasMiller01/KapitelShelf/issues/311)) ([546e8d6](https://github.com/ThomasMiller01/KapitelShelf/commit/546e8d677cfb624a64b9f25eb648d24a1614150c))
+* Sync User Settings across different devices ([#304](https://github.com/ThomasMiller01/KapitelShelf/issues/304)) ([1ad38b2](https://github.com/ThomasMiller01/KapitelShelf/commit/1ad38b262132ec773167d7a68ab6e46bb4875a2f))
+
+
+### Bug Fixes
+
+* Load images on Android ([#310](https://github.com/ThomasMiller01/KapitelShelf/issues/310)) ([d2c869f](https://github.com/ThomasMiller01/KapitelShelf/commit/d2c869ffd3eebd50a74f0783811916a418689563))
+* Redirect after adding a new CloudStorage ([#308](https://github.com/ThomasMiller01/KapitelShelf/issues/308)) ([8067fa7](https://github.com/ThomasMiller01/KapitelShelf/commit/8067fa7d8faf64f6bac4d75ad1c553c56f70f207))
+
 ## [0.3.0](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.2.2...frontend@0.3.0) (2025-09-06)
 
 
