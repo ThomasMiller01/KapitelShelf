@@ -13,92 +13,92 @@ permissions:
   packages: write
 
 jobs:
-  # docker:
-  #   runs-on: ubuntu-latest
+  docker:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Extract version from package.json
-  #       working-directory: ./frontend
-  #       id: version
-  #       run: |
-  #         # grab the version key
-  #         VERSION=$(jq -r .version package.json)
-  #         echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Extract version from package.json
+        working-directory: ./frontend
+        id: version
+        run: |
+          # grab the version key
+          VERSION=$(jq -r .version package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-  #         # split into major / minor
-  #         MAJOR=${VERSION%%.*}
-  #         echo "MAJOR=$MAJOR" >> $GITHUB_ENV
+          # split into major / minor
+          MAJOR=${VERSION%%.*}
+          echo "MAJOR=$MAJOR" >> $GITHUB_ENV
 
-  #         MINOR=$(echo $VERSION | cut -d. -f2)
-  #         echo "MINOR=$MINOR" >> $GITHUB_ENV
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          echo "MINOR=$MINOR" >> $GITHUB_ENV
           
-  #         # combine for x.y tag
-  #         echo "MAJOR_MINOR=$MAJOR.$MINOR" >> $GITHUB_ENV
+          # combine for x.y tag
+          echo "MAJOR_MINOR=$MAJOR.$MINOR" >> $GITHUB_ENV
 
-  #     - name: Log in to GHCR
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Log in to DockerHub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: docker.io
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}      
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}      
 
-  #     - name: Build docker image
-  #       working-directory: ./frontend
-  #       shell: pwsh
-  #       run: |
-  #         ./build.ps1 -repository docker.io -tag latest
+      - name: Build docker image
+        working-directory: ./frontend
+        shell: pwsh
+        run: |
+          ./build.ps1 -repository docker.io -tag latest
 
-  #     - name: Retag images and push to docker.io
-  #       run: |
-  #         echo "Re-tag and push '$VERSION' to docker.io"
-  #         docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$VERSION
-  #         docker push docker.io/thomasmiller01/kapitelshelf-frontend:$VERSION
+      - name: Retag images and push to docker.io
+        run: |
+          echo "Re-tag and push '$VERSION' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$VERSION
+          docker push docker.io/thomasmiller01/kapitelshelf-frontend:$VERSION
 
-  #         echo "Re-tag and push '$MAJOR_MINOR' to docker.io"
-  #         docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
-  #         docker push docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to docker.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          docker push docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
 
-  #         if [ "$MAJOR" != "0" ]; then
-  #           echo "Re-tag and push '$MAJOR' to docker.io"
-  #           docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
-  #           docker push docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
-  #         else
-  #           echo "Skipping major tag (MAJOR=0)"
-  #         fi
+          if [ "$MAJOR" != "0" ]; then
+            echo "Re-tag and push '$MAJOR' to docker.io"
+            docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+            docker push docker.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+          else
+            echo "Skipping major tag (MAJOR=0)"
+          fi
 
-  #         echo "Push 'latest' to docker.io"
-  #         docker push docker.io/thomasmiller01/kapitelshelf-frontend:latest
+          echo "Push 'latest' to docker.io"
+          docker push docker.io/thomasmiller01/kapitelshelf-frontend:latest
 
-  #     - name: Retag images and push to ghcr.io
-  #       run: |
-  #         echo "Re-tag and push '$VERSION' to ghcr.io"
-  #         docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$VERSION
-  #         docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$VERSION
+      - name: Retag images and push to ghcr.io
+        run: |
+          echo "Re-tag and push '$VERSION' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$VERSION
+          docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$VERSION
 
-  #         echo "Re-tag and push '$MAJOR_MINOR' to ghcr.io"
-  #         docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
-  #         docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          echo "Re-tag and push '$MAJOR_MINOR' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
+          docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR_MINOR
 
-  #         if [ "$MAJOR" != "0" ]; then
-  #           echo "Re-tag and push '$MAJOR' to ghcr.io"
-  #           docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
-  #           docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
-  #         else
-  #           echo "Skipping major tag (MAJOR=0)"
-  #         fi
+          if [ "$MAJOR" != "0" ]; then
+            echo "Re-tag and push '$MAJOR' to ghcr.io"
+            docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+            docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:$MAJOR
+          else
+            echo "Skipping major tag (MAJOR=0)"
+          fi
 
-  #         echo "Push 'latest' to ghcr.io"
-  #         docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
-  #         docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
+          echo "Push 'latest' to ghcr.io"
+          docker tag docker.io/thomasmiller01/kapitelshelf-frontend:latest ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
+          docker push ghcr.io/thomasmiller01/kapitelshelf-frontend:latest
 
   android:
     runs-on: ubuntu-latest
@@ -160,8 +160,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    # needs: [docker, android]
-    needs: [android]
+    needs: [docker, android]
     steps:
       - uses: actions/checkout@v4
 
