@@ -67,5 +67,10 @@ namespace KapitelShelf.Api.Settings
         public static readonly List<CloudTypeDTO> StoragesSupportRCloneBisync = [
             CloudTypeDTO.OneDrive
         ];
+
+        /// <summary>
+        /// Dynamic setting cloudstorage experimental bisync.
+        /// </summary>
+        public static readonly string DynamicSettingCloudStorageExperimentalBisync = "cloudstorage.rclone.experimental-bisync";
     }
 }

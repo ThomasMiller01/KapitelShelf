@@ -1,0 +1,116 @@
+﻿// <copyright file="DynamicSettingsManager.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
+
+using AutoMapper;
+using KapitelShelf.Api.DTOs.Settings;
+using KapitelShelf.Api.Settings;
+using KapitelShelf.Data;
+using KapitelShelf.Data.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace KapitelShelf.Api.Logic;
+
+/// <summary>
+/// The dynamic settings manager.
+/// </summary>
+public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper)
+{
+    private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
+
+    private readonly IMapper mapper = mapper;
+
+    /// <summary>
+    /// Initialize the settings on startup, if they dont exist yet.
+    /// </summary>
+    /// <returns>A task.</returns>
+    public async Task InitializeOnStartup()
+    {
+#pragma warning disable IDE0022 // Use expression body for method
+        await this.AddIfNotExists(StaticConstants.DynamicSettingCloudStorageExperimentalBisync, false);
+#pragma warning restore IDE0022 // Use expression body for method
+    }
+
+    /// <summary>
+    /// Get the value for a setting by its key.
+    /// </summary>
+    /// <typeparam name="T">The setting value type.</typeparam>
+    /// <param name="key">The setting key.</param>
+    /// <returns>The setting value.</returns>
+    public async Task<SettingsDTO<T>> GetAsync<T>(string key)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var setting = await context.Settings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Key == key);
+
+        if (setting == null)
+        {
+            throw new KeyNotFoundException($"Setting with key '{key}' not found");
+        }
+
+        return this.mapper.Map<SettingsDTO<T>>(setting);
+    }
+
+    /// <summary>
+    /// Map a C# type to a database setting value type.
+    /// </summary>
+    /// <typeparam name="T">The C# type.</typeparam>
+    /// <param name="value">The value.</param>
+    /// <returns>The setting value type.</returns>
+    /// <exception cref="InvalidOperationException">Raised, if the type of the value is not allowed.</exception>
+    public static SettingsValueType MapTypeToValueType<T>(T value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+
+        return value switch
+        {
+            bool => SettingsValueType.TBoolean,
+            _ => throw new InvalidOperationException("Invalid value type."),
+        };
+    }
+
+    /// <summary>
+    /// Convert a setting value to its native type.
+    /// </summary>
+    /// <typeparam name="T">The native type.</typeparam>
+    /// <param name="setting">The setting.</param>
+    /// <returns>The value in its native type.</returns>
+    /// <exception cref="InvalidOperationException">Invalid value type.</exception>
+    public static T ConvertSettingValue<T>(SettingsModel setting)
+    {
+        ArgumentNullException.ThrowIfNull(setting);
+
+        switch (setting.Type)
+        {
+            case SettingsValueType.TBoolean:
+                var result = bool.Parse(setting.Value);
+                return (T)(object)result;
+            default:
+                throw new InvalidOperationException("Invalid value type.");
+        }
+    }
+
+    /// <summary>
+    /// Add a new setting, if it does not exist yet.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="key">The key.</param>
+    /// <param name="value">The value.</param>
+    /// <returns>A task.</returns>
+    private async Task AddIfNotExists<T>(string key, T value)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(value);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        await context.Settings.AddAsync(new SettingsModel
+        {
+            Key = key,
+            Value = value.ToString() ?? throw new InvalidOperationException("Value cannot be converted to string"),
+            Type = MapTypeToValueType(value),
+        });
+    }
+}

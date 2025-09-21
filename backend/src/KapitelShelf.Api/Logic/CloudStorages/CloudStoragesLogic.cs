@@ -34,7 +34,8 @@ public class CloudStoragesLogic(
     ICloudStorage storage,
     ILogger<CloudStoragesLogic> logger,
     IBookParserManager bookParserManager,
-    IBooksLogic booksLogic) : ICloudStoragesLogic
+    IBooksLogic booksLogic,
+    DynamicSettingsManager dynamicSettings) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -53,6 +54,8 @@ public class CloudStoragesLogic(
     private readonly IBookParserManager bookParserManager = bookParserManager;
 
     private readonly IBooksLogic booksLogic = booksLogic;
+
+    private readonly DynamicSettingsManager dynamicSettings = dynamicSettings;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
@@ -302,7 +305,8 @@ public class CloudStoragesLogic(
 
         var localPath = this.storage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
 
-        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
+        var useExperimentalBisync = await this.dynamicSettings.GetAsync<bool>(StaticConstants.DynamicSettingCloudStorageExperimentalBisync);
+        if (useExperimentalBisync.Value && StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
         {
             // use rclone bisync
             await storageModel.ExecuteRCloneCommand(
@@ -478,7 +482,8 @@ public class CloudStoragesLogic(
             Directory.CreateDirectory(localPath);
         }
 
-        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
+        var useExperimentalBisync = await this.dynamicSettings.GetAsync<bool>(StaticConstants.DynamicSettingCloudStorageExperimentalBisync);
+        if (useExperimentalBisync.Value && StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
         {
             // use rclone bisync
             await storageModel.ExecuteRCloneCommand(

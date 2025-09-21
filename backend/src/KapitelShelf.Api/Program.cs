@@ -94,6 +94,7 @@ builder.Services.AddSingleton<ICloudStoragesLogic, CloudStoragesLogic>();
 builder.Services.AddSingleton<OneDriveLogic>();
 
 builder.Services.AddSingleton<IProcessUtils, ProcessUtils>();
+builder.Services.AddSingleton<DynamicSettingsManager>();
 
 // background tasks using Quartz.NET
 builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));
