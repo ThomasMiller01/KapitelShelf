@@ -57,7 +57,7 @@ public class DynamicSettingsManagerTests
     public async Task SetUp()
     {
         this.dbOptions = new DbContextOptionsBuilder<KapitelShelfDBContext>()
-            .UseNpgsql(postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
+            .UseNpgsql(this.postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
             .Options;
 
         // datamigrations
