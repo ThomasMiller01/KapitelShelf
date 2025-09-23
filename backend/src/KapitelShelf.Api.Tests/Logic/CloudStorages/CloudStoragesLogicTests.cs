@@ -6,6 +6,7 @@ using System.Diagnostics;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces;
@@ -41,6 +42,7 @@ public class CloudStoragesLogicTests
     private ILogger<CloudStoragesLogic> logger;
     private IBookParserManager bookParserManager;
     private IBooksLogic booksLogic;
+    private IDynamicSettingsManager dynamicSettings;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -104,7 +106,8 @@ public class CloudStoragesLogicTests
         this.logger = Substitute.For<ILogger<CloudStoragesLogic>>();
         this.bookParserManager = Substitute.For<IBookParserManager>();
         this.booksLogic = Substitute.For<IBooksLogic>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger, this.bookParserManager, this.booksLogic);
+        this.dynamicSettings = Substitute.For<IDynamicSettingsManager>();
+        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger, this.bookParserManager, this.booksLogic, this.dynamicSettings);
     }
 
     /// <summary>
@@ -840,6 +843,14 @@ public class CloudStoragesLogicTests
         this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
             .Returns((0, string.Empty, string.Empty));
 
+        this.dynamicSettings
+            .GetAsync<bool>(StaticConstants.DynamicSettingCloudStorageExperimentalBisync)
+            .Returns(Task.FromResult(new SettingsDTO<bool>
+            {
+                Key = StaticConstants.DynamicSettingCloudStorageExperimentalBisync,
+                Value = true,
+            }));
+
         // Execute
         await this.testee.SyncStorage(storageDto);
 
@@ -883,6 +894,14 @@ public class CloudStoragesLogicTests
         this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns("localPath");
         this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
             .Returns((0, string.Empty, string.Empty));
+
+        this.dynamicSettings
+            .GetAsync<bool>(StaticConstants.DynamicSettingCloudStorageExperimentalBisync)
+            .Returns(Task.FromResult(new SettingsDTO<bool>
+            {
+                Key = StaticConstants.DynamicSettingCloudStorageExperimentalBisync,
+                Value = true,
+            }));
 
         // Execute
         await this.testee.SyncStorage(storageDto);
@@ -1164,6 +1183,14 @@ public class CloudStoragesLogicTests
         this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(path);
         this.dbContextFactory.CreateDbContextAsync(Arg.Any<CancellationToken>())
             .Returns(_ => Task.FromResult(new KapitelShelfDBContext(this.dbOptions)));
+
+        this.dynamicSettings
+            .GetAsync<bool>(StaticConstants.DynamicSettingCloudStorageExperimentalBisync)
+            .Returns(Task.FromResult(new SettingsDTO<bool>
+            {
+                Key = StaticConstants.DynamicSettingCloudStorageExperimentalBisync,
+                Value = true,
+            }));
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
