@@ -5,7 +5,7 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
-using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
