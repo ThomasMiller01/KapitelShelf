@@ -4,7 +4,7 @@
 
 using KapitelShelf.Api.DTOs.FileInfo;
 
-namespace KapitelShelf.Api.Logic.Storage;
+namespace KapitelShelf.Api.Logic.Interfaces.Storage;
 
 /// <summary>
 /// BookStorage interface.

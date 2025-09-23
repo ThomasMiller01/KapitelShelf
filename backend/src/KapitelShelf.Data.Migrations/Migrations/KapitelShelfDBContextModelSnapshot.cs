@@ -784,6 +784,31 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.ToTable("Series");
                 });
 
+            modelBuilder.Entity("KapitelShelf.Data.Models.SettingsModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("Settings");
+                });
+
             modelBuilder.Entity("KapitelShelf.Data.Models.TagModel", b =>
                 {
                     b.Property<Guid>("Id")

@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Settings;
 
 namespace KapitelShelf.Api.Logic.Storage;

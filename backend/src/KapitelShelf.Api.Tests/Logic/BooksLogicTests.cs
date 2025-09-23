@@ -13,7 +13,8 @@ using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic;
-using KapitelShelf.Api.Logic.Storage;
+using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -72,7 +73,7 @@ public class BooksLogicTests
     public async Task SetUp()
     {
         this.dbOptions = new DbContextOptionsBuilder<KapitelShelfDBContext>()
-            .UseNpgsql(postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
+            .UseNpgsql(this.postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
             .Options;
 
         // datamigrations

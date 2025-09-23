@@ -42,6 +42,7 @@ public static class Testhelper
             cfg.AddProfile<UserMappingProfile>();
             cfg.AddProfile<TaskMappingProfile>();
             cfg.AddProfile<CloudStorageMappingProfile>();
+            cfg.AddProfile<SettingMappingProfile>();
         });
         return config.CreateMapper();
     }

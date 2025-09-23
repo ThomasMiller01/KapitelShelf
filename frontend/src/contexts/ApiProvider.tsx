@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
-import { SeriesApi } from "../lib/api/KapitelShelf.Api/api";
+import { SeriesApi, SettingsApi } from "../lib/api/KapitelShelf.Api/api";
 import { VersionApi } from "../lib/api/KapitelShelf.Api/api";
 import { MetadataApi } from "../lib/api/KapitelShelf.Api/api";
 import { UsersApi } from "../lib/api/KapitelShelf.Api/api";
@@ -20,6 +20,7 @@ interface ApiClients {
   tasks: TasksApi;
   cloudstorages: CloudStorageApi;
   onedrive: OneDriveApi;
+  settings: SettingsApi;
 }
 
 interface ApiContextData {
@@ -60,6 +61,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
       tasks: new TasksApi(config),
       cloudstorages: new CloudStorageApi(config),
       onedrive: new OneDriveApi(config),
+      settings: new SettingsApi(config),
     };
   }, [basePath]);
 

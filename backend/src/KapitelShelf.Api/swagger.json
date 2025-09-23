@@ -1496,6 +1496,84 @@
         }
       }
     },
+    "/settings": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Fetch all settings.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectSettingsDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectSettingsDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectSettingsDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/settings/{settingId}": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Update a setting.",
+        "parameters": [
+          {
+            "name": "settingId",
+            "in": "path",
+            "description": "The id of the setting to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated setting value.",
+          "content": {
+            "application/json": {
+              "schema": { }
+            },
+            "text/json": {
+              "schema": { }
+            },
+            "application/*+json": {
+              "schema": { }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "tags": [
@@ -2519,6 +2597,27 @@
         "type": "integer",
         "description": "The metadata sources for book metadata scraping.",
         "format": "int32"
+      },
+      "ObjectSettingsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "description": "Gets or sets the setting key.",
+            "nullable": true
+          },
+          "value": {
+            "description": "Gets or sets the setting value.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The settings dto."
       },
       "ProfileImageTypeDTO": {
         "enum": [

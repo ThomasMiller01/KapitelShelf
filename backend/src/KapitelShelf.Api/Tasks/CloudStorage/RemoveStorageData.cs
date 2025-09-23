@@ -5,7 +5,7 @@
 using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using Quartz;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]

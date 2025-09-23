@@ -5,6 +5,7 @@
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -60,7 +61,7 @@ public class SeriesLogicTests
     public async Task SetUp()
     {
         this.dbOptions = new DbContextOptionsBuilder<KapitelShelfDBContext>()
-            .UseNpgsql(postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
+            .UseNpgsql(this.postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
             .Options;
 
         // datamigrations

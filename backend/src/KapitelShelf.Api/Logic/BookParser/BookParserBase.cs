@@ -4,6 +4,7 @@
 
 using System.Text.RegularExpressions;
 using KapitelShelf.Api.DTOs.BookParser;
+using KapitelShelf.Api.Logic.Interfaces.BookParser;
 
 namespace KapitelShelf.Api.Logic.BookParser;
 

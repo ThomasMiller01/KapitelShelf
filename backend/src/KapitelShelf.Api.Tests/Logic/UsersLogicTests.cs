@@ -58,7 +58,7 @@ public class UsersLogicTests
     public async Task SetUp()
     {
         this.dbOptions = new DbContextOptionsBuilder<KapitelShelfDBContext>()
-            .UseNpgsql(postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
+            .UseNpgsql(this.postgres.GetConnectionString(), x => x.MigrationsAssembly("KapitelShelf.Data.Migrations"))
             .Options;
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))

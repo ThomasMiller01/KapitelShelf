@@ -3,7 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
-using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
 

@@ -10,7 +10,9 @@ using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
-using KapitelShelf.Api.Logic.Storage;
+using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
@@ -34,7 +36,8 @@ public class CloudStoragesLogic(
     ICloudStorage storage,
     ILogger<CloudStoragesLogic> logger,
     IBookParserManager bookParserManager,
-    IBooksLogic booksLogic) : ICloudStoragesLogic
+    IBooksLogic booksLogic,
+    IDynamicSettingsManager dynamicSettings) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -53,6 +56,8 @@ public class CloudStoragesLogic(
     private readonly IBookParserManager bookParserManager = bookParserManager;
 
     private readonly IBooksLogic booksLogic = booksLogic;
+
+    private readonly IDynamicSettingsManager dynamicSettings = dynamicSettings;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
@@ -302,7 +307,8 @@ public class CloudStoragesLogic(
 
         var localPath = this.storage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
 
-        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
+        var useExperimentalBisync = await this.dynamicSettings.GetAsync<bool>(StaticConstants.DynamicSettingCloudStorageExperimentalBisync);
+        if (useExperimentalBisync.Value && StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
         {
             // use rclone bisync
             await storageModel.ExecuteRCloneCommand(
@@ -478,7 +484,8 @@ public class CloudStoragesLogic(
             Directory.CreateDirectory(localPath);
         }
 
-        if (StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
+        var useExperimentalBisync = await this.dynamicSettings.GetAsync<bool>(StaticConstants.DynamicSettingCloudStorageExperimentalBisync);
+        if (useExperimentalBisync.Value && StaticConstants.StoragesSupportRCloneBisync.Contains(storage.Type))
         {
             // use rclone bisync
             await storageModel.ExecuteRCloneCommand(

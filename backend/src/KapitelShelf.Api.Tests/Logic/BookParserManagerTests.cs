@@ -5,7 +5,7 @@
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.Logic;
-using KapitelShelf.Api.Logic.BookParser;
+using KapitelShelf.Api.Logic.Interfaces.BookParser;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
 

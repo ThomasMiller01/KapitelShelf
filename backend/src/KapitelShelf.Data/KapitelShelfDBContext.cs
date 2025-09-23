@@ -104,6 +104,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     public DbSet<BookSearchView> BookSearchView => Set<BookSearchView>();
 
     /// <summary>
+    /// Gets the settings table.
+    /// </summary>
+    public DbSet<SettingsModel> Settings => Set<SettingsModel>();
+
+    /// <summary>
     /// On model creating.
     /// </summary>
     /// <param name="modelBuilder">The model builder.</param>
@@ -235,6 +240,12 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .WithMany()
             .HasForeignKey(b => b.FileInfoId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Settings
+        modelBuilder.Entity<SettingsModel>()
+            .HasIndex(s => new { s.Key })
+            .IsUnique();
+
 #pragma warning restore CA1062 // Validate arguments of public methods
 
         base.OnModelCreating(modelBuilder);

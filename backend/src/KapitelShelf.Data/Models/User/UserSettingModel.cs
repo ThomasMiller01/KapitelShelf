@@ -10,7 +10,7 @@ namespace KapitelShelf.Data.Models.User;
 public class UserSettingModel
 {
     /// <summary>
-    /// Gets or sets the user id.
+    /// Gets or sets the id.
     /// </summary>
     public Guid Id { get; set; }
 
