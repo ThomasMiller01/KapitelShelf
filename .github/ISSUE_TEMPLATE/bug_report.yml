@@ -69,7 +69,7 @@ body:
         - Opera
         - Other (please specify in the relevant info section)
     validations:
-      required: true
+      required: false
 
   # frontend version + api version
   - type: input
