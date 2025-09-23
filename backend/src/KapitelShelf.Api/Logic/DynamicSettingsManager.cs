@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic.Interfaces;
@@ -9,6 +10,8 @@ using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Logic;
 
@@ -114,7 +117,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <returns>A task.</returns>
-    private async Task AddIfNotExists<T>(string key, T value)
+    internal async Task AddIfNotExists<T>(string key, T value)
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(value);
