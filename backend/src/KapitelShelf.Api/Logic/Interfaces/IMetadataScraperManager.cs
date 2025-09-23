@@ -4,7 +4,7 @@
 
 using KapitelShelf.Api.DTOs.MetadataScraper;
 
-namespace KapitelShelf.Api.Logic;
+namespace KapitelShelf.Api.Logic.Interfaces;
 
 /// <summary>
 /// Interface for a book metadata scraper factory.

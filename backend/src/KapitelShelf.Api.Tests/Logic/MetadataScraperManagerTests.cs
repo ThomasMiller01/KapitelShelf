@@ -4,7 +4,7 @@
 
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Logic;
-using KapitelShelf.Api.Logic.MetadataScraper;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 
 namespace KapitelShelf.Api.Tests.Logic;
 

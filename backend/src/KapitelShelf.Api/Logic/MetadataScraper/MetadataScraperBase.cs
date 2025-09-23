@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using Polly;
 using Polly.Retry;
 

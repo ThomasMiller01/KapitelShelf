@@ -7,7 +7,7 @@ using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Data.Models.CloudStorage;
 
-namespace KapitelShelf.Api.Logic.CloudStorages;
+namespace KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 
 /// <summary>
 /// The interface for the cloud storages logic.

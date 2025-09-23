@@ -10,7 +10,9 @@ using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
-using KapitelShelf.Api.Logic.Storage;
+using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
@@ -35,7 +37,7 @@ public class CloudStoragesLogic(
     ILogger<CloudStoragesLogic> logger,
     IBookParserManager bookParserManager,
     IBooksLogic booksLogic,
-    DynamicSettingsManager dynamicSettings) : ICloudStoragesLogic
+    IDynamicSettingsManager dynamicSettings) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -55,7 +57,7 @@ public class CloudStoragesLogic(
 
     private readonly IBooksLogic booksLogic = booksLogic;
 
-    private readonly DynamicSettingsManager dynamicSettings = dynamicSettings;
+    private readonly IDynamicSettingsManager dynamicSettings = dynamicSettings;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)

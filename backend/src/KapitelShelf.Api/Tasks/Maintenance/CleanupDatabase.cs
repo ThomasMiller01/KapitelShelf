@@ -3,7 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using Quartz;
 
 namespace KapitelShelf.Api.Tasks.Maintenance;

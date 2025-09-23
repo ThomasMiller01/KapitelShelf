@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers.CloudStorages;

@@ -8,6 +8,9 @@ using System.Text.Json;
 using KapitelShelf.Api;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
@@ -95,7 +98,7 @@ builder.Services.AddSingleton<ICloudStoragesLogic, CloudStoragesLogic>();
 builder.Services.AddSingleton<OneDriveLogic>();
 
 builder.Services.AddSingleton<IProcessUtils, ProcessUtils>();
-builder.Services.AddSingleton<DynamicSettingsManager>();
+builder.Services.AddSingleton<IDynamicSettingsManager, DynamicSettingsManager>();
 
 // background tasks using Quartz.NET
 builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));

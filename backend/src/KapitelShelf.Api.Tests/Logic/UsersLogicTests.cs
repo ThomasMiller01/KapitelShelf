@@ -4,7 +4,7 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.User;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;

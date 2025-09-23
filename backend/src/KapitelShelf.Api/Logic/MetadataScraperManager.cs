@@ -5,6 +5,8 @@
 using System.Runtime.CompilerServices;
 using FuzzySharp;
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Logic.MetadataScraper;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]

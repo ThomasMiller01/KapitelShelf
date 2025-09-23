@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Tasks.Maintenance;
 using Quartz;
@@ -12,11 +12,11 @@ namespace KapitelShelf.Api;
 /// <summary>
 /// Hosted service for initially starting up system tasks that run automatically.
 /// </summary>
-public class StartupTasksHostedService(ISchedulerFactory schedulerFactory, DynamicSettingsManager dynamicSettings) : IHostedService
+public class StartupTasksHostedService(ISchedulerFactory schedulerFactory, IDynamicSettingsManager dynamicSettings) : IHostedService
 {
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
-    private readonly DynamicSettingsManager dynamicSettings = dynamicSettings;
+    private readonly IDynamicSettingsManager dynamicSettings = dynamicSettings;
 
     /// <inheritdoc/>
     public async Task StartAsync(CancellationToken cancellationToken)

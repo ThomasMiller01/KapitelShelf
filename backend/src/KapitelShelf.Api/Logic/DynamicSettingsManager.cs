@@ -4,6 +4,7 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Settings;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -14,16 +15,13 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// The dynamic settings manager.
 /// </summary>
-public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper)
+public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper) : IDynamicSettingsManager
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
 
-    /// <summary>
-    /// Initialize the settings on startup, if they dont exist yet.
-    /// </summary>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task InitializeOnStartup()
     {
 #pragma warning disable IDE0022 // Use expression body for method
@@ -31,12 +29,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
 #pragma warning restore IDE0022 // Use expression body for method
     }
 
-    /// <summary>
-    /// Get the value for a setting by its key.
-    /// </summary>
-    /// <typeparam name="T">The setting value type.</typeparam>
-    /// <param name="key">The setting key.</param>
-    /// <returns>The setting value.</returns>
+    /// <inheritdoc/>
     public async Task<SettingsDTO<T>> GetAsync<T>(string key)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

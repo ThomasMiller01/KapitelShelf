@@ -4,7 +4,7 @@
 
 using KapitelShelf.Api.DTOs.BookParser;
 
-namespace KapitelShelf.Api.Logic;
+namespace KapitelShelf.Api.Logic.Interfaces;
 
 /// <summary>
 /// Interface for a book metadata parser factory.

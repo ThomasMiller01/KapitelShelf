@@ -10,7 +10,7 @@ using KapitelShelf.Data;
 using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 
-namespace KapitelShelf.Api.Logic;
+namespace KapitelShelf.Api.Logic.Interfaces;
 
 /// <summary>
 /// Initializes a new instance of the <see cref="UsersLogic"/> class.
@@ -29,12 +29,12 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task<IList<UserDTO>> GetUsersAsync()
     {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        using var context = await dbContextFactory.CreateDbContextAsync();
 
         return await context.Users
             .AsNoTracking()
             .OrderBy(x => x.Username)
-            .Select(x => this.mapper.Map<UserDTO>(x))
+            .Select(x => mapper.Map<UserDTO>(x))
             .ToListAsync();
     }
 
@@ -45,12 +45,12 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task<UserDTO?> GetUserByIdAsync(Guid userId)
     {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        using var context = await dbContextFactory.CreateDbContextAsync();
 
         return await context.Users
             .AsNoTracking()
             .Where(x => x.Id == userId)
-            .Select(x => this.mapper.Map<UserDTO>(x))
+            .Select(x => mapper.Map<UserDTO>(x))
             .FirstOrDefaultAsync();
     }
 
@@ -66,14 +66,14 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             return null;
         }
 
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        using var context = await dbContextFactory.CreateDbContextAsync();
 
-        var user = this.mapper.Map<UserModel>(createUserDto);
+        var user = mapper.Map<UserModel>(createUserDto);
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<UserDTO>(user);
+        return mapper.Map<UserDTO>(user);
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             return null;
         }
 
-        await using var context = await this.dbContextFactory.CreateDbContextAsync();
+        await using var context = await dbContextFactory.CreateDbContextAsync();
 
         var user = await context.Users.FirstOrDefaultAsync(b => b.Id == userId);
         if (user is null)
@@ -108,7 +108,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         // commit
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<UserDTO>(user);
+        return mapper.Map<UserDTO>(user);
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task<UserDTO?> DeleteUserAsync(Guid userId)
     {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        using var context = await dbContextFactory.CreateDbContextAsync();
 
         var user = await context.Users.FindAsync(userId);
         if (user is null)
@@ -129,7 +129,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         context.Users.Remove(user);
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<UserDTO>(user);
+        return mapper.Map<UserDTO>(user);
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task<PagedResult<BookDTO>> GetLastVisitedBooksAsync(Guid userId, int page, int pageSize)
     {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        using var context = await dbContextFactory.CreateDbContextAsync();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
         var query = context.VisitedBooks
@@ -168,7 +168,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.Map<BookDTO>(x.Book))
+            .Select(x => mapper.Map<BookDTO>(x.Book))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();
@@ -187,11 +187,11 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task<List<UserSettingDTO>> GetSettingsByUserIdAsync(Guid userId)
     {
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        using var context = await dbContextFactory.CreateDbContextAsync();
 
         return await context.UserSettings
             .Where(x => x.UserId == userId)
-            .Select(x => this.mapper.Map<UserSettingDTO>(x))
+            .Select(x => mapper.Map<UserSettingDTO>(x))
             .ToListAsync();
     }
 
@@ -205,7 +205,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     {
         ArgumentNullException.ThrowIfNull(settingDto);
 
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        using var context = await dbContextFactory.CreateDbContextAsync();
 
         var setting = await context.UserSettings
             .FirstOrDefaultAsync(x => x.UserId == userId && x.Key == settingDto.Key);
@@ -213,7 +213,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         if (setting is null)
         {
             // add new setting
-            setting = this.mapper.Map<UserSettingModel>(settingDto);
+            setting = mapper.Map<UserSettingModel>(settingDto);
             setting.UserId = userId;
             context.UserSettings.Add(setting);
         }

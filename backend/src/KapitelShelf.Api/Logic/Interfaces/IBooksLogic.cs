@@ -5,7 +5,7 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 
-namespace KapitelShelf.Api.Logic;
+namespace KapitelShelf.Api.Logic.Interfaces;
 
 /// <summary>
 /// Interface for the books logic.

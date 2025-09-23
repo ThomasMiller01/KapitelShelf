@@ -5,7 +5,7 @@
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Utils;
 using Quartz;
 

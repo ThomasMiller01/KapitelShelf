@@ -4,6 +4,7 @@
 
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using NSubstitute;
 
 namespace KapitelShelf.Api.Tests.Logic;

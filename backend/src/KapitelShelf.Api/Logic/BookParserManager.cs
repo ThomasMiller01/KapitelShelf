@@ -5,6 +5,8 @@
 using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.Logic.BookParser;
+using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.BookParser;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 

@@ -5,7 +5,7 @@
 using System.Diagnostics;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
-using KapitelShelf.Api.Logic.CloudStorages;
+using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
