@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 
 import { useApi } from "../../contexts/ApiProvider";
+import { CloudStorageSettings } from "../../features/settings/CloudStorageSettingsFeature";
 import { MobileSettings } from "../../features/settings/MobileSettingsFeature";
-import { RCloneSettings } from "../../features/settings/RCloneSettingsFeature";
 import { IsMobileApp } from "../../utils/MobileUtils";
 
 export const SettingsPage = (): ReactElement => {
@@ -21,7 +21,7 @@ export const SettingsPage = (): ReactElement => {
     <Box padding="20px">
       <Typography variant="h5">Settings</Typography>
       {IsMobileApp() && <MobileSettings />}
-      <RCloneSettings settings={settings ?? []} />
+      <CloudStorageSettings settings={settings ?? []} />
     </Box>
   );
 };

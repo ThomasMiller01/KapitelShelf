@@ -7,14 +7,16 @@ interface RCloneSettingsProps {
   settings: ObjectSettingsDTO[];
 }
 
-export const RCloneSettings: React.FC<RCloneSettingsProps> = ({ settings }) => {
+export const CloudStorageSettings: React.FC<RCloneSettingsProps> = ({
+  settings,
+}) => {
   const experimentalBisync = settings.find(
     (x) => x.key === "cloudstorage.rclone.experimental-bisync"
   );
 
   return (
     <Paper sx={{ my: 2, py: 1.2, px: 2 }}>
-      <Typography variant="h6">RClone</Typography>
+      <Typography variant="h6">Cloud Storage</Typography>
       <Divider sx={{ mb: 2 }} />
       <SettingItem
         setting={experimentalBisync}
@@ -27,7 +29,7 @@ export const RCloneSettings: React.FC<RCloneSettingsProps> = ({ settings }) => {
               textTransform="lowercase"
               fontSize="1rem"
             >
-              bisync
+              rclone bisync
             </Typography>
           </Stack>
         }
