@@ -19,6 +19,7 @@ public class SettingMappingProfile : Profile
     /// </summary>
     public SettingMappingProfile()
     {
+        this.AddGenericSettingsMap<object>();
         this.AddGenericSettingsMap<bool>();
 
         CreateMap<SettingsValueType, SettingsValueTypeDTO>()

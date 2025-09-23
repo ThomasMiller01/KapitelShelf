@@ -27,6 +27,11 @@ namespace KapitelShelf.Api.Settings
         public static readonly string MetadataScrapingBlockedKey = "METADATA_SCRAPING_BLOCKED";
 
         /// <summary>
+        /// The key for the invalid setting value type exception.
+        /// </summary>
+        public static readonly string InvalidSettingValueType = "INVALID_SETTING_VALUE_TYPE";
+
+        /// <summary>
         /// The maximum number of search suggestions to return.
         /// </summary>
         public static readonly int MaxSearchSuggestions = 12;

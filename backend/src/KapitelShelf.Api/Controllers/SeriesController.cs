@@ -15,7 +15,7 @@ namespace KapitelShelf.Api.Controllers;
 /// Initializes a new instance of the <see cref="SeriesController"/> class.
 /// </summary>
 /// <param name="logger">The logger.</param>
-/// <param name="logic">The books logic.</param>
+/// <param name="logic">The series logic.</param>
 [ApiController]
 [Route("series")]
 public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logic) : ControllerBase

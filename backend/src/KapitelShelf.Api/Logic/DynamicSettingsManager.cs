@@ -93,6 +93,28 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     }
 
     /// <summary>
+    /// Validate a value for a specific setting, requiring a type match.
+    /// </summary>
+    /// <param name="setting">The setting to check against.</param>
+    /// <param name="value">The value to check.</param>
+    /// <returns>True, if the value is the same type, as the setting value type.</returns>
+    public static bool ValidateValue(SettingsModel setting, string? value)
+    {
+        ArgumentNullException.ThrowIfNull(setting);
+
+        if (value == null)
+        {
+            return false;
+        }
+
+        return setting.Type switch
+        {
+            SettingsValueType.TBoolean => bool.TryParse(value, out _),
+            _ => false,
+        };
+    }
+
+    /// <summary>
     /// Add a new setting, if it does not exist yet.
     /// </summary>
     /// <typeparam name="T">The value type.</typeparam>
@@ -106,11 +128,23 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
 
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
+        var setting = await context.Settings
+            .FirstOrDefaultAsync(x => x.Key == key);
+
+        if (setting is not null)
+        {
+            // setting already exists
+            return;
+        }
+
+        // add new setting
         await context.Settings.AddAsync(new SettingsModel
         {
             Key = key,
             Value = value.ToString() ?? throw new InvalidOperationException("Value cannot be converted to string"),
             Type = MapTypeToValueType(value),
         });
+
+        await context.SaveChangesAsync();
     }
 }
