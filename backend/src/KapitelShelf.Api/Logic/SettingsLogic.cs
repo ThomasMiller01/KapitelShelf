@@ -69,7 +69,7 @@ public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         // patch setting root scalars
         context.Entry(setting).CurrentValues.SetValues(new
         {
-            value = value.ToString() ?? throw new InvalidOperationException(StaticConstants.InvalidSettingValueType),
+            Value = value.ToString() ?? throw new InvalidOperationException(StaticConstants.InvalidSettingValueType),
         });
 
         // commit

@@ -27,7 +27,7 @@ public class SettingsController(ILogger<SettingsController> logger, SettingsLogi
     /// </summary>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
-    public async Task<ActionResult<SettingsDTO<object>>> GetSettings()
+    public async Task<ActionResult<List<SettingsDTO<object>>>> GetSettings()
     {
         try
         {
