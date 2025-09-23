@@ -16,6 +16,7 @@
 - [File Handling](#file-handling)
 - [Tasks](#tasks)
 - [Cloud Storage](#cloud-storage)
+- [Global Settings](#global-settings)
 
 ## User Profiles
 
@@ -339,3 +340,11 @@ The uni-directional sync will propagate any changes from the cloud locally.
 Because `rclone bisync` is still in beta, you can disable its use in the Settings. Instead `rclone sync` will be used for uni-directional synching.
 
 > _Coming Soon_
+
+## Global Settings
+
+Global settings affect the whole KapitelShelf instance, instead of single users.
+
+| Category      | Setting                | Default Value | Description                                                                 | Note                                               |
+| ------------- | ---------------------- | ------------- | --------------------------------------------------------------------------- | -------------------------------------------------- |
+| Cloud Storage | Enable `rclone bisync` | `false`       | Allows two-way synchronization between KapitelShelf and the cloud provider. | _Experimental_, when false, `rclone sync` is used. |
