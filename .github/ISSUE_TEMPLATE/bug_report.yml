@@ -52,6 +52,7 @@ body:
         - Helm (Default)
         - docker-compose
         - Docker
+        - Android
       default: 0
     validations:
       required: true
