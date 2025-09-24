@@ -8,6 +8,7 @@ using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Settings;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
@@ -170,6 +171,7 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="bookId">The id of the book to get the cover for.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("{bookId}/cover")]
+    [EnableCors("CorsPolicy")]
     [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Client)]
     public async Task<IActionResult> GetBookCover(Guid bookId)
     {
@@ -235,6 +237,7 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="bookId">The id of the book to get the file for.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("{bookId}/file")]
+    [EnableCors("CorsPolicy")]
     public async Task<IActionResult> GetBookFile(Guid bookId)
     {
         try
