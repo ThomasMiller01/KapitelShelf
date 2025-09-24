@@ -2,7 +2,7 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { Box, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ProfileMenu } from "../features/user/ProfileMenu";
@@ -48,12 +48,16 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
 
 const AddBookActions = (): ReactElement => {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   return (
     <SpeedDial
       ariaLabel="Add Book"
       direction="down"
       icon={<AddBoxIcon />}
+      open={open}
+      onClose={() => setOpen(false)}
+      onOpen={() => setOpen(true)}
       sx={{
         height: "36px",
         ">.MuiButtonBase-root": {
@@ -77,12 +81,18 @@ const AddBookActions = (): ReactElement => {
       <SpeedDialAction
         icon={<NoteAddIcon />}
         slotProps={{ tooltip: { title: "Create Book" } }}
-        onClick={() => navigate("/library/books/create")}
+        onClick={() => {
+          setOpen(false);
+          navigate("/library/books/create");
+        }}
       />
       <SpeedDialAction
         icon={<FileUploadIcon />}
         slotProps={{ tooltip: { title: "Import Book" } }}
-        onClick={() => navigate("/library/books/import")}
+        onClick={() => {
+          setOpen(false);
+          navigate("/library/books/import");
+        }}
       />
     </SpeedDial>
   );
