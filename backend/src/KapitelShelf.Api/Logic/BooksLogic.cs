@@ -8,10 +8,12 @@ using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Logic.MetadataScraper;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -448,6 +450,47 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     }
 
     /// <inheritdoc/>
+    public async Task<ImportResultDTO?> ImportBookFromAsinAsync(string asin)
+    {
+        var metadataScraper = new AmazonScraper();
+        var metadata = await metadataScraper.ScrapeFromAsin(asin);
+        if (metadata is null)
+        {
+            return null;
+        }
+
+        var importResult = new ImportResultDTO
+        {
+            IsBulkImport = false,
+            Errors = [],
+            ImportedBooks = [],
+        };
+
+        try
+        {
+            var bookDto = await this.CreateBookFromMetadata(metadata, MetadataSources.Amazon);
+            if (bookDto.Location is not null)
+            {
+                // add the asin to the location
+                bookDto.Location.Url = asin;
+                await this.UpdateBookAsync(bookDto.Id, bookDto);
+            }
+
+            importResult.ImportedBooks.Add(new ImportBookDTO
+            {
+                Id = bookDto.Id,
+                Title = bookDto.Title,
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
+        {
+            importResult.Errors.Add($"{metadata.Title}: A book with this title (or location) already exists");
+        }
+
+        return importResult;
+    }
+
+    /// <inheritdoc/>
     public void DeleteFiles(Guid bookId) => this.bookStorage.DeleteDirectory(bookId);
 
     /// <inheritdoc/>
@@ -577,6 +620,32 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         };
 
         // update book with new cover and file
+        await this.UpdateBookAsync(bookDto.Id, bookDto);
+
+        return bookDto;
+    }
+
+    private async Task<BookDTO> CreateBookFromMetadata(MetadataDTO metadata, MetadataSources source)
+    {
+        // create book
+        var createBookDto = this.mapper.Map<CreateBookDTO>(metadata);
+        var bookDto = await this.CreateBookAsync(createBookDto);
+        ArgumentNullException.ThrowIfNull(bookDto);
+
+        // save cover file
+        var coverFile = await metadata.DownloadCover();
+        if (coverFile is not null)
+        {
+            var cover = await this.bookStorage.Save(bookDto.Id, coverFile);
+            bookDto.Cover = cover;
+        }
+
+        bookDto.Location = new LocationDTO
+        {
+            Type = this.mapper.Map<LocationTypeDTO>(source),
+        };
+
+        // update book with new cover and location
         await this.UpdateBookAsync(bookDto.Id, bookDto);
 
         return bookDto;

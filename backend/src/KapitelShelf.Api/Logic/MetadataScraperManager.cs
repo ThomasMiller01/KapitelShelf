@@ -44,7 +44,7 @@ public class MetadataScraperManager : IMetadataScraperManager
     public async Task<List<MetadataDTO>> Scrape(MetadataSources source, string title)
     {
         // get new parser foreach file
-        var scraper = GetNewScraper(source);
+        var scraper = this.GetNewScraper(source);
 
         var metadata = await scraper.Scrape(title);
 

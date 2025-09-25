@@ -1310,6 +1310,41 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Import a new book from its asin.
+         * @param {string} [asin] The asin of the book to import.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksImportAsinPost: async (asin?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/books/import/asin`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (asin !== undefined) {
+                localVarQueryParameter['asin'] = asin;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Import a new book.
          * @param {File} [bookFile] Thebook file to import.
          * @param {*} [options] Override http request option.
@@ -1580,6 +1615,19 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Import a new book from its asin.
+         * @param {string} [asin] The asin of the book to import.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksImportAsinPost(asin?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImportResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksImportAsinPost(asin, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksImportAsinPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Import a new book.
          * @param {File} [bookFile] Thebook file to import.
          * @param {*} [options] Override http request option.
@@ -1724,6 +1772,16 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          */
         booksGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<BookDTO>> {
             return localVarFp.booksGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Import a new book from its asin.
+         * @param {string} [asin] The asin of the book to import.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksImportAsinPost(asin?: string, options?: RawAxiosRequestConfig): AxiosPromise<ImportResultDTO> {
+            return localVarFp.booksImportAsinPost(asin, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1874,6 +1932,18 @@ export class BooksApi extends BaseAPI {
      */
     public booksGet(options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Import a new book from its asin.
+     * @param {string} [asin] The asin of the book to import.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksImportAsinPost(asin?: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksImportAsinPost(asin, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -252,6 +252,46 @@
         }
       }
     },
+    "/books/import/asin": {
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Import a new book from its asin.",
+        "parameters": [
+          {
+            "name": "asin",
+            "in": "query",
+            "description": "The asin of the book to import.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResultDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResultDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/books/{bookId}": {
       "get": {
         "tags": [

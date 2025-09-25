@@ -65,6 +65,13 @@ public interface IBooksLogic
     Task<ImportResultDTO> ImportBookAsync(IFormFile file);
 
     /// <summary>
+    /// Imports a book from an asin.
+    /// </summary>
+    /// <param name="asin">The asin of the book to import.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="ImportResultDTO"/>.</returns>
+    Task<ImportResultDTO?> ImportBookFromAsinAsync(string asin);
+
+    /// <summary>
     /// Deletes all files associated with a book.
     /// </summary>
     /// <param name="bookId">The id of the book whose files should be deleted.</param>

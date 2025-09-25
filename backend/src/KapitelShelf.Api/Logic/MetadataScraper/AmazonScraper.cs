@@ -88,6 +88,28 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
         return results;
     }
 
+    /// <summary>
+    /// Scrapes metadata for a book based on its asin.
+    /// </summary>
+    /// <param name="asin">The asin of the book.</param>
+    /// <returns>A task representing the asynchronous operation, containing the scraped metadata.</returns>
+    public async Task<MetadataDTO?> ScrapeFromAsin(string asin)
+    {
+        // Setup headers
+        foreach (var header in Headers)
+        {
+            if (this.httpClient.DefaultRequestHeaders.Contains(header.Key))
+            {
+                this.httpClient.DefaultRequestHeaders.Remove(header.Key);
+            }
+
+            this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        // Parse book
+        return await this.ParseBookLink($"/dp/{asin}");
+    }
+
     private async Task<MetadataDTO?> ParseBookLink(string bookLink)
     {
         var bookUrl = $"https://www.amazon.com{bookLink}";

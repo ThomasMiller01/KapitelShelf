@@ -130,11 +130,36 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
         {
             var importResult = await this.logic.ImportBookAsync(bookFile);
 
-            return CreatedAtAction(nameof(CreateBook), importResult);
+            return CreatedAtAction(nameof(ImportBook), importResult);
         }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error importing book");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Import a new book from its asin.
+    /// </summary>
+    /// <param name="asin">The asin of the book to import.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPost("import/asin")]
+    public async Task<ActionResult<ImportResultDTO>> ImportBookFromAsin(string asin)
+    {
+        try
+        {
+            var importResult = await this.logic.ImportBookFromAsinAsync(asin);
+            if (importResult is null)
+            {
+                return NotFound();
+            }
+
+            return CreatedAtAction(nameof(ImportBookFromAsin), importResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error importing book from asin");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
