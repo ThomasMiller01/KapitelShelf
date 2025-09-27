@@ -45,7 +45,8 @@ const ProfileImageCategoryList: React.FC<ProfileImageCategoryListProps> = ({
 
   return (
     <Grid
-      spacing={4}
+      columnSpacing={{ xs: 3, md: 3 }}
+      rowSpacing={{ xs: 1.3, md: 3 }}
       columns={10}
       justifyContent="start"
       width="100%"
@@ -60,7 +61,7 @@ const ProfileImageCategoryList: React.FC<ProfileImageCategoryListProps> = ({
           <ProfileImage
             profileImageType={profileImageType}
             profileColor={profileColor}
-            maxHeight={isSm ? 135 : 200}
+            maxHeight={isSm ? 110 : 200}
             onClick={onClick}
           />
         </Grid>
