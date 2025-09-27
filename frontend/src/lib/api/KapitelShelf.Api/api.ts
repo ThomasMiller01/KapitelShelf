@@ -822,83 +822,10 @@ export interface SeriesWatchlistDTO {
     'series'?: SeriesDTO;
     /**
      * Gets or sets the watchlist items for this series.
-     * @type {Array<SeriesWatchlistItemDTO>}
+     * @type {Array<BookDTO>}
      * @memberof SeriesWatchlistDTO
      */
-    'items'?: Array<SeriesWatchlistItemDTO> | null;
-}
-/**
- * The series watchlist item dto.
- * @export
- * @interface SeriesWatchlistItemDTO
- */
-export interface SeriesWatchlistItemDTO {
-    /**
-     * Gets or sets the series watchlist item id.
-     * @type {string}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'id'?: string;
-    /**
-     * Gets or sets the title of the book.
-     * @type {string}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'title'?: string | null;
-    /**
-     * Gets or sets the description of the book.
-     * @type {string}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'description'?: string | null;
-    /**
-     * Gets or sets the id of the series.
-     * @type {string}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'seriesId'?: string;
-    /**
-     * Gets or sets the number of the book in the series.
-     * @type {number}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'volume'?: number | null;
-    /**
-     * Gets or sets the authors of the book.
-     * @type {Array<string>}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'authors'?: Array<string> | null;
-    /**
-     * Gets or sets the release date of the book.
-     * @type {string}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'releaseDate'?: string | null;
-    /**
-     * Gets or sets the number of pages of the book.
-     * @type {number}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'pages'?: number | null;
-    /**
-     * Gets or sets the cover url of the book.
-     * @type {string}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'coverUrl'?: string | null;
-    /**
-     * Gets or sets the categories of the book.
-     * @type {Array<string>}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'categories'?: Array<string> | null;
-    /**
-     * Gets or sets the tags of the book.
-     * @type {Array<string>}
-     * @memberof SeriesWatchlistItemDTO
-     */
-    'tags'?: Array<string> | null;
+    'items'?: Array<BookDTO> | null;
 }
 /**
  * The tag dto.

@@ -22,6 +22,7 @@ import { CreateProfilePage } from "../pages/user/CreateProfilePage";
 import { EditProfilePage } from "../pages/user/EditProfilePage";
 import { SelectProfilePage } from "../pages/user/SelectProfilePage";
 import { ViewProfilePage } from "../pages/user/ViewProfilePage";
+import { WatchlistPage } from "../pages/WatchlistPage";
 import {
   IsMobileApiBaseUrlConfigured,
   IsMobileApp,
@@ -64,6 +65,7 @@ const AppRoutes = (): ReactElement | null => {
                 element: <ImportBookFromASINPage />,
               },
               { path: "search", element: <SearchResultsPage /> },
+              { path: "watchlist", element: <WatchlistPage /> },
               {
                 path: "settings",
                 element: <SettingsLayout />,

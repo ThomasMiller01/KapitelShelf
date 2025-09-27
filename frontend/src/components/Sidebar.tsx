@@ -5,6 +5,7 @@ import DevicesIcon from "@mui/icons-material/Devices";
 import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SettingsIcon from "@mui/icons-material/Settings";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import type { SxProps, Theme } from "@mui/material";
 import {
   List,
@@ -49,6 +50,12 @@ export const Sidebar = ({ open, onClose }: SidebarProps): ReactElement => {
             name="Library"
             icon={<LibraryBooksIcon />}
             link="/library"
+            onClose={isMobile ? onClose : undefined}
+          />
+          <SidebarLinkItem
+            name="Watchlist"
+            icon={<TrackChangesIcon />}
+            link="/watchlist"
             onClose={isMobile ? onClose : undefined}
           />
           <SidebarLinkItem

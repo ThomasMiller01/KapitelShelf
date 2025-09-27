@@ -43,6 +43,7 @@ const DetailedItemCardLayout = ({
   squareBadge = true,
   metadata = [],
   selected = false,
+  raised = false,
 }: ItemCardLayoutProps): ReactElement => {
   const navigate = useNavigate();
 
@@ -69,6 +70,7 @@ const DetailedItemCardLayout = ({
     <Card
       onClick={handleClick}
       data-active={selected ? "" : undefined}
+      raised={raised}
       sx={{
         width: "100%",
         "&[data-active]": {

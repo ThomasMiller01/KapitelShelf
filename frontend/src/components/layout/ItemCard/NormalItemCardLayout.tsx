@@ -31,6 +31,7 @@ const NormalItemCardLayout = ({
   metadata = [],
   selected,
   small = false,
+  raised = false,
 }: ItemCardLayoutProps): ReactElement => {
   const navigate = useNavigate();
 
@@ -56,6 +57,7 @@ const NormalItemCardLayout = ({
   return (
     <Card
       onClick={handleClick}
+      raised={raised}
       data-active={selected ? "" : undefined}
       sx={{
         width: {
@@ -114,7 +116,9 @@ const NormalItemCardLayout = ({
             </Box>
           )}
         </Box>
-        <CardContent sx={{ width: "100%", px: "12px", pt: "10px", pb: "8px" }}>
+        <CardContent
+          sx={{ width: "100%", px: "12px", pt: "10px", pb: "8px !important" }}
+        >
           {/* Title */}
           <Typography
             variant="h6"

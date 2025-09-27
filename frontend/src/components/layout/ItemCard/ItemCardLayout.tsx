@@ -51,6 +51,7 @@ export interface ItemCardLayoutProps {
   metadata?: ReactNode[];
   selected?: boolean;
   small?: boolean;
+  raised?: boolean;
   itemVariant?: ItemCardType;
 }
 

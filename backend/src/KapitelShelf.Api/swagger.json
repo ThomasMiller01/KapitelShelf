@@ -2797,7 +2797,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SeriesWatchlistItemDTO"
+              "$ref": "#/components/schemas/BookDTO"
             },
             "description": "Gets or sets the watchlist items for this series.",
             "nullable": true
@@ -2805,79 +2805,6 @@
         },
         "additionalProperties": false,
         "description": "The series watchlist dto."
-      },
-      "SeriesWatchlistItemDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Gets or sets the series watchlist item id.",
-            "format": "uuid"
-          },
-          "title": {
-            "type": "string",
-            "description": "Gets or sets the title of the book.",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "description": "Gets or sets the description of the book.",
-            "nullable": true
-          },
-          "seriesId": {
-            "type": "string",
-            "description": "Gets or sets the id of the series.",
-            "format": "uuid"
-          },
-          "volume": {
-            "type": "integer",
-            "description": "Gets or sets the number of the book in the series.",
-            "format": "int32",
-            "nullable": true
-          },
-          "authors": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Gets or sets the authors of the book.",
-            "nullable": true
-          },
-          "releaseDate": {
-            "type": "string",
-            "description": "Gets or sets the release date of the book.",
-            "nullable": true
-          },
-          "pages": {
-            "type": "integer",
-            "description": "Gets or sets the number of pages of the book.",
-            "format": "int32",
-            "nullable": true
-          },
-          "coverUrl": {
-            "type": "string",
-            "description": "Gets or sets the cover url of the book.",
-            "nullable": true
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Gets or sets the categories of the book.",
-            "nullable": true
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Gets or sets the tags of the book.",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "The series watchlist item dto."
       },
       "TagDTO": {
         "type": "object",

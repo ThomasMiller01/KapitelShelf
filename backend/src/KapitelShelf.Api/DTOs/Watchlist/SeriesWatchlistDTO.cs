@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
 
 namespace KapitelShelf.Api.DTOs.Watchlist;
@@ -24,5 +25,5 @@ public class SeriesWatchlistDTO
     /// <summary>
     /// Gets or sets the watchlist items for this series.
     /// </summary>
-    public IList<SeriesWatchlistItemDTO> Items { get; set; } = [];
+    public IList<BookDTO> Items { get; set; } = [];
 }
