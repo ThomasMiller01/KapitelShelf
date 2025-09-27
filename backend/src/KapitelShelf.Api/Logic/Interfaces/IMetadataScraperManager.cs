@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 
 namespace KapitelShelf.Api.Logic.Interfaces;
 
@@ -18,4 +19,12 @@ public interface IMetadataScraperManager
     /// <param name="title">The title to filter for.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task<List<MetadataDTO>> Scrape(MetadataSources source, string title);
+
+    /// <summary>
+    /// Gets the scraper for the given source.
+    /// </summary>
+    /// <param name="source">The metadata source.</param>
+    /// <returns>The metadata scraper.</returns>
+    /// <exception cref="ArgumentException">Scraper could not be found.</exception>
+    IMetadataScraper GetNewScraper(MetadataSources source);
 }

@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers */
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import DownloadIcon from "@mui/icons-material/Download";
 import { Button, Link, Stack } from "@mui/material";
@@ -13,6 +12,7 @@ import {
   FileUrl,
   LocalTypes,
   LocationTypeToString,
+  LocationUrl,
   RealWorldTypes,
   UrlTypes,
 } from "../../utils/LocationUtils";
@@ -95,7 +95,7 @@ const LocationDetails = ({
           variant="outlined"
           component={Link}
           startIcon={<AutoStoriesIcon />}
-          href={location.url ?? undefined}
+          href={LocationUrl(location)}
           target="_blank"
           rel="noreferrer"
         >

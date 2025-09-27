@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Settings;
 
 namespace KapitelShelf.Api.Logic.MetadataScraper;
@@ -13,7 +14,7 @@ namespace KapitelShelf.Api.Logic.MetadataScraper;
 /// <summary>
 /// The Amazon metadata scraper.
 /// </summary>
-public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
+public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase, IAmazonScraper
 {
     /// <summary>
     /// Override the limit for amazon.
@@ -86,6 +87,24 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
         results.AddRange(taskResults.Where(x => x != null).Select(x => x!));
 
         return results;
+    }
+
+    /// <inheritdoc/>
+    public async Task<MetadataDTO?> ScrapeFromAsin(string asin)
+    {
+        // Setup headers
+        foreach (var header in Headers)
+        {
+            if (this.httpClient.DefaultRequestHeaders.Contains(header.Key))
+            {
+                this.httpClient.DefaultRequestHeaders.Remove(header.Key);
+            }
+
+            this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        // Parse book
+        return await this.ParseBookLink($"/dp/{asin}");
     }
 
     private async Task<MetadataDTO?> ParseBookLink(string bookLink)

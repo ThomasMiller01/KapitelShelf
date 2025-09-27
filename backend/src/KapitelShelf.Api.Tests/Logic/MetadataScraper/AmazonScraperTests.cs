@@ -205,4 +205,90 @@ public class AmazonScraperTests
 
         Assert.ThrowsAsync<HttpRequestException>(async () => await scraper.Scrape(Title));
     }
+
+    /// <summary>
+    /// ScrapeFromAsin returns metadata when a valid book detail page is returned.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ScrapeFromAsin_ReturnsMetadata_WhenBookPageValid()
+    {
+        // Setup
+        var asin = "TestAsin10";
+        var mockHttp = new MockHttpMessageHandler();
+
+        var bookHtml = @"
+<html>
+  <body>
+    <span id='productTitle'>ASIN Book Title</span>
+    <span class='author'><a>ASIN Author</a></span>
+    <div data-feature-name='bookDescription'><noscript>ASIN Description</noscript></div>
+    <img class='a-dynamic-image' src='https://images.amazon.com/asin.jpg' />
+  </body>
+</html>
+";
+        mockHttp
+            .When($"https://www.amazon.com/dp/{asin}")
+            .Respond("text/html", bookHtml);
+
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient());
+
+        // Execute
+        var result = await scraper.ScrapeFromAsin(asin);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.Title, Is.EqualTo("ASIN Book Title"));
+            Assert.That(result.Authors, Is.EquivalentTo(["ASIN Author"]));
+            Assert.That(result.Description, Is.EqualTo("ASIN Description"));
+            Assert.That(result.CoverUrl, Is.EqualTo("https://images.amazon.com/asin.jpg"));
+        });
+    }
+
+    /// <summary>
+    /// ScrapeFromAsin returns null when the book detail page is invalid or fails.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ScrapeFromAsin_ReturnsNull_WhenBookPageInvalid()
+    {
+        // Setup
+        var asin = "TestAsin10";
+        var mockHttp = new MockHttpMessageHandler();
+
+        mockHttp
+            .When($"https://www.amazon.com/dp/{asin}")
+            .Respond(HttpStatusCode.InternalServerError);
+
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient());
+
+        // Execute
+        var result = await scraper.ScrapeFromAsin(asin);
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    /// <summary>
+    /// ScrapeFromAsin throws when Amazon blocks scraping (bot detection).
+    /// </summary>
+    [Test]
+    public void ScrapeFromAsin_Throws_WhenBlockedByAmazon()
+    {
+        // Setup
+        var asin = "TestAsin10";
+        var mockHttp = new MockHttpMessageHandler();
+
+        var blockedHtml = @"Sorry, we just need to make sure you're not a robot.";
+        mockHttp
+            .When($"https://www.amazon.com/dp/{asin}")
+            .Respond("text/html", blockedHtml);
+
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient());
+
+        // Execute and Assert
+        Assert.ThrowsAsync<HttpRequestException>(async () => await scraper.ScrapeFromAsin(asin));
+    }
 }

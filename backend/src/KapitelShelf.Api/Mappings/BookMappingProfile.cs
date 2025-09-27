@@ -4,6 +4,7 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Mappings;
@@ -50,5 +51,7 @@ public class BookMappingProfile : Profile
         CreateMap<BookDTO, CreateBookDTO>();
 
         CreateMap<BookSearchView, BookDTO>();
+
+        CreateMap<MetadataDTO, CreateBookDTO>();
     }
 }

@@ -1,7 +1,10 @@
-import { Box } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { Box, Divider } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useCallback } from "react";
+import { NavLink } from "react-router-dom";
 
+import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
 import FileUploadDropzone from "../../components/base/FileUploadDropzone";
 import FancyText from "../../components/FancyText";
 import { useApi } from "../../contexts/ApiProvider";
@@ -109,13 +112,31 @@ const ImportBookPage = (): ReactElement => {
         minWidth="50%"
         maxWidth={isMobile ? "100%" : "50%"}
         margin="30px auto 0 auto"
-        height="300px"
+        height={isMobile ? "300px" : "220px"}
       >
         <FileUploadDropzone
           accept={BookFileTypes}
-          height={isMobile ? "300px" : "220px"}
+          height="100%"
           onFilesChange={onImport}
         />
+      </Box>
+      <Box
+        minWidth="50%"
+        maxWidth={isMobile ? "100%" : "50%"}
+        margin="30px auto 0 auto"
+      >
+        <Divider sx={{ my: 5 }}>OR</Divider>
+      </Box>
+      <Box width="fit-content" margin="30px auto 0 auto">
+        <ButtonWithTooltip
+          component={NavLink}
+          tooltip="Import a book from Amazon via its ASIN"
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+          to="/library/books/import-from-asin"
+        >
+          Import From ASIN
+        </ButtonWithTooltip>
       </Box>
     </Box>
   );

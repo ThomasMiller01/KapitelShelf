@@ -1,4 +1,4 @@
-import type { BookDTO } from "../lib/api/KapitelShelf.Api/api";
+import type { BookDTO, LocationDTO } from "../lib/api/KapitelShelf.Api/api";
 import { LocationTypeDTO } from "../lib/api/KapitelShelf.Api/api";
 import { GetMobileApiBaseUrl, IsMobileApp } from "./MobileUtils";
 
@@ -57,4 +57,23 @@ export const FileUrl = (book: BookDTO | undefined): string | undefined => {
     ? GetMobileApiBaseUrl()
     : import.meta.env.VITE_KAPITELSHELF_API;
   return `${APIUrl}/books/${book.id}/file`;
+};
+
+export const LocationUrl = (location: LocationDTO): string | undefined => {
+  if (!UrlTypes.includes(location.type ?? -1)) {
+    return undefined;
+  }
+
+  switch (location.type) {
+    case LocationTypeDTO.NUMBER_2:
+      // for kindle, the url is the asin
+      return `https://amazon.com/dp/${location.url}`;
+
+    case LocationTypeDTO.NUMBER_3:
+    case LocationTypeDTO.NUMBER_4:
+      return location.url ?? undefined;
+
+    default:
+      return undefined;
+  }
 };

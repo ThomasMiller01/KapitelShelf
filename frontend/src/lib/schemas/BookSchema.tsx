@@ -26,7 +26,15 @@ export const BookSchema = yup.object({
     .string()
     .transform((value, original) => (original === "" ? null : value))
     .nullable()
-    .url("Link must be a valid URL"),
+    .when("locationType", {
+      is: (value: unknown) => Number(value) === 2,
+      then: (schema) =>
+        schema.matches(
+          /^[A-Z0-9]{10}$/i,
+          "ASIN must be a 10 character alphanumeric code"
+        ),
+      otherwise: (schema) => schema.url("Link must be a valid URL"),
+    }),
   categories: yup.array().of(yup.string()),
   tags: yup.array().of(yup.string()),
 });

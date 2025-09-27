@@ -7,6 +7,7 @@ import { useUserProfile } from "../hooks/useUserProfile";
 import BookDetailPage from "../pages/book/BookDetailPage";
 import CreateBookPage from "../pages/book/CreateBookPage";
 import EditBookDetailPage from "../pages/book/EditBookDetailPage";
+import ImportBookFromASINPage from "../pages/book/ImportBookFromASINPage";
 import ImportBookPage from "../pages/book/ImportBookPage";
 import { ConfigureMobileBackendUrlPage } from "../pages/ConfigureMoibleBackendUrlPage";
 import HomePage from "../pages/HomePage";
@@ -58,6 +59,10 @@ const AppRoutes = (): ReactElement | null => {
               },
               { path: "library/books/create", element: <CreateBookPage /> },
               { path: "library/books/import", element: <ImportBookPage /> },
+              {
+                path: "library/books/import-from-asin",
+                element: <ImportBookFromASINPage />,
+              },
               { path: "search", element: <SearchResultsPage /> },
               {
                 path: "settings",

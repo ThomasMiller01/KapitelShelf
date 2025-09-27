@@ -9,11 +9,13 @@ using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
@@ -39,6 +41,7 @@ public class BooksLogicTests
     private IMapper mapper;
     private IBookParserManager bookParserManager;
     private IBookStorage bookStorage;
+    private IMetadataScraperManager metadataScraperManager;
     private BooksLogic testee;
 
     /// <summary>
@@ -90,7 +93,8 @@ public class BooksLogicTests
 
         this.bookParserManager = Substitute.For<IBookParserManager>();
         this.bookStorage = Substitute.For<IBookStorage>();
-        this.testee = new BooksLogic(this.dbContextFactory, this.mapper, this.bookParserManager, this.bookStorage);
+        this.metadataScraperManager = Substitute.For<IMetadataScraperManager>();
+        this.testee = new BooksLogic(this.dbContextFactory, this.mapper, this.bookParserManager, this.bookStorage, this.metadataScraperManager);
     }
 
     /// <summary>
@@ -1524,6 +1528,106 @@ public class BooksLogicTests
             Assert.That(result.ImportedBooks, Is.Empty);
             Assert.That(result.Errors, Is.Empty);
         });
+    }
+
+    /// <summary>
+    /// Tests ImportBookFromAsinAsync returns null if scraper returns no metadata.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookFromAsinAsync_ReturnsNull_WhenMetadataIsNull()
+    {
+        // Setup
+        var asin = "TestAsin";
+
+        var scraper = Substitute.For<IAmazonScraper>();
+        scraper.ScrapeFromAsin(asin).Returns((MetadataDTO?)null);
+        this.metadataScraperManager.GetNewScraper(MetadataSources.Amazon).Returns(scraper);
+
+        // Execute
+        var result = await this.testee.ImportBookFromAsinAsync(asin);
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests ImportBookFromAsinAsync imports a new book successfully.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookFromAsinAsync_ImportsBook_WhenMetadataValid()
+    {
+        // Setup
+        var asin = "TestAsin";
+        var metadata = new MetadataDTO
+        {
+            Title = "AsinBook".Unique(),
+            Authors = ["Jane Doe"],
+            Series = "TestSeries",
+        };
+
+        var scraper = Substitute.For<IAmazonScraper>();
+        scraper.ScrapeFromAsin(asin).Returns(metadata);
+        this.metadataScraperManager.GetNewScraper(MetadataSources.Amazon).Returns(scraper);
+
+        // Execute
+        var result = await this.testee.ImportBookFromAsinAsync(asin);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.IsBulkImport, Is.False);
+            Assert.That(result.Errors, Is.Empty);
+            Assert.That(result.ImportedBooks, Has.Count.EqualTo(1));
+        });
+        Assert.That(result.ImportedBooks[0].Title, Is.EqualTo(metadata.Title));
+    }
+
+    /// <summary>
+    /// Tests ImportBookFromAsinAsync adds an error when book is a duplicate.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookFromAsinAsync_AddsError_WhenDuplicate()
+    {
+        // Setup
+        var asin = "TestAsin";
+        var metadata = new MetadataDTO
+        {
+            Title = "DuplicateBook".Unique(),
+            Authors = ["John Doe"],
+            Series = "DupSeries",
+        };
+
+        var scraper = Substitute.For<IAmazonScraper>();
+        scraper.ScrapeFromAsin(asin).Returns(metadata);
+        this.metadataScraperManager.GetNewScraper(MetadataSources.Amazon).Returns(scraper);
+
+        await this.testee.CreateBookAsync(new CreateBookDTO
+        {
+            Title = metadata.Title,
+            Description = "Duplicate",
+            Categories = [],
+            Tags = [],
+            Series = new CreateSeriesDTO
+            {
+                Name = metadata.Series!,
+            },
+        });
+
+        // Execute
+        var result = await this.testee.ImportBookFromAsinAsync(asin);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.ImportedBooks, Is.Empty);
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+        });
+        Assert.That(result.Errors[0], Does.Contain(metadata.Title));
     }
 
     /// <summary>

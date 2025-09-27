@@ -96,26 +96,26 @@ const LocationSettings = ({
     name: "locationType",
     defaultValue: initial?.location?.type,
   });
-  const { setValue } = useFormContext<BookFormValues>();
+  const { setValue, trigger: triggerValidation } =
+    useFormContext<BookFormValues>();
 
-  const [locationTypeInt, setLocationTypeInt] = useState(1);
+  const [locationTypeInt, setLocationTypeInt] = useState<number>(
+    initial?.location?.type ?? 1
+  );
   useEffect(() => {
     const lti = parseInt(locationType);
-    setLocationTypeInt(lti);
-
-    if (LocalTypes.includes(lti)) {
-      setValue("locationUrl", "");
-    } else if (UrlTypes.includes(lti)) {
-      if (onFileChange !== undefined) {
-        onFileChange(undefined);
-      }
-    } else {
+    if (locationTypeInt !== lti) {
+      // reset location data on type change
       setValue("locationUrl", "");
       if (onFileChange !== undefined) {
         onFileChange(undefined);
       }
+      triggerValidation();
     }
-  }, [locationType, setValue, onFileChange]);
+
+    // update location type
+    setLocationTypeInt(lti);
+  }, [locationType, setValue, onFileChange, triggerValidation]);
 
   if (LocalTypes.includes(locationTypeInt)) {
     return (
@@ -232,13 +232,15 @@ const UrlLocationSettings = ({
         render={({ field }) => (
           <TextField
             {...field}
-            label="Url"
+            label={locationTypeInt === 2 ? "ASIN" : "Url"}
             error={Boolean(errors.locationUrl)}
             helperText={
               errors.locationUrl?.message ??
-              `Link to the book on ${
-                LocationTypeToString[locationTypeInt ?? -1]
-              }`
+              (locationTypeInt === 2
+                ? "Amazon ASIN for the Kindle book"
+                : `Link to the book on ${
+                    LocationTypeToString[locationTypeInt ?? -1]
+                  }`)
             }
             variant="filled"
             fullWidth

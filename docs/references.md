@@ -143,6 +143,23 @@ Your CSV file must have the following columns and structure:
 | My Title   | My Description | Jane Doe | 2023-04-23T15:20:17.357Z | My Series  | 1            | 100   | Tag1,Tag2           | Category1,Category2           | Skoobe       | https://www.skoobe.de/books/mybook     |
 | My Title 2 | My Description | Jane     | 2023-04-23T15:20:17.357Z | My Series  | 1            | 100   | My Special Tag,Tag2 | My Special Category,Category2 | Kindle       | https://www.amazon.de/mybook/dp/bookid |
 
+### Import from ASIN
+
+> Learn about ASINs on [amazon.com](https://sell.amazon.com/blog/what-is-an-asin).
+
+Importing a book from an ASIN is similar to importing from a file.
+
+1. First click the `+` button on the top right as before.
+2. The click the `Import Book` button.
+3. Now click on the `Import from ASIN` button
+
+![Import from ASIN button](./.attachments/references/add_book/import/import_from_asin_button.png)
+
+4. Fill in the ASIN in the provided field.
+5. Click the `Import Book` button.
+
+![Import from ASIN page](./.attachments/references/add_book/import/import_from_asin_page.png)
+
 ## Edit a Book
 
 Visit the book details page and click the `Edit` _(pencil icon)_ button.

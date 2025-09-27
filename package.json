@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "commit-and-tag-version": "^12.5.1",
-    "conventional-changelog-cli": "^5.0.0",
+    "conventional-changelog-cli": "^4.1.0",
     "rimraf": "^6.0.1"
   }
 }
