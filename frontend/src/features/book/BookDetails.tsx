@@ -51,7 +51,7 @@ const BookDetails = ({ book }: BookDetailsProps): ReactElement => {
               src={coverImage}
               onError={onLoadingError}
               style={{
-                width: "100%",
+                width: isMobile ? "60%" : "100%",
                 borderRadius: 2,
                 boxShadow: "3",
                 marginLeft: isMobile ? "auto" : 0,

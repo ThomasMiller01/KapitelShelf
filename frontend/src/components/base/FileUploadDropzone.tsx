@@ -15,7 +15,6 @@ export const baseStyle = (theme: Theme): SxProps<Theme> => ({
   flex: 1,
   display: "flex",
   alignItems: "center",
-  // eslint-disable-next-line no-magic-numbers
   padding: theme.spacing(2.5),
   borderWidth: 2,
   borderRadius: "10px",

@@ -37,8 +37,9 @@ const UserProfileCard = ({
       <CardMedia
         component="img"
         sx={{
-          minHeight: "170px",
-          maxHeight: "200px",
+          height: "auto",
+          width: "100%",
+          aspectRatio: "1 / 1",
         }}
         image={
           ProfileImageTypeToSrc[
@@ -47,7 +48,7 @@ const UserProfileCard = ({
         }
         alt={userProfile.username ?? "User Avatar"}
       />
-      <FancyText variant="h6" noWrap my="5px">
+      <FancyText variant="h6" noWrap mb="5px">
         {userProfile.username}
       </FancyText>
       <IconButtonWithTooltip
