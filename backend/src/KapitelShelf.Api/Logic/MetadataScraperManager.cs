@@ -58,6 +58,19 @@ public class MetadataScraperManager : IMetadataScraperManager
         return metadata;
     }
 
+    /// <inheritdoc/>
+    public IMetadataScraper GetNewScraper(MetadataSources source)
+    {
+        // get scraper for this source
+        var scraperType = this.metadataScraper
+            .FirstOrDefault(x => x.Key == source).Value
+            ?? throw new ArgumentException("Unsupported metadata source", source.ToString());
+
+        // create new scraper foreach request
+        var scraper = Activator.CreateInstance(scraperType) as IMetadataScraper ?? throw new ArgumentException("Scraper must be set");
+        return scraper;
+    }
+
     /// <summary>
     /// Compute the completeness score of the metadata.
     /// </summary>
@@ -118,23 +131,5 @@ public class MetadataScraperManager : IMetadataScraperManager
         }
 
         return score;
-    }
-
-    /// <summary>
-    /// Gets the scraper for the given source.
-    /// </summary>
-    /// <param name="source">The metadata source.</param>
-    /// <returns>The metadata scraper.</returns>
-    /// <exception cref="ArgumentException">Scraper could not be found.</exception>
-    private IMetadataScraper GetNewScraper(MetadataSources source)
-    {
-        // get scraper for this source
-        var scraperType = this.metadataScraper
-            .FirstOrDefault(x => x.Key == source).Value
-            ?? throw new ArgumentException("Unsupported metadata source", source.ToString());
-
-        // create new scraper foreach request
-        var scraper = Activator.CreateInstance(scraperType) as IMetadataScraper ?? throw new ArgumentException("Scraper must be set");
-        return scraper;
     }
 }

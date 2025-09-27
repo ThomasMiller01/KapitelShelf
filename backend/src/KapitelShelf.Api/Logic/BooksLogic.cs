@@ -12,8 +12,8 @@ using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
-using KapitelShelf.Api.Logic.MetadataScraper;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -28,7 +28,8 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="mapper">The auto mapper.</param>
 /// <param name="bookParserManager">The book parser manager.</param>
 /// <param name="bookStorage">The book storage.</param>
-public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBookParserManager bookParserManager, IBookStorage bookStorage) : IBooksLogic
+/// <param name="metadataScraperManager">The metadata scraper manager.</param>
+public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBookParserManager bookParserManager, IBookStorage bookStorage, IMetadataScraperManager metadataScraperManager) : IBooksLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -37,6 +38,8 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     private readonly IBookParserManager bookParserManager = bookParserManager;
 
     private readonly IBookStorage bookStorage = bookStorage;
+
+    private readonly IMetadataScraperManager metadataScraperManager = metadataScraperManager;
 
     /// <inheritdoc/>
     public async Task<IList<BookDTO>> GetBooksAsync()
@@ -452,7 +455,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     /// <inheritdoc/>
     public async Task<ImportResultDTO?> ImportBookFromAsinAsync(string asin)
     {
-        var metadataScraper = new AmazonScraper();
+        var metadataScraper = (IAmazonScraper)this.metadataScraperManager.GetNewScraper(MetadataSources.Amazon);
         var metadata = await metadataScraper.ScrapeFromAsin(asin);
         if (metadata is null)
         {

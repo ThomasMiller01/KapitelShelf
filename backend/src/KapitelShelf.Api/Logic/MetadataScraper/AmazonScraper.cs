@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Settings;
 
 namespace KapitelShelf.Api.Logic.MetadataScraper;
@@ -13,7 +14,7 @@ namespace KapitelShelf.Api.Logic.MetadataScraper;
 /// <summary>
 /// The Amazon metadata scraper.
 /// </summary>
-public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
+public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase, IAmazonScraper
 {
     /// <summary>
     /// Override the limit for amazon.
@@ -88,11 +89,7 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase
         return results;
     }
 
-    /// <summary>
-    /// Scrapes metadata for a book based on its asin.
-    /// </summary>
-    /// <param name="asin">The asin of the book.</param>
-    /// <returns>A task representing the asynchronous operation, containing the scraped metadata.</returns>
+    /// <inheritdoc/>
     public async Task<MetadataDTO?> ScrapeFromAsin(string asin)
     {
         // Setup headers
