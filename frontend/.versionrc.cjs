@@ -1,8 +1,11 @@
 module.exports = {
   header: "# Changelog\n",
   tagPrefix: "frontend@",
+  releaseCommitMessageFormat: "chore(release-frontend): v{{currentTag}}",
   path: ".",
   bumpFiles: [
+    { filename: "./package.json", type: "json" },
+    { filename: "./package-lock.json", type: "json" },
     {
       filename: "../README.md",
       updater: {
