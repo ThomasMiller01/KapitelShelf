@@ -803,6 +803,104 @@ export interface SeriesDTOPagedResult {
     'totalCount'?: number;
 }
 /**
+ * The series watchlist dto.
+ * @export
+ * @interface SeriesWatchlistDTO
+ */
+export interface SeriesWatchlistDTO {
+    /**
+     * Gets or sets the id.
+     * @type {string}
+     * @memberof SeriesWatchlistDTO
+     */
+    'id'?: string;
+    /**
+     * 
+     * @type {SeriesDTO}
+     * @memberof SeriesWatchlistDTO
+     */
+    'series'?: SeriesDTO;
+    /**
+     * Gets or sets the watchlist items for this series.
+     * @type {Array<SeriesWatchlistItemDTO>}
+     * @memberof SeriesWatchlistDTO
+     */
+    'items'?: Array<SeriesWatchlistItemDTO> | null;
+}
+/**
+ * The series watchlist item dto.
+ * @export
+ * @interface SeriesWatchlistItemDTO
+ */
+export interface SeriesWatchlistItemDTO {
+    /**
+     * Gets or sets the series watchlist item id.
+     * @type {string}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'id'?: string;
+    /**
+     * Gets or sets the title of the book.
+     * @type {string}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'title'?: string | null;
+    /**
+     * Gets or sets the description of the book.
+     * @type {string}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'description'?: string | null;
+    /**
+     * Gets or sets the id of the series.
+     * @type {string}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'seriesId'?: string;
+    /**
+     * Gets or sets the number of the book in the series.
+     * @type {number}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'volume'?: number | null;
+    /**
+     * Gets or sets the authors of the book.
+     * @type {Array<string>}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'authors'?: Array<string> | null;
+    /**
+     * Gets or sets the release date of the book.
+     * @type {string}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'releaseDate'?: string | null;
+    /**
+     * Gets or sets the number of pages of the book.
+     * @type {number}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'pages'?: number | null;
+    /**
+     * Gets or sets the cover url of the book.
+     * @type {string}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'coverUrl'?: string | null;
+    /**
+     * Gets or sets the categories of the book.
+     * @type {Array<string>}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'categories'?: Array<string> | null;
+    /**
+     * Gets or sets the tags of the book.
+     * @type {Array<string>}
+     * @memberof SeriesWatchlistItemDTO
+     */
+    'tags'?: Array<string> | null;
+}
+/**
  * The tag dto.
  * @export
  * @interface TagDTO
@@ -3575,6 +3673,41 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Get the series watchlists of a user.
+         * @param {string} [userId] The id of the user.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesWatchlistGet: async (userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/series/watchlist`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -3696,6 +3829,19 @@ export const SeriesApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Get the series watchlists of a user.
+         * @param {string} [userId] The id of the user.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesWatchlistGet(userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SeriesWatchlistDTO>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesWatchlistGet(userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesWatchlistGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -3792,6 +3938,16 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          */
         seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get the series watchlists of a user.
+         * @param {string} [userId] The id of the user.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesWatchlistGet(userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<SeriesWatchlistDTO>> {
+            return localVarFp.seriesWatchlistGet(userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -3904,6 +4060,18 @@ export class SeriesApi extends BaseAPI {
      */
     public seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig) {
         return SeriesApiFp(this.configuration).seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get the series watchlists of a user.
+     * @param {string} [userId] The id of the user.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesWatchlistGet(userId?: string, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesWatchlistGet(userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -4443,7 +4611,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary Get the user settings of a user.
+         * @summary Update a user setting of a user.
          * @param {string} userId The id of the user.
          * @param {UserSettingDTO} [userSettingDTO] The setting.
          * @param {*} [options] Override http request option.
@@ -4584,7 +4752,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Get the user settings of a user.
+         * @summary Update a user setting of a user.
          * @param {string} userId The id of the user.
          * @param {UserSettingDTO} [userSettingDTO] The setting.
          * @param {*} [options] Override http request option.
@@ -4680,7 +4848,7 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
-         * @summary Get the user settings of a user.
+         * @summary Update a user setting of a user.
          * @param {string} userId The id of the user.
          * @param {UserSettingDTO} [userSettingDTO] The setting.
          * @param {*} [options] Override http request option.
@@ -4787,7 +4955,7 @@ export class UsersApi extends BaseAPI {
 
     /**
      * 
-     * @summary Get the user settings of a user.
+     * @summary Update a user setting of a user.
      * @param {string} userId The id of the user.
      * @param {UserSettingDTO} [userSettingDTO] The setting.
      * @param {*} [options] Override http request option.

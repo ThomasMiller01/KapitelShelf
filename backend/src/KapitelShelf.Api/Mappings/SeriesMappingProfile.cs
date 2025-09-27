@@ -4,7 +4,9 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Watchlist;
 using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.Watchlists;
 
 namespace KapitelShelf.Api.Mappings;
 
@@ -37,5 +39,11 @@ public class SeriesMappingProfile : Profile
         CreateMap<CreateSeriesDTO, SeriesModel>();
 
         CreateMap<SeriesDTO, CreateSeriesDTO>();
+
+        CreateMap<SeriesWatchlistModel, SeriesWatchlistDTO>()
+            .ReverseMap();
+
+        CreateMap<SeriesWatchlistItemModel, SeriesWatchlistItemDTO>()
+            .ReverseMap();
     }
 }

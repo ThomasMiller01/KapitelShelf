@@ -5,6 +5,7 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Watchlist;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
@@ -224,6 +225,26 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error fetching series books");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Get the series watchlists of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("watchlist")]
+    public async Task<ActionResult<List<SeriesWatchlistDTO>>> GetSeriesWatchlistByUser(Guid userId)
+    {
+        try
+        {
+            var seriesWatchlist = await this.logic.GetWatchlistByUserAsync(userId);
+            return Ok(seriesWatchlist);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching series watchlists of user '{UserId}'", userId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

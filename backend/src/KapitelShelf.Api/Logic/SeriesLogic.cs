@@ -7,6 +7,7 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Watchlist;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
@@ -321,6 +322,25 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
         // delete target series
         await this.DeleteSeriesAsync(sourceSeriesId);
+    }
+
+    /// <summary>
+    /// Get the series watchlists for a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>The list of watchlists.</returns>
+    public async Task<List<SeriesWatchlistDTO>> GetWatchlistByUserAsync(Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.SeriesWatchlist
+            .AsNoTracking()
+            .Include(x => x.Series)
+            .Include(x => x.Items)
+            .AsSingleQuery()
+            .Where(x => x.UserId == userId)
+            .Select(x => this.mapper.Map<SeriesWatchlistDTO>(x))
+            .ToListAsync();
     }
 
     internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
