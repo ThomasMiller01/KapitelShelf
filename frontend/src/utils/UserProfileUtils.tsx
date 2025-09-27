@@ -77,16 +77,18 @@ export const ProfileImageCategories = {
 };
 
 export const UserProfileColors = [
-  "#39796b", // teal
-  "#b26a22", // orange
-  "#1976d2", // blue
-  "#c4373c", // red
-  "#2997a3", // cyan
-  "#a15033", // deep orange
-  "#388e3c", // green
-  "#b2a429", // gold
-  "#7b1fa2", // purple
-  "#879623", // olive green
+  "#2E4057", // midnight slate
+  "#3B5B92", // deep indigo
+  "#92c9ee", // dusty cyan
+  "#39796b", // forest teal
+  "#7ccf8f", // leaf green
+  "#946846", // leather brown
+  "#A45D5D", // warm terracotta
+  "#ff9a56", // burnt amber
+  "#faea92", // parchment gold
+  "#ff7bac", // rosewood
+  "#e9a0e3", // lilac ink
+  "#7A2F4B", // royal plum
 ];
 
 export type UserSettingValueType =

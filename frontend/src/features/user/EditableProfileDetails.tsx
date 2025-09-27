@@ -24,7 +24,7 @@ import {
 } from "../../lib/api/KapitelShelf.Api/api";
 import type { UserFormValues } from "../../lib/schemas/UserSchema";
 import { UserSchema } from "../../lib/schemas/UserSchema";
-import { GetUserColor } from "../../utils/UserProfileUtils";
+import { GetUserColor, UserProfileColors } from "../../utils/UserProfileUtils";
 import { ProfileImageList } from "./ProfileImageList";
 
 interface ActionProps {
@@ -154,9 +154,18 @@ const EditableProfileDetails = ({
                             backgroundColor: fcolor.value,
                             borderRadius: "8px",
                             position: "relative",
+                            "&:hover": {
+                              backgroundColor: fcolor.value,
+                              filter: "brightness(80%)",
+                            },
                           }}
                         >
-                          {" "}
+                          <EditIcon
+                            sx={{
+                              fontSize: "1rem",
+                              transform: "translate(9px, 9px)",
+                            }}
+                          />
                         </IconButtonWithTooltip>
                       </Stack>
                       <ListSelectionDialog
@@ -179,6 +188,7 @@ const EditableProfileDetails = ({
                         small
                       >
                         <ColorPicker
+                          colors={UserProfileColors}
                           size={42}
                           value={fcolor.value ?? ""}
                           onChange={(color: string) => {

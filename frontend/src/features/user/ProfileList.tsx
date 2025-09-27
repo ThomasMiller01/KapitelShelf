@@ -60,7 +60,12 @@ export const ProfileList = (): ReactElement => {
   }
 
   return (
-    <Grid spacing={4} justifyContent="center" width="100%" container>
+    <Grid
+      spacing={{ xs: 2, md: 4 }}
+      justifyContent="center"
+      width="100%"
+      container
+    >
       {userProfiles.map((userProfile) => (
         <Grid
           size={{ xs: 6, sm: 4, md: 3, lg: 2, xl: 1.5 }}
