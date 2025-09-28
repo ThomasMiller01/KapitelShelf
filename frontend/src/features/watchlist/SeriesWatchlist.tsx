@@ -1,4 +1,4 @@
-import { Divider, Paper, Stack, Typography } from "@mui/material";
+import { Divider, Grid, Paper, Stack, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
@@ -51,11 +51,13 @@ const SeriesWatchlist: React.FC = () => {
 
   return (
     <SeriesWatchlistWrapper>
-      <Stack spacing={2}>
+      <Grid container spacing={4}>
         {data.map((watchlist) => (
-          <SeriesWatchlistDetails key={watchlist.id} watchlist={watchlist} />
+          <Grid key={watchlist.id}>
+            <SeriesWatchlistDetails watchlist={watchlist} />
+          </Grid>
         ))}
-      </Stack>
+      </Grid>
     </SeriesWatchlistWrapper>
   );
 };

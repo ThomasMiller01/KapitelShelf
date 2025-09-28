@@ -43,6 +43,7 @@ export interface ItemCardLayoutProps {
   title: string | null | undefined;
   description?: string | null | undefined;
   link?: string | null | undefined;
+  externalLink?: boolean;
   onClick?: () => void | undefined;
   image?: string | null | undefined;
   fallbackImage?: string | null | undefined;

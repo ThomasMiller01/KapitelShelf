@@ -101,10 +101,15 @@ const ItemAppBar = ({
             minWidth: 0,
           }}
         >
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={2} alignItems="center">
             {addons}
           </Stack>
-          <Stack direction="row" spacing={2} justifyContent={"end"}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            justifyContent={"end"}
+          >
             {actions}
           </Stack>
         </Stack>

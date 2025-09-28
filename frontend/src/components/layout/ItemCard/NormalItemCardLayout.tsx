@@ -5,11 +5,13 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  Link as ExternalLink,
   styled,
   Typography,
 } from "@mui/material";
+import type { ElementType } from "react";
 import { type ReactElement, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useMobile } from "../../../hooks/useMobile";
 import type { ItemCardLayoutProps } from "./ItemCardLayout";
@@ -23,6 +25,7 @@ export const NormalMetadataItem = styled(Typography)(({ theme }) => ({
 const NormalItemCardLayout = ({
   title,
   link,
+  externalLink = false,
   onClick,
   image,
   fallbackImage,
@@ -40,23 +43,12 @@ const NormalItemCardLayout = ({
   const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
 
   const isClickable = Boolean(link || onClick);
-  const handleClick = (): void => {
-    if (!isClickable) {
-      return;
-    }
-
-    if (onClick) {
-      onClick();
-    }
-
-    if (link) {
-      navigate(link);
-    }
-  };
+  const ActionWrapper: ElementType = isClickable ? CardActionArea : Box;
+  const LinkWrapper = externalLink ? Link : ExternalLink;
 
   return (
     <Card
-      onClick={handleClick}
+      onClick={isClickable ? onClick : undefined}
       raised={raised}
       data-active={selected ? "" : undefined}
       sx={{
@@ -76,8 +68,10 @@ const NormalItemCardLayout = ({
         },
       }}
     >
-      <Box
-        component={isClickable ? CardActionArea : "div"}
+      <ActionWrapper
+        component={link ? LinkWrapper : Box}
+        to={link && !externalLink ? link : undefined}
+        href={link && externalLink ? link : undefined}
         height="100%"
         sx={{
           display: "flex",
@@ -140,7 +134,7 @@ const NormalItemCardLayout = ({
           {/* Metadata */}
           {metadata}
         </CardContent>
-      </Box>
+      </ActionWrapper>
     </Card>
   );
 };

@@ -51,13 +51,15 @@ export const Sidebar = ({ open, onClose }: SidebarProps): ReactElement => {
             icon={<LibraryBooksIcon />}
             link="/library"
             onClose={isMobile ? onClose : undefined}
-          />
-          <SidebarLinkItem
-            name="Watchlist"
-            icon={<TrackChangesIcon />}
-            link="/watchlist"
-            onClose={isMobile ? onClose : undefined}
-          />
+          >
+            <SidebarLinkItem
+              name="Watchlist"
+              icon={<TrackChangesIcon />}
+              link="/watchlist"
+              onClose={isMobile ? onClose : undefined}
+              nestingLevel={1}
+            />
+          </SidebarLinkItem>
           <SidebarLinkItem
             name="Settings"
             icon={<SettingsIcon />}

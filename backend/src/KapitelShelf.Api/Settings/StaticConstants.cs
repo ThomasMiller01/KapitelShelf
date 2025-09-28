@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Location;
 
 namespace KapitelShelf.Api.Settings
 {
@@ -77,5 +78,12 @@ namespace KapitelShelf.Api.Settings
         /// Dynamic setting cloudstorage experimental bisync.
         /// </summary>
         public static readonly string DynamicSettingCloudStorageExperimentalBisync = "cloudstorage.rclone.experimental-bisync";
+
+        /// <summary>
+        /// List of locations that support series watchlist.
+        /// </summary>
+        public static readonly List<LocationTypeDTO> LocationsSupportSeriesWatchlist = [
+            LocationTypeDTO.Kindle,
+        ];
     }
 }

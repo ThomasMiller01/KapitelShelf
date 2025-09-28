@@ -8,6 +8,7 @@ using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.DTOs.Watchlist;
@@ -47,6 +48,11 @@ public class SeriesMappingProfile : Profile
         CreateMap<SeriesDTO, CreateSeriesDTO>();
 
         CreateMap<SeriesWatchlistModel, SeriesWatchlistDTO>()
+            .ForMember(dest => dest.Items, opt =>
+                opt.MapFrom(src => src.Items
+                    .OrderByDescending(b => b.ReleaseDate)
+                    .ThenByDescending(b => b.Volume)
+                    .ToList()))
             .ReverseMap();
 
         CreateMap<SeriesWatchlistItemModel, BookDTO>()
@@ -62,6 +68,10 @@ public class SeriesMappingProfile : Profile
                         FilePath = src.CoverUrl,
                     }
                     : null))
+            .ForMember(dest => dest.Location, opt => opt.MapFrom((src, _, _, context) => new LocationDTO
+            {
+                Type = context.Mapper.Map<LocationTypeDTO>(src.LocationType),
+            }))
             .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(c => new CategoryDTO { Name = c }).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => new TagDTO { Name = t }).ToList()));
     }

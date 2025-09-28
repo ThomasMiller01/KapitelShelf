@@ -55,6 +55,11 @@ public class SeriesWatchlistItemModel
     public string? CoverUrl { get; set; }
 
     /// <summary>
+    /// Gets or sets the location type of the book.
+    /// </summary>
+    public LocationType LocationType { get; set; }
+
+    /// <summary>
     /// Gets or sets the categories of the book.
     /// </summary>
     public List<string> Categories { get; set; } = [];
@@ -63,4 +68,9 @@ public class SeriesWatchlistItemModel
     /// Gets or sets the tags of the book.
     /// </summary>
     public List<string> Tags { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the watchlists that contain this item.
+    /// </summary>
+    public virtual ICollection<SeriesWatchlistModel> Watchlists { get; set; } = [];
 }

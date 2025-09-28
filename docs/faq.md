@@ -17,3 +17,10 @@ This URI is not allowed to be any kind of wildcard, see specification [RFC 6749]
 Because KapitelShelf allows its API to be hosted behind any domain, it is not possible to use a single Azure Application for the entire KapitelShelf community.
 
 > Tools like [rclone](https://rclone.org/) can use a "default" Azure Application, as their server always runs locally under a specific url (like `http://127.0.0.1:53682`), instead of being configurable (like at KapitelShelf).
+
+## Why can I some series to the watchlist and some not?
+
+- because only series in supported locations can be added
+- this is due to kapitelshelf having to fetch the next volumes with their release dates
+- supported is right now only Kindle (amazon)
+  - => requires to add the asin in the location

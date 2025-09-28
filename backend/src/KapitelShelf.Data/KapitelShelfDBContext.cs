@@ -259,7 +259,7 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
 
         // Series Watchlist
         modelBuilder.Entity<SeriesWatchlistModel>()
-            .HasKey(sw => new { sw.SeriesId });
+            .HasKey(sw => new { sw.SeriesId, sw.UserId });
 
         modelBuilder.Entity<SeriesWatchlistModel>()
             .HasOne(b => b.Series)
@@ -268,9 +268,14 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<SeriesWatchlistModel>()
-            .HasMany(sw => sw.Items)
-            .WithOne()
+            .HasOne(b => b.User)
+            .WithMany()
+            .HasForeignKey(b => b.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SeriesWatchlistModel>()
+            .HasMany(sw => sw.Items)
+            .WithMany(sw => sw.Watchlists);
 
         modelBuilder.Entity<SeriesWatchlistItemModel>()
             .HasKey(sw => new { sw.SeriesId, sw.Volume });

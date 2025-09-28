@@ -13,6 +13,7 @@ using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.Watchlists;
 using Microsoft.EntityFrameworkCore;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
@@ -81,6 +82,15 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
         var series = await context.Series
             .AsNoTracking()
+
+            .Include(x => x.Books)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Cover)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.Location)
+            .AsSingleQuery()
+
             .Where(x => x.Id == seriesId)
             .Select(x => this.mapper.Map<SeriesDTO>(x))
             .FirstOrDefaultAsync();
@@ -89,13 +99,6 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         {
             return null;
         }
-
-        var bookCount = await context.Books
-            .AsNoTracking()
-            .Where(x => x.SeriesId == seriesId)
-            .CountAsync();
-
-        series.TotalBooks = bookCount;
 
         return series;
     }
@@ -329,18 +332,116 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     /// </summary>
     /// <param name="userId">The id of the user.</param>
     /// <returns>The list of watchlists.</returns>
-    public async Task<List<SeriesWatchlistDTO>> GetWatchlistByUserAsync(Guid userId)
+    public async Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.SeriesWatchlist
             .AsNoTracking()
+
             .Include(x => x.Series)
             .Include(x => x.Items)
             .AsSingleQuery()
+
             .Where(x => x.UserId == userId)
+
+            // 1. Order first all series with watchlist items
+            // 2. Order by the watchlist item release date
+            // 3. Then by the latest book in the series release date
+            .OrderByDescending(x => x.Items.Any())
+            .ThenByDescending(
+                x => x.Items
+                    .OrderByDescending(i => i.ReleaseDate)
+                    .FirstOrDefault()!.ReleaseDate)
+            .ThenByDescending(
+                x => x.Series.Books
+                    .OrderByDescending(x => x.ReleaseDate)
+                    .FirstOrDefault()!
+                    .ReleaseDate)
+
             .Select(x => this.mapper.Map<SeriesWatchlistDTO>(x))
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Check if the series is on the watchlist.
+    /// </summary>
+    /// <param name="seriesId">The id of the series.</param>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>true, if the series is on the watchlist, otherwise false.</returns>
+    public async Task<bool> IsOnWatchlist(Guid seriesId, Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.SeriesWatchlist
+            .AnyAsync(x => x.SeriesId == seriesId && x.UserId == userId);
+    }
+
+    /// <summary>
+    /// Add the series to the watchlist of a user.
+    /// </summary>
+    /// <param name="seriesId">The id of the series.</param>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>The new watchlist dto.</returns>
+    public async Task<SeriesWatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var series = await this.GetSeriesByIdAsync(seriesId);
+        if (series is null)
+        {
+            return null;
+        }
+
+        if (series.LastVolume?.Location?.Type is not null && !StaticConstants.LocationsSupportSeriesWatchlist.Contains(series.LastVolume.Location.Type))
+        {
+            throw new ArgumentException($"Location '{series.LastVolume.Location.Type}' does not support watchlists.");
+        }
+
+        var existingWatchlist = await context.SeriesWatchlist
+            .Where(x => x.SeriesId == seriesId && x.UserId == userId)
+            .AnyAsync();
+
+        if (existingWatchlist)
+        {
+            throw new ArgumentException($"Series '{series.Name}' is already on the watchlist.");
+        }
+
+        var seriesWatchlistModel = new SeriesWatchlistModel
+        {
+            Id = Guid.NewGuid(),
+            SeriesId = series.Id,
+            UserId = userId,
+        };
+
+        await context.SeriesWatchlist.AddAsync(seriesWatchlistModel);
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
+    }
+
+    /// <summary>
+    /// Remove the series from the watchlist of a user.
+    /// </summary>
+    /// <param name="seriesId">The id of the series.</param>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>The new watchlist dto.</returns>
+    public async Task<SeriesWatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var seriesWatchlistModel = await context.SeriesWatchlist
+            .FirstOrDefaultAsync(x => x.SeriesId == seriesId && x.UserId == userId);
+
+        if (seriesWatchlistModel is null)
+        {
+            return null;
+        }
+
+        context.SeriesWatchlist.Remove(seriesWatchlistModel);
+        await context.SaveChangesAsync();
+
+        return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
     }
 
     internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)

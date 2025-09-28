@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -13,9 +14,11 @@ using NpgsqlTypes;
 namespace KapitelShelf.Data.Migrations.Migrations
 {
     [DbContext(typeof(KapitelShelfDBContext))]
-    partial class KapitelShelfDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250928110553_AddUserIdToSeriesWatchlistIndex")]
+    partial class AddUserIdToSeriesWatchlistIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -965,14 +968,17 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("LocationType")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("Pages")
                         .HasColumnType("integer");
 
                     b.Property<string>("ReleaseDate")
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("SeriesWatchlistModelSeriesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SeriesWatchlistModelUserId")
+                        .HasColumnType("uuid");
 
                     b.PrimitiveCollection<List<string>>("Tags")
                         .IsRequired()
@@ -983,6 +989,8 @@ namespace KapitelShelf.Data.Migrations.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("SeriesId", "Volume");
+
+                    b.HasIndex("SeriesWatchlistModelSeriesId", "SeriesWatchlistModelUserId");
 
                     b.ToTable("SeriesWatchlistItems");
                 });
@@ -1003,27 +1011,6 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("SeriesWatchlist");
-                });
-
-            modelBuilder.Entity("SeriesWatchlistItemModelSeriesWatchlistModel", b =>
-                {
-                    b.Property<Guid>("ItemsSeriesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ItemsVolume")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("WatchlistsSeriesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("WatchlistsUserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ItemsSeriesId", "ItemsVolume", "WatchlistsSeriesId", "WatchlistsUserId");
-
-                    b.HasIndex("WatchlistsSeriesId", "WatchlistsUserId");
-
-                    b.ToTable("SeriesWatchlistItemModelSeriesWatchlistModel");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzBlobTrigger", b =>
@@ -1241,6 +1228,14 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistItemModel", b =>
+                {
+                    b.HasOne("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistModel", null)
+                        .WithMany("Items")
+                        .HasForeignKey("SeriesWatchlistModelSeriesId", "SeriesWatchlistModelUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistModel", b =>
                 {
                     b.HasOne("KapitelShelf.Data.Models.SeriesModel", "Series")
@@ -1258,22 +1253,6 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("Series");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SeriesWatchlistItemModelSeriesWatchlistModel", b =>
-                {
-                    b.HasOne("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistItemModel", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsSeriesId", "ItemsVolume")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistModel", null)
-                        .WithMany()
-                        .HasForeignKey("WatchlistsSeriesId", "WatchlistsUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_SeriesWatchlistItemModelSeriesWatchlistModel_SeriesWatchli~1");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzJobDetail", b =>
@@ -1324,6 +1303,11 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("Books");
 
                     b.Navigation("VisitedBooks");
+                });
+
+            modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistModel", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

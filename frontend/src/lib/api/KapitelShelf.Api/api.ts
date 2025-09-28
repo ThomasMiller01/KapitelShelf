@@ -3526,6 +3526,45 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
+         * @summary Check, if this series is on the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdIswatchedGet: async (seriesId: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'seriesId' is not null or undefined
+            assertParamExists('seriesSeriesIdIswatchedGet', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}/iswatched`
+                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Merge the series into the target series.
          * @param {string} seriesId The source series id.
          * @param {string} targetSeriesId The target series id.
@@ -3594,6 +3633,84 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(seriesDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove a series from the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdWatchDelete: async (seriesId: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'seriesId' is not null or undefined
+            assertParamExists('seriesSeriesIdWatchDelete', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}/watch`
+                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Add a series to the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdWatchPut: async (seriesId: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'seriesId' is not null or undefined
+            assertParamExists('seriesSeriesIdWatchPut', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}/watch`
+                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -3730,6 +3847,20 @@ export const SeriesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Check, if this series is on the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSeriesIdIswatchedGet(seriesId: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<boolean>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdIswatchedGet(seriesId, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdIswatchedGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Merge the series into the target series.
          * @param {string} seriesId The source series id.
          * @param {string} targetSeriesId The target series id.
@@ -3754,6 +3885,34 @@ export const SeriesApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdPut(seriesId, seriesDTO, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove a series from the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSeriesIdWatchDelete(seriesId: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdWatchDelete(seriesId, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdWatchDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Add a series to the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSeriesIdWatchPut(seriesId: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdWatchPut(seriesId, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdWatchPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3846,6 +4005,17 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
+         * @summary Check, if this series is on the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdIswatchedGet(seriesId: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<boolean> {
+            return localVarFp.seriesSeriesIdIswatchedGet(seriesId, userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Merge the series into the target series.
          * @param {string} seriesId The source series id.
          * @param {string} targetSeriesId The target series id.
@@ -3865,6 +4035,28 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          */
         seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove a series from the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdWatchDelete(seriesId: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.seriesSeriesIdWatchDelete(seriesId, userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Add a series to the watchlist.
+         * @param {string} seriesId The series id.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdWatchPut(seriesId: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.seriesSeriesIdWatchPut(seriesId, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3965,6 +4157,19 @@ export class SeriesApi extends BaseAPI {
 
     /**
      * 
+     * @summary Check, if this series is on the watchlist.
+     * @param {string} seriesId The series id.
+     * @param {string} [userId] The user id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSeriesIdIswatchedGet(seriesId: string, userId?: string, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdIswatchedGet(seriesId, userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Merge the series into the target series.
      * @param {string} seriesId The source series id.
      * @param {string} targetSeriesId The target series id.
@@ -3987,6 +4192,32 @@ export class SeriesApi extends BaseAPI {
      */
     public seriesSeriesIdPut(seriesId: string, seriesDTO?: SeriesDTO, options?: RawAxiosRequestConfig) {
         return SeriesApiFp(this.configuration).seriesSeriesIdPut(seriesId, seriesDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove a series from the watchlist.
+     * @param {string} seriesId The series id.
+     * @param {string} [userId] The user id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSeriesIdWatchDelete(seriesId: string, userId?: string, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdWatchDelete(seriesId, userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Add a series to the watchlist.
+     * @param {string} seriesId The series id.
+     * @param {string} [userId] The user id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSeriesIdWatchPut(seriesId: string, userId?: string, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdWatchPut(seriesId, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
