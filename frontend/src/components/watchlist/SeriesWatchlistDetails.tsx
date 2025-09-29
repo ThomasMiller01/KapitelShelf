@@ -52,8 +52,7 @@ export const SeriesWatchlistDetails: React.FC<SeriesWatchlistDetailsProps> = ({
               raised
               title={book.title}
               link={LocationUrl(book.location!)}
-              externalLink={true}
-              // onClick={() => alert("test")}
+              externalLink
               description={book.description}
               image={book.cover?.filePath}
               fallbackImage={bookCover}

@@ -2,19 +2,15 @@ import {
   Avatar,
   Box,
   Card,
-  CardActionArea,
   CardContent,
   CardMedia,
-  Link as ExternalLink,
   styled,
   Typography,
 } from "@mui/material";
-import type { ElementType } from "react";
 import { type ReactElement, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 
 import { useMobile } from "../../../hooks/useMobile";
-import type { ItemCardLayoutProps } from "./ItemCardLayout";
+import { ActionWrapper, type ItemCardLayoutProps } from "./ItemCardLayout";
 
 export const NormalMetadataItem = styled(Typography)(({ theme }) => ({
   fontSize: "0.9rem",
@@ -36,19 +32,12 @@ const NormalItemCardLayout = ({
   small = false,
   raised = false,
 }: ItemCardLayoutProps): ReactElement => {
-  const navigate = useNavigate();
-
   const { isMobile } = useMobile();
 
   const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
 
-  const isClickable = Boolean(link || onClick);
-  const ActionWrapper: ElementType = isClickable ? CardActionArea : Box;
-  const LinkWrapper = externalLink ? Link : ExternalLink;
-
   return (
     <Card
-      onClick={isClickable ? onClick : undefined}
       raised={raised}
       data-active={selected ? "" : undefined}
       sx={{
@@ -69,11 +58,11 @@ const NormalItemCardLayout = ({
       }}
     >
       <ActionWrapper
-        component={link ? LinkWrapper : Box}
-        to={link && !externalLink ? link : undefined}
-        href={link && externalLink ? link : undefined}
-        height="100%"
+        link={link}
+        externalLink={externalLink}
+        onClick={onClick ? onClick : undefined}
         sx={{
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
