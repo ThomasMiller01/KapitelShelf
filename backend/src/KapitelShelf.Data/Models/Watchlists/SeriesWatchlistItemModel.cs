@@ -60,6 +60,11 @@ public class SeriesWatchlistItemModel
     public LocationType LocationType { get; set; }
 
     /// <summary>
+    /// Gets or sets the location url of the book.
+    /// </summary>
+    public string LocationUrl { get; set; } = null!;
+
+    /// <summary>
     /// Gets or sets the categories of the book.
     /// </summary>
     public List<string> Categories { get; set; } = [];

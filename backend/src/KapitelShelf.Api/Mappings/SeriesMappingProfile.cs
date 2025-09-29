@@ -71,6 +71,7 @@ public class SeriesMappingProfile : Profile
             .ForMember(dest => dest.Location, opt => opt.MapFrom((src, _, _, context) => new LocationDTO
             {
                 Type = context.Mapper.Map<LocationTypeDTO>(src.LocationType),
+                Url = src.LocationUrl,
             }))
             .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(c => new CategoryDTO { Name = c }).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => new TagDTO { Name = t }).ToList()));
