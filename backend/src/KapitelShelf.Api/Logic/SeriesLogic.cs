@@ -347,13 +347,13 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
             // 1. Order first all series with watchlist items
             // 2. Order by the watchlist item release date
-            // 3. Then by the latest book in the series release date
+            // 3. Then by the latest book in the series release date (but ascending)
             .OrderByDescending(x => x.Items.Any())
             .ThenByDescending(
                 x => x.Items
                     .OrderByDescending(i => i.ReleaseDate)
                     .FirstOrDefault()!.ReleaseDate)
-            .ThenByDescending(
+            .ThenBy(
                 x => x.Series.Books
                     .OrderByDescending(x => x.ReleaseDate)
                     .FirstOrDefault()!
