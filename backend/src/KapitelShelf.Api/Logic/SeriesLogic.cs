@@ -336,31 +336,44 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        return await context.SeriesWatchlist
+        var watchlists = await context.SeriesWatchlist
             .AsNoTracking()
-
             .Include(x => x.Series)
-            .Include(x => x.Items)
-            .AsSingleQuery()
-
             .Where(x => x.UserId == userId)
 
             // 1. Order first all series with watchlist items
-            // 2. Order by the watchlist item release date
-            // 3. Then by the latest book in the series release date (but ascending)
-            .OrderByDescending(x => x.Items.Any())
-            .ThenByDescending(
-                x => x.Items
-                    .OrderByDescending(i => i.ReleaseDate)
-                    .FirstOrDefault()!.ReleaseDate)
-            .ThenBy(
-                x => x.Series.Books
-                    .OrderByDescending(x => x.ReleaseDate)
-                    .FirstOrDefault()!
-                    .ReleaseDate)
+            .OrderByDescending(sw =>
+                context.SeriesWatchlistResults
+                    .Any(r => r.SeriesId == sw.SeriesId))
 
-            .Select(x => this.mapper.Map<SeriesWatchlistDTO>(x))
+            // 2. Order by the watchlist item release date
+            .ThenByDescending(sw =>
+                context.SeriesWatchlistResults
+                    .Where(r => r.SeriesId == sw.SeriesId)
+                    .Max(r => (DateTime?)(object?)r.ReleaseDate))
+
+            // 3. Then by the latest book in the series release date (but sort by earliest book)
+            .ThenBy(sw =>
+                sw.Series.Books
+                    .Max(b => (DateTime?)(object?)b.ReleaseDate))
+
+            .Select(sw => new
+            {
+                Watchlist = sw,
+                Items = context.SeriesWatchlistResults
+                    .Where(r => r.SeriesId == sw.SeriesId)
+                    .OrderByDescending(r => (DateTime?)(object?)r.ReleaseDate)
+                    .ThenByDescending(r => r.Volume)
+                    .ToList(),
+            })
             .ToListAsync();
+
+        return watchlists.Select(x =>
+        {
+            var dto = this.mapper.Map<SeriesWatchlistDTO>(x.Watchlist);
+            dto.Items = this.mapper.Map<List<BookDTO>>(x.Items);
+            return dto;
+        }).ToList();
     }
 
     /// <summary>
@@ -440,6 +453,15 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
         context.SeriesWatchlist.Remove(seriesWatchlistModel);
         await context.SaveChangesAsync();
+
+        // delete the series watchlist results, if no other users is watching this series
+        var stillWatched = await context.SeriesWatchlist.AnyAsync(x => x.SeriesId == seriesId);
+        if (!stillWatched)
+        {
+            await context.SeriesWatchlistResults
+                .Where(r => r.SeriesId == seriesId)
+                .ExecuteDeleteAsync();
+        }
 
         return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
     }

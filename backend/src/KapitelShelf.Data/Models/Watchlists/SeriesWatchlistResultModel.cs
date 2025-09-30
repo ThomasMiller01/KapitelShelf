@@ -1,16 +1,16 @@
-﻿// <copyright file="SeriesWatchlistItemModel.cs" company="KapitelShelf">
+﻿// <copyright file="SeriesWatchlistResultModel.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
 namespace KapitelShelf.Data.Models.Watchlists;
 
 /// <summary>
-/// The series watchlist item model.
+/// The series watchlist result model.
 /// </summary>
-public class SeriesWatchlistItemModel
+public class SeriesWatchlistResultModel
 {
     /// <summary>
-    /// Gets or sets the series watchlist item id.
+    /// Gets or sets the series watchlist result id.
     /// </summary>
     public Guid Id { get; set; }
 
@@ -28,6 +28,11 @@ public class SeriesWatchlistItemModel
     /// Gets or sets the id of the series.
     /// </summary>
     public Guid SeriesId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the series.
+    /// </summary>
+    public virtual SeriesModel Series { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the number of the book in the series.
@@ -73,9 +78,4 @@ public class SeriesWatchlistItemModel
     /// Gets or sets the tags of the book.
     /// </summary>
     public List<string> Tags { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the watchlists that contain this item.
-    /// </summary>
-    public virtual ICollection<SeriesWatchlistModel> Watchlists { get; set; } = [];
 }

@@ -35,9 +35,4 @@ public class SeriesWatchlistModel
     /// Gets or sets the user.
     /// </summary>
     public virtual UserModel User { get; set; } = null!;
-
-    /// <summary>
-    /// Gets or sets the watchlist items for this series.
-    /// </summary>
-    public virtual ICollection<SeriesWatchlistItemModel> Items { get; set; } = [];
 }

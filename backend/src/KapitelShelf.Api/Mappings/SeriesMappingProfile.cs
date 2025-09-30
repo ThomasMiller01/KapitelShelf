@@ -48,14 +48,9 @@ public class SeriesMappingProfile : Profile
         CreateMap<SeriesDTO, CreateSeriesDTO>();
 
         CreateMap<SeriesWatchlistModel, SeriesWatchlistDTO>()
-            .ForMember(dest => dest.Items, opt =>
-                opt.MapFrom(src => src.Items
-                    .OrderByDescending(b => b.ReleaseDate)
-                    .ThenByDescending(b => b.Volume)
-                    .ToList()))
             .ReverseMap();
 
-        CreateMap<SeriesWatchlistItemModel, BookDTO>()
+        CreateMap<SeriesWatchlistResultModel, BookDTO>()
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
             .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.Pages))
             .ForMember(dest => dest.ReleaseDate, opt => opt.MapFrom(src => MapReleaseDate(src.ReleaseDate)))
@@ -82,7 +77,7 @@ public class SeriesMappingProfile : Profile
     /// </summary>
     /// <param name="metadata">The metadata.</param>
     /// <returns>The created author.</returns>
-    private static AuthorDTO? MapAuthor(SeriesWatchlistItemModel metadata)
+    private static AuthorDTO? MapAuthor(SeriesWatchlistResultModel metadata)
     {
         if (metadata.Authors.Count > 0)
         {

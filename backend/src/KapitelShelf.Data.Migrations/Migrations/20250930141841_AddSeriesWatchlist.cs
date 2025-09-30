@@ -18,12 +18,12 @@ namespace KapitelShelf.Data.Migrations.Migrations
                 columns: table => new
                 {
                     SeriesId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SeriesWatchlist", x => x.SeriesId);
+                    table.PrimaryKey("PK_SeriesWatchlist", x => new { x.SeriesId, x.UserId });
                     table.ForeignKey(
                         name: "FK_SeriesWatchlist_Series_SeriesId",
                         column: x => x.SeriesId,
@@ -39,7 +39,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SeriesWatchlistItems",
+                name: "SeriesWatchlistResults",
                 columns: table => new
                 {
                     SeriesId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -51,17 +51,19 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     ReleaseDate = table.Column<string>(type: "text", nullable: true),
                     Pages = table.Column<int>(type: "integer", nullable: true),
                     CoverUrl = table.Column<string>(type: "text", nullable: true),
+                    LocationType = table.Column<int>(type: "integer", nullable: false),
+                    LocationUrl = table.Column<string>(type: "text", nullable: false),
                     Categories = table.Column<List<string>>(type: "text[]", nullable: false),
                     Tags = table.Column<List<string>>(type: "text[]", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SeriesWatchlistItems", x => new { x.SeriesId, x.Volume });
+                    table.PrimaryKey("PK_SeriesWatchlistResults", x => new { x.SeriesId, x.Volume });
                     table.ForeignKey(
-                        name: "FK_SeriesWatchlistItems_SeriesWatchlist_SeriesId",
+                        name: "FK_SeriesWatchlistResults_Series_SeriesId",
                         column: x => x.SeriesId,
-                        principalTable: "SeriesWatchlist",
-                        principalColumn: "SeriesId",
+                        principalTable: "Series",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -75,10 +77,10 @@ namespace KapitelShelf.Data.Migrations.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SeriesWatchlistItems");
+                name: "SeriesWatchlist");
 
             migrationBuilder.DropTable(
-                name: "SeriesWatchlist");
+                name: "SeriesWatchlistResults");
         }
     }
 }

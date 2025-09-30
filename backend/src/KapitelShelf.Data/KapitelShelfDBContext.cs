@@ -115,9 +115,9 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     public DbSet<SeriesWatchlistModel> SeriesWatchlist => Set<SeriesWatchlistModel>();
 
     /// <summary>
-    /// Gets the series watchlist item table.
+    /// Gets the series watchlist results table.
     /// </summary>
-    public DbSet<SeriesWatchlistItemModel> SeriesWatchlistItems => Set<SeriesWatchlistItemModel>();
+    public DbSet<SeriesWatchlistResultModel> SeriesWatchlistResults => Set<SeriesWatchlistResultModel>();
 
     /// <summary>
     /// On model creating.
@@ -273,12 +273,14 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .HasForeignKey(b => b.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<SeriesWatchlistModel>()
-            .HasMany(sw => sw.Items)
-            .WithMany(sw => sw.Watchlists);
+        modelBuilder.Entity<SeriesWatchlistResultModel>()
+            .HasKey(i => new { i.SeriesId, i.Volume });
 
-        modelBuilder.Entity<SeriesWatchlistItemModel>()
-            .HasKey(sw => new { sw.SeriesId, sw.Volume });
+        modelBuilder.Entity<SeriesWatchlistResultModel>()
+            .HasOne(b => b.Series)
+            .WithMany()
+            .HasForeignKey(b => b.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
 
 #pragma warning restore CA1062 // Validate arguments of public methods
 

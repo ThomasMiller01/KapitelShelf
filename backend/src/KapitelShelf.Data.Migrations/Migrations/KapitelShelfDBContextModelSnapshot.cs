@@ -940,7 +940,25 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.ToTable("VisitedBooks");
                 });
 
-            modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistItemModel", b =>
+            modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistModel", b =>
+                {
+                    b.Property<Guid>("SeriesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("SeriesId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SeriesWatchlist");
+                });
+
+            modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistResultModel", b =>
                 {
                     b.Property<Guid>("SeriesId")
                         .HasColumnType("uuid");
@@ -988,46 +1006,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
 
                     b.HasKey("SeriesId", "Volume");
 
-                    b.ToTable("SeriesWatchlistItems");
-                });
-
-            modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistModel", b =>
-                {
-                    b.Property<Guid>("SeriesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("SeriesId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SeriesWatchlist");
-                });
-
-            modelBuilder.Entity("SeriesWatchlistItemModelSeriesWatchlistModel", b =>
-                {
-                    b.Property<Guid>("ItemsSeriesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ItemsVolume")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("WatchlistsSeriesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("WatchlistsUserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ItemsSeriesId", "ItemsVolume", "WatchlistsSeriesId", "WatchlistsUserId");
-
-                    b.HasIndex("WatchlistsSeriesId", "WatchlistsUserId");
-
-                    b.ToTable("SeriesWatchlistItemModelSeriesWatchlistModel");
+                    b.ToTable("SeriesWatchlistResults");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzBlobTrigger", b =>
@@ -1264,20 +1243,15 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SeriesWatchlistItemModelSeriesWatchlistModel", b =>
+            modelBuilder.Entity("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistResultModel", b =>
                 {
-                    b.HasOne("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistItemModel", null)
+                    b.HasOne("KapitelShelf.Data.Models.SeriesModel", "Series")
                         .WithMany()
-                        .HasForeignKey("ItemsSeriesId", "ItemsVolume")
+                        .HasForeignKey("SeriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KapitelShelf.Data.Models.Watchlists.SeriesWatchlistModel", null)
-                        .WithMany()
-                        .HasForeignKey("WatchlistsSeriesId", "WatchlistsUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_SeriesWatchlistItemModelSeriesWatchlistModel_SeriesWatchli~1");
+                    b.Navigation("Series");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzJobDetail", b =>
