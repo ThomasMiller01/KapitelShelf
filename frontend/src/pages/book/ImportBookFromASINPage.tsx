@@ -89,6 +89,7 @@ const ImportBookFromASINPage = (): ReactElement => {
                     {...field}
                     label="ASIN"
                     variant="filled"
+                    autoFocus
                     error={Boolean(errors.asin)}
                     helperText={errors.asin?.message || <LearnAboutASINsText />}
                   />

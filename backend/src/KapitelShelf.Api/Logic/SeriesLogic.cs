@@ -353,7 +353,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .ThenBy(sw =>
                 context.WatchlistResults
                     .Where(r => r.SeriesId == sw.SeriesId)
-                    .Max(r => (DateTime?)(object?)r.ReleaseDate))
+                    .Min(r => (DateTime?)(object?)r.ReleaseDate))
 
             // 3. Then by the latest book in the series release date (but sort by earliest book)
             .ThenBy(sw =>
@@ -423,17 +423,20 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             throw new ArgumentException($"Series '{series.Name}' is already on the watchlist.");
         }
 
-        var seriesWatchlistModel = new WatchlistModel
+        var watchlistModel = new WatchlistModel
         {
             Id = Guid.NewGuid(),
             SeriesId = series.Id,
             UserId = userId,
         };
 
-        await context.Watchlist.AddAsync(seriesWatchlistModel);
+        await context.Watchlist.AddAsync(watchlistModel);
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
+        // update the watchlist (fire and forget)
+        _ = this.UpdateWatchlist(watchlistModel.Id);
+
+        return this.mapper.Map<SeriesWatchlistDTO>(watchlistModel);
     }
 
     /// <summary>
