@@ -1,4 +1,4 @@
-﻿// <copyright file="SeriesWatchlistModel.cs" company="KapitelShelf">
+﻿// <copyright file="WatchlistModel.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
@@ -7,9 +7,9 @@ using KapitelShelf.Data.Models.User;
 namespace KapitelShelf.Data.Models.Watchlists;
 
 /// <summary>
-/// The series watchlist model.
+/// The watchlist model.
 /// </summary>
-public class SeriesWatchlistModel
+public class WatchlistModel
 {
     /// <summary>
     /// Gets or sets the id.

@@ -9,6 +9,7 @@ using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.DTOs.Watchlist;
@@ -47,10 +48,10 @@ public class SeriesMappingProfile : Profile
 
         CreateMap<SeriesDTO, CreateSeriesDTO>();
 
-        CreateMap<SeriesWatchlistModel, SeriesWatchlistDTO>()
+        CreateMap<WatchlistModel, SeriesWatchlistDTO>()
             .ReverseMap();
 
-        CreateMap<SeriesWatchlistResultModel, BookDTO>()
+        CreateMap<WatchlistResultModel, BookDTO>()
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
             .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.Pages))
             .ForMember(dest => dest.ReleaseDate, opt => opt.MapFrom(src => MapReleaseDate(src.ReleaseDate)))
@@ -70,6 +71,15 @@ public class SeriesMappingProfile : Profile
             }))
             .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(c => new CategoryDTO { Name = c }).ToList()))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(t => new TagDTO { Name = t }).ToList()));
+
+        CreateMap<MetadataDTO, WatchlistResultModel>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.SeriesId, opt => opt.Ignore())
+            .ForMember(dest => dest.Series, opt => opt.Ignore())
+            .ForMember(dest => dest.LocationType, opt => opt.Ignore())
+            .ForMember(dest => dest.LocationUrl, opt => opt.Ignore())
+
+            .ReverseMap();
     }
 
     /// <summary>
@@ -77,7 +87,7 @@ public class SeriesMappingProfile : Profile
     /// </summary>
     /// <param name="metadata">The metadata.</param>
     /// <returns>The created author.</returns>
-    private static AuthorDTO? MapAuthor(SeriesWatchlistResultModel metadata)
+    private static AuthorDTO? MapAuthor(WatchlistResultModel metadata)
     {
         if (metadata.Authors.Count > 0)
         {

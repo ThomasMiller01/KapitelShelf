@@ -112,12 +112,12 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     /// <summary>
     /// Gets the series watchlist table.
     /// </summary>
-    public DbSet<SeriesWatchlistModel> SeriesWatchlist => Set<SeriesWatchlistModel>();
+    public DbSet<WatchlistModel> Watchlist => Set<WatchlistModel>();
 
     /// <summary>
     /// Gets the series watchlist results table.
     /// </summary>
-    public DbSet<SeriesWatchlistResultModel> SeriesWatchlistResults => Set<SeriesWatchlistResultModel>();
+    public DbSet<WatchlistResultModel> WatchlistResults => Set<WatchlistResultModel>();
 
     /// <summary>
     /// On model creating.
@@ -258,25 +258,25 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .IsUnique();
 
         // Series Watchlist
-        modelBuilder.Entity<SeriesWatchlistModel>()
+        modelBuilder.Entity<WatchlistModel>()
             .HasKey(sw => new { sw.SeriesId, sw.UserId });
 
-        modelBuilder.Entity<SeriesWatchlistModel>()
+        modelBuilder.Entity<WatchlistModel>()
             .HasOne(b => b.Series)
             .WithMany()
             .HasForeignKey(b => b.SeriesId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<SeriesWatchlistModel>()
+        modelBuilder.Entity<WatchlistModel>()
             .HasOne(b => b.User)
             .WithMany()
             .HasForeignKey(b => b.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<SeriesWatchlistResultModel>()
+        modelBuilder.Entity<WatchlistResultModel>()
             .HasKey(i => new { i.SeriesId, i.Volume });
 
-        modelBuilder.Entity<SeriesWatchlistResultModel>()
+        modelBuilder.Entity<WatchlistResultModel>()
             .HasOne(b => b.Series)
             .WithMany()
             .HasForeignKey(b => b.SeriesId)

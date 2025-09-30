@@ -1,16 +1,16 @@
-﻿// <copyright file="SeriesWatchlistResultModel.cs" company="KapitelShelf">
+﻿// <copyright file="WatchlistResultModel.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
 namespace KapitelShelf.Data.Models.Watchlists;
 
 /// <summary>
-/// The series watchlist result model.
+/// The watchlist result model.
 /// </summary>
-public class SeriesWatchlistResultModel
+public class WatchlistResultModel
 {
     /// <summary>
-    /// Gets or sets the series watchlist result id.
+    /// Gets or sets the watchlist result id.
     /// </summary>
     public Guid Id { get; set; }
 

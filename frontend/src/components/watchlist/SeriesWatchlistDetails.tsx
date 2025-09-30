@@ -79,7 +79,7 @@ export const SeriesWatchlistDetails: React.FC<SeriesWatchlistDetailsProps> = ({
                   ),
                   <MetadataItem
                     sx={{
-                      fontSize: "0.8rem",
+                      fontSize: "0.75rem",
                       color: isReleased ? "success.light" : "info.light",
                     }}
                     key="release-date"

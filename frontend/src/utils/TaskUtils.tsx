@@ -3,6 +3,7 @@ import { FinishedReasonNullable } from "../lib/api/KapitelShelf.Api/api";
 export const TaskCategoryColors: Record<string, string> = {
   Maintenance: "#A13B00",
   ["Cloud Storage"]: "#005662",
+  Watchlist: "#53286e",
   default: "rgba(255, 255, 255, 0.16)",
 };
 

@@ -7,6 +7,7 @@ import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCar
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { SeriesWatchlistDetails } from "../../components/watchlist/SeriesWatchlistDetails";
 import { useApi } from "../../contexts/ApiProvider";
+import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
 
 const SeriesWatchlist: React.FC = () => {
@@ -51,7 +52,7 @@ const SeriesWatchlist: React.FC = () => {
 
   return (
     <SeriesWatchlistWrapper>
-      <Grid container spacing={4}>
+      <Grid container spacing={6}>
         {data.map((watchlist) => (
           <Grid key={watchlist.id}>
             <SeriesWatchlistDetails watchlist={watchlist} />
@@ -68,17 +69,20 @@ interface SeriesWatchlistWrapperProps {
 
 const SeriesWatchlistWrapper: React.FC<SeriesWatchlistWrapperProps> = ({
   children,
-}) => (
-  <Paper sx={{ my: 2, py: 1.2, px: 2, pb: 2 }}>
-    <Stack direction="row" spacing={1} alignItems="baseline" mb="5px">
-      <Typography variant="h6">Series</Typography>
-      <Typography variant="body2" color="text.secondary">
-        under watch
-      </Typography>
-    </Stack>
-    <Divider sx={{ mb: 2 }} />
-    {children}
-  </Paper>
-);
+}) => {
+  const { isMobile } = useMobile();
+  return (
+    <Paper sx={{ my: 2, py: 1.2, px: isMobile ? "10px" : 2, pb: 2 }}>
+      <Stack direction="row" spacing={1} alignItems="baseline" mb="5px">
+        <Typography variant="h6">Series</Typography>
+        <Typography variant="body2" color="text.secondary">
+          under watch
+        </Typography>
+      </Stack>
+      <Divider sx={{ mb: 2 }} />
+      {children}
+    </Paper>
+  );
+};
 
 export default SeriesWatchlist;

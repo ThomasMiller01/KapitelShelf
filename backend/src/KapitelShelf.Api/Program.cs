@@ -90,6 +90,7 @@ builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>()
 builder.Services.AddSingleton<UsersLogic>();
 builder.Services.AddSingleton<TasksLogic>();
 builder.Services.AddSingleton<SettingsLogic>();
+builder.Services.AddSingleton<IWatchlistScraperManager, WatchlistScraperManager>();
 
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<ICloudStorage, CloudStorage>();

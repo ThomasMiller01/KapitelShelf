@@ -8,7 +8,9 @@ using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Watchlist;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Tasks.Watchlist;
 using Microsoft.AspNetCore.Mvc;
+using Quartz;
 
 namespace KapitelShelf.Api.Controllers;
 
@@ -17,13 +19,16 @@ namespace KapitelShelf.Api.Controllers;
 /// </summary>
 /// <param name="logger">The logger.</param>
 /// <param name="logic">The series logic.</param>
+/// <param name="schedulerFactory">A.</param>
 [ApiController]
 [Route("series")]
-public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logic) : ControllerBase
+public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logic, ISchedulerFactory schedulerFactory) : ControllerBase
 {
     private readonly ILogger<SeriesController> logger = logger;
 
     private readonly SeriesLogic logic = logic;
+
+    private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
     /// <summary>
     /// Fetch all series.
@@ -326,6 +331,28 @@ public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logi
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error removing series with Id: {SeriesId} from the watchlist", seriesId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Add a series to the watchlist.
+    /// </summary>
+    /// <param name="seriesId">The series id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{seriesId}/update")]
+    public async Task<IActionResult> TriggerUpdateWatchlist(Guid seriesId)
+    {
+        try
+        {
+            var scheduler = await this.schedulerFactory.GetScheduler();
+            await UpdateWatchlists.Schedule(scheduler);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error updating series with Id: {SeriesId} of the watchlist", seriesId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

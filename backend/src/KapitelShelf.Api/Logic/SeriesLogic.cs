@@ -26,13 +26,16 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="dbContextFactory">The dbContext factory.</param>
 /// <param name="mapper">The auto mapper.</param>
 /// <param name="booksLogic">The books logic.</param>
-public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBooksLogic booksLogic)
+/// <param name="watchlistScraperManager">The watchlist scraper manager.</param>
+public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager)
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
 
     private readonly IBooksLogic booksLogic = booksLogic;
+
+    private readonly IWatchlistScraperManager watchlistScraperManager = watchlistScraperManager;
 
     /// <summary>
     /// Get all series.
@@ -336,19 +339,19 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        var watchlists = await context.SeriesWatchlist
+        var watchlists = await context.Watchlist
             .AsNoTracking()
             .Include(x => x.Series)
             .Where(x => x.UserId == userId)
 
             // 1. Order first all series with watchlist items
             .OrderByDescending(sw =>
-                context.SeriesWatchlistResults
+                context.WatchlistResults
                     .Any(r => r.SeriesId == sw.SeriesId))
 
             // 2. Order by the watchlist item release date
-            .ThenByDescending(sw =>
-                context.SeriesWatchlistResults
+            .ThenBy(sw =>
+                context.WatchlistResults
                     .Where(r => r.SeriesId == sw.SeriesId)
                     .Max(r => (DateTime?)(object?)r.ReleaseDate))
 
@@ -360,10 +363,10 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Select(sw => new
             {
                 Watchlist = sw,
-                Items = context.SeriesWatchlistResults
+                Items = context.WatchlistResults
                     .Where(r => r.SeriesId == sw.SeriesId)
-                    .OrderByDescending(r => (DateTime?)(object?)r.ReleaseDate)
-                    .ThenByDescending(r => r.Volume)
+                    .OrderBy(r => (DateTime?)(object?)r.ReleaseDate)
+                    .ThenBy(r => r.Volume)
                     .ToList(),
             })
             .ToListAsync();
@@ -386,7 +389,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        return await context.SeriesWatchlist
+        return await context.Watchlist
             .AnyAsync(x => x.SeriesId == seriesId && x.UserId == userId);
     }
 
@@ -411,7 +414,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             throw new ArgumentException($"Location '{series.LastVolume.Location.Type}' does not support watchlists.");
         }
 
-        var existingWatchlist = await context.SeriesWatchlist
+        var existingWatchlist = await context.Watchlist
             .Where(x => x.SeriesId == seriesId && x.UserId == userId)
             .AnyAsync();
 
@@ -420,14 +423,14 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             throw new ArgumentException($"Series '{series.Name}' is already on the watchlist.");
         }
 
-        var seriesWatchlistModel = new SeriesWatchlistModel
+        var seriesWatchlistModel = new WatchlistModel
         {
             Id = Guid.NewGuid(),
             SeriesId = series.Id,
             UserId = userId,
         };
 
-        await context.SeriesWatchlist.AddAsync(seriesWatchlistModel);
+        await context.Watchlist.AddAsync(seriesWatchlistModel);
         await context.SaveChangesAsync();
 
         return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
@@ -443,7 +446,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        var seriesWatchlistModel = await context.SeriesWatchlist
+        var seriesWatchlistModel = await context.Watchlist
             .FirstOrDefaultAsync(x => x.SeriesId == seriesId && x.UserId == userId);
 
         if (seriesWatchlistModel is null)
@@ -451,19 +454,90 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             return null;
         }
 
-        context.SeriesWatchlist.Remove(seriesWatchlistModel);
+        context.Watchlist.Remove(seriesWatchlistModel);
         await context.SaveChangesAsync();
 
         // delete the series watchlist results, if no other users is watching this series
-        var stillWatched = await context.SeriesWatchlist.AnyAsync(x => x.SeriesId == seriesId);
+        var stillWatched = await context.Watchlist.AnyAsync(x => x.SeriesId == seriesId);
         if (!stillWatched)
         {
-            await context.SeriesWatchlistResults
+            await context.WatchlistResults
                 .Where(r => r.SeriesId == seriesId)
                 .ExecuteDeleteAsync();
         }
 
         return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
+    }
+
+    /// <summary>
+    /// Update the watchlist and check for new volumes.
+    /// </summary>
+    /// <param name="watchlistId">The id of the watchlist.</param>
+    /// <returns>A task.</returns>
+#pragma warning disable IDE0060 // Remove unused parameter
+    public async Task UpdateWatchlist(Guid watchlistId)
+#pragma warning restore IDE0060 // Remove unused parameter
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var watchlist = await context.Watchlist
+            .AsNoTracking()
+            .Include(x => x.Series)
+                .ThenInclude(x => x.Books)
+                    .ThenInclude(x => x.Location)
+            .AsSingleQuery()
+            .FirstOrDefaultAsync(x => x.Id == watchlistId);
+
+        if (watchlist?.Series is null)
+        {
+            return;
+        }
+
+        var volumes = await this.watchlistScraperManager.Scrape(this.mapper.Map<SeriesDTO>(watchlist.Series));
+
+        // filter any volumes that do not exist in the library
+        var existingBookTitles = watchlist.Series.Books
+            .Select(x => x.Title);
+
+        volumes = volumes
+            .Where(x => !existingBookTitles.Contains(x.Title ?? string.Empty))
+            .ToList();
+
+        // only keep the volumes after the last from the library
+        var lastExistingVolume = watchlist.Series.Books
+            .OrderByDescending(x => x.ReleaseDate)
+            .FirstOrDefault();
+
+        volumes = volumes
+            .Where(x => x.Volume > (lastExistingVolume?.SeriesNumber ?? 0))
+            .ToList();
+
+        // add/update the volumes
+        foreach (var volume in volumes)
+        {
+            var volumeModel = await context.WatchlistResults
+                .FirstOrDefaultAsync(x => x.SeriesId == volume.SeriesId && x.Volume == volume.Volume);
+
+            if (volumeModel is null)
+            {
+                // add new volume
+                volume.Id = Guid.NewGuid();
+                context.WatchlistResults.Add(volume);
+            }
+            else
+            {
+                // update volume data
+                volumeModel.Title = volume.Title;
+                volumeModel.Description = volume.Description;
+                volumeModel.ReleaseDate = volume.ReleaseDate;
+                volumeModel.Pages = volume.Pages;
+                volumeModel.CoverUrl = volume.CoverUrl;
+                volumeModel.Categories = volume.Categories;
+                volumeModel.Tags = volume.Tags;
+            }
+        }
+
+        await context.SaveChangesAsync();
     }
 
     internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
