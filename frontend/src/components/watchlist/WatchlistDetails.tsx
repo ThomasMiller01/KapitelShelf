@@ -1,9 +1,10 @@
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import LaunchIcon from "@mui/icons-material/Launch";
-import { Badge, Box, Grid, Stack, Typography } from "@mui/material";
+import { Badge, Box, Grid, Grow, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { TransitionGroup } from "react-transition-group";
 
 import { useMobile } from "../../hooks/useMobile";
 import type { SeriesWatchlistDTO } from "../../lib/api/KapitelShelf.Api";
@@ -57,17 +58,32 @@ export const WatchlistDetails: React.FC<WatchlistDetailsProps> = ({
 
       {items.length > 0 && (
         <Grid container spacing={2}>
+          {/* next released volume */}
           <Grid key={items[0].id}>
             <ResultCard book={items[0]} />
           </Grid>
 
-          {showAll &&
-            items.slice(1).map((book) => (
-              <Grid key={book.id}>
-                <ResultCard book={book} />
-              </Grid>
-            ))}
+          {/* additional volumes */}
+          <TransitionGroup component={null}>
+            {showAll &&
+              items.slice(1).map((book, idx) => (
+                <Grow
+                  key={book.id}
+                  in={showAll}
+                  timeout={350}
+                  style={{
+                    transitionDelay: showAll ? `${idx * 100}ms` : "0ms",
+                    display: "inline-block",
+                  }}
+                >
+                  <Grid>
+                    <ResultCard book={book} />
+                  </Grid>
+                </Grow>
+              ))}
+          </TransitionGroup>
 
+          {/* show additional volumes button */}
           {items.length > 1 && (
             <Grid
               alignItems="end"
