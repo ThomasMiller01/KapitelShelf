@@ -27,7 +27,7 @@ export const TasksMenuItem = (): ReactElement => {
   });
 
   return (
-    <MenuItem component={NavLink} to="/settings/tasks">
+    <MenuItem component={NavLink} to="/settings/tasks" sx={{ my: "6px" }}>
       <ListItemIcon>
         <AssignmentIcon fontSize="small" />
       </ListItemIcon>

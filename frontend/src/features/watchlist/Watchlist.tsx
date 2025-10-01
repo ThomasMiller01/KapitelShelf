@@ -1,21 +1,21 @@
-import { Divider, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Grid, Paper } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import { SeriesWatchlistDetails } from "../../components/watchlist/SeriesWatchlistDetails";
+import { WatchlistDetails } from "../../components/watchlist/WatchlistDetails";
 import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
 
-const SeriesWatchlist: React.FC = () => {
+const Watchlist: React.FC = () => {
   const { profile } = useUserProfile();
   const { clients } = useApi();
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["series-watchlist", profile?.id],
+    queryKey: ["watchlist", profile?.id],
     queryFn: async () => {
       if (profile?.id === undefined) {
         return null;
@@ -28,61 +28,52 @@ const SeriesWatchlist: React.FC = () => {
 
   if (isLoading) {
     return (
-      <SeriesWatchlistWrapper>
-        <LoadingCard delayed itemName="Series Watchlist" small />
-      </SeriesWatchlistWrapper>
+      <WatchlistWrapper>
+        <LoadingCard delayed itemName="Watchlist" small />
+      </WatchlistWrapper>
     );
   }
 
   if (isError) {
     return (
-      <SeriesWatchlistWrapper>
-        <RequestErrorCard itemName="Series Watchlist" onRetry={refetch} />
-      </SeriesWatchlistWrapper>
+      <WatchlistWrapper>
+        <RequestErrorCard itemName="Watchlist" onRetry={refetch} />
+      </WatchlistWrapper>
     );
   }
 
   if (data === undefined || data === null || data.length === 0) {
     return (
-      <SeriesWatchlistWrapper>
+      <WatchlistWrapper>
         <NoItemsFoundCard itemName="Series on your Watchlist" extraSmall />
-      </SeriesWatchlistWrapper>
+      </WatchlistWrapper>
     );
   }
 
   return (
-    <SeriesWatchlistWrapper>
-      <Grid container spacing={6}>
+    <WatchlistWrapper>
+      <Grid container rowSpacing={3} columnSpacing={6}>
         {data.map((watchlist) => (
           <Grid key={watchlist.id}>
-            <SeriesWatchlistDetails watchlist={watchlist} />
+            <WatchlistDetails watchlist={watchlist} />
           </Grid>
         ))}
       </Grid>
-    </SeriesWatchlistWrapper>
+    </WatchlistWrapper>
   );
 };
 
-interface SeriesWatchlistWrapperProps {
+interface WatchlistWrapperProps {
   children: ReactNode;
 }
 
-const SeriesWatchlistWrapper: React.FC<SeriesWatchlistWrapperProps> = ({
-  children,
-}) => {
+const WatchlistWrapper: React.FC<WatchlistWrapperProps> = ({ children }) => {
   const { isMobile } = useMobile();
   return (
-    <Paper sx={{ my: 2, py: 1.2, px: isMobile ? "10px" : 2, pb: 2 }}>
-      <Stack direction="row" spacing={1} alignItems="baseline" mb="5px">
-        <Typography variant="h6">Series</Typography>
-        <Typography variant="body2" color="text.secondary">
-          under watch
-        </Typography>
-      </Stack>
-      <Divider sx={{ mb: 2 }} />
+    <Paper sx={{ my: 2, py: 1.5, px: isMobile ? "10px" : 2, pb: 2 }}>
       {children}
     </Paper>
   );
 };
 
-export default SeriesWatchlist;
+export default Watchlist;
