@@ -34,16 +34,17 @@ export const ResultCard: React.FC<ResultCardProps> = ({ book }) => {
         book.seriesNumber !== 0 ? book.seriesNumber?.toString() : undefined
       }
       metadata={[
-        book.pageNumber && book.pageNumber !== 0 ? (
-          <MetadataItem
-            sx={{ fontSize: MetadataFontSize(isMobile) }}
-            key="pages"
-          >
-            {book.pageNumber} pages
-          </MetadataItem>
-        ) : (
-          <React.Fragment key="no-pages" />
-        ),
+        <MetadataItem
+          sx={{
+            fontSize: MetadataFontSize(isMobile),
+            height: MetadataFontSize(isMobile),
+          }}
+          key="pages"
+        >
+          {book.pageNumber &&
+            book.pageNumber !== 0 &&
+            `${book.pageNumber} pages`}
+        </MetadataItem>,
         <MetadataItem
           sx={{
             fontSize: "0.75rem",

@@ -1703,6 +1703,31 @@
         }
       }
     },
+    "/series/{seriesId}/update": {
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Add a series to the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/settings": {
       "get": {
         "tags": [

@@ -90,6 +90,7 @@ export const WatchlistDetails: React.FC<WatchlistDetailsProps> = ({
               display="flex"
               minWidth={isMobile ? "100px" : "initial"}
               justifyContent="center"
+              ml={isMobile ? "-35px" : "-10px"}
             >
               <Badge
                 badgeContent={showAll ? undefined : `${items.length - 1}`}
