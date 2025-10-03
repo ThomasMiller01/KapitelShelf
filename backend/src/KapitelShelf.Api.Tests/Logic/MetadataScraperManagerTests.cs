@@ -86,7 +86,7 @@ public class MetadataScraperManagerTests
 
         // Execute and Assert
         var ex = Assert.ThrowsAsync<ArgumentException>(async () => await manager.Scrape(MetadataSources.OpenLibrary, "title"));
-        Assert.That(ex!.Message, Does.Contain("Unsupported location type"));
+        Assert.That(ex!.Message, Does.Contain("Unsupported metadata source"));
     }
 
     /// <summary>

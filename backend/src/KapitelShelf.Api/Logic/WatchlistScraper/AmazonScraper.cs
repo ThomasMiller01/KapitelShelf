@@ -16,7 +16,7 @@ namespace KapitelShelf.Api.Logic.WatchlistScraper;
 /// <summary>
 /// The Amazon metadata scraper.
 /// </summary>
-public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : AmazonMetadataScraper, IWatchlistScraper
+public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : AmazonMetadataScraper(httpClient), IWatchlistScraper
 {
     private readonly HttpClient httpClient = httpClient;
 
