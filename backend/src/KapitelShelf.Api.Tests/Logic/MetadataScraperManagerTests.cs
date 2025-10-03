@@ -11,7 +11,6 @@ namespace KapitelShelf.Api.Tests.Logic;
 /// <summary>
 /// Unit tests for the MetadataScraperManager class.
 /// </summary>
-[TestFixture]
 public class MetadataScraperManagerTests
 {
     private MetadataScraperManager testee;
@@ -87,7 +86,7 @@ public class MetadataScraperManagerTests
 
         // Execute and Assert
         var ex = Assert.ThrowsAsync<ArgumentException>(async () => await manager.Scrape(MetadataSources.OpenLibrary, "title"));
-        Assert.That(ex!.Message, Does.Contain("Unsupported metadata source"));
+        Assert.That(ex!.Message, Does.Contain("Unsupported location type"));
     }
 
     /// <summary>
