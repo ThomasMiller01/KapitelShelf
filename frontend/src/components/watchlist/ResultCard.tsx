@@ -16,7 +16,7 @@ interface ResultCardProps {
 export const ResultCard: React.FC<ResultCardProps> = ({ book }) => {
   const { isMobile } = useMobile();
 
-  const timeUntilRelease = FormatTimeUntil(book.releaseDate, false);
+  const timeUntilRelease = FormatTimeUntil(book.releaseDate, false, "calender");
   const isReleased = timeUntilRelease === "-";
 
   return (
