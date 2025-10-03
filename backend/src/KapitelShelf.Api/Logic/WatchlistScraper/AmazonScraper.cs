@@ -5,6 +5,7 @@
 using System.Text.Json;
 using AutoMapper;
 using HtmlAgilityPack;
+using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic.Interfaces.WatchlistScraper;
 using KapitelShelf.Data.Models;
@@ -18,6 +19,11 @@ namespace KapitelShelf.Api.Logic.WatchlistScraper;
 /// </summary>
 public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : AmazonMetadataScraper(httpClient), IWatchlistScraper
 {
+    /// <summary>
+    /// The batch size for fetching volumes.
+    /// </summary>
+    private const int BatchSize = 5;
+
     private readonly HttpClient httpClient = httpClient;
 
     private readonly IMapper mapper = mapper;
@@ -87,14 +93,29 @@ public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : Amaz
         }
 
         // Parse each book seperately
-        var tasks = asins
-            .Where(x => x != null)
-            .Select(x => this.ParseBookLink($"/dp/{x!}"))
-            .ToList();
+        // process ASINs in batches with delay
+        var asinResults = new List<MetadataDTO?>();
 
-        var taskResults = await Task.WhenAll(tasks);
+        for (int i = 0; i < asins.Count; i += BatchSize)
+        {
+            var batch = asins
+                .Skip(i)
+                .Take(BatchSize)
+                .Where(x => x != null)
+                .Select(x => this.ParseBookLink($"/dp/{x!}"))
+                .ToList();
 
-        var watchlistResults = taskResults
+            var batchResults = await Task.WhenAll(batch);
+            asinResults.AddRange(batchResults);
+
+            // add delay only if there are more batches left
+            if (i + BatchSize < asins.Count)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+        }
+
+        var watchlistResults = asinResults
             .Zip(asins, (dto, asin) => new
             {
                 Dto = this.mapper.Map<WatchlistResultModel>(dto),

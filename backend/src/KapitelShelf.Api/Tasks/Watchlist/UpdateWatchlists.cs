@@ -35,6 +35,9 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
             try
             {
                 await this.logic.UpdateWatchlist(watchlist.Id);
+
+                // wait 10 seconds between series
+                await Task.Delay(10000);
             }
             catch (Exception ex)
             {

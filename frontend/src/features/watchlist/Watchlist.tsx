@@ -115,7 +115,7 @@ const WatchtlistCategory: React.FC<WatchlistReleaseTimeCategoryProps> = ({
         </Typography>
       </Stack>
       <Divider sx={{ mb: 2 }} />
-      <Grid container rowSpacing={3} columnSpacing={6}>
+      <Grid container rowSpacing={4} columnSpacing={6}>
         {watchlists.map((watchlist) => (
           <Grid key={watchlist.id}>
             <WatchlistDetails watchlist={watchlist} />
