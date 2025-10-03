@@ -6,7 +6,7 @@ using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Watchlist;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.Watchlist;
 using Microsoft.AspNetCore.Mvc;
@@ -22,11 +22,11 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="schedulerFactory">A.</param>
 [ApiController]
 [Route("series")]
-public class SeriesController(ILogger<SeriesController> logger, SeriesLogic logic, ISchedulerFactory schedulerFactory) : ControllerBase
+public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic logic, ISchedulerFactory schedulerFactory) : ControllerBase
 {
     private readonly ILogger<SeriesController> logger = logger;
 
-    private readonly SeriesLogic logic = logic;
+    private readonly ISeriesLogic logic = logic;
 
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 

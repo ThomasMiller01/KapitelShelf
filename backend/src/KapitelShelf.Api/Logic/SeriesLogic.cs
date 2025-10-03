@@ -27,7 +27,7 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="mapper">The auto mapper.</param>
 /// <param name="booksLogic">The books logic.</param>
 /// <param name="watchlistScraperManager">The watchlist scraper manager.</param>
-public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager)
+public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager) : ISeriesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -37,12 +37,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
     private readonly IWatchlistScraperManager watchlistScraperManager = watchlistScraperManager;
 
-    /// <summary>
-    /// Get all series.
-    /// </summary>
-    /// <param name="page">The page to get.</param>
-    /// <param name="pageSize">The size of the pages.</param>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -74,11 +69,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         };
     }
 
-    /// <summary>
-    /// Get a series by id.
-    /// </summary>
-    /// <param name="seriesId">The id of the series to fetch.</param>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<SeriesDTO?> GetSeriesByIdAsync(Guid seriesId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -106,13 +97,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         return series;
     }
 
-    /// <summary>
-    /// Search all series by their name.
-    /// </summary>
-    /// <param name="name">The series name.</param>
-    /// <param name="page">The page to get.</param>
-    /// <param name="pageSize">The size of the pages.</param>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<PagedResult<SeriesDTO>> Search(string name, int page, int pageSize)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -157,13 +142,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         };
     }
 
-    /// <summary>
-    /// Get a series by id.
-    /// </summary>
-    /// <param name="seriesId">The id of the series to fetch.</param>
-    /// <param name="page">The page to get.</param>
-    /// <param name="pageSize">The size of the pages.</param>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<PagedResult<BookDTO>> GetBooksBySeriesIdAsync(Guid seriesId, int page, int pageSize)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -201,11 +180,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         };
     }
 
-    /// <summary>
-    /// Delete a series.
-    /// </summary>
-    /// <param name="seriesId">The id of the series to delete.</param>
-    /// <returns>A <see cref="Task{SeriesDTO}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<SeriesDTO?> DeleteSeriesAsync(Guid seriesId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -226,12 +201,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         return this.mapper.Map<SeriesDTO>(series);
     }
 
-    /// <summary>
-    /// Update a series.
-    /// </summary>
-    /// <param name="seriesId">The id of the series to update.</param>
-    /// <param name="seriesDto">The updated series dto.</param>
-    /// <returns>A <see cref="Task{SeriesDTO}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<SeriesDTO?> UpdateSeriesAsync(Guid seriesId, SeriesDTO seriesDto)
     {
         if (seriesDto is null)
@@ -269,11 +239,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         return this.mapper.Map<SeriesDTO>(series);
     }
 
-    /// <summary>
-    /// Delete the files of all books from a series.
-    /// </summary>
-    /// <param name="seriesId">The id of the series.</param>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task DeleteFilesAsync(Guid seriesId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -292,12 +258,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         }
     }
 
-    /// <summary>
-    /// Merge all books from the source series into the target series.
-    /// </summary>
-    /// <param name="sourceSeriesId">The source series id.</param>
-    /// <param name="targetSeriesId">The target series id.</param>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task MergeSeries(Guid sourceSeriesId, Guid targetSeriesId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -326,15 +287,11 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
         await context.SaveChangesAsync();
 
-        // delete target series
+        // delete source series
         await this.DeleteSeriesAsync(sourceSeriesId);
     }
 
-    /// <summary>
-    /// Get the series watchlists for a user.
-    /// </summary>
-    /// <param name="userId">The id of the user.</param>
-    /// <returns>The list of watchlists.</returns>
+    /// <inheritdoc/>
     public async Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -379,12 +336,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         }).ToList();
     }
 
-    /// <summary>
-    /// Check if the series is on the watchlist.
-    /// </summary>
-    /// <param name="seriesId">The id of the series.</param>
-    /// <param name="userId">The id of the user.</param>
-    /// <returns>true, if the series is on the watchlist, otherwise false.</returns>
+    /// <inheritdoc/>
     public async Task<bool> IsOnWatchlist(Guid seriesId, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -393,12 +345,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .AnyAsync(x => x.SeriesId == seriesId && x.UserId == userId);
     }
 
-    /// <summary>
-    /// Add the series to the watchlist of a user.
-    /// </summary>
-    /// <param name="seriesId">The id of the series.</param>
-    /// <param name="userId">The id of the user.</param>
-    /// <returns>The new watchlist dto.</returns>
+    /// <inheritdoc/>
     public async Task<SeriesWatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -439,12 +386,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         return this.mapper.Map<SeriesWatchlistDTO>(watchlistModel);
     }
 
-    /// <summary>
-    /// Remove the series from the watchlist of a user.
-    /// </summary>
-    /// <param name="seriesId">The id of the series.</param>
-    /// <param name="userId">The id of the user.</param>
-    /// <returns>The new watchlist dto.</returns>
+    /// <inheritdoc/>
     public async Task<SeriesWatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -472,14 +414,8 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
     }
 
-    /// <summary>
-    /// Update the watchlist and check for new volumes.
-    /// </summary>
-    /// <param name="watchlistId">The id of the watchlist.</param>
-    /// <returns>A task.</returns>
-#pragma warning disable IDE0060 // Remove unused parameter
+    /// <inheritdoc/>
     public async Task UpdateWatchlist(Guid watchlistId)
-#pragma warning restore IDE0060 // Remove unused parameter
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 

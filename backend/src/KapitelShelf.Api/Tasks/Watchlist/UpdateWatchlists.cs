@@ -3,7 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -13,9 +13,9 @@ namespace KapitelShelf.Api.Tasks.Watchlist;
 /// <summary>
 /// Updates the watchlist results for series watchlists.
 /// </summary>
-public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, SeriesLogic logic, IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger)
+public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ISeriesLogic logic, IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger)
 {
-    private readonly SeriesLogic logic = logic;
+    private readonly ISeriesLogic logic = logic;
 
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
