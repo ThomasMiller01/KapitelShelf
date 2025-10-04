@@ -56,7 +56,7 @@ See the [Quickstart Guide](docs/quickstart.md) for an introduction to using Kapi
 
 Refer to the [Development Guide](docs/development.md) for instructions.
 
-Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.md). _(Coming soon)_
+Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.md).
 
 ## Support
 
