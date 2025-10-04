@@ -20,7 +20,7 @@ Before adding a storage, configure the provider you plan to use. The setup flow 
 Once configured, add your first storage instance.
 
 1. Click **Add Storage**.
-2. Complete the provider’s authentication steps.
+2. Complete the provider's authentication steps.
 3. Sign in with the appropriate account.
 
 ![Add Cloud Storage](../.attachments/references/cloud_storage/add_cloud_storage.png)
@@ -64,4 +64,4 @@ A uni-directional sync copies updates from the cloud into KapitelShelf.
 
 Because `rclone bisync` remains in beta, KapitelShelf lets you disable it in favour of `rclone sync` for uni-directional behaviour.
 
-Toggle the **Enable rclone bisync** option in [Global Settings](./global-settings.md#cloud-storage) to switch between bi-directional and uni-directional sync.
+Toggle the **Enable rclone bisync** option (see [Global Settings](./global-settings.md#cloud-storage)) to switch between bi-directional and uni-directional sync.

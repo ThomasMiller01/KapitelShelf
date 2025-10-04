@@ -12,8 +12,8 @@ Use the library view to browse your collection and the global search to surface 
 
 ## Search Across Your Collection
 
-Use the **search bar** at the top of the page to find books by title, description, series name, author, tags, or categories.
+Use the **search bar** at the top of the page to find books by title, description, series name, author, tags or categories.
 
 ![Search Bar](../.attachments/references/search/search_bar.png)
 
-> The search scans across `title`, `description`, `series name`, `author`, `tags`, and `categories` fields.
+> The search scans across `title`, `description`, `series name`, `author`, `tags` and `categories` fields.

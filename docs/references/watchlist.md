@@ -6,9 +6,9 @@ Track upcoming volumes of your favourite series—even if the books are not yet 
 
 The watchlist page is organised into three sections:
 
-1. **Arriving Soon** – books releasing within the next 7 days.
-2. **Coming Up** – books releasing within the next 30 days.
-3. **Further Ahead** – books scheduled for later or with no confirmed next volume.
+1. **Arriving Soon** - books releasing within the next 7 days.
+2. **Coming Up** - books releasing within the next 30 days.
+3. **Further Ahead** - books scheduled for later or with no confirmed next volume.
 
 From the watchlist you can open series pages, inspect all upcoming volumes, and remove entries when you no longer need them.
 

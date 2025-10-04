@@ -35,6 +35,6 @@ Settings control behaviour and layout preferences such as the default sidebar st
 2. **Local Storage** (fallback if the cloud cannot be reached)
 3. **Default Value** (used only when no previous value exists)
 
-On first load, KapitelShelf attempts to fetch settings from the cloud. If that fails—such as when you are offline—it falls back to locally stored settings. When neither are available, defaults are applied and synced once a storage option becomes available.
+On first load, KapitelShelf attempts to fetch settings from the cloud. If that fails—such as when you are offline - it falls back to locally stored settings. When neither are available, defaults are applied and synced once a storage option becomes available.
 
 > ⚠️ Settings are saved **per profile** and automatically reloaded when switching users.
