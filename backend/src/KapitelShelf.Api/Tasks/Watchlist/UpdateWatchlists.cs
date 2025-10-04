@@ -32,6 +32,8 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
         {
             var watchlist = watchlists[i];
 
+            this.DataStore.SetMessage(JobKey(context), $"Checking '{watchlist.Series.Name}' ...");
+
             try
             {
                 await this.logic.UpdateWatchlist(watchlist.Id);
@@ -45,7 +47,6 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
             }
 
             this.DataStore.SetProgress(JobKey(context), i, watchlists.Count);
-            this.DataStore.SetMessage(JobKey(context), $"Checking '{watchlist.Series.Name}' ...");
 
             this.CheckForInterrupt(context);
         }
@@ -70,7 +71,6 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
             Category = "Watchlist",
             Description = "Searches for new volumes of the watched series.",
             ShouldRecover = true,
-            StartNow = true,
             Cronjob = "0 0 * ? * *", // every 1 hour
         };
 

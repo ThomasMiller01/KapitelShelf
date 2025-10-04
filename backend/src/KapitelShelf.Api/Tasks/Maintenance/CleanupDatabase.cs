@@ -37,7 +37,6 @@ public class CleanupDatabase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> 
             Category = "Maintenance",
             Description = "Removes all orphanes database entries as well as associated files.",
             ShouldRecover = true,
-            StartNow = true,
             Cronjob = "0 */10 * ? * *", // every 10 minutes
         };
 

@@ -86,6 +86,11 @@ public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : Amaz
             .Where(a => !string.IsNullOrEmpty(a))
             .ToList();
 
+        // only take the asins take are after the last volume in the library
+        asins = asins
+            .Skip(series.LastVolume.SeriesNumber)
+            .ToList();
+
         // Check if any books were found
         if (asins.Count == 0)
         {
