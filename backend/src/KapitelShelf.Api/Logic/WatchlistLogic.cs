@@ -1,0 +1,224 @@
+﻿// <copyright file="WatchlistLogic.cs" company="KapitelShelf">
+// Copyright (c) KapitelShelf. All rights reserved.
+// </copyright>
+
+using System.Runtime.CompilerServices;
+using AutoMapper;
+using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Watchlist;
+using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Settings;
+using KapitelShelf.Data;
+using KapitelShelf.Data.Models.Watchlists;
+using Microsoft.EntityFrameworkCore;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
+
+namespace KapitelShelf.Api.Logic;
+
+/// <summary>
+/// Initializes a new instance of the <see cref="WatchlistLogic"/> class.
+/// </summary>
+/// <param name="dbContextFactory">The dbContext factory.</param>
+/// <param name="mapper">The auto mapper.</param>
+/// <param name="seriesLogic">The series logic.</param>
+/// <param name="watchlistScraperManager">The watchlist scraper manager.</param>
+public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, ISeriesLogic seriesLogic, IWatchlistScraperManager watchlistScraperManager) : IWatchlistLogic
+{
+    private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
+
+    private readonly IMapper mapper = mapper;
+
+    private readonly ISeriesLogic seriesLogic = seriesLogic;
+
+    private readonly IWatchlistScraperManager watchlistScraperManager = watchlistScraperManager;
+
+    /// <inheritdoc/>
+    public async Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var watchlists = await context.Watchlist
+            .AsNoTracking()
+            .Include(x => x.Series)
+            .Where(x => x.UserId == userId)
+
+            // 1. Order first all series with watchlist items
+            .OrderByDescending(sw =>
+                context.WatchlistResults
+                    .Any(r => r.SeriesId == sw.SeriesId))
+
+            // 2. Order by the watchlist item release date
+            .ThenBy(sw =>
+                context.WatchlistResults
+                    .Where(r => r.SeriesId == sw.SeriesId)
+                    .Min(r => (DateTime?)(object?)r.ReleaseDate))
+
+            // 3. Then by the latest book in the series release date (but sort by earliest book)
+            .ThenBy(sw =>
+                sw.Series.Books
+                    .Max(b => (DateTime?)(object?)b.ReleaseDate))
+
+            .Select(sw => new
+            {
+                Watchlist = sw,
+                Items = context.WatchlistResults
+                    .Where(r => r.SeriesId == sw.SeriesId)
+                    .OrderBy(r => (DateTime?)(object?)r.ReleaseDate)
+                    .ThenBy(r => r.Volume)
+                    .ToList(),
+            })
+            .ToListAsync();
+
+        return watchlists.Select(x =>
+        {
+            var dto = this.mapper.Map<SeriesWatchlistDTO>(x.Watchlist);
+            dto.Items = this.mapper.Map<List<BookDTO>>(x.Items);
+            return dto;
+        }).ToList();
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> IsOnWatchlist(Guid seriesId, Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.Watchlist
+            .AnyAsync(x => x.SeriesId == seriesId && x.UserId == userId);
+    }
+
+    /// <inheritdoc/>
+    public async Task<SeriesWatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var series = await this.seriesLogic.GetSeriesByIdAsync(seriesId);
+        if (series is null)
+        {
+            return null;
+        }
+
+        if (series.LastVolume?.Location?.Type is not null && !StaticConstants.LocationsSupportSeriesWatchlist.Contains(series.LastVolume.Location.Type))
+        {
+            throw new ArgumentException($"Location '{series.LastVolume.Location.Type}' does not support watchlists.");
+        }
+
+        var existingWatchlist = await context.Watchlist
+            .Where(x => x.SeriesId == seriesId && x.UserId == userId)
+            .AnyAsync();
+
+        if (existingWatchlist)
+        {
+            throw new ArgumentException($"Series '{series.Name}' is already on the watchlist.");
+        }
+
+        var watchlistModel = new WatchlistModel
+        {
+            Id = Guid.NewGuid(),
+            SeriesId = series.Id,
+            UserId = userId,
+        };
+
+        await context.Watchlist.AddAsync(watchlistModel);
+        await context.SaveChangesAsync();
+
+        // update the watchlist (fire and forget)
+        _ = this.UpdateWatchlist(watchlistModel.Id);
+
+        return this.mapper.Map<SeriesWatchlistDTO>(watchlistModel);
+    }
+
+    /// <inheritdoc/>
+    public async Task<SeriesWatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var seriesWatchlistModel = await context.Watchlist
+            .FirstOrDefaultAsync(x => x.SeriesId == seriesId && x.UserId == userId);
+
+        if (seriesWatchlistModel is null)
+        {
+            return null;
+        }
+
+        context.Watchlist.Remove(seriesWatchlistModel);
+        await context.SaveChangesAsync();
+
+        // delete the series watchlist results, if no other users is watching this series
+        var stillWatched = await context.Watchlist.AnyAsync(x => x.SeriesId == seriesId);
+        if (!stillWatched)
+        {
+            await context.WatchlistResults
+                .Where(r => r.SeriesId == seriesId)
+                .ExecuteDeleteAsync();
+        }
+
+        return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
+    }
+
+    /// <inheritdoc/>
+    public async Task UpdateWatchlist(Guid watchlistId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var watchlist = await context.Watchlist
+            .AsNoTracking()
+            .Include(x => x.Series)
+                .ThenInclude(x => x.Books)
+                    .ThenInclude(x => x.Location)
+            .AsSingleQuery()
+            .FirstOrDefaultAsync(x => x.Id == watchlistId);
+
+        if (watchlist?.Series is null)
+        {
+            return;
+        }
+
+        var volumes = await this.watchlistScraperManager.Scrape(this.mapper.Map<SeriesDTO>(watchlist.Series));
+
+        // filter any volumes that do not exist in the library
+        var existingBookTitles = watchlist.Series.Books
+            .Select(x => x.Title);
+
+        volumes = volumes
+            .Where(x => !existingBookTitles.Contains(x.Title ?? string.Empty))
+            .ToList();
+
+        // only keep the volumes after the last from the library
+        var lastExistingVolume = watchlist.Series.Books
+            .OrderByDescending(x => x.ReleaseDate)
+            .FirstOrDefault();
+
+        volumes = volumes
+            .Where(x => x.Volume > (lastExistingVolume?.SeriesNumber ?? 0))
+            .ToList();
+
+        // add/update the volumes
+        foreach (var volume in volumes)
+        {
+            var volumeModel = await context.WatchlistResults
+                .FirstOrDefaultAsync(x => x.SeriesId == volume.SeriesId && x.Volume == volume.Volume);
+
+            if (volumeModel is null)
+            {
+                // add new volume
+                volume.Id = Guid.NewGuid();
+                context.WatchlistResults.Add(volume);
+            }
+            else
+            {
+                // update volume data
+                volumeModel.Title = volume.Title;
+                volumeModel.Description = volume.Description;
+                volumeModel.ReleaseDate = volume.ReleaseDate;
+                volumeModel.Pages = volume.Pages;
+                volumeModel.CoverUrl = volume.CoverUrl;
+                volumeModel.Categories = volume.Categories;
+                volumeModel.Tags = volume.Tags;
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+}

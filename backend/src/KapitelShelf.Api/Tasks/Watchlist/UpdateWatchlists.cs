@@ -13,9 +13,9 @@ namespace KapitelShelf.Api.Tasks.Watchlist;
 /// <summary>
 /// Updates the watchlist results for series watchlists.
 /// </summary>
-public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ISeriesLogic logic, IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger)
+public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, IWatchlistLogic logic, IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger)
 {
-    private readonly ISeriesLogic logic = logic;
+    private readonly IWatchlistLogic logic = logic;
 
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 

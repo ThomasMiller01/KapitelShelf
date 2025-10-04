@@ -25,8 +25,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ book }) => {
       small
       raised
       title={book.title}
-      link={LocationUrl(book.location!)}
+      link={!isReleased ? LocationUrl(book.location!) : undefined}
       externalLink
+      onClick={isReleased ? undefined : undefined}
       description={book.description}
       image={book.cover?.filePath}
       fallbackImage={bookCover}

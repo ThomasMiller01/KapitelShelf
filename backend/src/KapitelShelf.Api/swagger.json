@@ -1331,56 +1331,6 @@
         }
       }
     },
-    "/series/watchlist": {
-      "get": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Get the series watchlists of a user.",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "description": "The id of the user.",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/series/{seriesId}": {
       "get": {
         "tags": [
@@ -1582,148 +1532,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/series/{seriesId}/iswatched": {
-      "get": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Check, if this series is on the watchlist.",
-        "parameters": [
-          {
-            "name": "seriesId",
-            "in": "path",
-            "description": "The series id.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "query",
-            "description": "The user id.",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/series/{seriesId}/watch": {
-      "put": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Add a series to the watchlist.",
-        "parameters": [
-          {
-            "name": "seriesId",
-            "in": "path",
-            "description": "The series id.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "query",
-            "description": "The user id.",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Remove a series from the watchlist.",
-        "parameters": [
-          {
-            "name": "seriesId",
-            "in": "path",
-            "description": "The series id.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "query",
-            "description": "The user id.",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/series/{seriesId}/update": {
-      "put": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Add a series to the watchlist.",
-        "parameters": [
-          {
-            "name": "seriesId",
-            "in": "path",
-            "description": "The series id.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       }
@@ -2248,6 +2056,173 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/watchlist": {
+      "get": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "Get the watchlists of a user.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The id of the user.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/watchlist/series/{seriesId}/iswatched": {
+      "get": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "Check, if this series is on the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/watchlist/series/{seriesId}/watch": {
+      "put": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "Add a series to the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "Remove a series from the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
