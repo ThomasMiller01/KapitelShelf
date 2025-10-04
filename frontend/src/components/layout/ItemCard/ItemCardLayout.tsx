@@ -1,7 +1,11 @@
-import type { TooltipProps } from "@mui/material";
+import type { Theme } from "@emotion/react";
+import type { SxProps, TooltipProps } from "@mui/material";
 import {
+  Box,
+  CardActionArea,
   Chip,
   Grid,
+  Link as ExternalLink,
   Stack,
   styled,
   Tooltip,
@@ -10,6 +14,7 @@ import {
 } from "@mui/material";
 import type { ReactNode } from "react";
 import { type ReactElement } from "react";
+import { Link } from "react-router-dom";
 
 import DetailedItemCardLayout, {
   DetailedMetadataItem,
@@ -43,6 +48,7 @@ export interface ItemCardLayoutProps {
   title: string | null | undefined;
   description?: string | null | undefined;
   link?: string | null | undefined;
+  externalLink?: boolean;
   onClick?: () => void | undefined;
   image?: string | null | undefined;
   fallbackImage?: string | null | undefined;
@@ -51,6 +57,7 @@ export interface ItemCardLayoutProps {
   metadata?: ReactNode[];
   selected?: boolean;
   small?: boolean;
+  raised?: boolean;
   itemVariant?: ItemCardType;
 }
 
@@ -152,5 +159,47 @@ const MissingItems = ({
     ))}
   </Stack>
 );
+
+interface ActionWrapperProps {
+  link?: string | undefined | null;
+  externalLink?: boolean;
+  onClick?: () => void;
+  sx: SxProps<Theme>;
+  children: React.ReactNode;
+}
+
+export const ActionWrapper: React.FC<ActionWrapperProps> = ({
+  link,
+  externalLink,
+  onClick,
+  sx,
+  children,
+}) => {
+  const isClickable = Boolean(link || onClick);
+
+  if (isClickable && link) {
+    return (
+      <CardActionArea
+        component={externalLink ? ExternalLink : Link}
+        href={externalLink ? link : undefined}
+        target={externalLink ? "_blank" : undefined}
+        rel={externalLink ? "noopener noreferrer" : undefined}
+        to={!externalLink ? link : undefined}
+        onClick={onClick ? onClick : undefined}
+        sx={sx}
+      >
+        {children}
+      </CardActionArea>
+    );
+  } else if (isClickable) {
+    return (
+      <CardActionArea onClick={onClick ? onClick : undefined} sx={sx}>
+        {children}
+      </CardActionArea>
+    );
+  }
+
+  return <Box sx={sx}>{children}</Box>;
+};
 
 export default ItemCardLayout;

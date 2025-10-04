@@ -5,6 +5,7 @@ import DevicesIcon from "@mui/icons-material/Devices";
 import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SettingsIcon from "@mui/icons-material/Settings";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import type { SxProps, Theme } from "@mui/material";
 import {
   List,
@@ -15,6 +16,7 @@ import {
   Stack,
 } from "@mui/material";
 import type { ReactElement, ReactNode } from "react";
+import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import { useMobile } from "../hooks/useMobile";
@@ -50,7 +52,16 @@ export const Sidebar = ({ open, onClose }: SidebarProps): ReactElement => {
             icon={<LibraryBooksIcon />}
             link="/library"
             onClose={isMobile ? onClose : undefined}
-          />
+            showChildrenAlways={false}
+          >
+            <SidebarLinkItem
+              name="Watchlist"
+              icon={<TrackChangesIcon />}
+              link="/watchlist"
+              onClose={isMobile ? onClose : undefined}
+              nestingLevel={1}
+            />
+          </SidebarLinkItem>
           <SidebarLinkItem
             name="Settings"
             icon={<SettingsIcon />}
@@ -133,6 +144,14 @@ const SidebarLinkItem = ({
   showChildrenAlways = true,
 }: SidebarLinkItemProps): ReactElement => {
   const { pathname } = useLocation();
+  const childLinks: string[] = React.Children.toArray(children)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((child: any) => child.props.link)
+    .filter(Boolean);
+
+  const shouldShowChildren =
+    pathname.startsWith(link) ||
+    childLinks.some((childLink) => pathname.startsWith(childLink));
 
   return (
     <>
@@ -160,7 +179,7 @@ const SidebarLinkItem = ({
           />
         </ListItemButton>
       </SidebarItem>
-      {children && (pathname.startsWith(link) || showChildrenAlways) && (
+      {((children && shouldShowChildren) || showChildrenAlways) && (
         <List sx={{ padding: "0" }}>{children}</List>
       )}
     </>

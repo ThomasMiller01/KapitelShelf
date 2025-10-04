@@ -2,29 +2,34 @@ import AddLinkIcon from "@mui/icons-material/AddLink";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Chip,
-  IconButton,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
   styled,
 } from "@mui/material";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { type ReactElement, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import ItemAppBar from "../../components/base/ItemAppBar";
 import { useApi } from "../../contexts/ApiProvider";
 import MergeSeriesDialog from "../../features/series/MergeSeriesDialog";
 import SeriesBooksList from "../../features/series/SeriesBooksList";
 import { useMobile } from "../../hooks/useMobile";
+import { useNotification } from "../../hooks/useNotification";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { SeriesSupportsWatchlist } from "../../utils/WatchlistUtils";
 
 const VolumesBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",
@@ -33,10 +38,13 @@ const VolumesBadge = styled(Chip, {
 }));
 
 const SeriesDetailPage = (): ReactElement => {
+  const { profile } = useUserProfile();
   const { seriesId } = useParams<{ seriesId: string }>();
   const navigate = useNavigate();
   const { clients } = useApi();
+  const queryClient = useQueryClient();
   const { isMobile } = useMobile();
+  const { triggerNavigate } = useNotification();
 
   const {
     data: series,
@@ -53,6 +61,22 @@ const SeriesDetailPage = (): ReactElement => {
       const { data } = await clients.series.seriesSeriesIdGet(seriesId);
       return data;
     },
+  });
+
+  const { data: isOnWatchlist } = useQuery({
+    queryKey: ["series-is-on-watchlist", seriesId],
+    queryFn: async () => {
+      if (seriesId === undefined || profile?.id === undefined) {
+        return null;
+      }
+
+      const { data } = await clients.series.seriesSeriesIdIswatchedGet(
+        seriesId,
+        profile.id
+      );
+      return data;
+    },
+    enabled: SeriesSupportsWatchlist(series),
   });
 
   const { mutateAsync: mutateDeleteSeries } = useMutation({
@@ -96,6 +120,59 @@ const SeriesDetailPage = (): ReactElement => {
     },
   });
 
+  const { mutateAsync: addSeriesToWatchlist } = useMutation({
+    mutationKey: ["add-series-to-watchlist", seriesId],
+    mutationFn: async () => {
+      if (seriesId === undefined || profile?.id === undefined) {
+        return null;
+      }
+
+      await clients.series.seriesSeriesIdWatchPut(seriesId, profile.id);
+    },
+    meta: {
+      notify: {
+        enabled: true,
+        operation: "Adding series to watchlist",
+        showLoading: false,
+        showSuccess: false,
+      },
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["series-is-on-watchlist", seriesId],
+      });
+      triggerNavigate({
+        operation: "Added series to watchlist",
+        itemName: series?.name ?? "Series",
+        url: "/watchlist",
+      });
+    },
+  });
+
+  const { mutateAsync: removeSeriesToWatchlist } = useMutation({
+    mutationKey: ["remove-series-to-watchlist", seriesId],
+    mutationFn: async () => {
+      if (seriesId === undefined || profile?.id === undefined) {
+        return null;
+      }
+
+      await clients.series.seriesSeriesIdWatchDelete(seriesId, profile.id);
+    },
+    meta: {
+      notify: {
+        enabled: true,
+        operation: "Removing series from watchlist",
+        showLoading: false,
+        showSuccess: true,
+      },
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["series-is-on-watchlist", seriesId],
+      });
+    },
+  });
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const onDelete = async (): Promise<void> => {
     setDeleteOpen(false);
@@ -136,16 +213,38 @@ const SeriesDetailPage = (): ReactElement => {
           />,
         ]}
         actions={[
-          <IconButton
+          SeriesSupportsWatchlist(series) ? (
+            <IconButtonWithTooltip
+              tooltip={`${isOnWatchlist ? "Remove" : "Add"} series ${
+                isOnWatchlist ? "from" : "to"
+              } the watchlist`}
+              onClick={
+                isOnWatchlist
+                  ? () => removeSeriesToWatchlist()
+                  : () => addSeriesToWatchlist()
+              }
+              key="watchlist"
+            >
+              {isOnWatchlist ? <VisibilityOffIcon /> : <VisibilityIcon />}
+            </IconButtonWithTooltip>
+          ) : (
+            <React.Fragment key="no-watchlist" />
+          ),
+          <IconButtonWithTooltip
+            tooltip="Edit series"
             component={Link}
             to={`/library/series/${series?.id}/edit`}
             key="edit"
           >
             <EditIcon />
-          </IconButton>,
-          <IconButton onClick={() => setDeleteOpen(true)} key="delete">
+          </IconButtonWithTooltip>,
+          <IconButtonWithTooltip
+            tooltip="Delete series"
+            onClick={() => setDeleteOpen(true)}
+            key="delete"
+          >
             <DeleteIcon />
-          </IconButton>,
+          </IconButtonWithTooltip>,
           <OptionsMenu
             key="options"
             onMergeSeriesClick={() => setMergeSeriesOpen(true)}
@@ -190,9 +289,9 @@ const OptionsMenu = ({
 
   return (
     <>
-      <IconButton onClick={handleClick}>
+      <IconButtonWithTooltip tooltip="More options" onClick={handleClick}>
         <MoreVertIcon />
-      </IconButton>
+      </IconButtonWithTooltip>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         <OptionMenuItem
           text="Merge with Series"

@@ -2,17 +2,15 @@ import {
   Avatar,
   Box,
   Card,
-  CardActionArea,
   CardContent,
   CardMedia,
   styled,
   Typography,
 } from "@mui/material";
 import { type ReactElement, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { useMobile } from "../../../hooks/useMobile";
-import type { ItemCardLayoutProps } from "./ItemCardLayout";
+import { ActionWrapper, type ItemCardLayoutProps } from "./ItemCardLayout";
 
 export const NormalMetadataItem = styled(Typography)(({ theme }) => ({
   fontSize: "0.9rem",
@@ -23,6 +21,7 @@ export const NormalMetadataItem = styled(Typography)(({ theme }) => ({
 const NormalItemCardLayout = ({
   title,
   link,
+  externalLink = false,
   onClick,
   image,
   fallbackImage,
@@ -31,31 +30,15 @@ const NormalItemCardLayout = ({
   metadata = [],
   selected,
   small = false,
+  raised = false,
 }: ItemCardLayoutProps): ReactElement => {
-  const navigate = useNavigate();
-
   const { isMobile } = useMobile();
 
   const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
 
-  const isClickable = Boolean(link || onClick);
-  const handleClick = (): void => {
-    if (!isClickable) {
-      return;
-    }
-
-    if (onClick) {
-      onClick();
-    }
-
-    if (link) {
-      navigate(link);
-    }
-  };
-
   return (
     <Card
-      onClick={handleClick}
+      raised={raised}
       data-active={selected ? "" : undefined}
       sx={{
         width: {
@@ -74,10 +57,12 @@ const NormalItemCardLayout = ({
         },
       }}
     >
-      <Box
-        component={isClickable ? CardActionArea : "div"}
-        height="100%"
+      <ActionWrapper
+        link={link}
+        externalLink={externalLink}
+        onClick={onClick ? onClick : undefined}
         sx={{
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
@@ -114,7 +99,9 @@ const NormalItemCardLayout = ({
             </Box>
           )}
         </Box>
-        <CardContent sx={{ width: "100%", px: "12px", pt: "10px", pb: "8px" }}>
+        <CardContent
+          sx={{ width: "100%", px: "12px", pt: "10px", pb: "8px !important" }}
+        >
           {/* Title */}
           <Typography
             variant="h6"
@@ -136,7 +123,7 @@ const NormalItemCardLayout = ({
           {/* Metadata */}
           {metadata}
         </CardContent>
-      </Box>
+      </ActionWrapper>
     </Card>
   );
 };

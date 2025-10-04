@@ -5,6 +5,7 @@
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Tasks.Maintenance;
+using KapitelShelf.Api.Tasks.Watchlist;
 using Quartz;
 
 namespace KapitelShelf.Api;
@@ -31,6 +32,9 @@ public class StartupTasksHostedService(ISchedulerFactory schedulerFactory, IDyna
         // CloudStorage
         await SyncStorageData.Schedule(scheduler);
         await ScanForBooks.Schedule(scheduler);
+
+        // Watchlist
+        await UpdateWatchlists.Schedule(scheduler);
 
         // ---------- Settings ----------
         await this.dynamicSettings.InitializeOnStartup();

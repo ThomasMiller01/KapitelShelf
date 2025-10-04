@@ -8,6 +8,7 @@ using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.CloudStorage;
 using KapitelShelf.Data.Models.User;
+using KapitelShelf.Data.Models.Watchlists;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Data;
@@ -107,6 +108,16 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     /// Gets the settings table.
     /// </summary>
     public DbSet<SettingsModel> Settings => Set<SettingsModel>();
+
+    /// <summary>
+    /// Gets the series watchlist table.
+    /// </summary>
+    public DbSet<WatchlistModel> Watchlist => Set<WatchlistModel>();
+
+    /// <summary>
+    /// Gets the series watchlist results table.
+    /// </summary>
+    public DbSet<WatchlistResultModel> WatchlistResults => Set<WatchlistResultModel>();
 
     /// <summary>
     /// On model creating.
@@ -245,6 +256,31 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
         modelBuilder.Entity<SettingsModel>()
             .HasIndex(s => new { s.Key })
             .IsUnique();
+
+        // Series Watchlist
+        modelBuilder.Entity<WatchlistModel>()
+            .HasKey(sw => new { sw.SeriesId, sw.UserId });
+
+        modelBuilder.Entity<WatchlistModel>()
+            .HasOne(b => b.Series)
+            .WithMany()
+            .HasForeignKey(b => b.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WatchlistModel>()
+            .HasOne(b => b.User)
+            .WithMany()
+            .HasForeignKey(b => b.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WatchlistResultModel>()
+            .HasKey(i => new { i.SeriesId, i.Volume });
+
+        modelBuilder.Entity<WatchlistResultModel>()
+            .HasOne(b => b.Series)
+            .WithMany()
+            .HasForeignKey(b => b.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
 
 #pragma warning restore CA1062 // Validate arguments of public methods
 

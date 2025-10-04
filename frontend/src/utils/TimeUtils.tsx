@@ -1,10 +1,12 @@
-/* eslint-disable no-magic-numbers */
 export const SECOND_MS = 1000;
 export const MINUTE_MS = 60 * SECOND_MS;
 export const HOUR_MS = 60 * MINUTE_MS;
 export const DAY_MS = 24 * HOUR_MS;
 export const WEEK_MS = 7 * DAY_MS;
 export const MONTH_MS = 30 * DAY_MS;
+export const YEAR_MS = 365 * DAY_MS;
+
+type FormatTimeUntilMode = "auto" | "calender" | "readable";
 
 export const FormatTime = (dateUtc?: string | null): string => {
   if (!dateUtc) {
@@ -21,7 +23,8 @@ export const FormatTime = (dateUtc?: string | null): string => {
 
 export const FormatTimeUntil = (
   dateUtc?: string | null,
-  allowPast?: boolean
+  allowPast?: boolean,
+  mode: FormatTimeUntilMode = "auto"
 ): string => {
   if (!dateUtc) {
     return "-";
@@ -46,36 +49,63 @@ export const FormatTimeUntil = (
   const preText = isPast ? "" : "in ";
   const postText = isPast ? " ago" : "";
 
-  // less than 1 minute -> show in seconds
-  if (absDifferenceInMs < MINUTE_MS) {
-    const secs = Math.round(absDifferenceInMs / SECOND_MS);
-    return `${preText}${secs} second${secs !== 1 ? "s" : ""}${postText}`;
-  }
+  const seconds = Math.round(absDifferenceInMs / SECOND_MS);
+  const minutes = Math.round(absDifferenceInMs / MINUTE_MS);
+  const hours = Math.round(absDifferenceInMs / HOUR_MS);
+  const days = Math.round(absDifferenceInMs / DAY_MS);
+  const weeks = Math.round(absDifferenceInMs / WEEK_MS);
+  const months = Math.round(absDifferenceInMs / MONTH_MS);
 
-  // less than 1 hour -> show in minutes
-  if (absDifferenceInMs < HOUR_MS) {
-    const mins = Math.round(absDifferenceInMs / MINUTE_MS);
-    return `${preText}${mins} minute${mins !== 1 ? "s" : ""}${postText}`;
-  }
+  const format = (value: number, unit: string): string =>
+    `${preText}${value} ${unit}${value !== 1 ? "s" : ""}${postText}`;
 
-  // less than 1 day -> show in hours
-  if (absDifferenceInMs < DAY_MS) {
-    const hours = Math.round(absDifferenceInMs / HOUR_MS);
-    return `${preText}${hours} hour${hours !== 1 ? "s" : ""}${postText}`;
-  }
+  // date (yyyy-mm-dd)
+  const date = localeDate.toISOString().slice(0, 10);
 
-  // less than 1 week -> show in days
-  if (absDifferenceInMs < WEEK_MS) {
-    const days = Math.round(absDifferenceInMs / DAY_MS);
-    return `${preText}${days} day${days !== 1 ? "s" : ""}${postText}`;
-  }
+  switch (mode) {
+    default:
+    case "auto":
+      if (absDifferenceInMs < MINUTE_MS) {
+        return format(seconds, "second");
+      } else if (absDifferenceInMs < HOUR_MS) {
+        return format(minutes, "minute");
+      } else if (absDifferenceInMs < DAY_MS) {
+        return format(hours, "hour");
+      } else if (absDifferenceInMs < WEEK_MS) {
+        return format(days, "day");
+      } else if (absDifferenceInMs < MONTH_MS) {
+        return format(weeks, "week");
+      } else if (absDifferenceInMs < YEAR_MS) {
+        return format(months, "month");
+      }
+      return date;
 
-  // less than 1 month -> show in weeks
-  if (absDifferenceInMs < MONTH_MS) {
-    const weeks = Math.round(absDifferenceInMs / WEEK_MS);
-    return `${preText}${weeks} week${weeks !== 1 ? "s" : ""}${postText}`;
-  }
+    case "calender":
+      if (absDifferenceInMs < MINUTE_MS) {
+        return format(seconds, "second");
+      } else if (absDifferenceInMs < HOUR_MS) {
+        return format(minutes, "minute");
+      } else if (absDifferenceInMs < DAY_MS) {
+        return format(hours, "hour");
+      } else if (absDifferenceInMs < WEEK_MS) {
+        return format(days, "day");
+      }
+      return date;
 
-  // Otherwise, just show the date (yyyy-mm-dd)
-  return localeDate.toISOString().slice(0, 10);
+    case "readable":
+      if (absDifferenceInMs < MINUTE_MS) {
+        return format(seconds, "second");
+      } else if (absDifferenceInMs < HOUR_MS) {
+        return format(minutes, "minute");
+      } else if (absDifferenceInMs < DAY_MS) {
+        return format(hours, "hour");
+      } else if (absDifferenceInMs < WEEK_MS) {
+        return format(days, "day");
+      } else if (absDifferenceInMs < MONTH_MS) {
+        return `${preText}about ${weeks} weeks${postText}`;
+      } else if (absDifferenceInMs < YEAR_MS) {
+        return `${preText}about ${months} months${postText}`;
+      }
+      return `${preText}over a year${postText}`;
+  }
 };

@@ -88,7 +88,6 @@ public class CleanupFinishedTasks(ITaskRuntimeDataStore dataStore, ILogger<TaskB
             Category = "Maintenance",
             Description = "Restart failed tasks and delete completed ones.",
             ShouldRecover = true,
-            StartNow = true,
             Cronjob = "0 */15 * ? * *", // every 15 minutes
         };
 

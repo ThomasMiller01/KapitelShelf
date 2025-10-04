@@ -1222,114 +1222,6 @@
         }
       }
     },
-    "/series/{seriesId}": {
-      "get": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Get series by its id.",
-        "parameters": [
-          {
-            "name": "seriesId",
-            "in": "path",
-            "description": "The id of the series to get.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeriesDTO"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeriesDTO"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeriesDTO"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Delete a series.",
-        "parameters": [
-          {
-            "name": "seriesId",
-            "in": "path",
-            "description": "The id of the seriesto delete.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Series"
-        ],
-        "summary": "Update a series.",
-        "parameters": [
-          {
-            "name": "seriesId",
-            "in": "path",
-            "description": "The id of the series to update.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "The updated series.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SeriesDTO"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SeriesDTO"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SeriesDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/series/search": {
       "get": {
         "tags": [
@@ -1439,6 +1331,164 @@
         }
       }
     },
+    "/series/watchlist": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Get the series watchlists of a user.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The id of the user.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/series/{seriesId}": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Get series by its id.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The id of the series to get.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Delete a series.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The id of the seriesto delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Update a series.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The id of the series to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated series.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeriesDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeriesDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeriesDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/series/{seriesId}/merge/{targetSeriesId}": {
       "put": {
         "tags": [
@@ -1532,6 +1582,148 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/series/{seriesId}/iswatched": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Check, if this series is on the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/series/{seriesId}/watch": {
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Add a series to the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Remove a series from the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/series/{seriesId}/update": {
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Add a series to the watchlist.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -1964,7 +2156,7 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get the user settings of a user.",
+        "summary": "Update a user setting of a user.",
         "parameters": [
           {
             "name": "userId",
@@ -2732,6 +2924,29 @@
         },
         "additionalProperties": false,
         "description": "The paginated result."
+      },
+      "SeriesWatchlistDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "series": {
+            "$ref": "#/components/schemas/SeriesDTO"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDTO"
+            },
+            "description": "Gets or sets the watchlist items for this series.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The series watchlist dto."
       },
       "TagDTO": {
         "type": "object",

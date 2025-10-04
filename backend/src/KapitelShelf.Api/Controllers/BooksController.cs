@@ -197,7 +197,6 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("{bookId}/cover")]
     [EnableCors("CorsPolicy")]
-    [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Client)]
     public async Task<IActionResult> GetBookCover(Guid bookId)
     {
         try

@@ -11,7 +11,6 @@ namespace KapitelShelf.Api.Tests.Logic;
 /// <summary>
 /// Unit tests for the MetadataScraperManager class.
 /// </summary>
-[TestFixture]
 public class MetadataScraperManagerTests
 {
     private MetadataScraperManager testee;

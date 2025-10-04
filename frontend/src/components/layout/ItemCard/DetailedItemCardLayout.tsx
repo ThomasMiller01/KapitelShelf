@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Card,
-  CardActionArea,
   CardContent,
   CardMedia,
   Grid,
@@ -10,10 +9,13 @@ import {
   Typography,
 } from "@mui/material";
 import { type ReactElement, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { useMobile } from "../../../hooks/useMobile";
-import type { ItemCardLayoutProps, MetadataItemProps } from "./ItemCardLayout";
+import {
+  ActionWrapper,
+  type ItemCardLayoutProps,
+  type MetadataItemProps,
+} from "./ItemCardLayout";
 
 export const DetailedMetadataItem = ({
   icon,
@@ -36,6 +38,7 @@ const DetailedItemCardLayout = ({
   title,
   description,
   link,
+  externalLink,
   onClick,
   image,
   fallbackImage,
@@ -43,32 +46,16 @@ const DetailedItemCardLayout = ({
   squareBadge = true,
   metadata = [],
   selected = false,
+  raised = false,
 }: ItemCardLayoutProps): ReactElement => {
-  const navigate = useNavigate();
-
   const { isMobile } = useMobile();
 
   const [imageSrc, setImageSrc] = useState(image ?? fallbackImage);
 
-  const isClickable = Boolean(link || onClick);
-  const handleClick = (): void => {
-    if (!isClickable) {
-      return;
-    }
-
-    if (onClick) {
-      onClick();
-    }
-
-    if (link) {
-      navigate(link);
-    }
-  };
-
   return (
     <Card
-      onClick={handleClick}
       data-active={selected ? "" : undefined}
+      raised={raised}
       sx={{
         width: "100%",
         "&[data-active]": {
@@ -79,10 +66,12 @@ const DetailedItemCardLayout = ({
         },
       }}
     >
-      <Box
-        component={isClickable ? CardActionArea : "div"}
-        height="100%"
+      <ActionWrapper
+        link={link}
+        externalLink={externalLink}
+        onClick={onClick ? onClick : undefined}
         sx={{
+          height: "100%",
           display: "flex",
           flexDirection: "row",
           justifyContent: "flex-start",
@@ -169,7 +158,7 @@ const DetailedItemCardLayout = ({
             {metadata}
           </Grid>
         </CardContent>
-      </Box>
+      </ActionWrapper>
     </Card>
   );
 };

@@ -120,7 +120,7 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     /// <param name="user">The updated user.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPut("{userId}")]
-    public async Task<IActionResult> UpdateBook(Guid userId, UserDTO user)
+    public async Task<IActionResult> UpdateUser(Guid userId, UserDTO user)
     {
         try
         {
@@ -190,13 +190,13 @@ public class UsersController(ILogger<BooksController> logger, UsersLogic logic) 
     }
 
     /// <summary>
-    /// Get the user settings of a user.
+    /// Update a user setting of a user.
     /// </summary>
     /// <param name="userId">The id of the user.</param>
     /// <param name="settingDto">The setting.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPut("{userId}/settings")]
-    public async Task<ActionResult<List<UserSettingDTO>>> GetUserSettingsByUserId(Guid userId, [FromBody] UserSettingDTO settingDto)
+    public async Task<ActionResult<List<UserSettingDTO>>> UpdateUserSettingsByUserId(Guid userId, [FromBody] UserSettingDTO settingDto)
     {
         try
         {

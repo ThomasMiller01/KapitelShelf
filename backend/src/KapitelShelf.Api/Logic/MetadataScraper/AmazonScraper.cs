@@ -107,7 +107,7 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase,
         return await this.ParseBookLink($"/dp/{asin}");
     }
 
-    private async Task<MetadataDTO?> ParseBookLink(string bookLink)
+    internal async Task<MetadataDTO?> ParseBookLink(string bookLink)
     {
         var bookUrl = $"https://www.amazon.com{bookLink}";
         try

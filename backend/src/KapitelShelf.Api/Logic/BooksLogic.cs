@@ -67,7 +67,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     }
 
     /// <inheritdoc/>
-    public async Task<BookDTO?> GetBookByIdAsync(Guid bookId, Guid? userId)
+    public async Task<BookDTO?> GetBookByIdAsync(Guid bookId, Guid? userId = null)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 

@@ -83,13 +83,14 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 // logic
 builder.Services.AddSingleton<IBooksLogic, BooksLogic>();
-builder.Services.AddSingleton<SeriesLogic>();
+builder.Services.AddSingleton<ISeriesLogic, SeriesLogic>();
 builder.Services.AddSingleton<IBookParserManager, BookParserManager>();
 builder.Services.AddSingleton<MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
 builder.Services.AddSingleton<UsersLogic>();
 builder.Services.AddSingleton<TasksLogic>();
 builder.Services.AddSingleton<SettingsLogic>();
+builder.Services.AddSingleton<IWatchlistScraperManager, WatchlistScraperManager>();
 
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<ICloudStorage, CloudStorage>();

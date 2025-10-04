@@ -1,4 +1,5 @@
 import PeopleIcon from "@mui/icons-material/People";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import {
   Avatar,
   Divider,
@@ -83,9 +84,16 @@ export const ProfileMenu = (): ReactElement => {
           <FancyText ml="6px">{profile?.username}</FancyText>
         </MenuItem>
         <Divider />
-        <TasksMenuItem />
+        <MenuItem component={Link} to="/watchlist" sx={{ my: "6px" }}>
+          <ListItemIcon>
+            <TrackChangesIcon fontSize="small" />
+          </ListItemIcon>
+          My Watchlist
+        </MenuItem>
         <Divider />
-        <MenuItem onClick={handleSwitchProfile}>
+        <TasksMenuItem />
+        {/* <Divider /> */}
+        <MenuItem onClick={handleSwitchProfile} sx={{ my: "6px" }}>
           <ListItemIcon>
             <PeopleIcon fontSize="small" />
           </ListItemIcon>
