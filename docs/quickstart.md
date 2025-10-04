@@ -14,7 +14,7 @@ http://localhost:5173
 
 ## 2. Create Your First User Profile
 
-A user profile stores personalised settings, ratings, and reading metadata. Create one to begin using KapitelShelf.
+A user profile stores personalised settings, ratings and reading metadata. Create one to begin using KapitelShelf.
 
 1. Click the **`+` (plus)** button to open the new profile dialog.
 
@@ -54,7 +54,7 @@ Browse the collection you have built and dive into each series.
 
 ## Next Steps
 
-- Continue building your collection: import files, upload CSVs, or fetch books by ASIN. The [References](./references.md) page covers each method in depth.
+- Continue building your collection: import files, upload CSVs or fetch books by ASIN. The [References](./references.md) page covers each method in depth.
 - Review the [FAQ](./faq.md) if you have questions about common scenarios.
 - Join the community via the [GitHub discussions](https://github.com/ThomasMiller01/KapitelShelf/discussions/categories/general) or report bugs through the [issue tracker](https://github.com/ThomasMiller01/KapitelShelf/issues).
 

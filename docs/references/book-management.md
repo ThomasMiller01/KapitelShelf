@@ -1,6 +1,6 @@
 # Book Management
 
-KapitelShelf supports manual entry, file imports, metadata enrichment, and removal workflows so you can maintain an organised library.
+KapitelShelf supports manual entry, file imports, metadata enrichment and removal workflows so you can maintain an organised library.
 
 ## Add a Book Manually
 
@@ -23,7 +23,7 @@ KapitelShelf supports manual entry, file imports, metadata enrichment, and remov
 
    ![Import Book Button](../.attachments/references/book-management/import/import_book.png)
 
-3. Drag and drop your book files into the dotted area, or click the area to select files manually.
+3. Drag and drop your book files into the dotted area or click the area to select files manually.
 4. After a successful import, click **View** in the notification to open the new book.
 
    ![Successful Import](../.attachments/references/book-management/import/successful_import.png)
@@ -43,8 +43,8 @@ KapitelShelf can ingest a full library from a CSV file, creating a book for each
 
 Use the following column structure for successful imports:
 
-| Title*  | Description | Author   | ReleaseDate | SeriesName | SeriesNumber | Pages | Tags                | Categories          | LocationType | LocationValue |
-| ------- | ----------- | -------- | ----------- | ---------- | ------------ | ----- | ------------------- | ------------------- | ------------ | ------------- |
+| Title\*  | Description | Author   | ReleaseDate | SeriesName | SeriesNumber | Pages | Tags                | Categories          | LocationType | LocationValue |
+| -------- | ----------- | -------- | ----------- | ---------- | ------------ | ----- | ------------------- | ------------------- | ------------ | ------------- |
 | `string` | `string`    | `string` | `string`    | `string`   | `int`        | `int` | `string,string,...` | `string,string,...` | `enum`       | `string`      |
 
 - **Title**: `string` (required)

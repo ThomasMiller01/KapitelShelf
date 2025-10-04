@@ -6,7 +6,7 @@ This guide outlines the contributor workflow for KapitelShelf. It complements th
 
 1. **Work from `main`.** Keep your local copy up to date before starting new work.
 2. **Create a feature branch.** Use a descriptive branch name that reflects the change you are making.
-3. **Open a Pull Request (PR).** Every feature, enhancement, or bugfix must go through a PR targeting `main`.
+3. **Open a Pull Request (PR).** Every feature, enhancement or bugfix must go through a PR targeting `main`.
 4. **Squash commits before merge.** Each PR should merge as a single, squashed commit to keep history clean and predictable.
 
 ### Pull Request Checklist
@@ -22,7 +22,7 @@ A well-structured PR description should explain **what** changed, **why** it was
 
 ## Release Management
 
-When publishing a new version of any component (e.g. Helm chart, API client, or frontend package), use the dedicated release workflow outlined below.
+When publishing a new version of any component (e.g. Helm chart, API client or frontend package), use the dedicated release workflow outlined below.
 
 ### 1. Create a Release Branch
 
@@ -42,7 +42,7 @@ From the Command Palette select **Tasks: Run Task** and choose the appropriate b
 
 ### 3. Open a Pull Request
 
-Submit the branch `release/vX.Y.Z` against `main`. **Do not squash-merge** this PR; the release commit and tag must remain intact on `main`.
+Submit the branch `release/vX.Y.Z` against `main`. **Do not squash-merge** this PR: the release commit and tag must remain intact on `main`.
 
 ### 4. Complete the Merge with a Merge Commit
 
