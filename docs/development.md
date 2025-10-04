@@ -1,32 +1,30 @@
 # Development Guide
 
-> More coming soon
+This guide outlines the contributor workflow for KapitelShelf. It complements the project-wide [CONTRIBUTING.md](../CONTRIBUTING.md) file with the conventions the team relies on day-to-day.
 
-## Pull Requests
+## Contribution Workflow
 
-When contributing to KapitelShelf, all feature and bugfix changes must be submitted via Pull Requests (PRs) against the `main` branch. To keep our history clean and consistent:
+1. **Work from `main`.** Keep your local copy up to date before starting new work.
+2. **Create a feature branch.** Use a descriptive branch name that reflects the change you are making.
+3. **Open a Pull Request (PR).** Every feature, enhancement, or bugfix must go through a PR targeting `main`.
+4. **Squash commits before merge.** Each PR should merge as a single, squashed commit to keep history clean and predictable.
 
-- **Squash your commits** into a single commit per PR. This ensures a linear history and makes changelog generation straightforward.
-- **Follow the Conventional Commits specification** for the name of the PR:
-  - PR names must follow the format: `<type>(<scope>): <description>`
-  - Example: `feat: add dark mode toggle` or `fix: handle null response from /books`
-  - Read more: https://www.conventionalcommits.org/en/v1.0.0/
+### Pull Request Checklist
 
-A properly formatted, squashed commit allows our release tooling to automatically generate accurate changelogs and version bumps.
+Follow the Conventional Commits specification for every PR title. This enables our automated tooling to generate changelogs and version bumps accurately.
 
-### PR Title
+- Format: `<type>(<scope>): <description>`
+  - Examples: `feat: add dark mode toggle`, `fix(frontend): handle empty search result`
+- Breaking changes must include a `!` after the type: `feat!: remove legacy API`
+- Reference: [https://www.conventionalcommits.org/en/v1.0.0/](https://www.conventionalcommits.org/en/v1.0.0/)
 
-The PR title must follow conventional commits, as defined by [conventionalcommits.org](https://www.conventionalcommits.org/en/v1.0.0/#summary). This is required to allow [commit-and-tag-version](https://www.npmjs.com/package/commit-and-tag-version) to automatically create a changelog based on the commits.
+A well-structured PR description should explain **what** changed, **why** it was necessary, and any testing that validates the behaviour. Follow the PR description template.
 
-### Breaking Changes
+## Release Management
 
-PRs that introduce breaking changes must append a `!` after the type, as detailed [here](https://www.conventionalcommits.org/en/v1.0.0/#summary).
+When publishing a new version of any component (e.g. Helm chart, API client, or frontend package), use the dedicated release workflow outlined below.
 
-## Publishing a new Release
-
-When publishing a new version of any component (e.g. the Helm chart, the API client, or frontend packages), please follow these steps:
-
-### 1. **Create a release branch** off `main`:
+### 1. Create a Release Branch
 
 ```bash
 git checkout main
@@ -34,17 +32,20 @@ git pull
 git checkout -b release/vX.Y.Z
 ```
 
-### 2. **Run the `Release: Bump X` task** in VSCode (Command Palette ▶️ `Tasks: Run Task` ▶️ select `Release: Bump Helm`, etc.).
+### 2. Run the "Release: Bump X" Task in VS Code
 
-This will:
+From the Command Palette select **Tasks: Run Task** and choose the appropriate bump task (e.g. `Release: Bump Helm`). This script will:
 
-- Update the version in the relevant manifest (`Chart.yaml`, `package.json` or `KapitelShelf.X.csproj`)
-- Commit the bump under `chore(release): X.Y.Z` and tag it (e.g. `helm@X.Y.Z`)
+- Update the version in the relevant manifest (`Chart.yaml`, `package.json`, or `KapitelShelf.X.csproj`).
+- Commit the change as `chore(release): X.Y.Z`.
+- Create the matching tag (e.g. `helm@X.Y.Z`).
 
-### 3. **Open a Pull Request** from `release/vX.Y.Z` into `main`.
+### 3. Open a Pull Request
 
-**Do not squash** this PR when merging. Squash merges rewrite the release-branch commit into a new commit on main, which causes the original tag to point at an unreachable commit. That breaks our `commit-and-tag-version` changelog generation.
+Submit the branch `release/vX.Y.Z` against `main`. **Do not squash-merge** this PR; the release commit and tag must remain intact on `main`.
 
-### 4. **Merge with normal (merge-commit)** so the bump commit and its tag remain on `main`'s history
+### 4. Complete the Merge with a Merge Commit
 
-Once merged, CI will pick up the new tag and publish the release artifacts. This workflow preserves tags on their exact bump commits and ensures `commit-and-tag-version` can accurately compute the next changelog.
+Use the regular merge-commit strategy. This keeps the original tag pointed at the published commit so `commit-and-tag-version` can compute the next changelog correctly.
+
+After merging, CI picks up the new tag and publishes the release artefacts automatically.

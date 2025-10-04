@@ -1,62 +1,61 @@
 # Quickstart Guide
 
-**Welcome to KapitelShelf!**
+Welcome to KapitelShelf! This guide walks you through the first essential actions so you can start organising your library within minutes. If you have not set up the application yet, begin with the [Installation Guide](./installation.md) before continuing.
 
-This quickstart guide shows you how to begin using the app and manage your book collection.
+## 1. Launch the Frontend
 
-## 1. Access the KapitelShelf frontend
+Open your browser and navigate to your KapitelShelf instance.
 
-Open your browser and navigate to:
-
-```
+```text
 http://localhost:5173
 ```
 
-> ℹ️ The url can **vary** based on how you installed it. <br /> **docker-compose** & **Docker** => use the url provided above <br /> **Helm** => navigate to the url you configured via the `frontend.ingress` value
+> ℹ️ The exact URL depends on how KapitelShelf was installed. <br /> **docker-compose** or **Docker** deployments typically use the address above. <br /> **Helm** deployments should use the URL configured via the `frontend.ingress` value.
 
-## 2. Create a User Profile
+## 2. Create Your First User Profile
 
-1. Click on the "+" (plus) button to start creating a new user profile
+A user profile stores personalised settings, ratings, and reading metadata. Create one to begin using KapitelShelf.
 
-![Create User Profile Button](./.attachments/references/user_profiles/create_user_profile_button.png)
+1. Click the **`+` (plus)** button to open the new profile dialog.
 
-2. Fill in the username and click the "Save" button
+   ![Create User Profile Button](./.attachments/references/user_profiles/create_user_profile_button.png)
 
-![Create User Profile Dialog](./.attachments/references/user_profiles/create_user_profile_dialog.png)
+2. Enter a username and press **Save**.
 
-## 3. Add Your First Book
+   ![Create User Profile Dialog](./.attachments/references/user_profiles/create_user_profile_dialog.png)
 
-1. Click the `+` button on the top right.
+## 3. Add a Book to Your Library
 
-![Create Dialog](./.attachments/references/add_book/manual/create_dialog.png)
+Start curating your collection by adding a title manually.
 
-2. Click the `Create Book` button _(directly below)_.
+1. Click the **`+`** button in the top-right corner.
 
-![Create Book Button](./.attachments/references/add_book/manual/create_book.png)
+   ![Create Dialog](./.attachments/references/add_book/manual/create_dialog.png)
 
-3. Fill out the book details: _title_, _description_, ...
-4. _**[Optional]**_ Import metadata as described in [Import Metadata for a Book](./references.md#import-metadata-for-a-book).
-5. Click the `Create Book` button on the bottom right.
+2. Choose **Create Book**.
 
-Your book now appears in your collection.
+   ![Create Book Button](./.attachments/references/add_book/manual/create_book.png)
 
-## 4. Browse Your Collection
+3. Fill in the book details such as title and description.
+4. _Optional:_ Import richer metadata using the workflow described in [Import Metadata for a Book](./references.md#import-metadata-for-a-book).
+5. Click **Create Book** at the bottom-right to save it.
 
-After adding books, you can visit your personal library.
+Your new book immediately appears in your personal library.
 
-1. Click on `Library` to see your book collection
+## 4. Explore Your Library
 
-![Visit Library](./.attachments/references/library/visit_library.png)
+Browse the collection you have built and dive into each series.
 
-> ℹ️ On the library page, you’ll see all your series listed. <br /> To view the books in a specific series, see [4. View Series Details](#4-view-series-details).
+1. Select **Library** from the navigation to see every series you own.
 
-## Help and Support
+   ![Visit Library](./.attachments/references/library/visit_library.png)
 
-- For questions, visit the [General](https://github.com/ThomasMiller01/KapitelShelf/discussions/categories/general) section of the discussions on GitHub.
-- For bugs, [open an issue](https://github.com/ThomasMiller01/KapitelShelf/issues) on GitHub.
-- Check the [References](./references.md) for advanced usage and more details.
-- Check the [FAQ](./faq.md) for frequently asked questions.
+> ℹ️ Series act as containers for books. To focus on a single series, open it from the list and explore the options described in [Library and Search](./references.md#library-and-search).
 
----
+## Next Steps
 
-**🎉 Enjoy organizing your library with KapitelShelf!**
+- Continue building your collection: import files, upload CSVs, or fetch books by ASIN. The [References](./references.md) page covers each method in depth.
+- Review the [FAQ](./faq.md) if you have questions about common scenarios.
+- Join the community via the [GitHub discussions](https://github.com/ThomasMiller01/KapitelShelf/discussions/categories/general) or report bugs through the [issue tracker](https://github.com/ThomasMiller01/KapitelShelf/issues).
+
+Enjoy organising your reading life with KapitelShelf! 🎉
