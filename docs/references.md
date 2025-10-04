@@ -12,6 +12,7 @@
   - [Delete a Book](#delete-a-book)
 - Series
   - [Merge two Series](#merge-two-series)
+- Watchlist
 - [Metadata](#metadata)
 - [File Handling](#file-handling)
 - [Tasks](#tasks)
@@ -205,6 +206,40 @@ Now **confirm** the deletion in the dialog via the red `Delete` button.
 4. Click the "Merge" button.
 
 You will automatically be navigated to the target series, once the merging completes successfully.
+
+## Watchlist
+
+The **Watchlist** lets you track upcoming volumes of your favorite series — especially those not yet in your library, such as future releases. Once a series is added, KapitelShelf automatically checks for newly announced volumes and their release dates.
+
+> ⚠️ Currently, only series from **Kindle** locations support the watchlist feature.
+
+The Watchlist page is divided into three categories:
+
+1. **Arriving Soon** - books releasing within the next 7 days
+2. **Coming Up** - books releasing within the next 30 days
+3. **Further Ahead** - books scheduled for later releases or with no next volume announced
+
+On the Watchlist page, you can:
+
+- Open a series page directly (to view or remove it from your watchlist)
+- View all upcoming volumes that have been announced - not just the next one
+
+![Watchlist Page](./.attachments/references/watchlist/watchlist_page.png)
+
+### Adding or Removing a Series
+
+1. Open the series you want to add to your watchlist.
+2. Click the **Eye** icon to add the series.
+
+![Add series to watchlist](./.attachments/references/watchlist/add_to_watchlist_button.png)
+
+3. You can access your watchlist anytime from the **profile menu** in the top right corner.
+
+![Go to watchlist](./.attachments/references/watchlist/go_to_watchlist.png)
+
+> If the watchlist button isn’t visible, the books in the series don’t have a supported location configured.
+
+To remove a series, click the same button again - it will appear as a crossed-out eye icon.
 
 ## Metadata
 
