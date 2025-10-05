@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Watchlist;
 
 namespace KapitelShelf.Api.Logic.Interfaces;
@@ -48,4 +49,11 @@ public interface IWatchlistLogic
     /// <param name="watchlistId">The id of the watchlist.</param>
     /// <returns>A task.</returns>
     Task UpdateWatchlist(Guid watchlistId);
+
+    /// <summary>
+    /// Add a watchlist result to the library.
+    /// </summary>
+    /// <param name="resultId">The watchlist result id.</param>
+    /// <returns>The added book.</returns>
+    Task<BookDTO?> AddResultToLibrary(Guid resultId);
 }

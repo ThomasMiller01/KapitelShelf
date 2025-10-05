@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Watchlist;
 using KapitelShelf.Api.Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -118,6 +119,35 @@ public class WatchlistController(ILogger<WatchlistController> logger, IWatchlist
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error removing series with Id: {SeriesId} from the watchlist", seriesId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Add a watchlist result to the library.
+    /// </summary>
+    /// <param name="resultId">The result id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("result/{resultId}/library")]
+    public async Task<ActionResult<BookDTO>> AddSeriesToWatchlist(Guid resultId)
+    {
+        try
+        {
+            var bookDto = await this.logic.AddResultToLibrary(resultId);
+            if (bookDto is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(bookDto);
+        }
+        catch (ArgumentException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error adding result with Id: {SeriesId} to the library", resultId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

@@ -4970,6 +4970,40 @@ export const WatchlistApiAxiosParamCreator = function (configuration?: Configura
         },
         /**
          * 
+         * @summary Add a watchlist result to the library.
+         * @param {string} resultId The result id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        watchlistResultResultIdLibraryPut: async (resultId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'resultId' is not null or undefined
+            assertParamExists('watchlistResultResultIdLibraryPut', 'resultId', resultId)
+            const localVarPath = `/watchlist/result/{resultId}/library`
+                .replace(`{${"resultId"}}`, encodeURIComponent(String(resultId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Check, if this series is on the watchlist.
          * @param {string} seriesId The series id.
          * @param {string} [userId] The user id.
@@ -5110,6 +5144,19 @@ export const WatchlistApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Add a watchlist result to the library.
+         * @param {string} resultId The result id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async watchlistResultResultIdLibraryPut(resultId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.watchlistResultResultIdLibraryPut(resultId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WatchlistApi.watchlistResultResultIdLibraryPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Check, if this series is on the watchlist.
          * @param {string} seriesId The series id.
          * @param {string} [userId] The user id.
@@ -5172,6 +5219,16 @@ export const WatchlistApiFactory = function (configuration?: Configuration, base
         },
         /**
          * 
+         * @summary Add a watchlist result to the library.
+         * @param {string} resultId The result id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        watchlistResultResultIdLibraryPut(resultId: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTO> {
+            return localVarFp.watchlistResultResultIdLibraryPut(resultId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Check, if this series is on the watchlist.
          * @param {string} seriesId The series id.
          * @param {string} [userId] The user id.
@@ -5223,6 +5280,18 @@ export class WatchlistApi extends BaseAPI {
      */
     public watchlistGet(userId?: string, options?: RawAxiosRequestConfig) {
         return WatchlistApiFp(this.configuration).watchlistGet(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Add a watchlist result to the library.
+     * @param {string} resultId The result id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WatchlistApi
+     */
+    public watchlistResultResultIdLibraryPut(resultId: string, options?: RawAxiosRequestConfig) {
+        return WatchlistApiFp(this.configuration).watchlistResultResultIdLibraryPut(resultId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

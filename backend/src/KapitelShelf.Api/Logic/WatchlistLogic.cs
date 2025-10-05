@@ -7,7 +7,9 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Watchlist;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.Watchlists;
@@ -23,8 +25,11 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="dbContextFactory">The dbContext factory.</param>
 /// <param name="mapper">The auto mapper.</param>
 /// <param name="seriesLogic">The series logic.</param>
+/// <param name="booksLogic">The books logic.</param>
 /// <param name="watchlistScraperManager">The watchlist scraper manager.</param>
-public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, ISeriesLogic seriesLogic, IWatchlistScraperManager watchlistScraperManager) : IWatchlistLogic
+/// <param name="bookStorage">The book storage.</param>
+/// <param name="metadataLogic">The metadata logic.</param>
+public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, ISeriesLogic seriesLogic, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager, IBookStorage bookStorage, MetadataLogic metadataLogic) : IWatchlistLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -32,7 +37,13 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
 
     private readonly ISeriesLogic seriesLogic = seriesLogic;
 
+    private readonly IBooksLogic booksLogic = booksLogic;
+
     private readonly IWatchlistScraperManager watchlistScraperManager = watchlistScraperManager;
+
+    private readonly IBookStorage bookStorage = bookStorage;
+
+    private readonly MetadataLogic metadataLogic = metadataLogic;
 
     /// <inheritdoc/>
     public async Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId)
@@ -220,5 +231,46 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
         }
 
         await context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<BookDTO?> AddResultToLibrary(Guid resultId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var result = await context.WatchlistResults
+            .Include(x => x.Series)
+            .FirstOrDefaultAsync(x => x.Id == resultId);
+
+        if (result is null)
+        {
+            return null;
+        }
+
+        // add result to library
+        var createBookDto = this.mapper.Map<CreateBookDTO>(result);
+        var bookDto = await this.booksLogic.CreateBookAsync(createBookDto);
+        if (bookDto is null)
+        {
+            return null;
+        }
+
+        // upload cover
+        if (result.CoverUrl is not null)
+        {
+            var (coverBytes, _) = await this.metadataLogic.ProxyCover(result.CoverUrl);
+            var coverFile = coverBytes.ToFile("cover.png");
+
+            var cover = await this.bookStorage.Save(bookDto.Id, coverFile);
+
+            bookDto.Cover = cover;
+            await this.booksLogic.UpdateBookAsync(bookDto.Id, bookDto);
+        }
+
+        // remove result from watchlist results
+        context.WatchlistResults.Remove(result);
+        await context.SaveChangesAsync();
+
+        return bookDto;
     }
 }

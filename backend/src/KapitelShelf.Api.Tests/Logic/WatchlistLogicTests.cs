@@ -7,6 +7,7 @@ using AutoMapper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;
@@ -29,7 +30,10 @@ public class WatchlistLogicTests
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
     private IMapper mapper;
     private ISeriesLogic seriesLogic;
+    private IBooksLogic booksLogic;
     private IWatchlistScraperManager watchlistScraperManager;
+    private IBookStorage bookStorage;
+    private MetadataLogic metadataLogic;
     private WatchlistLogic testee;
 
     /// <summary>
@@ -79,8 +83,11 @@ public class WatchlistLogicTests
 
         this.mapper = Testhelper.CreateMapper();
         this.seriesLogic = Substitute.For<ISeriesLogic>();
+        this.booksLogic = Substitute.For<IBooksLogic>();
         this.watchlistScraperManager = Substitute.For<IWatchlistScraperManager>();
-        this.testee = new WatchlistLogic(this.dbContextFactory, this.mapper, this.seriesLogic, this.watchlistScraperManager);
+        this.bookStorage = Substitute.For<IBookStorage>();
+        this.metadataLogic = Substitute.For<MetadataLogic>();
+        this.testee = new WatchlistLogic(this.dbContextFactory, this.mapper, this.seriesLogic, this.booksLogic, this.watchlistScraperManager, this.bookStorage, this.metadataLogic);
     }
 
     /// <summary>
