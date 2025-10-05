@@ -30,7 +30,7 @@ public class UpdateWatchlistsTests
 
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
-    private ISeriesLogic logic;
+    private IWatchlistLogic logic;
     private IJobExecutionContext context;
     private UpdateWatchlists testee;
 
@@ -81,7 +81,7 @@ public class UpdateWatchlistsTests
 
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
-        this.logic = Substitute.For<ISeriesLogic>();
+        this.logic = Substitute.For<IWatchlistLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
         var jobDetail = Substitute.For<IJobDetail>();

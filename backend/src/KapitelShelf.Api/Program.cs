@@ -85,18 +85,19 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddSingleton<IBooksLogic, BooksLogic>();
 builder.Services.AddSingleton<ISeriesLogic, SeriesLogic>();
 builder.Services.AddSingleton<IBookParserManager, BookParserManager>();
-builder.Services.AddSingleton<MetadataLogic>();
+builder.Services.AddSingleton<IMetadataLogic, MetadataLogic>();
 builder.Services.AddSingleton<IMetadataScraperManager, MetadataScraperManager>();
-builder.Services.AddSingleton<UsersLogic>();
-builder.Services.AddSingleton<TasksLogic>();
-builder.Services.AddSingleton<SettingsLogic>();
+builder.Services.AddSingleton<IUsersLogic, UsersLogic>();
+builder.Services.AddSingleton<ITasksLogic, TasksLogic>();
+builder.Services.AddSingleton<ISettingsLogic, SettingsLogic>();
+builder.Services.AddSingleton<IWatchlistLogic, WatchlistLogic>();
 builder.Services.AddSingleton<IWatchlistScraperManager, WatchlistScraperManager>();
 
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<ICloudStorage, CloudStorage>();
 
 builder.Services.AddSingleton<ICloudStoragesLogic, CloudStoragesLogic>();
-builder.Services.AddSingleton<OneDriveLogic>();
+builder.Services.AddSingleton<IOneDriveLogic, OneDriveLogic>();
 
 builder.Services.AddSingleton<IProcessUtils, ProcessUtils>();
 builder.Services.AddSingleton<IDynamicSettingsManager, DynamicSettingsManager>();

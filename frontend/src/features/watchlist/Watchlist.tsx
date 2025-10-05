@@ -24,7 +24,7 @@ const Watchlist: React.FC = () => {
         return null;
       }
 
-      const { data } = await clients.series.seriesWatchlistGet(profile?.id);
+      const { data } = await clients.watchlist.watchlistGet(profile?.id);
       return data;
     },
   });

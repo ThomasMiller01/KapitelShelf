@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { GET_KEY, UserSettingsContext } from "../contexts/UserSettingsContext";
 import type { UserSettingDTO } from "../lib/api/KapitelShelf.Api/api";
@@ -26,7 +26,7 @@ export const useSetting = <T extends UserSettingValueType>(
   const { getSetting, setSetting, isLoaded } = ctx;
 
   // helper: load from localStorage manually
-  const loadFromLocalStorage = (): T => {
+  const loadFromLocalStorage = useCallback((): T => {
     if (!profile?.id) {
       return defaultRef.current;
     }
@@ -50,7 +50,7 @@ export const useSetting = <T extends UserSettingValueType>(
     } catch {
       return defaultRef.current;
     }
-  };
+  }, [key, profile?.id]);
 
   const [value, setValue] = useState<T>(loadFromLocalStorage());
   const lastProfileId = useRef<string | null>(null);

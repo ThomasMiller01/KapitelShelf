@@ -20,7 +20,7 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The OneDrive cloud storage logic.
 /// </summary>
-public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ICloudStoragesLogic baseLogic, ICloudStorage fileStorage)
+public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ICloudStoragesLogic baseLogic, ICloudStorage fileStorage) : IOneDriveLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -32,11 +32,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
 
     private readonly ICloudStorage fileStorage = fileStorage;
 
-    /// <summary>
-    /// Get the url for the OAuth flow of OneDrive.
-    /// </summary>
-    /// <param name="redirectUrl">The url to redirect to after the OAuth flow finished.</param>
-    /// <returns>The OAuth url.</returns>
+    /// <inheritdoc/>
     public async Task<string> GetOAuthUrl(string redirectUrl)
     {
         var configuration = await this.baseLogic.GetConfiguration(CloudTypeDTO.OneDrive);
@@ -61,11 +57,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         return "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" + queryString;
     }
 
-    /// <summary>
-    /// Gets the OAuth token from the OAuth code.
-    /// </summary>
-    /// <param name="code">The OAuth code.</param>
-    /// <returns>The OAuth tokens.</returns>
+    /// <inheritdoc/>
     public async Task<OAuthTokensDTO> GetOAuthTokensFromCode(string code)
     {
         var configuration = await this.baseLogic.GetConfiguration(CloudTypeDTO.OneDrive);
@@ -94,11 +86,7 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         };
     }
 
-    /// <summary>
-    /// Generate the rclone config.
-    /// </summary>
-    /// <param name="tokens">The OAuth tokens.</param>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task GenerateRCloneConfig(OAuthTokensDTO tokens)
     {
         ArgumentNullException.ThrowIfNull(tokens);

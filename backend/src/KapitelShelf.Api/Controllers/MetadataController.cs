@@ -4,7 +4,7 @@
 
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Extensions;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +17,11 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="logic">The books logic.</param>
 [ApiController]
 [Route("metadata")]
-public class MetadataController(ILogger<MetadataController> logger, MetadataLogic logic) : ControllerBase
+public class MetadataController(ILogger<MetadataController> logger, IMetadataLogic logic) : ControllerBase
 {
     private readonly ILogger<MetadataController> logger = logger;
 
-    private readonly MetadataLogic logic = logic;
+    private readonly IMetadataLogic logic = logic;
 
     /// <summary>
     /// Fetch the metadata for a book from the specified source.

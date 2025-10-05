@@ -18,11 +18,11 @@ A user profile stores personalised settings, ratings and reading metadata. Creat
 
 1. Click the **`+` (plus)** button to open the new profile dialog.
 
-   ![Create User Profile Button](./.attachments/references/user_profiles/create_user_profile_button.png)
+   ![Create User Profile Button](./.attachments/references/user-profiles/create_user_profile_button.png)
 
 2. Enter a username and press **Save**.
 
-   ![Create User Profile Dialog](./.attachments/references/user_profiles/create_user_profile_dialog.png)
+   ![Create User Profile Dialog](./.attachments/references/user-profiles/create_user_profile_dialog.png)
 
 ## 3. Add a Book to Your Library
 
@@ -30,11 +30,11 @@ Start curating your collection by adding a title manually.
 
 1. Click the **`+`** button in the top-right corner.
 
-   ![Create Dialog](./.attachments/references/add_book/manual/create_dialog.png)
+   ![Create Dialog](./.attachments/references/book-management/manual/create_dialog.png)
 
 2. Choose **Create Book**.
 
-   ![Create Book Button](./.attachments/references/add_book/manual/create_book.png)
+   ![Create Book Button](./.attachments/references/book-management/manual/create_book.png)
 
 3. Fill in the book details such as title and description.
 4. _Optional:_ Import richer metadata using the workflow described in [Import Metadata for a Book](./references.md#import-metadata-for-a-book).
@@ -48,7 +48,7 @@ Browse the collection you have built and dive into each series.
 
 1. Select **Library** from the navigation to see every series you own.
 
-   ![Visit Library](./.attachments/references/library/visit_library.png)
+   ![Visit Library](./.attachments/references/library-and-search/library/visit_library.png)
 
 > ℹ️ Series act as containers for books. To focus on a single series, open it from the list and explore the options described in [Library and Search](./references.md#library-and-search).
 

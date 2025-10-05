@@ -70,10 +70,11 @@ const SeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      const { data } = await clients.series.seriesSeriesIdIswatchedGet(
-        seriesId,
-        profile.id
-      );
+      const { data } =
+        await clients.watchlist.watchlistSeriesSeriesIdIswatchedGet(
+          seriesId,
+          profile.id
+        );
       return data;
     },
     enabled: SeriesSupportsWatchlist(series),
@@ -127,7 +128,10 @@ const SeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      await clients.series.seriesSeriesIdWatchPut(seriesId, profile.id);
+      await clients.watchlist.watchlistSeriesSeriesIdWatchPut(
+        seriesId,
+        profile.id
+      );
     },
     meta: {
       notify: {
@@ -156,7 +160,10 @@ const SeriesDetailPage = (): ReactElement => {
         return null;
       }
 
-      await clients.series.seriesSeriesIdWatchDelete(seriesId, profile.id);
+      await clients.watchlist.watchlistSeriesSeriesIdWatchDelete(
+        seriesId,
+        profile.id
+      );
     },
     meta: {
       notify: {

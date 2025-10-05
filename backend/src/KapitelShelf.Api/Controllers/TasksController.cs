@@ -3,7 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Tasks;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
@@ -15,11 +15,11 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="logic">The tasks logic.</param>
 [ApiController]
 [Route("tasks")]
-public class TasksController(ILogger<TasksController> logger, TasksLogic logic) : ControllerBase
+public class TasksController(ILogger<TasksController> logger, ITasksLogic logic) : ControllerBase
 {
     private readonly ILogger<TasksController> logger = logger;
 
-    private readonly TasksLogic logic = logic;
+    private readonly ITasksLogic logic = logic;
 
     /// <summary>
     /// Fetch all tasks.

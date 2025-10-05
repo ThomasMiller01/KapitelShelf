@@ -5,7 +5,7 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;
@@ -17,11 +17,11 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="logic">The books logic.</param>
 [ApiController]
 [Route("users")]
-public class UsersController(ILogger<BooksController> logger, UsersLogic logic) : ControllerBase
+public class UsersController(ILogger<BooksController> logger, IUsersLogic logic) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
-    private readonly UsersLogic logic = logic;
+    private readonly IUsersLogic logic = logic;
 
     /// <summary>
     /// Fetch all users.
