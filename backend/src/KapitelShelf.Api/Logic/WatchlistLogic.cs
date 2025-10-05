@@ -29,7 +29,7 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="watchlistScraperManager">The watchlist scraper manager.</param>
 /// <param name="bookStorage">The book storage.</param>
 /// <param name="metadataLogic">The metadata logic.</param>
-public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, ISeriesLogic seriesLogic, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager, IBookStorage bookStorage, MetadataLogic metadataLogic) : IWatchlistLogic
+public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, ISeriesLogic seriesLogic, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager, IBookStorage bookStorage, IMetadataLogic metadataLogic) : IWatchlistLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -43,7 +43,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
 
     private readonly IBookStorage bookStorage = bookStorage;
 
-    private readonly MetadataLogic metadataLogic = metadataLogic;
+    private readonly IMetadataLogic metadataLogic = metadataLogic;
 
     /// <inheritdoc/>
     public async Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId)

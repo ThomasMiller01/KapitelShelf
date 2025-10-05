@@ -4,6 +4,7 @@
 
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks;
 using Quartz;
 using Quartz.Impl.Matchers;
@@ -13,7 +14,7 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// The tasks logic.
 /// </summary>
-public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, ITaskRuntimeDataStore dataStore)
+public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, ITaskRuntimeDataStore dataStore) : ITasksLogic
 {
     /// <summary>
     /// The mapper.
@@ -30,10 +31,7 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, ITas
     /// </summary>
     private readonly ITaskRuntimeDataStore dataStore = dataStore;
 
-    /// <summary>
-    /// Get all tasks.
-    /// </summary>
-    /// <returns>A list of all tasks.</returns>
+    /// <inheritdoc/>
     public async Task<List<TaskDTO>> GetTasks()
     {
         var scheduler = await this.schedulerFactory.GetScheduler();

@@ -33,7 +33,7 @@ public class WatchlistLogicTests
     private IBooksLogic booksLogic;
     private IWatchlistScraperManager watchlistScraperManager;
     private IBookStorage bookStorage;
-    private MetadataLogic metadataLogic;
+    private IMetadataLogic metadataLogic;
     private WatchlistLogic testee;
 
     /// <summary>
@@ -86,7 +86,7 @@ public class WatchlistLogicTests
         this.booksLogic = Substitute.For<IBooksLogic>();
         this.watchlistScraperManager = Substitute.For<IWatchlistScraperManager>();
         this.bookStorage = Substitute.For<IBookStorage>();
-        this.metadataLogic = Substitute.For<MetadataLogic>();
+        this.metadataLogic = Substitute.For<IMetadataLogic>();
         this.testee = new WatchlistLogic(this.dbContextFactory, this.mapper, this.seriesLogic, this.booksLogic, this.watchlistScraperManager, this.bookStorage, this.metadataLogic);
     }
 

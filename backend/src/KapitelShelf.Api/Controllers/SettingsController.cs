@@ -3,7 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Settings;
-using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,11 +16,11 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="logic">The settings logic.</param>
 [ApiController]
 [Route("settings")]
-public class SettingsController(ILogger<SettingsController> logger, SettingsLogic logic) : ControllerBase
+public class SettingsController(ILogger<SettingsController> logger, ISettingsLogic logic) : ControllerBase
 {
     private readonly ILogger<SettingsController> logger = logger;
 
-    private readonly SettingsLogic logic = logic;
+    private readonly ISettingsLogic logic = logic;
 
     /// <summary>
     /// Fetch all settings.

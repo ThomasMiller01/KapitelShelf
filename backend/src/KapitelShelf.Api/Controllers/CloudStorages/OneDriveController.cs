@@ -5,7 +5,6 @@
 using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api.DTOs.CloudStorage;
-using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,13 +18,13 @@ namespace KapitelShelf.Api.Controllers.CloudStorages;
 /// <param name="logic">The tasks logic.</param>
 [ApiController]
 [Route("cloudstorage/onedrive")]
-public class OneDriveController(ILogger<OneDriveController> logger, ICloudStoragesLogic baseLogic, OneDriveLogic logic) : ControllerBase
+public class OneDriveController(ILogger<OneDriveController> logger, ICloudStoragesLogic baseLogic, IOneDriveLogic logic) : ControllerBase
 {
     private readonly ILogger<OneDriveController> logger = logger;
 
     private readonly ICloudStoragesLogic baseLogic = baseLogic;
 
-    private readonly OneDriveLogic logic = logic;
+    private readonly IOneDriveLogic logic = logic;
 
     /// <summary>
     /// Redirect to the OneDrive OAuth url.

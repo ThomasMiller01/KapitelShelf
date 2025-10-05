@@ -5,6 +5,7 @@
 using System.Runtime.CompilerServices;
 using AutoMapper;
 using KapitelShelf.Api.DTOs.Settings;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
@@ -18,16 +19,13 @@ namespace KapitelShelf.Api.Logic;
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
 /// <param name="mapper">The auto mapper.</param>
-public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper)
+public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper) : ISettingsLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly IMapper mapper = mapper;
 
-    /// <summary>
-    /// Get all settings.
-    /// </summary>
-    /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task<List<SettingsDTO<object>>> GetSettingsAsync()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -37,12 +35,7 @@ public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
             .ToListAsync();
     }
 
-    /// <summary>
-    /// Update a setting.
-    /// </summary>
-    /// <param name="settingId">The id of the setting to update.</param>
-    /// <param name="value">The updated setting value.</param>
-    /// <returns>A task.</returns>
+    /// <inheritdoc/>
     public async Task<SettingsDTO<object>?> UpdateSettingAsync(Guid settingId, object value)
     {
         if (value is null)
