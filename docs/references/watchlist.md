@@ -14,6 +14,10 @@ From the watchlist you can open series pages, inspect all upcoming volumes and r
 
 ![Watchlist Page](../.attachments/references/watchlist/watchlist_page.png)
 
+Once a volume has been released, clicking on the series will open a menu. From there, you can either visit the external store page (as before) or directly add the released volume to your library in KapitelShelf.
+
+![Released Volume Menu](../.attachments/references/watchlist/released_book_menu.png)
+
 ## Add or Remove a Series
 
 1. Open the series you want to monitor.
