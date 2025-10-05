@@ -4,6 +4,8 @@
 
 using System.Globalization;
 using AutoMapper;
+using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
@@ -12,6 +14,7 @@ using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;
 using KapitelShelf.Data.Models.Watchlists;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Testcontainers.PostgreSql;
@@ -750,5 +753,185 @@ public class WatchlistLogicTests
         // Assert
         using var context2 = new KapitelShelfDBContext(this.dbOptions);
         Assert.That(context2.WatchlistResults.Any(r => r.SeriesId == seriesId), Is.False);
+    }
+
+    /// <summary>
+    /// Tests that AddResultToLibrary returns null when the result does not exist.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddResultToLibrary_ReturnsNull_WhenResultNotFound()
+    {
+        // Execute
+        var result = await this.testee.AddResultToLibrary(Guid.NewGuid());
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests that AddResultToLibrary adds a result to the library successfully.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddResultToLibrary_AddsResultToLibrary_Successfully()
+    {
+        // Setup
+        var resultId = Guid.NewGuid();
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "Series".Unique(),
+            });
+            context.WatchlistResults.Add(new WatchlistResultModel
+            {
+                Id = resultId,
+                SeriesId = seriesId,
+                Volume = 1,
+                Title = "Test Book",
+                LocationUrl = "ASIN".Unique(),
+                LocationType = LocationType.Kindle,
+                CoverUrl = "https://example.com/cover.png",
+            });
+            await context.SaveChangesAsync();
+        }
+
+        // Mock dependencies
+        var createdBook = new BookDTO
+        {
+            Id = bookId,
+            Title = "Test Book",
+        };
+
+        this.booksLogic.CreateBookAsync(Arg.Any<CreateBookDTO>())
+            .Returns(Task.FromResult<BookDTO?>(createdBook));
+
+        var coverBytes = new byte[] { 1, 2, 3 };
+        this.metadataLogic.ProxyCover(Arg.Any<string>())
+            .Returns(Task.FromResult<(byte[], string)>((coverBytes, "image/png")));
+
+        var savedFile = new FileInfoDTO
+        {
+            FilePath = "/books/cover.png",
+        };
+        this.bookStorage.Save(bookId, Arg.Any<IFormFile>())
+            .Returns(Task.FromResult(savedFile));
+
+        // Execute
+        var result = await this.testee.AddResultToLibrary(resultId);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.Title, Is.EqualTo("Test Book"));
+            Assert.That(result.Cover, Is.Not.Null);
+        });
+        Assert.That(result.Cover!.FilePath, Is.EqualTo("/books/cover.png"));
+
+        // Verify that the result has been removed from the DB
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        Assert.That(await context2.WatchlistResults.AnyAsync(r => r.Id == resultId), Is.False);
+
+        // Verify that the book was updated
+        await this.booksLogic.Received().UpdateBookAsync(bookId, Arg.Any<BookDTO>());
+    }
+
+    /// <summary>
+    /// Tests that AddResultToLibrary returns null when book creation fails.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddResultToLibrary_ReturnsNull_WhenBookCreationFails()
+    {
+        // Setup
+        var resultId = Guid.NewGuid();
+        var seriesId = Guid.NewGuid();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "Series".Unique(),
+            });
+            context.WatchlistResults.Add(new WatchlistResultModel
+            {
+                Id = resultId,
+                SeriesId = seriesId,
+                Volume = 1,
+                Title = "Test Book",
+                LocationUrl = "ASIN".Unique(),
+                LocationType = LocationType.Kindle,
+            });
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CreateBookAsync(Arg.Any<CreateBookDTO>())
+            .Returns(Task.FromResult<BookDTO?>(null));
+
+        // Execute
+        var result = await this.testee.AddResultToLibrary(resultId);
+
+        // Assert
+        Assert.That(result, Is.Null);
+
+        // Verify the watchlist result still exists
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        Assert.That(await context2.WatchlistResults.AnyAsync(r => r.Id == resultId), Is.True);
+    }
+
+    /// <summary>
+    /// Tests that AddResultToLibrary does not upload a cover when none exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddResultToLibrary_SkipsCoverUpload_WhenNoCoverUrl()
+    {
+        // Setup
+        var resultId = Guid.NewGuid();
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "Series".Unique(),
+            });
+            context.WatchlistResults.Add(new WatchlistResultModel
+            {
+                Id = resultId,
+                SeriesId = seriesId,
+                Volume = 1,
+                Title = "Test Book",
+                LocationUrl = "ASIN".Unique(),
+                LocationType = LocationType.Kindle,
+                CoverUrl = null,
+            });
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CreateBookAsync(Arg.Any<CreateBookDTO>())
+            .Returns(Task.FromResult<BookDTO?>(new()
+            {
+                Id = bookId,
+                Title = "Test Book",
+            }));
+
+        // Execute
+        var result = await this.testee.AddResultToLibrary(resultId);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        await this.metadataLogic.DidNotReceiveWithAnyArgs().ProxyCover(default!);
+        await this.bookStorage.DidNotReceiveWithAnyArgs().Save(default, default!);
+        await this.booksLogic.Received(0).UpdateBookAsync(Arg.Any<Guid>(), Arg.Any<BookDTO>());
     }
 }
