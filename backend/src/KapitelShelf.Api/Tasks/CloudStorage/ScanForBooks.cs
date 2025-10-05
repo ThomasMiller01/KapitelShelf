@@ -2,10 +2,10 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
+using KapitelShelf.Api.Mappings;
 using Quartz;
 
 namespace KapitelShelf.Api.Tasks.CloudStorage;
@@ -14,11 +14,11 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// Scan the cloud storages for books.
 /// </summary>
 [DisallowConcurrentExecution]
-public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic, IMapper mapper) : TaskBase(dataStore, logger)
+public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic, Mapper mapper) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStoragesLogic logic = logic;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     /// <summary>
     /// Sets a value to only sync a single storage.
@@ -122,7 +122,7 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
         }
 
         // download new data
-        var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+        var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
         await this.logic.ScanStorageForBooks(storage, onFileScanned: OnFileScanned);
     }
 
@@ -155,7 +155,7 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
             }
 
             // download new data
-            var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+            var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
             await this.logic.ScanStorageForBooks(storage, onFileScanned: OnFileScanned);
         }
     }

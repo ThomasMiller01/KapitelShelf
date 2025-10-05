@@ -3,12 +3,12 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.WatchlistScraper;
 using KapitelShelf.Api.Logic.WatchlistScraper;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data.Models.Watchlists;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
@@ -22,13 +22,13 @@ public class WatchlistScraperManager : IWatchlistScraperManager
 {
     private readonly Dictionary<LocationTypeDTO, Type> watchlistScraper;
 
-    private readonly IMapper mapper;
+    private readonly Mapper mapper;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WatchlistScraperManager"/> class.
     /// </summary>
-    /// <param name="mapper">The auto mapper.</param>
-    public WatchlistScraperManager(IMapper mapper)
+    /// <param name="mapper">The mapper.</param>
+    public WatchlistScraperManager(Mapper mapper)
         : this(
             new Dictionary<LocationTypeDTO, Type>
             {
@@ -38,7 +38,7 @@ public class WatchlistScraperManager : IWatchlistScraperManager
     }
 
     // Needed for unit tests
-    internal WatchlistScraperManager(Dictionary<LocationTypeDTO, Type> watchlistScraper, IMapper mapper)
+    internal WatchlistScraperManager(Dictionary<LocationTypeDTO, Type> watchlistScraper, Mapper mapper)
     {
         this.watchlistScraper = watchlistScraper;
         this.mapper = mapper;

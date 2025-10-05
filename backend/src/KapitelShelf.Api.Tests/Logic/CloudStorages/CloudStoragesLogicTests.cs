@@ -3,7 +3,7 @@
 // </copyright>
 
 using System.Diagnostics;
-using AutoMapper;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Settings;
@@ -34,7 +34,7 @@ public class CloudStoragesLogicTests
 
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
-    private IMapper mapper;
+    private Mapper mapper;
     private KapitelShelfSettings settings;
     private ISchedulerFactory schedulerFactory;
     private IProcessUtils processUtils;
@@ -653,7 +653,7 @@ public class CloudStoragesLogicTests
         }
 
         // Execute
-        await this.testee.AddCloudFileImportFail(this.mapper.Map<CloudStorageDTO>(storageModel), fileInfoDto, errorMessage);
+        await this.testee.AddCloudFileImportFail(this.mapper.CloudStorageModelToCloudStorageDto(storageModel), fileInfoDto, errorMessage);
 
         // Assert
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -729,10 +729,10 @@ public class CloudStoragesLogicTests
         }
 
         var file = BookParserHelper.BluePixelBytes.ToFile("TestFile");
-        await this.testee.AddCloudFileImportFail(this.mapper.Map<CloudStorageDTO>(storageModel), file.ToFileInfo("Test"), "fail");
+        await this.testee.AddCloudFileImportFail(this.mapper.CloudStorageModelToCloudStorageDto(storageModel), file.ToFileInfo("Test"), "fail");
 
         // Execute
-        var result = await this.testee.CloudFileImportFailed(this.mapper.Map<CloudStorageDTO>(storageModel), file);
+        var result = await this.testee.CloudFileImportFailed(this.mapper.CloudStorageModelToCloudStorageDto(storageModel), file);
 
         // Assert
         Assert.That(result, Is.True);
@@ -830,7 +830,7 @@ public class CloudStoragesLogicTests
             CloudOwnerEmail = "Email",
             CloudOwnerName = "Name",
         };
-        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        var storageModel = this.mapper.CloudStorageDtoToCloudStorageModel(storageDto);
         storageModel.RCloneConfig = "rclone.conf";
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -882,7 +882,7 @@ public class CloudStoragesLogicTests
             CloudOwnerEmail = "Email",
             CloudOwnerName = "Name",
         };
-        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        var storageModel = this.mapper.CloudStorageDtoToCloudStorageModel(storageDto);
         storageModel.RCloneConfig = "rclone.conf";
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -1032,7 +1032,7 @@ public class CloudStoragesLogicTests
             CloudOwnerEmail = "Email",
             CloudOwnerName = "Name",
         };
-        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        var storageModel = this.mapper.CloudStorageDtoToCloudStorageModel(storageDto);
         storageModel.RCloneConfig = "rclone.conf";
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -1136,7 +1136,7 @@ public class CloudStoragesLogicTests
             CloudOwnerEmail = "Email",
             CloudOwnerName = "Name",
         };
-        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        var storageModel = this.mapper.CloudStorageDtoToCloudStorageModel(storageDto);
         storageModel.RCloneConfig = "rclone.conf";
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -1176,7 +1176,7 @@ public class CloudStoragesLogicTests
             CloudOwnerEmail = "email",
             CloudOwnerName = "name",
         };
-        var storageModel = this.mapper.Map<CloudStorageModel>(storageDto);
+        var storageModel = this.mapper.CloudStorageDtoToCloudStorageModel(storageDto);
         storageModel.RCloneConfig = "rclone.conf";
 
         var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());

@@ -2,10 +2,10 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Utils;
 using Quartz;
 
@@ -18,11 +18,11 @@ public partial class InitialStorageDownload(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
     ICloudStoragesLogic logic,
-    IMapper mapper) : TaskBase(dataStore, logger)
+    Mapper mapper) : TaskBase(dataStore, logger)
 {
     private readonly ICloudStoragesLogic logic = logic;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     private IJobExecutionContext? executionContext = null;
 
@@ -43,7 +43,7 @@ public partial class InitialStorageDownload(
             return;
         }
 
-        var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+        var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
 
         // clean directory
         await this.logic.CleanStorageDirectory(storage);

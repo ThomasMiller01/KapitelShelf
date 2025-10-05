@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Tasks;
@@ -24,7 +24,7 @@ public class ScanForBooksTests
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
     private ICloudStoragesLogic logic;
-    private IMapper mapper;
+    private Mapper mapper;
     private IJobExecutionContext context;
     private CloudStorageDTO storage;
     private CloudStorageModel storageModel;

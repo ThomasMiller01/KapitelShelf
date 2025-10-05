@@ -2,9 +2,9 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Tasks;
 using Quartz;
 using Quartz.Impl.Matchers;
@@ -14,12 +14,12 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// The tasks logic.
 /// </summary>
-public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, ITaskRuntimeDataStore dataStore) : ITasksLogic
+public class TasksLogic(Mapper mapper, ISchedulerFactory schedulerFactory, ITaskRuntimeDataStore dataStore) : ITasksLogic
 {
     /// <summary>
     /// The mapper.
     /// </summary>
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     /// <summary>
     /// The task scheduler factory.
@@ -54,7 +54,7 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, ITas
                     var triggerState = await scheduler.GetTriggerState(trigger.Key);
                     var isSingleExecution = trigger is ISimpleTrigger simple && simple.RepeatCount == 0;
                     var isCronJob = trigger is ICronTrigger;
-                    var state = this.mapper.Map<TaskState>(triggerState);
+                    var state = this.mapper.TriggerStateToTaskState(triggerState);
 
                     // Check if this job is currently running
                     int? progress = null;
@@ -79,7 +79,7 @@ public class TasksLogic(IMapper mapper, ISchedulerFactory schedulerFactory, ITas
                         Progress = progress,
                         Message = message,
                         IsCancelationRequested = isCancelationRequested,
-                        FinishedReason = this.mapper.Map<FinishedReason?>(triggerState),
+                        FinishedReason = this.mapper.TriggerStateToFinishedReason(triggerState),
                         IsSingleExecution = isSingleExecution,
                         IsCronJob = isCronJob,
                         CronExpression = trigger is ICronTrigger cron ? cron.CronExpressionString : null,

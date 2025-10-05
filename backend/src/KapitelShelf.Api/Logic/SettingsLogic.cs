@@ -3,9 +3,9 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +18,12 @@ namespace KapitelShelf.Api.Logic;
 /// Initializes a new instance of the <see cref="SettingsLogic"/> class.
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
-/// <param name="mapper">The auto mapper.</param>
-public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper) : ISettingsLogic
+/// <param name="mapper">The mapper.</param>
+public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper) : ISettingsLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     /// <inheritdoc/>
     public async Task<List<SettingsDTO<object>>> GetSettingsAsync()
@@ -31,7 +31,7 @@ public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.Settings
-            .Select(x => this.mapper.Map<SettingsDTO<object>>(x))
+            .Select(x => this.mapper.SettingsModelToSettingsDtoObject(x))
             .ToListAsync();
     }
 
@@ -68,6 +68,6 @@ public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         // commit
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<SettingsDTO<object>>(setting);
+        return this.mapper.SettingsModelToSettingsDtoObject(setting);
     }
 }

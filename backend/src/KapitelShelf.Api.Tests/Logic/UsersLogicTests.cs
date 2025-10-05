@@ -2,7 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Data;
@@ -23,7 +23,7 @@ public class UsersLogicTests
     private PostgreSqlContainer postgres;
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
-    private IMapper mapper;
+    private Mapper mapper;
     private UsersLogic testee;
 
     /// <summary>

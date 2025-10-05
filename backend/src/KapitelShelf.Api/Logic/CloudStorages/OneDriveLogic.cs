@@ -5,11 +5,11 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
@@ -20,11 +20,11 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// <summary>
 /// The OneDrive cloud storage logic.
 /// </summary>
-public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, KapitelShelfSettings settings, ICloudStoragesLogic baseLogic, ICloudStorage fileStorage) : IOneDriveLogic
+public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper, KapitelShelfSettings settings, ICloudStoragesLogic baseLogic, ICloudStorage fileStorage) : IOneDriveLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     private readonly KapitelShelfSettings settings = settings;
 
@@ -132,12 +132,12 @@ public class OneDriveLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         cloudStorage.CloudOwnerEmail = email;
         cloudStorage.CloudOwnerName = name;
 
-        var rclonePath = this.fileStorage.FullPath(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneFileName);
+        var rclonePath = this.fileStorage.FullPath(this.mapper.CloudStorageModelToCloudStorageDto(cloudStorage), StaticConstants.CloudStorageRCloneFileName);
         cloudStorage.RCloneConfig = rclonePath;
 
         // write rclone config file
         var configFile = Encoding.UTF8.GetBytes(sb.ToString()).ToFile(StaticConstants.CloudStorageRCloneFileName);
-        await this.fileStorage.Save(this.mapper.Map<CloudStorageDTO>(cloudStorage), StaticConstants.CloudStorageRCloneFileName, configFile);
+        await this.fileStorage.Save(this.mapper.CloudStorageModelToCloudStorageDto(cloudStorage), StaticConstants.CloudStorageRCloneFileName, configFile);
 
         await context.SaveChangesAsync();
     }

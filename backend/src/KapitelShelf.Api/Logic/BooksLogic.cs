@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
@@ -14,6 +13,7 @@ using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -25,15 +25,15 @@ namespace KapitelShelf.Api.Logic;
 /// Initializes a new instance of the <see cref="BooksLogic"/> class.
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
-/// <param name="mapper">The auto mapper.</param>
+/// <param name="mapper">The mapper.</param>
 /// <param name="bookParserManager">The book parser manager.</param>
 /// <param name="bookStorage">The book storage.</param>
 /// <param name="metadataScraperManager">The metadata scraper manager.</param>
-public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBookParserManager bookParserManager, IBookStorage bookStorage, IMetadataScraperManager metadataScraperManager) : IBooksLogic
+public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper, IBookParserManager bookParserManager, IBookStorage bookStorage, IMetadataScraperManager metadataScraperManager) : IBooksLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     private readonly IBookParserManager bookParserManager = bookParserManager;
 
@@ -62,7 +62,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 #nullable restore
             .AsSingleQuery()
 
-            .Select(x => this.mapper.Map<BookDTO>(x))
+            .Select(x => this.mapper.BookModelToBookDto(x))
             .ToListAsync();
     }
 
@@ -89,7 +89,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
             .Where(x => x.Id == bookId)
 
-            .Select(x => this.mapper.Map<BookDTO>(x))
+            .Select(x => this.mapper.BookModelToBookDto(x))
             .FirstOrDefaultAsync();
 
         // mark book as visited for user
@@ -131,7 +131,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.Map<BookDTO>(x.BookModel))
+            .Select(x => this.mapper.BookModelToBookDto(x.BookModel))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();
@@ -178,7 +178,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         if (series is null)
         {
             // create new series
-            series = this.mapper.Map<SeriesModel>(createBookDTO.Series);
+            series = this.mapper.CreateSeriesDtoToSeriesModel(createBookDTO.Series);
             context.Series.Add(series);
         }
         else
@@ -198,7 +198,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             if (author is null)
             {
                 // create new author
-                author = this.mapper.Map<AuthorModel>(createBookDTO.Author);
+                author = this.mapper.CreateAuthorDtoToAuthorModel(createBookDTO.Author);
                 context.Authors.Add(author);
             }
         }
@@ -206,7 +206,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         // save now, because of book foreign key constraints
         await context.SaveChangesAsync();
 
-        var book = this.mapper.Map<BookModel>(createBookDTO);
+        var book = this.mapper.CreateBookDtoToBookModel(createBookDTO);
         book.Id = Guid.NewGuid();
         book.Series = series;
         book.Author = author;
@@ -220,7 +220,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
             if (categoryModel is null)
             {
-                categoryModel = this.mapper.Map<CategoryModel>(category);
+                categoryModel = this.mapper.CreateCategoryDtoToCategoryModel(category);
                 categoryModel.Id = Guid.NewGuid();
 
                 context.Categories.Add(categoryModel);
@@ -242,7 +242,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
             if (tagModel is null)
             {
-                tagModel = this.mapper.Map<TagModel>(tag);
+                tagModel = this.mapper.CreateTagDtoToTagModel(tag);
                 tagModel.Id = Guid.NewGuid();
 
                 context.Tags.Add(tagModel);
@@ -259,7 +259,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        return this.mapper.Map<BookDTO>(book);
+        return this.mapper.BookModelToBookDto(book);
     }
 
     /// <inheritdoc/>
@@ -375,7 +375,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         {
             book.Location = new LocationModel
             {
-                Type = this.mapper.Map<LocationType>(bookDto.Location.Type),
+                Type = this.mapper.LocationTypeDtoToLocationType(bookDto.Location.Type),
                 Url = bookDto.Location.Url,
                 FileInfo = bookDto.Location.FileInfo is null
                     ? null
@@ -417,7 +417,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         await this.CleanupDatabase();
 
-        return this.mapper.Map<BookDTO>(book);
+        return this.mapper.BookModelToBookDto(book);
     }
 
     /// <inheritdoc/>
@@ -438,7 +438,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         await this.CleanupDatabase();
 
-        return this.mapper.Map<BookDTO>(book);
+        return this.mapper.BookModelToBookDto(book);
     }
 
     /// <inheritdoc/>
@@ -597,7 +597,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     private async Task<BookDTO> CreateBookFromParsingResult(BookParsingResult parsingResult, IFormFile? file)
     {
         // create book
-        var createBookDto = this.mapper.Map<CreateBookDTO>(parsingResult.Book);
+        var createBookDto = this.mapper.MetadataDtoToCreateBookDto(parsingResult.Book);
         var bookDto = await this.CreateBookAsync(createBookDto);
         ArgumentNullException.ThrowIfNull(bookDto);
 
@@ -631,7 +631,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     private async Task<BookDTO> CreateBookFromMetadata(MetadataDTO metadata, MetadataSources source)
     {
         // create book
-        var createBookDto = this.mapper.Map<CreateBookDTO>(metadata);
+        var createBookDto = this.mapper.MetadataDtoToCreateBookDto(metadata);
         var bookDto = await this.CreateBookAsync(createBookDto);
         ArgumentNullException.ThrowIfNull(bookDto);
 
@@ -645,7 +645,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         bookDto.Location = new LocationDTO
         {
-            Type = this.mapper.Map<LocationTypeDTO>(source),
+            Type = this.mapper.MetadataSourceToLocationTypeDto(source),
         };
 
         // update book with new cover and location

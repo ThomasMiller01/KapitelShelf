@@ -3,12 +3,12 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
-using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -22,13 +22,13 @@ namespace KapitelShelf.Api.Logic;
 /// Initializes a new instance of the <see cref="SeriesLogic"/> class.
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
-/// <param name="mapper">The auto mapper.</param>
+/// <param name="mapper">The mapper.</param>
 /// <param name="booksLogic">The books logic.</param>
-public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, IBooksLogic booksLogic) : ISeriesLogic
+public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper, IBooksLogic booksLogic) : ISeriesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     private readonly IBooksLogic booksLogic = booksLogic;
 
@@ -52,7 +52,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.Map<SeriesDTO>(x))
+            .Select(x => this.mapper.SeriesModelToSeriesDto(x))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();
@@ -81,7 +81,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .AsSingleQuery()
 
             .Where(x => x.Id == seriesId)
-            .Select(x => this.mapper.Map<SeriesDTO>(x))
+            .Select(x => this.mapper.SeriesModelToSeriesDto(x))
             .FirstOrDefaultAsync();
 
         if (series is null)
@@ -125,7 +125,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.Map<SeriesDTO>(x))
+            .Select(x => this.mapper.SeriesModelToSeriesDto(x))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();
@@ -161,7 +161,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.Map<BookDTO>(x))
+            .Select(x => this.mapper.BookModelToBookDto(x))
             .ToListAsync();
 
         var totalCount = await query
@@ -193,7 +193,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
 
         await this.booksLogic.CleanupDatabase();
 
-        return this.mapper.Map<SeriesDTO>(series);
+        return this.mapper.SeriesModelToSeriesDto(series);
     }
 
     /// <inheritdoc/>
@@ -231,7 +231,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         // commit
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<SeriesDTO>(series);
+        return this.mapper.SeriesModelToSeriesDto(series);
     }
 
     /// <inheritdoc/>

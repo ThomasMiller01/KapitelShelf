@@ -3,9 +3,9 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -18,11 +18,11 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// The dynamic settings manager.
 /// </summary>
-public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper) : IDynamicSettingsManager
+public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper) : IDynamicSettingsManager
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     /// <inheritdoc/>
     public async Task InitializeOnStartup()
@@ -46,7 +46,9 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
             throw new KeyNotFoundException($"Setting with key '{key}' not found");
         }
 
-        return this.mapper.Map<SettingsDTO<T>>(setting);
+        return typeof(T) == typeof(bool)
+            ? (SettingsDTO<T>)(object)this.mapper.SettingsModelToSettingsDtoBool(setting)
+            : (SettingsDTO<T>)(object)this.mapper.SettingsModelToSettingsDtoObject(setting);
     }
 
     /// <summary>

@@ -12,6 +12,7 @@ using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Logic.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Utils;
@@ -78,8 +79,8 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 var databaseConnection = $"Host={settings.Database.Host};Database={StaticConstants.DatabaseName};Username={settings.Database.Username};Password={settings.Database.Password}";
 builder.Services.AddDbContextFactory<KapitelShelfDBContext>(options => options.UseNpgsql(databaseConnection));
 
-// automapper
-builder.Services.AddAutoMapper(typeof(Program));
+// mapper
+builder.Services.AddSingleton<Mapper>();
 
 // logic
 builder.Services.AddSingleton<IBooksLogic, BooksLogic>();

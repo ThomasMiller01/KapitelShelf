@@ -4,10 +4,10 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Utils;
 using Quartz;
 
@@ -23,7 +23,7 @@ public partial class SyncStorageData(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
     ICloudStoragesLogic logic,
-    IMapper mapper) : TaskBase(dataStore, logger)
+    Mapper mapper) : TaskBase(dataStore, logger)
 {
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1401 // Fields should be private
@@ -38,7 +38,7 @@ public partial class SyncStorageData(
 
     private readonly ICloudStoragesLogic logic = logic;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     /// <summary>
     /// Sets a value to only sync a single storage.
@@ -160,7 +160,7 @@ public partial class SyncStorageData(
         this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
 
         // download new data
-        var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+        var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
         await this.logic.SyncStorage(storage, this.DownloadProgressHandler, this.OnProcessStarted);
     }
 
@@ -188,7 +188,7 @@ public partial class SyncStorageData(
             this.DataStore.SetMessage(JobKey(context), $"Synching '{storageModel.CloudDirectory}' [{storageModel.Type}]");
 
             // download new data
-            var storage = this.mapper.Map<CloudStorageDTO>(storageModel);
+            var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
             await this.logic.SyncStorage(storage, this.DownloadProgressHandler, this.OnProcessStarted);
 
             this.currentStorageIndex = i;
