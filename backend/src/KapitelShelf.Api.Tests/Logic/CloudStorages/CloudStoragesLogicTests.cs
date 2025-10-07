@@ -3,7 +3,6 @@
 // </copyright>
 
 using System.Diagnostics;
-using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Settings;
@@ -11,6 +10,7 @@ using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;

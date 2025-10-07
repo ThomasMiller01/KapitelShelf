@@ -37,14 +37,34 @@ public sealed partial class Mapper
 
         if (lastVolume is not null)
         {
+            // prevent circular dependencies
+            lastVolume.Series = null;
+
             dto.LastVolume = this.BookModelToBookDto(lastVolume);
-            if (dto.LastVolume is not null)
-            {
-                dto.LastVolume.Series = null;
-            }
         }
 
         return dto;
+    }
+
+    /// <summary>
+    /// map a series dto to a series model.
+    /// </summary>
+    /// <param name="dto">the series dto.</param>
+    /// <returns>the series model.</returns>
+    public SeriesModel SeriesDtoToSeriesModel(SeriesDTO dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        var model = new SeriesModel
+        {
+            Id = dto.Id,
+            Name = dto.Name ?? string.Empty,
+            CreatedAt = dto.CreatedAt,
+            UpdatedAt = dto.UpdatedAt,
+            Books = [],
+        };
+
+        return model;
     }
 
     /// <summary>

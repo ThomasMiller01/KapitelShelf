@@ -122,10 +122,11 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
         var watchlistResults = asinResults
             .Zip(asins, (dto, asin) => new
             {
-                Dto = this.mapper.MetadataDtoToWatchlistResultModel(dto),
+                Dto = this.mapper.MetadataDtoToWatchlistResultModelNullable(dto),
                 Asin = asin!,
             })
-            .Where(x => x != null);
+            .Where(x => x != null && x.Dto != null)
+            .Select(x => new { Dto = x.Dto!, x.Asin });
 
         var results = new List<WatchlistResultModel>();
         foreach (var watchlistResult in watchlistResults)

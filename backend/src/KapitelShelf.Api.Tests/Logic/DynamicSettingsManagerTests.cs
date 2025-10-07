@@ -2,8 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;

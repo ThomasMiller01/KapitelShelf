@@ -102,6 +102,13 @@ public sealed partial class Mapper
     }
 
     /// <summary>
+    /// Map a nullable metadata dto to a nullable watchlist result model.
+    /// </summary>
+    /// <param name="dto">The metadata dto.</param>
+    /// <returns>The watchlist result model.</returns>
+    public WatchlistResultModel? MetadataDtoToWatchlistResultModelNullable(MetadataDTO? dto) => dto is null ? null : this.MetadataDtoToWatchlistResultModel(dto);
+
+    /// <summary>
     /// Map a watchlist model to a series watchlist dto.
     /// </summary>
     /// <param name="model">The watchlist model.</param>

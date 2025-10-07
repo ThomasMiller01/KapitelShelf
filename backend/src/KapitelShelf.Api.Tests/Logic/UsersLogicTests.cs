@@ -2,9 +2,9 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;

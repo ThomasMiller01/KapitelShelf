@@ -3,10 +3,10 @@
 // </copyright>
 
 using System.Net;
-using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic.WatchlistScraper;
+using KapitelShelf.Api.Mappings;
 using RichardSzalay.MockHttp;
 
 namespace KapitelShelf.Api.Tests.Logic.WatchlistScraper;

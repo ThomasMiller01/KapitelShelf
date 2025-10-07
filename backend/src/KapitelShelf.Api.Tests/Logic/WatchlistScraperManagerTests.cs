@@ -2,12 +2,12 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces.WatchlistScraper;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data.Models.Watchlists;
 
 namespace KapitelShelf.Api.Tests.Logic;

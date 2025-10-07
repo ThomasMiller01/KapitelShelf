@@ -136,6 +136,9 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
         // update the watchlist (fire and forget)
         _ = this.UpdateWatchlist(watchlistModel.Id);
 
+        // set the series for mapping
+        watchlistModel.Series = this.mapper.SeriesDtoToSeriesModel(series);
+
         return this.mapper.WatchlistModelToSeriesWatchlistDto(watchlistModel);
     }
 

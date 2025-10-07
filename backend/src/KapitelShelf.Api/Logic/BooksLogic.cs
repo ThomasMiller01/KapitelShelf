@@ -131,14 +131,17 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.BookModelToBookDto(x.BookModel))
+            .Select(x => this.mapper.BookModelToBookDtoNullable(x.BookModel))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();
 
         return new PagedResult<BookDTO>
         {
-            Items = items,
+            Items = items
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .ToList(),
             TotalCount = totalCount,
         };
     }
@@ -597,7 +600,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     private async Task<BookDTO> CreateBookFromParsingResult(BookParsingResult parsingResult, IFormFile? file)
     {
         // create book
-        var createBookDto = this.mapper.MetadataDtoToCreateBookDto(parsingResult.Book);
+        var createBookDto = this.mapper.BookDtoToCreateBookDto(parsingResult.Book);
         var bookDto = await this.CreateBookAsync(createBookDto);
         ArgumentNullException.ThrowIfNull(bookDto);
 
