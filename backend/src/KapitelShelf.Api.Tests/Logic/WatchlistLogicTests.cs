@@ -3,13 +3,13 @@
 // </copyright>
 
 using System.Globalization;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;
@@ -31,7 +31,7 @@ public class WatchlistLogicTests
 
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
-    private IMapper mapper;
+    private Mapper mapper;
     private ISeriesLogic seriesLogic;
     private IBooksLogic booksLogic;
     private IWatchlistScraperManager watchlistScraperManager;
@@ -174,7 +174,7 @@ public class WatchlistLogicTests
         }
 
         this.seriesLogic.GetSeriesByIdAsync(seriesId)
-            .Returns(Task.FromResult<SeriesDTO?>(this.mapper.Map<SeriesDTO>(seriesModel)));
+            .Returns(Task.FromResult<SeriesDTO?>(this.mapper.SeriesModelToSeriesDto(seriesModel)));
 
         // Execute
         var dto = await this.testee.AddToWatchlist(seriesId, userId);
@@ -231,7 +231,7 @@ public class WatchlistLogicTests
         }
 
         this.seriesLogic.GetSeriesByIdAsync(seriesId)
-            .Returns(Task.FromResult<SeriesDTO?>(this.mapper.Map<SeriesDTO>(seriesModel)));
+            .Returns(Task.FromResult<SeriesDTO?>(this.mapper.SeriesModelToSeriesDto(seriesModel)));
 
         // Execute, Assert
         var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.AddToWatchlist(seriesId, userId));
@@ -281,7 +281,7 @@ public class WatchlistLogicTests
         }
 
         this.seriesLogic.GetSeriesByIdAsync(seriesId)
-            .Returns(Task.FromResult<SeriesDTO?>(this.mapper.Map<SeriesDTO>(seriesModel)));
+            .Returns(Task.FromResult<SeriesDTO?>(this.mapper.SeriesModelToSeriesDto(seriesModel)));
 
         // Execute, Assert
         var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.AddToWatchlist(seriesId, userId));

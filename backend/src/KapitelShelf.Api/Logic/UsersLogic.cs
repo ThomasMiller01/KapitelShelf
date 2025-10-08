@@ -2,13 +2,12 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic.Interfaces;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
-using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic;
@@ -17,12 +16,12 @@ namespace KapitelShelf.Api.Logic;
 /// Initializes a new instance of the <see cref="UsersLogic"/> class.
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
-/// <param name="mapper">The auto mapper.</param>
-public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper) : IUsersLogic
+/// <param name="mapper">The mapper.</param>
+public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper) : IUsersLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     /// <inheritdoc/>
     public async Task<IList<UserDTO>> GetUsersAsync()
@@ -32,7 +31,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return await context.Users
             .AsNoTracking()
             .OrderBy(x => x.Username)
-            .Select(x => this.mapper.Map<UserDTO>(x))
+            .Select(x => this.mapper.UserModelToUserDto(x))
             .ToListAsync();
     }
 
@@ -44,7 +43,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return await context.Users
             .AsNoTracking()
             .Where(x => x.Id == userId)
-            .Select(x => this.mapper.Map<UserDTO>(x))
+            .Select(x => this.mapper.UserModelToUserDto(x))
             .FirstOrDefaultAsync();
     }
 
@@ -58,12 +57,12 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        var user = this.mapper.Map<UserModel>(createUserDto);
+        var user = this.mapper.CreateUserDtoToUserModel(createUserDto);
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<UserDTO>(user);
+        return this.mapper.UserModelToUserDto(user);
     }
 
     /// <inheritdoc/>
@@ -93,7 +92,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         // commit
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<UserDTO>(user);
+        return this.mapper.UserModelToUserDto(user);
     }
 
     /// <inheritdoc/>
@@ -110,7 +109,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         context.Users.Remove(user);
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<UserDTO>(user);
+        return this.mapper.UserModelToUserDto(user);
     }
 
     /// <inheritdoc/>
@@ -143,7 +142,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.Map<BookDTO>(x.Book))
+            .Select(x => this.mapper.BookModelToBookDto(x.Book))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();
@@ -162,7 +161,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
 
         return await context.UserSettings
             .Where(x => x.UserId == userId)
-            .Select(x => this.mapper.Map<UserSettingDTO>(x))
+            .Select(x => this.mapper.UserSettingModelToUserSettingDto(x))
             .ToListAsync();
     }
 
@@ -179,7 +178,7 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         if (setting is null)
         {
             // add new setting
-            setting = this.mapper.Map<UserSettingModel>(settingDto);
+            setting = this.mapper.UserSettingDtoToUserSettingModel(settingDto);
             setting.UserId = userId;
             context.UserSettings.Add(setting);
         }

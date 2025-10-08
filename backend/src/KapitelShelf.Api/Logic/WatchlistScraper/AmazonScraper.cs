@@ -3,12 +3,11 @@
 // </copyright>
 
 using System.Text.Json;
-using AutoMapper;
 using HtmlAgilityPack;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic.Interfaces.WatchlistScraper;
-using KapitelShelf.Data.Models;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data.Models.Watchlists;
 using AmazonMetadataScraper = KapitelShelf.Api.Logic.MetadataScraper.AmazonScraper;
 
@@ -17,7 +16,7 @@ namespace KapitelShelf.Api.Logic.WatchlistScraper;
 /// <summary>
 /// The Amazon metadata scraper.
 /// </summary>
-public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : AmazonMetadataScraper(httpClient), IWatchlistScraper
+public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : AmazonMetadataScraper(httpClient), IWatchlistScraper
 {
     /// <summary>
     /// The batch size for fetching volumes.
@@ -26,13 +25,13 @@ public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : Amaz
 
     private readonly HttpClient httpClient = httpClient;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AmazonScraper"/> class.
     /// </summary>
-    /// <param name="mapper">The auto mapper.</param>
-    public AmazonScraper(IMapper mapper)
+    /// <param name="mapper">The mapper.</param>
+    public AmazonScraper(Mapper mapper)
         : this(CreateHttpClient(), mapper)
     {
     }
@@ -123,17 +122,18 @@ public partial class AmazonScraper(HttpClient httpClient, IMapper mapper) : Amaz
         var watchlistResults = asinResults
             .Zip(asins, (dto, asin) => new
             {
-                Dto = this.mapper.Map<WatchlistResultModel>(dto),
+                Dto = this.mapper.MetadataDtoToWatchlistResultModelNullable(dto),
                 Asin = asin!,
             })
-            .Where(x => x != null);
+            .Where(x => x != null && x.Dto != null)
+            .Select(x => new { Dto = x.Dto!, x.Asin });
 
         var results = new List<WatchlistResultModel>();
         foreach (var watchlistResult in watchlistResults)
         {
             var result = watchlistResult.Dto;
             result.SeriesId = series.Id;
-            result.LocationType = this.mapper.Map<LocationType>(series.LastVolume.Location.Type);
+            result.LocationType = this.mapper.LocationTypeDtoToLocationType(series.LastVolume.Location.Type);
             result.LocationUrl = watchlistResult.Asin;
 
             results.Add(result);

@@ -2085,7 +2085,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                    "$ref": "#/components/schemas/WatchlistDTO"
                   }
                 }
               },
@@ -2093,7 +2093,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                    "$ref": "#/components/schemas/WatchlistDTO"
                   }
                 }
               },
@@ -2101,7 +2101,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SeriesWatchlistDTO"
+                    "$ref": "#/components/schemas/WatchlistDTO"
                   }
                 }
               }
@@ -2942,29 +2942,6 @@
         "additionalProperties": false,
         "description": "The paginated result."
       },
-      "SeriesWatchlistDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Gets or sets the id.",
-            "format": "uuid"
-          },
-          "series": {
-            "$ref": "#/components/schemas/SeriesDTO"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BookDTO"
-            },
-            "description": "Gets or sets the watchlist items for this series.",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "The series watchlist dto."
-      },
       "TagDTO": {
         "type": "object",
         "properties": {
@@ -3122,6 +3099,29 @@
         "type": "integer",
         "description": "The user setting value type enum.",
         "format": "int32"
+      },
+      "WatchlistDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "series": {
+            "$ref": "#/components/schemas/SeriesDTO"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDTO"
+            },
+            "description": "Gets or sets the watchlist items for this series.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The watchlist dto."
       }
     }
   }

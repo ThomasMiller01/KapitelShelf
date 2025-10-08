@@ -2,12 +2,12 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces.WatchlistScraper;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data.Models.Watchlists;
 
 namespace KapitelShelf.Api.Tests.Logic;
@@ -17,7 +17,7 @@ namespace KapitelShelf.Api.Tests.Logic;
 /// </summary>
 public class WatchlistScraperManagerTests
 {
-    private IMapper mapper;
+    private Mapper mapper;
     private WatchlistScraperManager testee;
     private static List<WatchlistResultModel> scraperReturnList;
 
@@ -111,7 +111,7 @@ public class WatchlistScraperManagerTests
     /// A fake watchlist scraper for testing.
     /// </summary>
 #pragma warning disable CS9113 // Parameter is unread.
-    private sealed class FakeScraper(IMapper mapper) : IWatchlistScraper
+    private sealed class FakeScraper(Mapper mapper) : IWatchlistScraper
 #pragma warning restore CS9113 // Parameter is unread.
     {
         public Task<List<WatchlistResultModel>> Scrape(SeriesDTO series) => Task.FromResult(scraperReturnList ?? []);

@@ -3,10 +3,10 @@
 // </copyright>
 
 using System.Net;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic.WatchlistScraper;
+using KapitelShelf.Api.Mappings;
 using RichardSzalay.MockHttp;
 
 namespace KapitelShelf.Api.Tests.Logic.WatchlistScraper;
@@ -16,7 +16,7 @@ namespace KapitelShelf.Api.Tests.Logic.WatchlistScraper;
 /// </summary>
 public class AmazonScraperTests
 {
-    private IMapper mapper = null!;
+    private Mapper mapper = null!;
 
     /// <summary>
     /// Setup for each test.

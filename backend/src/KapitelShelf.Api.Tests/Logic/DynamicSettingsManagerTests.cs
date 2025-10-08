@@ -2,8 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +22,7 @@ public class DynamicSettingsManagerTests
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
 
-    private IMapper mapper;
+    private Mapper mapper;
     private DynamicSettingsManager testee;
 
     /// <summary>

@@ -8,10 +8,7 @@ import { WatchlistDetails } from "../../components/watchlist/WatchlistDetails";
 import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import type {
-  BookDTO,
-  SeriesWatchlistDTO,
-} from "../../lib/api/KapitelShelf.Api";
+import type { BookDTO, WatchlistDTO } from "../../lib/api/KapitelShelf.Api";
 
 const Watchlist: React.FC = () => {
   const { profile } = useUserProfile();
@@ -42,7 +39,7 @@ const Watchlist: React.FC = () => {
   }
 
   // get release date from the first item
-  const getFirstReleaseDate = (watchlist: SeriesWatchlistDTO): Date | null => {
+  const getFirstReleaseDate = (watchlist: WatchlistDTO): Date | null => {
     const first: BookDTO | undefined = watchlist.items?.[0];
     if (!first?.releaseDate) {
       return null;
@@ -96,7 +93,7 @@ const Watchlist: React.FC = () => {
 interface WatchlistReleaseTimeCategoryProps {
   label: string;
   description: string;
-  watchlists: SeriesWatchlistDTO[];
+  watchlists: WatchlistDTO[];
 }
 
 const WatchtlistCategory: React.FC<WatchlistReleaseTimeCategoryProps> = ({

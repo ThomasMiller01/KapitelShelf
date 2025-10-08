@@ -803,31 +803,6 @@ export interface SeriesDTOPagedResult {
     'totalCount'?: number;
 }
 /**
- * The series watchlist dto.
- * @export
- * @interface SeriesWatchlistDTO
- */
-export interface SeriesWatchlistDTO {
-    /**
-     * Gets or sets the id.
-     * @type {string}
-     * @memberof SeriesWatchlistDTO
-     */
-    'id'?: string;
-    /**
-     * 
-     * @type {SeriesDTO}
-     * @memberof SeriesWatchlistDTO
-     */
-    'series'?: SeriesDTO;
-    /**
-     * Gets or sets the watchlist items for this series.
-     * @type {Array<BookDTO>}
-     * @memberof SeriesWatchlistDTO
-     */
-    'items'?: Array<BookDTO> | null;
-}
-/**
  * The tag dto.
  * @export
  * @interface TagDTO
@@ -1031,6 +1006,31 @@ export const UserSettingValueTypeDTO = {
 export type UserSettingValueTypeDTO = typeof UserSettingValueTypeDTO[keyof typeof UserSettingValueTypeDTO];
 
 
+/**
+ * The watchlist dto.
+ * @export
+ * @interface WatchlistDTO
+ */
+export interface WatchlistDTO {
+    /**
+     * Gets or sets the id.
+     * @type {string}
+     * @memberof WatchlistDTO
+     */
+    'id'?: string;
+    /**
+     * 
+     * @type {SeriesDTO}
+     * @memberof WatchlistDTO
+     */
+    'series'?: SeriesDTO;
+    /**
+     * Gets or sets the watchlist items for this series.
+     * @type {Array<BookDTO>}
+     * @memberof WatchlistDTO
+     */
+    'items'?: Array<BookDTO> | null;
+}
 
 /**
  * BooksApi - axios parameter creator
@@ -5136,7 +5136,7 @@ export const WatchlistApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async watchlistGet(userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SeriesWatchlistDTO>>> {
+        async watchlistGet(userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<WatchlistDTO>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.watchlistGet(userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['WatchlistApi.watchlistGet']?.[localVarOperationServerIndex]?.url;
@@ -5214,7 +5214,7 @@ export const WatchlistApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        watchlistGet(userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<SeriesWatchlistDTO>> {
+        watchlistGet(userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<WatchlistDTO>> {
             return localVarFp.watchlistGet(userId, options).then((request) => request(axios, basePath));
         },
         /**

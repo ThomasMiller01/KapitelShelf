@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
@@ -17,6 +16,7 @@ using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
@@ -38,7 +38,7 @@ public class BooksLogicTests
 
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
-    private IMapper mapper;
+    private Mapper mapper;
     private IBookParserManager bookParserManager;
     private IBookStorage bookStorage;
     private IMetadataScraperManager metadataScraperManager;
@@ -1660,7 +1660,7 @@ public class BooksLogicTests
         {
             var location = new LocationModel
             {
-                FileInfo = this.mapper.Map<FileInfoModel>(file.ToFileInfo("TestFile")),
+                FileInfo = this.mapper.FileInfoDtoToFileInfoModel(file.ToFileInfo("TestFile")),
             };
             var book = new BookModel
             {

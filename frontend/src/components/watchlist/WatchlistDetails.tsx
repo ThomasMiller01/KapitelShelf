@@ -7,12 +7,12 @@ import { Link } from "react-router-dom";
 import { TransitionGroup } from "react-transition-group";
 
 import { useMobile } from "../../hooks/useMobile";
-import type { SeriesWatchlistDTO } from "../../lib/api/KapitelShelf.Api";
+import type { WatchlistDTO } from "../../lib/api/KapitelShelf.Api";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { ResultCard } from "./ResultCard";
 
 interface WatchlistDetailsProps {
-  watchlist: SeriesWatchlistDTO;
+  watchlist: WatchlistDTO;
 }
 
 export const WatchlistDetails: React.FC<WatchlistDetailsProps> = ({

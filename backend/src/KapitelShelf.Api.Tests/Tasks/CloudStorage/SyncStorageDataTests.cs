@@ -3,9 +3,9 @@
 // </copyright>
 
 using System.Diagnostics;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
@@ -26,7 +26,7 @@ public class SyncStorageDataTests
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
     private ICloudStoragesLogic logic;
-    private IMapper mapper;
+    private Mapper mapper;
     private IJobExecutionContext context;
 
     /// <summary>

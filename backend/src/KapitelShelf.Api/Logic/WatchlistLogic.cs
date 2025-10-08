@@ -3,13 +3,12 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.Book;
-using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Watchlist;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.Watchlists;
@@ -23,17 +22,17 @@ namespace KapitelShelf.Api.Logic;
 /// Initializes a new instance of the <see cref="WatchlistLogic"/> class.
 /// </summary>
 /// <param name="dbContextFactory">The dbContext factory.</param>
-/// <param name="mapper">The auto mapper.</param>
+/// <param name="mapper">The mapper.</param>
 /// <param name="seriesLogic">The series logic.</param>
 /// <param name="booksLogic">The books logic.</param>
 /// <param name="watchlistScraperManager">The watchlist scraper manager.</param>
 /// <param name="bookStorage">The book storage.</param>
 /// <param name="metadataLogic">The metadata logic.</param>
-public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, IMapper mapper, ISeriesLogic seriesLogic, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager, IBookStorage bookStorage, IMetadataLogic metadataLogic) : IWatchlistLogic
+public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper, ISeriesLogic seriesLogic, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager, IBookStorage bookStorage, IMetadataLogic metadataLogic) : IWatchlistLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     private readonly ISeriesLogic seriesLogic = seriesLogic;
 
@@ -46,7 +45,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
     private readonly IMetadataLogic metadataLogic = metadataLogic;
 
     /// <inheritdoc/>
-    public async Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId)
+    public async Task<List<WatchlistDTO>> GetWatchlistAsync(Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -84,8 +83,8 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
 
         return watchlists.Select(x =>
         {
-            var dto = this.mapper.Map<SeriesWatchlistDTO>(x.Watchlist);
-            dto.Items = this.mapper.Map<List<BookDTO>>(x.Items);
+            var dto = this.mapper.WatchlistModelToSeriesWatchlistDto(x.Watchlist);
+            dto.Items = x.Items.Select(this.mapper.WatchlistResultModelToBookDto).ToList();
             return dto;
         }).ToList();
     }
@@ -100,7 +99,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
     }
 
     /// <inheritdoc/>
-    public async Task<SeriesWatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId)
+    public async Task<WatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -137,15 +136,19 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
         // update the watchlist (fire and forget)
         _ = this.UpdateWatchlist(watchlistModel.Id);
 
-        return this.mapper.Map<SeriesWatchlistDTO>(watchlistModel);
+        // set the series for mapping
+        watchlistModel.Series = this.mapper.SeriesDtoToSeriesModel(series);
+
+        return this.mapper.WatchlistModelToSeriesWatchlistDto(watchlistModel);
     }
 
     /// <inheritdoc/>
-    public async Task<SeriesWatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId)
+    public async Task<WatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         var seriesWatchlistModel = await context.Watchlist
+            .Include(x => x.Series)
             .FirstOrDefaultAsync(x => x.SeriesId == seriesId && x.UserId == userId);
 
         if (seriesWatchlistModel is null)
@@ -165,7 +168,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
                 .ExecuteDeleteAsync();
         }
 
-        return this.mapper.Map<SeriesWatchlistDTO>(seriesWatchlistModel);
+        return this.mapper.WatchlistModelToSeriesWatchlistDto(seriesWatchlistModel);
     }
 
     /// <inheritdoc/>
@@ -186,7 +189,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
             return;
         }
 
-        var volumes = await this.watchlistScraperManager.Scrape(this.mapper.Map<SeriesDTO>(watchlist.Series));
+        var volumes = await this.watchlistScraperManager.Scrape(this.mapper.SeriesModelToSeriesDto(watchlist.Series));
 
         // filter any volumes that do not exist in the library
         var existingBookTitles = watchlist.Series.Books
@@ -248,7 +251,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
         }
 
         // add result to library
-        var createBookDto = this.mapper.Map<CreateBookDTO>(result);
+        var createBookDto = this.mapper.WatchlistResultModelToCreateBookDto(result);
         var bookDto = await this.booksLogic.CreateBookAsync(createBookDto);
         if (bookDto is null)
         {

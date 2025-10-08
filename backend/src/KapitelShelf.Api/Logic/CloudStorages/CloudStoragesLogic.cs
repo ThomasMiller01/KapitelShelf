@@ -4,7 +4,6 @@
 
 using System.Diagnostics;
 using System.Text.Json;
-using AutoMapper;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Api.DTOs.FileInfo;
@@ -13,11 +12,11 @@ using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
-using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.CloudStorage;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -29,7 +28,7 @@ namespace KapitelShelf.Api.Logic.CloudStorages;
 /// </summary>
 public class CloudStoragesLogic(
     IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
-    IMapper mapper,
+    Mapper mapper,
     KapitelShelfSettings settings,
     ISchedulerFactory schedulerFactory,
     IProcessUtils processUtils,
@@ -41,7 +40,7 @@ public class CloudStoragesLogic(
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
-    private readonly IMapper mapper = mapper;
+    private readonly Mapper mapper = mapper;
 
     private readonly KapitelShelfSettings settings = settings;
 
@@ -65,7 +64,7 @@ public class CloudStoragesLogic(
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.CloudConfiguration
-            .Where(x => x.Type == this.mapper.Map<CloudType>(cloudType))
+            .Where(x => x.Type == this.mapper.CloudTypeDtoToCloudType(cloudType))
             .AnyAsync();
     }
 
@@ -81,7 +80,7 @@ public class CloudStoragesLogic(
         {
             // update the current configuration
             var configuration = await context.CloudConfiguration
-                .FirstOrDefaultAsync(x => x.Type == this.mapper.Map<CloudType>(cloudType));
+                .FirstOrDefaultAsync(x => x.Type == this.mapper.CloudTypeDtoToCloudType(cloudType));
 
             ArgumentNullException.ThrowIfNull(configuration);
 
@@ -92,7 +91,7 @@ public class CloudStoragesLogic(
             // create a new configuration
             var configuration = new CloudConfigurationModel
             {
-                Type = this.mapper.Map<CloudType>(cloudType),
+                Type = this.mapper.CloudTypeDtoToCloudType(cloudType),
                 OAuthClientId = configureCloudDto.OAuthClientId,
             };
             context.CloudConfiguration.Add(configuration);
@@ -100,7 +99,7 @@ public class CloudStoragesLogic(
 
         // invalidate all cloud storages and require re-authentication
         await context.CloudStorages
-            .Where(x => x.Type == this.mapper.Map<CloudType>(cloudType))
+            .Where(x => x.Type == this.mapper.CloudTypeDtoToCloudType(cloudType))
             .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.NeedsReAuthentication, true));
 
         await context.SaveChangesAsync();
@@ -130,7 +129,7 @@ public class CloudStoragesLogic(
         var scheduler = await this.schedulerFactory.GetScheduler();
 
         // fire and forget task to get early response to frontend
-        _ = InitialStorageDownload.Schedule(scheduler, mapper.Map<CloudStorageDTO>(storage), options: TaskScheduleOptionsDTO.RestartPreset);
+        _ = InitialStorageDownload.Schedule(scheduler, this.mapper.CloudStorageModelToCloudStorageDto(storage), options: TaskScheduleOptionsDTO.RestartPreset);
     }
 
     /// <inheritdoc/>
@@ -139,8 +138,8 @@ public class CloudStoragesLogic(
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.CloudConfiguration
-                .Where(x => x.Type == this.mapper.Map<CloudType>(cloudType))
-                .Select(x => this.mapper.Map<CloudConfigurationDTO>(x))
+                .Where(x => x.Type == this.mapper.CloudTypeDtoToCloudType(cloudType))
+                .Select(x => this.mapper.CloudConfigurationModelToCloudConfigurationDto(x))
                 .FirstAsync();
     }
 
@@ -168,7 +167,7 @@ public class CloudStoragesLogic(
     public async Task<CloudStorageDTO?> GetStorage(Guid storageId)
     {
         var storageModel = await this.GetStorageModel(storageId);
-        return this.mapper.Map<CloudStorageDTO>(storageModel);
+        return storageModel is null ? null : this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
     }
 
     /// <inheritdoc/>
@@ -196,8 +195,8 @@ public class CloudStoragesLogic(
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return context.CloudStorages
-            .Where(x => x.Type == this.mapper.Map<CloudType>(cloudType))
-            .Select(x => this.mapper.Map<CloudStorageDTO>(x))
+            .Where(x => x.Type == this.mapper.CloudTypeDtoToCloudType(cloudType))
+            .Select(this.mapper.CloudStorageModelToCloudStorageDto)
             .ToList();
     }
 
@@ -232,7 +231,7 @@ public class CloudStoragesLogic(
 
             var directories = entries
                 .Where(x => x.IsDir)
-                .Select(this.mapper.Map<CloudStorageDirectoryDTO>)
+                .Select(this.mapper.RCloneListJsonDtoToCloudStorageDirectoryDto)
                 .ToList();
 
             return directories;
@@ -256,12 +255,12 @@ public class CloudStoragesLogic(
 
         // delete cloud data
         var scheduler = await this.schedulerFactory.GetScheduler();
-        await RemoveStorageData.Schedule(scheduler, this.mapper.Map<CloudStorageDTO>(storage));
+        await RemoveStorageData.Schedule(scheduler, this.mapper.CloudStorageModelToCloudStorageDto(storage));
 
         context.CloudStorages.Remove(storage);
         await context.SaveChangesAsync();
 
-        return this.mapper.Map<CloudStorageDTO>(storage);
+        return this.mapper.CloudStorageModelToCloudStorageDto(storage);
     }
 
     /// <inheritdoc/>
@@ -275,7 +274,7 @@ public class CloudStoragesLogic(
         var failedCLoudFileImport = new FailedCloudFileImportModel
         {
             StorageId = storage.Id,
-            FileInfo = this.mapper.Map<FileInfoModel>(fileInfo),
+            FileInfo = this.mapper.FileInfoDtoToFileInfoModel(fileInfo),
             ErrorMessaget = errorMessage,
         };
 
