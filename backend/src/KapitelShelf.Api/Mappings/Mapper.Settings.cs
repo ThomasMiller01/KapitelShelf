@@ -17,33 +17,17 @@ public sealed partial class Mapper
     /// Map a settings model to a settings dto object.
     /// </summary>
     /// <param name="model">The settings model.</param>
+    /// <typeparam name="T">The setting value type.</typeparam>
     /// <returns>The settings dto object.</returns>
-    public SettingsDTO<object> SettingsModelToSettingsDtoObject(SettingsModel model)
+    public SettingsDTO<T> SettingsModelToSettingsDto<T>(SettingsModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        return new SettingsDTO<object>
+        return new SettingsDTO<T>
         {
             Id = model.Id,
             Key = model.Key,
-            Value = DynamicSettingsManager.ConvertSettingValue<object>(model),
-        };
-    }
-
-    /// <summary>
-    /// Map a settings model to a settings dto bool.
-    /// </summary>
-    /// <param name="model">The settings model.</param>
-    /// <returns>The settings dto bool.</returns>
-    public SettingsDTO<bool> SettingsModelToSettingsDtoBool(SettingsModel model)
-    {
-        ArgumentNullException.ThrowIfNull(model);
-
-        return new SettingsDTO<bool>
-        {
-            Id = model.Id,
-            Key = model.Key,
-            Value = DynamicSettingsManager.ConvertSettingValue<bool>(model),
+            Value = DynamicSettingsManager.ConvertSettingValue<T>(model),
         };
     }
 
@@ -51,9 +35,10 @@ public sealed partial class Mapper
     /// Map a settings dto object to a settings model.
     /// </summary>
     /// <param name="dto">The settings dto object.</param>
+    /// <typeparam name="T">The setting value type.</typeparam>
     /// <returns>The settings model.</returns>
     /// <exception cref="InvalidCastException">If the dto value is null.</exception>
-    public SettingsModel SettingsDtoObjectToSettingsModel(SettingsDTO<object> dto)
+    public SettingsModel SettingsDtoToSettingsModel<T>(SettingsDTO<T> dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
@@ -62,24 +47,6 @@ public sealed partial class Mapper
             Id = dto.Id,
             Key = dto.Key,
             Value = dto.Value?.ToString() ?? throw new InvalidCastException("Value could not be mapped."),
-            Type = DynamicSettingsManager.MapTypeToValueType(dto.Value),
-        };
-    }
-
-    /// <summary>
-    /// Map a settings dto bool to a settings model.
-    /// </summary>
-    /// <param name="dto">The settings dto bool.</param>
-    /// <returns>The settings model.</returns>
-    public SettingsModel SettingsDtoBoolToSettingsModel(SettingsDTO<bool> dto)
-    {
-        ArgumentNullException.ThrowIfNull(dto);
-
-        return new SettingsModel
-        {
-            Id = dto.Id,
-            Key = dto.Key,
-            Value = dto.Value.ToString(),
             Type = DynamicSettingsManager.MapTypeToValueType(dto.Value),
         };
     }

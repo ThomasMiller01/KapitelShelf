@@ -31,7 +31,7 @@ public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.Settings
-            .Select(x => this.mapper.SettingsModelToSettingsDtoObject(x))
+            .Select(x => this.mapper.SettingsModelToSettingsDto<object>(x))
             .ToListAsync();
     }
 
@@ -68,6 +68,6 @@ public class SettingsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFac
         // commit
         await context.SaveChangesAsync();
 
-        return this.mapper.SettingsModelToSettingsDtoObject(setting);
+        return this.mapper.SettingsModelToSettingsDto<object>(setting);
     }
 }

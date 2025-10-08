@@ -46,9 +46,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
             throw new KeyNotFoundException($"Setting with key '{key}' not found");
         }
 
-        return typeof(T) == typeof(bool)
-            ? (SettingsDTO<T>)(object)this.mapper.SettingsModelToSettingsDtoBool(setting)
-            : (SettingsDTO<T>)(object)this.mapper.SettingsModelToSettingsDtoObject(setting);
+        return this.mapper.SettingsModelToSettingsDto<T>(setting);
     }
 
     /// <summary>
