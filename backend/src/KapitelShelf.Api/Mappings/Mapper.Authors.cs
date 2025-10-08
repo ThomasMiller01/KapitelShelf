@@ -2,9 +2,12 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Data.Models;
 using Riok.Mapperly.Abstractions;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Mappings;
 
@@ -38,7 +41,7 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(AuthorDTO.Id))]
     public partial CreateAuthorDTO AuthorDtoToCreateAuthorDto(AuthorDTO dto);
 
-    private static (string FirstName, string LastName) SplitName(string value)
+    internal static (string FirstName, string LastName) SplitName(string value)
     {
         var parts = value.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         return parts.Length switch

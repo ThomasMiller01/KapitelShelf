@@ -45,7 +45,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
     private readonly IMetadataLogic metadataLogic = metadataLogic;
 
     /// <inheritdoc/>
-    public async Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId)
+    public async Task<List<WatchlistDTO>> GetWatchlistAsync(Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -99,7 +99,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
     }
 
     /// <inheritdoc/>
-    public async Task<SeriesWatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId)
+    public async Task<WatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -143,7 +143,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
     }
 
     /// <inheritdoc/>
-    public async Task<SeriesWatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId)
+    public async Task<WatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 

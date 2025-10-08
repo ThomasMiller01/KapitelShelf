@@ -17,7 +17,7 @@ public interface IWatchlistLogic
     /// </summary>
     /// <param name="userId">The id of the user.</param>
     /// <returns>The list of watchlists.</returns>
-    Task<List<SeriesWatchlistDTO>> GetWatchlistAsync(Guid userId);
+    Task<List<WatchlistDTO>> GetWatchlistAsync(Guid userId);
 
     /// <summary>
     /// Check if the series is on the watchlist.
@@ -33,7 +33,7 @@ public interface IWatchlistLogic
     /// <param name="seriesId">The id of the series.</param>
     /// <param name="userId">The id of the user.</param>
     /// <returns>The new watchlist dto.</returns>
-    Task<SeriesWatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId);
+    Task<WatchlistDTO?> AddToWatchlist(Guid seriesId, Guid userId);
 
     /// <summary>
     /// Remove the series from the watchlist of a user.
@@ -41,7 +41,7 @@ public interface IWatchlistLogic
     /// <param name="seriesId">The id of the series.</param>
     /// <param name="userId">The id of the user.</param>
     /// <returns>The new watchlist dto.</returns>
-    Task<SeriesWatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId);
+    Task<WatchlistDTO?> RemoveFromWatchlist(Guid seriesId, Guid userId);
 
     /// <summary>
     /// Update the watchlist and check for new volumes.

@@ -113,11 +113,11 @@ public sealed partial class Mapper
     /// </summary>
     /// <param name="model">The watchlist model.</param>
     /// <returns>The series watchlist dto.</returns>
-    public SeriesWatchlistDTO WatchlistModelToSeriesWatchlistDto(WatchlistModel model)
+    public WatchlistDTO WatchlistModelToSeriesWatchlistDto(WatchlistModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        return new SeriesWatchlistDTO
+        return new WatchlistDTO
         {
             Id = model.Id,
             Series = this.SeriesModelToSeriesDto(model.Series),

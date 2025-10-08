@@ -1,4 +1,4 @@
-﻿// <copyright file="SeriesWatchlistDTO.cs" company="KapitelShelf">
+﻿// <copyright file="WatchlistDTO.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
@@ -8,9 +8,9 @@ using KapitelShelf.Api.DTOs.Series;
 namespace KapitelShelf.Api.DTOs.Watchlist;
 
 /// <summary>
-/// The series watchlist dto.
+/// The watchlist dto.
 /// </summary>
-public class SeriesWatchlistDTO
+public class WatchlistDTO
 {
     /// <summary>
     /// Gets or sets the id.

@@ -28,7 +28,7 @@ public class WatchlistController(ILogger<WatchlistController> logger, IWatchlist
     /// <param name="userId">The id of the user.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
-    public async Task<ActionResult<List<SeriesWatchlistDTO>>> GetWatchlistByUser(Guid userId)
+    public async Task<ActionResult<List<WatchlistDTO>>> GetWatchlistByUser(Guid userId)
     {
         try
         {

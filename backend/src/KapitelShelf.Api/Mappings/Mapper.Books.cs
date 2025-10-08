@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Category;
@@ -11,6 +12,8 @@ using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Data.Models;
 using Riok.Mapperly.Abstractions;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Mappings;
 
@@ -321,7 +324,7 @@ public sealed partial class Mapper
         return target;
     }
 
-    private static DateTime? ParseDate(string? value)
+    internal static DateTime? ParseDate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
