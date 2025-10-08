@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
@@ -64,13 +63,27 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(RCloneListJsonDTO.ModTime))]
     [MapperIgnoreTarget(nameof(CloudStorageDirectoryDTO.ModifiedTime))]
     [MapProperty(nameof(RCloneListJsonDTO.ID), nameof(CloudStorageDirectoryDTO.Id))]
-    public partial CloudStorageDirectoryDTO RCloneListJsonDtoToCloudStorageDirectoryDto(RCloneListJsonDTO dto);
+    public partial CloudStorageDirectoryDTO RCloneListJsonDtoToCloudStorageDirectoryDtoCore(RCloneListJsonDTO dto);
 
     /// <summary>
-    /// Map a rclone list json dto to a cloudstorage directory dto.
+    /// Map an RClone list JSON DTO to a CloudStorageDirectoryDTO, with manual conversion for ModifiedTime.
     /// </summary>
-    /// <param name="source">The rclone list json dto.</param>
-    /// <param name="target">The cloudstorage directory dto.</param>
-    [SuppressMessage("Style", "IDE0051:Remove unused private members", Justification = "Mapperly User-Implemented")]
-    private static void RCloneListJsonDtoToCloudStorageDirectoryDto(RCloneListJsonDTO source, CloudStorageDirectoryDTO target) => target.ModifiedTime = DateTime.Parse(source.ModTime, CultureInfo.InvariantCulture);
+    /// <param name="dto">The RClone list JSON DTO.</param>
+    /// <returns>The CloudStorageDirectoryDTO.</returns>
+    [UserMapping(Default = true)]
+    public CloudStorageDirectoryDTO RCloneListJsonDtoToCloudStorageDirectoryDto(RCloneListJsonDTO dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        var target = this.RCloneListJsonDtoToCloudStorageDirectoryDtoCore(dto);
+
+        // manual field: parse modification time
+        if (!string.IsNullOrWhiteSpace(dto.ModTime)
+            && DateTime.TryParse(dto.ModTime, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
+        {
+            target.ModifiedTime = parsed.ToUniversalTime();
+        }
+
+        return target;
+    }
 }

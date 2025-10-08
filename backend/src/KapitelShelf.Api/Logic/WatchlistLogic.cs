@@ -148,6 +148,7 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         var seriesWatchlistModel = await context.Watchlist
+            .Include(x => x.Series)
             .FirstOrDefaultAsync(x => x.SeriesId == seriesId && x.UserId == userId);
 
         if (seriesWatchlistModel is null)

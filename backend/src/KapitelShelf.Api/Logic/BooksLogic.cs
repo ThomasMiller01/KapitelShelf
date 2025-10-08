@@ -214,6 +214,10 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         book.Series = series;
         book.Author = author;
 
+        // clear categories and tags, as they will be added again
+        book.Categories.Clear();
+        book.Tags.Clear();
+
         // map categories and check for existing categories
         foreach (var category in createBookDTO.Categories)
         {
