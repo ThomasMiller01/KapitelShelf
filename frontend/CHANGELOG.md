@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.2](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.3.1...frontend@0.3.2) (2025-10-09)
+
+
+### Features
+
+* add released book from watchlist to library ([#333](https://github.com/ThomasMiller01/KapitelShelf/issues/333)) ([9d152cb](https://github.com/ThomasMiller01/KapitelShelf/commit/9d152cbd4a85568bf7cc41a33fda9428973630ee))
+* add watchlist to automatically check for new volumes of series ([#329](https://github.com/ThomasMiller01/KapitelShelf/issues/329)) ([75d146c](https://github.com/ThomasMiller01/KapitelShelf/commit/75d146c39a0d243901597b4085716c7b514f0446))
+* added experimental setting to use "rclone bisync" instead of "rclone sync" ([#316](https://github.com/ThomasMiller01/KapitelShelf/issues/316)) ([999afda](https://github.com/ThomasMiller01/KapitelShelf/commit/999afda61d385120d52f6903644e0bf76b009f2d))
+* import book from amazon asin ([#324](https://github.com/ThomasMiller01/KapitelShelf/issues/324)) ([d2b063a](https://github.com/ThomasMiller01/KapitelShelf/commit/d2b063ac31da9c80688485613b14cdd879bcf810))
+* improve watchlist algorithm to extract new kindle volumes ([#337](https://github.com/ThomasMiller01/KapitelShelf/issues/337)) ([a7cc346](https://github.com/ThomasMiller01/KapitelShelf/commit/a7cc346d3bcbaf1baf21df197f0fe405442514f8))
+* lock rotation on android to portrait ([#319](https://github.com/ThomasMiller01/KapitelShelf/issues/319)) ([440021e](https://github.com/ThomasMiller01/KapitelShelf/commit/440021e057fbddb7a7aa07575870bc326fe15f19))
+* optimize for android ([#327](https://github.com/ThomasMiller01/KapitelShelf/issues/327)) ([f2dd57d](https://github.com/ThomasMiller01/KapitelShelf/commit/f2dd57d87399567503f4b1d4ff472dbb12ac0c90))
+* replace AutoMapper ([#335](https://github.com/ThomasMiller01/KapitelShelf/issues/335)) ([3759f19](https://github.com/ThomasMiller01/KapitelShelf/commit/3759f19e83e89e355489f8ad8f41225df3929365))
+
+
+### Bug Fixes
+
+* close "add book" menu after clicking on one of the options ([#321](https://github.com/ThomasMiller01/KapitelShelf/issues/321)) ([cc7d4fc](https://github.com/ThomasMiller01/KapitelShelf/commit/cc7d4fcd5907bf96bd417aea98371693d4a4316e))
+* frontend build ([#314](https://github.com/ThomasMiller01/KapitelShelf/issues/314)) ([5dd6413](https://github.com/ThomasMiller01/KapitelShelf/commit/5dd6413328907beff04806025aa9155a0719163a))
+
 ## [0.3.1](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.3.0-fix-build...frontend@0.3.1) (2025-09-21)
 
 
