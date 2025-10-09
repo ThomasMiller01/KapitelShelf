@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.3.1...helm@0.3.2) (2025-10-09)
+
+
+### Features
+
+* add frontend, api and helm version to readme ([#326](https://github.com/ThomasMiller01/KapitelShelf/issues/326)) ([6c3abd1](https://github.com/ThomasMiller01/KapitelShelf/commit/6c3abd110bdf333f60fc3e2e9ed3a07e6b0740e6))
+
 ## [0.3.1](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.3.0...helm@0.3.1) (2025-09-08)
 
 ### Bug Fixes
