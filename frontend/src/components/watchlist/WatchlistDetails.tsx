@@ -68,7 +68,7 @@ export const WatchlistDetails: React.FC<WatchlistDetailsProps> = ({
             {showAll &&
               items.slice(1).map((book, idx) => (
                 <Grow
-                  key={book.id}
+                  key={idx}
                   in={showAll}
                   timeout={350}
                   style={{

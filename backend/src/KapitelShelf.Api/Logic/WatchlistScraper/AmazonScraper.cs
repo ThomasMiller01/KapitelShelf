@@ -2,13 +2,14 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using System.Text.Json;
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic.Interfaces.WatchlistScraper;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data.Models.Watchlists;
+using Quartz.Util;
 using AmazonMetadataScraper = KapitelShelf.Api.Logic.MetadataScraper.AmazonScraper;
 
 namespace KapitelShelf.Api.Logic.WatchlistScraper;
@@ -41,7 +42,7 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
     {
         ArgumentNullException.ThrowIfNull(series);
 
-        if (series.LastVolume?.Location is null)
+        if (series.LastVolume?.Location is null || series.LastVolume.Location.Url is null)
         {
             return [];
         }
@@ -57,33 +58,14 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
             this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
         }
 
-        // Scrape book page from amazon
-        var bookPageUrl = $"https://www.amazon.com/dp/{series.LastVolume.Location.Url}?sr=8-1";
-
-        using var bookPageResponse = await ScrapeRetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(bookPageUrl));
-        bookPageResponse.EnsureSuccessStatusCode();
-
-        var bookPageHtml = await bookPageResponse.Content.ReadAsStringAsync();
-        var bookPageDocument = new HtmlDocument();
-        bookPageDocument.LoadHtml(bookPageHtml);
-
-        // extract series
-        var seriesNode = bookPageDocument.DocumentNode.SelectSingleNode("//li[@data-tag-id='In This Series']");
-        var asinsJson = seriesNode?.GetAttributeValue("data-asins", string.Empty);
-        asinsJson = System.Net.WebUtility.HtmlDecode(asinsJson);
-        if (asinsJson is null)
+        var seriesASIN = await this.GetSeriesASIN(series.LastVolume.Location.Url);
+        if (seriesASIN.IsNullOrWhiteSpace())
         {
-            // book has no series
+            // book is not part of a series
             return [];
         }
 
-        // extract asins
-        using var asinsDocument = JsonDocument.Parse(asinsJson);
-        var asins = asinsDocument.RootElement
-            .EnumerateArray()
-            .Select(el => el.GetProperty("asin").GetString())
-            .Where(a => !string.IsNullOrEmpty(a))
-            .ToList();
+        var asins = await this.GetVolumeASINS(seriesASIN!);
 
         // only take the asins take are after the last volume in the library
         asins = asins
@@ -141,4 +123,76 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
 
         return results;
     }
+
+    private async Task<string?> GetSeriesASIN(string bookASIN)
+    {
+        // Scrape book page from amazon
+        var bookPageUrl = $"https://www.amazon.com/dp/{bookASIN}?sr=8-1";
+
+        using var bookPageResponse = await ScrapeRetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(bookPageUrl));
+        bookPageResponse.EnsureSuccessStatusCode();
+
+        var bookPageHtml = await bookPageResponse.Content.ReadAsStringAsync();
+        var bookPageDocument = new HtmlDocument();
+        bookPageDocument.LoadHtml(bookPageHtml);
+
+        var cardContextNode = bookPageDocument.DocumentNode.SelectSingleNode("//div[@id='cardContextDataContainer']");
+        var seriesAsin = cardContextNode?.GetAttributeValue("data-series-asin", string.Empty);
+
+        return seriesAsin;
+    }
+
+    private async Task<List<string>> GetVolumeASINS(string seriesASIN)
+    {
+        // Scrape book page from amazon
+        var seriesPageUrl = $"https://www.amazon.com/dp/{seriesASIN}";
+
+        using var seriesPageResponse = await ScrapeRetryPolicy.ExecuteAsync(() => this.httpClient.GetAsync(seriesPageUrl));
+        seriesPageResponse.EnsureSuccessStatusCode();
+
+        var seriesPageHtml = await seriesPageResponse.Content.ReadAsStringAsync();
+        var seriesPageDocument = new HtmlDocument();
+        seriesPageDocument.LoadHtml(seriesPageHtml);
+
+        // extract asins
+        var asinNodes = seriesPageDocument.DocumentNode.SelectNodes("//a[@class='a-size-medium a-link-normal itemBookTitle']");
+        if (asinNodes is null)
+        {
+            // series has no volumes (for some reason)
+            return [];
+        }
+
+        List<string> asins = [];
+        foreach (var asinNode in asinNodes)
+        {
+            var url = asinNode.GetAttributeValue("href", string.Empty);
+            if (url.IsNullOrWhiteSpace())
+            {
+                // could not get the url for this volume
+                continue;
+            }
+
+            var asin = ExtractAsinFromUrl(url);
+            if (asin.IsNullOrWhiteSpace())
+            {
+                // could not extract asin from url
+                continue;
+            }
+
+            asins.Add(asin!);
+        }
+
+        return asins;
+    }
+
+    private static string? ExtractAsinFromUrl(string url)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+
+        var match = AsinInUrlRegex().Match(url);
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    [GeneratedRegex(@"(?:/dp/|/gp/product/)([A-Z0-9]{10})", RegexOptions.IgnoreCase)]
+    private static partial Regex AsinInUrlRegex();
 }

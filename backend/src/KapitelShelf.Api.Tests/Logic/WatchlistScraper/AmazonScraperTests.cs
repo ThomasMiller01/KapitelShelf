@@ -14,18 +14,19 @@ namespace KapitelShelf.Api.Tests.Logic.WatchlistScraper;
 /// <summary>
 /// Unit tests for the watchlist <see cref="AmazonScraper"/>.
 /// </summary>
+[TestFixture]
 public class AmazonScraperTests
 {
     private Mapper mapper = null!;
 
     /// <summary>
-    /// Setup for each test.
+    /// setup for each test.
     /// </summary>
     [SetUp]
     public void Setup() => this.mapper = Testhelper.CreateMapper();
 
     /// <summary>
-    /// Tests that Scrape returns results for valid series with multiple ASINs.
+    /// Tests that Scrape returns results when the series and ASINs are valid.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
@@ -34,13 +35,19 @@ public class AmazonScraperTests
         // Setup
         var mockHttp = new MockHttpMessageHandler();
 
-        var asinsJson = /*lang=json,strict*/ "[{\"asin\":\"BOOK1\"},{\"asin\":\"BOOK2\"}]";
-        var html = $@"<html><body>
-<li data-tag-id='In This Series' data-asins='{WebUtility.HtmlEncode(asinsJson)}'></li>
-</body></html>";
+        // 1️⃣ Root book page → contains series ASIN
+        var rootHtml = @"<div id='cardContextDataContainer' data-series-asin='SERIESASIN'></div>";
+        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK*")
+            .Respond("text/html", rootHtml);
 
-        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK")
-            .Respond("text/html", html);
+        // 2️⃣ Series page → contains volume ASIN links
+        var seriesHtml = @"
+<html><body>
+<a class='a-size-medium a-link-normal itemBookTitle' href='/dp/BOOK10ASIN'></a>
+<a class='a-size-medium a-link-normal itemBookTitle' href='/dp/BOOK20ASIN'></a>
+</body></html>";
+        mockHttp.When("https://www.amazon.com/dp/SERIESASIN*")
+            .Respond("text/html", seriesHtml);
 
         // Fake book detail pages for each asin
         var bookHtml = @"<html><body>
@@ -64,10 +71,9 @@ public class AmazonScraperTests
   <div class='rpi-attribute-value'>250 pages</div>
 </div>
 </body></html>";
-
-        mockHttp.When("https://www.amazon.com/dp/BOOK1")
+        mockHttp.When("https://www.amazon.com/dp/BOOK1*")
             .Respond("text/html", bookHtml);
-        mockHttp.When("https://www.amazon.com/dp/BOOK2")
+        mockHttp.When("https://www.amazon.com/dp/BOOK2*")
             .Respond("text/html", bookHtml);
 
         var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
@@ -76,6 +82,7 @@ public class AmazonScraperTests
             Id = Guid.NewGuid(),
             LastVolume = new()
             {
+                SeriesNumber = 0,
                 Location = new LocationDTO
                 {
                     Url = "ROOTBOOK",
@@ -96,12 +103,13 @@ public class AmazonScraperTests
             Assert.That(results[0].CoverUrl, Is.EqualTo("https://images.amazon.com/sample.jpg"));
             Assert.That(results[0].SeriesId, Is.EqualTo(series.Id));
             Assert.That(results[0].LocationType.ToString(), Is.EqualTo("Kindle"));
-            Assert.That(results[0].LocationUrl, Is.EqualTo("BOOK1"));
+            Assert.That(results[0].LocationUrl, Is.EqualTo("BOOK10ASIN"));
         });
+        Assert.That(results[1].LocationUrl, Is.EqualTo("BOOK20ASIN"));
     }
 
     /// <summary>
-    /// Tests that Scrape returns empty when no LastVolume.Location is provided.
+    /// Tests that Scrape returns empty when no location is provided.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
@@ -111,10 +119,7 @@ public class AmazonScraperTests
         var series = new SeriesDTO
         {
             Id = Guid.NewGuid(),
-            LastVolume = new()
-            {
-                Location = null,
-            },
+            LastVolume = new() { Location = null },
         };
 
         var results = await scraper.Scrape(series);
@@ -123,18 +128,16 @@ public class AmazonScraperTests
     }
 
     /// <summary>
-    /// Tests that Scrape returns empty when ASIN list is empty.
+    /// Tests that Scrape returns empty when the book is not part of a series (missing series ASIN).
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task Scrape_ReturnsEmpty_WhenNoAsins()
+    public async Task Scrape_ReturnsEmpty_WhenNoSeriesAsin()
     {
         var mockHttp = new MockHttpMessageHandler();
-        var html = @"<html><body>
-<li data-tag-id='In This Series' data-asins='[]'></li>
-</body></html>";
+        var html = "<div id='cardContextDataContainer'></div>";
 
-        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK")
+        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK*")
             .Respond("text/html", html);
 
         var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
@@ -157,13 +160,44 @@ public class AmazonScraperTests
     }
 
     /// <summary>
-    /// Tests that Scrape throws when HTTP request fails.
+    /// Tests that Scrape returns empty when no volume links are found.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Scrape_ReturnsEmpty_WhenNoVolumeLinks()
+    {
+        var mockHttp = new MockHttpMessageHandler();
+
+        // series asin available
+        var rootHtml = "<div id='cardContextDataContainer' data-series-asin='SERIESASIN'></div>";
+        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK*").Respond("text/html", rootHtml);
+
+        // but no links on series page
+        var seriesHtml = "<html><body>No volumes here</body></html>";
+        mockHttp.When("https://www.amazon.com/dp/SERIESASIN*").Respond("text/html", seriesHtml);
+
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
+        var series = new SeriesDTO
+        {
+            Id = Guid.NewGuid(),
+            LastVolume = new()
+            {
+                Location = new LocationDTO { Url = "ROOTBOOK", Type = LocationTypeDTO.Kindle },
+            },
+        };
+
+        var results = await scraper.Scrape(series);
+        Assert.That(results, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests that Scrape throws when the root HTTP request fails.
     /// </summary>
     [Test]
     public void Scrape_Throws_OnHttpFailure()
     {
         var mockHttp = new MockHttpMessageHandler();
-        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK")
+        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK*")
             .Respond(HttpStatusCode.InternalServerError);
 
         var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
@@ -181,37 +215,5 @@ public class AmazonScraperTests
         };
 
         Assert.ThrowsAsync<HttpRequestException>(() => scraper.Scrape(series));
-    }
-
-    /// <summary>
-    /// Tests that Scrape returns empty when Amazon series node is missing.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task Scrape_ReturnsEmpty_WhenNoSeriesNode()
-    {
-        var mockHttp = new MockHttpMessageHandler();
-        var html = @"<html><body><div>No series here</div></body></html>";
-
-        mockHttp.When("https://www.amazon.com/dp/ROOTBOOK")
-            .Respond("text/html", html);
-
-        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
-        var series = new SeriesDTO
-        {
-            Id = Guid.NewGuid(),
-            LastVolume = new()
-            {
-                Location = new LocationDTO
-                {
-                    Url = "ROOTBOOK",
-                    Type = LocationTypeDTO.Kindle,
-                },
-            },
-        };
-
-        var results = await scraper.Scrape(series);
-
-        Assert.That(results, Is.Empty);
     }
 }
