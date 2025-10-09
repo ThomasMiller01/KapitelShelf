@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.2](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.1...api@0.3.2) (2025-10-09)
+
+
+### Features
+
+* add released book from watchlist to library ([#333](https://github.com/ThomasMiller01/KapitelShelf/issues/333)) ([9d152cb](https://github.com/ThomasMiller01/KapitelShelf/commit/9d152cbd4a85568bf7cc41a33fda9428973630ee))
+* add watchlist to automatically check for new volumes of series ([#329](https://github.com/ThomasMiller01/KapitelShelf/issues/329)) ([75d146c](https://github.com/ThomasMiller01/KapitelShelf/commit/75d146c39a0d243901597b4085716c7b514f0446))
+* added experimental setting to use "rclone bisync" instead of "rclone sync" ([#316](https://github.com/ThomasMiller01/KapitelShelf/issues/316)) ([999afda](https://github.com/ThomasMiller01/KapitelShelf/commit/999afda61d385120d52f6903644e0bf76b009f2d))
+* Android apk build ([#305](https://github.com/ThomasMiller01/KapitelShelf/issues/305)) ([cb5ea75](https://github.com/ThomasMiller01/KapitelShelf/commit/cb5ea75a4a02d2cd2b5e07f0c3a400de737aa020))
+* import book from amazon asin ([#324](https://github.com/ThomasMiller01/KapitelShelf/issues/324)) ([d2b063a](https://github.com/ThomasMiller01/KapitelShelf/commit/d2b063ac31da9c80688485613b14cdd879bcf810))
+* improve watchlist algorithm to extract new kindle volumes ([#337](https://github.com/ThomasMiller01/KapitelShelf/issues/337)) ([a7cc346](https://github.com/ThomasMiller01/KapitelShelf/commit/a7cc346d3bcbaf1baf21df197f0fe405442514f8))
+* replace AutoMapper ([#335](https://github.com/ThomasMiller01/KapitelShelf/issues/335)) ([3759f19](https://github.com/ThomasMiller01/KapitelShelf/commit/3759f19e83e89e355489f8ad8f41225df3929365))
+* Sync User Settings across different devices ([#304](https://github.com/ThomasMiller01/KapitelShelf/issues/304)) ([1ad38b2](https://github.com/ThomasMiller01/KapitelShelf/commit/1ad38b262132ec773167d7a68ab6e46bb4875a2f))
+
+
+### Bug Fixes
+
+* cover images were not loaded on the book details page ([#318](https://github.com/ThomasMiller01/KapitelShelf/issues/318)) ([2d3f48d](https://github.com/ThomasMiller01/KapitelShelf/commit/2d3f48d538d47b92575b4267e77dbd00ddb76cca))
+
 ## [0.3.1](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.0...api@0.3.1) (2025-09-08)
 
 
