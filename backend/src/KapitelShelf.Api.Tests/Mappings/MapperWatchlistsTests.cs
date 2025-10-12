@@ -39,6 +39,7 @@ public class MapperWatchlistsTests
         // setup
         var model = new WatchlistResultModel
         {
+            Id = Guid.NewGuid(),
             Title = "Book Title",
             Description = "Desc",
             ReleaseDate = "2024-06-01",
@@ -59,6 +60,7 @@ public class MapperWatchlistsTests
         Assert.That(dto, Is.Not.Null);
         Assert.Multiple(() =>
         {
+            Assert.That(dto.Id, Is.EqualTo(model.Id));
             Assert.That(dto.Title, Is.EqualTo(model.Title));
             Assert.That(dto.Description, Is.EqualTo(model.Description));
             Assert.That(dto.ReleaseDate?.Date, Is.EqualTo(DateTime.Parse("2024-06-01", CultureInfo.InvariantCulture).ToUniversalTime().Date));

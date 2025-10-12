@@ -129,7 +129,7 @@ public class WatchlistController(ILogger<WatchlistController> logger, IWatchlist
     /// <param name="resultId">The result id.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPut("result/{resultId}/library")]
-    public async Task<ActionResult<BookDTO>> AddSeriesToWatchlist(Guid resultId)
+    public async Task<ActionResult<BookDTO>> AddWatchlistResultToLibrary(Guid resultId)
     {
         try
         {
