@@ -31,6 +31,7 @@ public sealed partial class Mapper
 
         var dto = new BookDTO
         {
+            Id = model.Id,
             Title = model.Title,
             Description = model.Description ?? string.Empty,
             ReleaseDate = ParseDate(model.ReleaseDate),
