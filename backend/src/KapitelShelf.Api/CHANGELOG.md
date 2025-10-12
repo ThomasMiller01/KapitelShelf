@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.2...api@0.3.3) (2025-10-12)
+
+
+### Bug Fixes
+
+* fixed adding book from watchlist to library ([#343](https://github.com/ThomasMiller01/KapitelShelf/issues/343)) ([cc6c4dd](https://github.com/ThomasMiller01/KapitelShelf/commit/cc6c4dd680b5f692f1862b671cde1b2d2fb5b393))
+
 ## [0.3.2](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.1...api@0.3.2) (2025-10-09)
 
 
