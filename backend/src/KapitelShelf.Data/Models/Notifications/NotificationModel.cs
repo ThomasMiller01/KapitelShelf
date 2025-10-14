@@ -65,4 +65,19 @@ public class NotificationModel
     /// Gets or sets the source of the notificaiton.
     /// </summary>
     public string Source { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the parent id.
+    /// </summary>
+    public Guid? ParentId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the parent.
+    /// </summary>
+    public virtual NotificationModel? Parent { get; set; }
+
+    /// <summary>
+    /// Gets or sets the children.
+    /// </summary>
+    public virtual List<NotificationModel> Children { get; set; } = [];
 }

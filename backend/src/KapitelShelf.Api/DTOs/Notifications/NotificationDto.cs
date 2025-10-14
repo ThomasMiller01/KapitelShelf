@@ -53,4 +53,9 @@ public class NotificationDto
     /// Gets or sets the source of the notificaiton.
     /// </summary>
     public string Source { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the children.
+    /// </summary>
+    public List<NotificationDto> Children { get; set; } = [];
 }

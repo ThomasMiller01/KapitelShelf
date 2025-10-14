@@ -6,6 +6,7 @@ using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
+using KapitelShelf.Data.Models.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic;
@@ -19,13 +20,72 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
     private readonly Mapper mapper = mapper;
 
+    /// <summary>
+    /// Add a notification.
+    /// </summary>
+    /// <param name="title">The title.</param>
+    /// <param name="message">The message.</param>
+    /// <param name="type">The type.</param>
+    /// <param name="severity">The severity.</param>
+    /// <param name="expires">The expiry date.</param>
+    /// <param name="source">The source.</param>
+    /// <param name="userId">The user id.</param>
+    /// <param name="parentId">The parent id.</param>
+    /// <returns>A task.</returns>
+    /// <remarks>If userId is null, the notification will be added to all users.</remarks>
+    public async Task AddNotification(
+        string title,
+        string message,
+        NotificationTypeDto type = NotificationTypeDto.Info,
+        NotificationSeverityDto severity = NotificationSeverityDto.Low,
+        DateTime? expires = null,
+        string source = "",
+        Guid? userId = null,
+        Guid? parentId = null)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        // add notification to all users, if userId is null.
+        if (userId is null)
+        {
+            var users = context.Users
+                .Select(x => x.Id)
+                .ToList();
+
+            foreach (var user in users)
+            {
+                await this.AddNotification(title, message, type, severity, expires, source, userId);
+            }
+
+            return;
+        }
+
+        var notificationModel = new NotificationModel
+        {
+            Title = title,
+            Message = message,
+            Type = this.mapper.NotificationTypeDtoToNotificationType(type),
+            Severity = this.mapper.NotificationSeverityDtoToNotificationSeverity(severity),
+            Created = DateTime.UtcNow,
+            Expires = expires ?? DateTime.MaxValue,
+            IsRead = false,
+            Source = source,
+            UserId = (Guid)userId,
+            ParentId = parentId,
+        };
+
+        context.Notifications.Add(notificationModel);
+        await context.SaveChangesAsync();
+    }
+
     /// <inheritdoc/>
     public async Task<NotificationDto?> GetByIdAsync(Guid id, Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.Notifications
-            .Where(x => x.Id == id && x.UserId == userId)
+            .Include(x => x.Children)
+            .Where(x => x.Id == id && x.UserId == userId && x.ParentId == null)
             .Select(x => this.mapper.NotificationModelToNotificationDto(x))
             .FirstOrDefaultAsync();
     }
@@ -36,7 +96,8 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.Notifications
-            .Where(x => x.UserId == userId)
+            .Include(x => x.Children)
+            .Where(x => x.UserId == userId && x.ParentId == null)
             .Select(x => this.mapper.NotificationModelToNotificationDto(x))
             .ToListAsync();
     }

@@ -134,15 +134,15 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
 #pragma warning disable CA1062 // Validate arguments of public methods
         // Books
         modelBuilder.Entity<BookModel>()
-            .HasOne(b => b.Author)
-            .WithMany(a => a.Books)
-            .HasForeignKey(b => b.AuthorId)
+            .HasOne(x => x.Author)
+            .WithMany(x => x.Books)
+            .HasForeignKey(x => x.AuthorId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BookModel>()
-            .HasOne(b => b.Series)
-            .WithMany(s => s.Books)
-            .HasForeignKey(b => b.SeriesId)
+            .HasOne(x => x.Series)
+            .WithMany(x => x.Books)
+            .HasForeignKey(x => x.SeriesId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Book Search View
@@ -150,152 +150,158 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .HasNoKey()
             .ToView("BookSearchView")
 
-            .HasOne(v => v.BookModel)
+            .HasOne(x => x.BookModel)
             .WithMany()
-            .HasForeignKey(v => v.Id)
-            .HasPrincipalKey(b => b.Id);
+            .HasForeignKey(x => x.Id)
+            .HasPrincipalKey(x => x.Id);
 
         // Categories
         modelBuilder.Entity<BookCategoryModel>()
-            .HasKey(bt => new { bt.BookId, bt.CategoryId });
+            .HasKey(x => new { x.BookId, x.CategoryId });
 
         modelBuilder.Entity<BookCategoryModel>()
-            .HasOne(bc => bc.Book)
-            .WithMany(b => b.Categories)
-            .HasForeignKey(bc => bc.BookId)
+            .HasOne(x => x.Book)
+            .WithMany(x => x.Categories)
+            .HasForeignKey(x => x.BookId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BookCategoryModel>()
-            .HasOne(bc => bc.Category)
-            .WithMany(c => c.Books)
-            .HasForeignKey(bc => bc.CategoryId)
+            .HasOne(x => x.Category)
+            .WithMany(x => x.Books)
+            .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CategoryModel>()
-            .HasIndex(c => new { c.Name })
+            .HasIndex(x => new { x.Name })
             .IsUnique();
 
         // Tags
         modelBuilder.Entity<BookTagModel>()
-            .HasKey(bt => new { bt.BookId, bt.TagId });
+            .HasKey(x => new { x.BookId, x.TagId });
 
         modelBuilder.Entity<BookTagModel>()
-            .HasOne(bt => bt.Book)
-            .WithMany(b => b.Tags)
-            .HasForeignKey(bt => bt.BookId)
+            .HasOne(x => x.Book)
+            .WithMany(x => x.Tags)
+            .HasForeignKey(x => x.BookId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BookTagModel>()
-            .HasOne(bt => bt.Tag)
-            .WithMany(t => t.Books)
-            .HasForeignKey(bt => bt.TagId)
+            .HasOne(x => x.Tag)
+            .WithMany(x => x.Books)
+            .HasForeignKey(x => x.TagId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<TagModel>()
-            .HasIndex(t => new { t.Name })
+            .HasIndex(x => new { x.Name })
             .IsUnique();
 
         // Users
         modelBuilder.Entity<UserSettingModel>()
-            .HasOne(us => us.User)
+            .HasOne(x => x.User)
             .WithMany()
-            .HasForeignKey(us => us.UserId)
+            .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserSettingModel>()
-            .HasIndex(us => new { us.UserId, us.Key })
+            .HasIndex(x => new { x.UserId, x.Key })
             .IsUnique();
 
         modelBuilder.Entity<UserBookMetadataModel>()
-            .HasOne(ub => ub.Book)
+            .HasOne(x => x.Book)
             .WithMany()
-            .HasForeignKey(ub => ub.BookId)
+            .HasForeignKey(x => x.BookId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserBookMetadataModel>()
-            .HasOne(ub => ub.User)
+            .HasOne(x => x.User)
             .WithMany()
-            .HasForeignKey(ub => ub.UserId)
+            .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Author
         modelBuilder.Entity<AuthorModel>()
-            .HasIndex(a => new { a.FirstName, a.LastName })
+            .HasIndex(x => new { x.FirstName, x.LastName })
             .IsUnique();
 
         // Series
         modelBuilder.Entity<SeriesModel>()
-            .HasIndex(c => new { c.Name })
+            .HasIndex(x => new { x.Name })
             .IsUnique();
 
         // Visited Books
         modelBuilder.Entity<VisitedBooksModel>()
-            .HasOne(b => b.Book)
+            .HasOne(x => x.Book)
             .WithMany()
-            .HasForeignKey(b => b.BookId)
+            .HasForeignKey(x => x.BookId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Cloud Configuration
         modelBuilder.Entity<CloudConfigurationModel>()
-            .HasIndex(c => new { c.Type })
+            .HasIndex(x => new { x.Type })
             .IsUnique();
 
         // Cloud Storages
         modelBuilder.Entity<CloudStorageModel>()
-            .HasIndex(c => new { c.Type, c.CloudOwnerEmail })
+            .HasIndex(x => new { x.Type, x.CloudOwnerEmail })
             .IsUnique();
 
         // Failed Cloud File Imports
         modelBuilder.Entity<FailedCloudFileImportModel>()
-            .HasOne(b => b.Storage)
+            .HasOne(x => x.Storage)
             .WithMany()
-            .HasForeignKey(b => b.StorageId)
+            .HasForeignKey(x => x.StorageId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<FailedCloudFileImportModel>()
-            .HasOne(b => b.FileInfo)
+            .HasOne(x => x.FileInfo)
             .WithMany()
-            .HasForeignKey(b => b.FileInfoId)
+            .HasForeignKey(x => x.FileInfoId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Settings
         modelBuilder.Entity<SettingsModel>()
-            .HasIndex(s => new { s.Key })
+            .HasIndex(x => new { x.Key })
             .IsUnique();
 
         // Series Watchlist
         modelBuilder.Entity<WatchlistModel>()
-            .HasKey(sw => new { sw.SeriesId, sw.UserId });
+            .HasKey(x => new { x.SeriesId, x.UserId });
 
         modelBuilder.Entity<WatchlistModel>()
-            .HasOne(b => b.Series)
+            .HasOne(x => x.Series)
             .WithMany()
-            .HasForeignKey(b => b.SeriesId)
+            .HasForeignKey(x => x.SeriesId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<WatchlistModel>()
-            .HasOne(b => b.User)
+            .HasOne(x => x.User)
             .WithMany()
-            .HasForeignKey(b => b.UserId)
+            .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<WatchlistResultModel>()
-            .HasKey(i => new { i.SeriesId, i.Volume });
+            .HasKey(x => new { x.SeriesId, x.Volume });
 
         modelBuilder.Entity<WatchlistResultModel>()
-            .HasOne(b => b.Series)
+            .HasOne(x => x.Series)
             .WithMany()
-            .HasForeignKey(b => b.SeriesId)
+            .HasForeignKey(x => x.SeriesId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Notifications
         modelBuilder.Entity<NotificationModel>()
-            .HasKey(sw => new { sw.Id });
+            .HasKey(x => new { x.Id });
 
         modelBuilder.Entity<NotificationModel>()
-            .HasOne(us => us.User)
+            .HasOne(x => x.User)
             .WithMany()
-            .HasForeignKey(us => us.UserId)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NotificationModel>()
+            .HasOne(x => x.Parent)
+            .WithMany(x => x.Children)
+            .HasForeignKey(x => x.ParentId)
             .OnDelete(DeleteBehavior.Cascade);
 
 #pragma warning restore CA1062 // Validate arguments of public methods
