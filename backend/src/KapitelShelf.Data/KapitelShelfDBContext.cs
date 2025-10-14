@@ -7,6 +7,7 @@ using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using KapitelShelf.Data.Extensions;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.CloudStorage;
+using KapitelShelf.Data.Models.Notifications;
 using KapitelShelf.Data.Models.User;
 using KapitelShelf.Data.Models.Watchlists;
 using Microsoft.EntityFrameworkCore;
@@ -118,6 +119,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     /// Gets the series watchlist results table.
     /// </summary>
     public DbSet<WatchlistResultModel> WatchlistResults => Set<WatchlistResultModel>();
+
+    /// <summary>
+    /// Gets the notifications table.
+    /// </summary>
+    public DbSet<NotificationModel> Notifications => Set<NotificationModel>();
 
     /// <summary>
     /// On model creating.
@@ -280,6 +286,16 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .HasOne(b => b.Series)
             .WithMany()
             .HasForeignKey(b => b.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Notifications
+        modelBuilder.Entity<NotificationModel>()
+            .HasKey(sw => new { sw.Id });
+
+        modelBuilder.Entity<NotificationModel>()
+            .HasOne(us => us.User)
+            .WithMany()
+            .HasForeignKey(us => us.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
 #pragma warning restore CA1062 // Validate arguments of public methods
