@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "KapitelShelf.Api, Version=0.3.1.0, Culture=neutral, PublicKeyToken=null",
+    "title": "KapitelShelf.Api, Version=0.3.3.0, Culture=neutral, PublicKeyToken=null",
     "version": "1.0"
   },
   "paths": {
@@ -984,6 +984,165 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Get all notifications for the current user.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/readall": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark all notifications as read.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notifications/{id}": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Get a specific notification by id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The notification id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark a notification as read.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The notification id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -2845,6 +3004,84 @@
         ],
         "type": "integer",
         "description": "The metadata sources for book metadata scraping.",
+        "format": "int32"
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "Gets or sets the title.",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Gets or sets the message.",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/NotificationTypeDto"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/NotificationSeverityDto"
+          },
+          "created": {
+            "type": "string",
+            "description": "Gets or sets the created date.",
+            "format": "date-time"
+          },
+          "expires": {
+            "type": "string",
+            "description": "Gets or sets the expires date.",
+            "format": "date-time"
+          },
+          "isRead": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether the notification was read."
+          },
+          "source": {
+            "type": "string",
+            "description": "Gets or sets the source of the notificaiton.",
+            "nullable": true
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDto"
+            },
+            "description": "Gets or sets the children.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The category dto."
+      },
+      "NotificationSeverityDto": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "The notification severity dto.",
+        "format": "int32"
+      },
+      "NotificationTypeDto": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "description": "The notification type dto.",
         "format": "int32"
       },
       "ObjectSettingsDTO": {

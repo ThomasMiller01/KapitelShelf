@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
+import { NotificationsApi } from "../lib/api/KapitelShelf.Api/api";
 import {
   SeriesApi,
   SettingsApi,
@@ -26,6 +27,7 @@ interface ApiClients {
   onedrive: OneDriveApi;
   settings: SettingsApi;
   watchlist: WatchlistApi;
+  notifications: NotificationsApi;
 }
 
 interface ApiContextData {
@@ -68,6 +70,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
       onedrive: new OneDriveApi(config),
       settings: new SettingsApi(config),
       watchlist: new WatchlistApi(config),
+      notifications: new NotificationsApi(config),
     };
   }, [basePath]);
 
