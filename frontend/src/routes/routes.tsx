@@ -12,6 +12,7 @@ import ImportBookPage from "../pages/book/ImportBookPage";
 import { ConfigureMobileBackendUrlPage } from "../pages/ConfigureMoibleBackendUrlPage";
 import HomePage from "../pages/HomePage";
 import BooksPage from "../pages/LibraryPage";
+import { NotificationsPage } from "../pages/NotificationsPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
@@ -66,6 +67,7 @@ const AppRoutes = (): ReactElement | null => {
               },
               { path: "search", element: <SearchResultsPage /> },
               { path: "watchlist", element: <WatchlistPage /> },
+              { path: "notifications", element: <NotificationsPage /> },
               {
                 path: "settings",
                 element: <SettingsLayout />,
