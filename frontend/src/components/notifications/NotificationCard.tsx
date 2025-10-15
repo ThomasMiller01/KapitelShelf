@@ -89,9 +89,14 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         )}
       </CardActionArea>
       <CardActions>
-        <ButtonWithTooltip tooltip="Mark as Read" startIcon={<CheckIcon />}>
-          Read
-        </ButtonWithTooltip>
+        {!notification.isRead ? (
+          <ButtonWithTooltip tooltip="Mark as Read" startIcon={<CheckIcon />}>
+            Read
+          </ButtonWithTooltip>
+        ) : (
+          // read button placeholder
+          <Box width="77px" />
+        )}
       </CardActions>
     </Card>
   );
