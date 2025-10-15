@@ -98,6 +98,7 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         return await context.Notifications
             .Include(x => x.Children)
             .Where(x => x.UserId == userId && x.ParentId == null)
+            .OrderByDescending(x => x.Created)
             .Select(x => this.mapper.NotificationModelToNotificationDto(x))
             .ToListAsync();
     }
