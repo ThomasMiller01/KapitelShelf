@@ -35,6 +35,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         display: "flex",
         borderLeft: `5px solid`,
         borderLeftColor: NotificationSeverityColor(notification),
+        opacity: notification.isRead ? 0.6 : 1,
       }}
     >
       <CardActionArea
