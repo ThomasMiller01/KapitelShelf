@@ -68,7 +68,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
       >
         <CardContent sx={{ padding: "6px 10px !important" }}>
           <TitleBadge
-            badgeContent={1}
+            badgeContent={notification.children?.length}
             max={9}
             color="primary"
             badgeColor={NotificationSeverityColor(notification)}
