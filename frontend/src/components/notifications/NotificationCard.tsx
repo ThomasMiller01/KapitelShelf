@@ -100,7 +100,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
           </>
         )}
       </CardActionArea>
-      <CardActions sx={{ width: "fit-content" }}>
+      <CardActions>
         {!notification.isRead ? (
           <ButtonWithTooltip tooltip="Mark as Read" startIcon={<CheckIcon />}>
             Read
