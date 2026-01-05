@@ -1,11 +1,14 @@
 import CheckIcon from "@mui/icons-material/Check";
 import {
+  Badge,
+  BadgeProps,
   Box,
   Card,
   CardActionArea,
   CardActions,
   CardContent,
   Stack,
+  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -21,6 +24,22 @@ import {
 import { ButtonWithTooltip } from "../base/ButtonWithTooltip";
 import { FormatTimeUntil } from "../../utils/TimeUtils";
 import { Property } from "../base/Property";
+import { GetColor } from "../../utils/ColorUtils";
+
+export interface TitleBadgeProps extends BadgeProps {
+  badgeColor?: string;
+}
+
+const TitleBadge = styled(Badge, {
+  shouldForwardProp: (prop) => prop !== "badgeColor",
+})<TitleBadgeProps>(({ theme, badgeColor }) => ({
+  "& .MuiBadge-badge": {
+    right: -20,
+    top: 10,
+    padding: "0 4px",
+    backgroundColor: GetColor(badgeColor, theme),
+  },
+}));
 
 interface NotificationCardProps {
   notification: NotificationDto;
@@ -48,42 +67,49 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         }}
       >
         <CardContent sx={{ padding: "6px 10px !important" }}>
-          <Stack direction="row" spacing={1.1} alignItems="start">
-            <Box pt="2px">
-              <Tooltip
-                arrow
-                disableInteractive
-                placement="top"
-                title={
-                  <Stack direction="row" alignItems="baseline" spacing={1}>
-                    <Typography variant="subtitle1">
-                      {NotificationTypeToString(notification.type)}
-                    </Typography>
-                    <Typography
-                      variant="overline"
-                      sx={{
-                        lineHeight: 1.5,
-                        fontWeight: "bold",
-                        color: NotificationSeverityColor(notification),
-                      }}
-                    >
-                      [{NotificationSeverityToString(notification.severity)}]
-                    </Typography>
-                  </Stack>
-                }
-              >
-                <Box>{NotificationTypeIcon(notification)}</Box>
-              </Tooltip>
-            </Box>
-            <Stack>
-              <Typography variant="subtitle1" component="div">
-                {notification.title}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {notification.message}
-              </Typography>
+          <TitleBadge
+            badgeContent={1}
+            max={9}
+            color="primary"
+            badgeColor={NotificationSeverityColor(notification)}
+          >
+            <Stack direction="row" spacing={1.1} alignItems="start">
+              <Box pt="2px">
+                <Tooltip
+                  arrow
+                  disableInteractive
+                  placement="top"
+                  title={
+                    <Stack direction="row" alignItems="baseline" spacing={1}>
+                      <Typography variant="subtitle1">
+                        {NotificationTypeToString(notification.type)}
+                      </Typography>
+                      <Typography
+                        variant="overline"
+                        sx={{
+                          lineHeight: 1.5,
+                          fontWeight: "bold",
+                          color: NotificationSeverityColor(notification),
+                        }}
+                      >
+                        [{NotificationSeverityToString(notification.severity)}]
+                      </Typography>
+                    </Stack>
+                  }
+                >
+                  <Box>{NotificationTypeIcon(notification)}</Box>
+                </Tooltip>
+              </Box>
+              <Stack>
+                <Typography variant="subtitle1" component="div">
+                  {notification.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  {notification.message}
+                </Typography>
+              </Stack>
             </Stack>
-          </Stack>
+          </TitleBadge>
         </CardContent>
 
         {!isMobile && (
@@ -100,6 +126,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
           </>
         )}
       </CardActionArea>
+
       <CardActions>
         {!notification.isRead ? (
           <ButtonWithTooltip tooltip="Mark as Read" startIcon={<CheckIcon />}>
