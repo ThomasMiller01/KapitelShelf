@@ -19,6 +19,8 @@ import {
   NotificationTypeToString,
 } from "../../utils/NotificationUtils";
 import { ButtonWithTooltip } from "../base/ButtonWithTooltip";
+import { FormatTimeUntil } from "../../utils/TimeUtils";
+import { Property } from "../base/Property";
 
 interface NotificationCardProps {
   notification: NotificationDto;
@@ -83,13 +85,22 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
             </Stack>
           </Stack>
         </CardContent>
+
         {!isMobile && (
-          <Box>
-            <Typography variant="overline">{notification.source}</Typography>
-          </Box>
+          <>
+            <Property label="Expires In">
+              <Typography>
+                {FormatTimeUntil(notification.expires, false)}
+              </Typography>
+            </Property>
+
+            <Property label="Source">
+              <Typography variant="overline">{notification.source}</Typography>
+            </Property>
+          </>
         )}
       </CardActionArea>
-      <CardActions>
+      <CardActions sx={{ width: "fit-content" }}>
         {!notification.isRead ? (
           <ButtonWithTooltip tooltip="Mark as Read" startIcon={<CheckIcon />}>
             Read
