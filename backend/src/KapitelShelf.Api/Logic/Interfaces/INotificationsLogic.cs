@@ -40,4 +40,10 @@ public interface INotificationsLogic
     /// <param name="userId">The user id.</param>
     /// <returns>A bool indicating whether the operation was successful.</returns>
     Task<bool> MarkAsReadAsync(Guid id, Guid userId);
+
+    /// <summary>
+    /// Delete all expired notifications.
+    /// </summary>
+    /// <returns>A task.</returns>
+    Task DeleteExpiredNotificationsAsync();
 }

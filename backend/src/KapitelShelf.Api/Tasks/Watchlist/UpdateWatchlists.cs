@@ -71,7 +71,7 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
             Category = "Watchlist",
             Description = "Searches for new volumes of the watched series.",
             ShouldRecover = true,
-            Cronjob = "0 0 * ? * *", // every 1 hour
+            Cronjob = "0 0 0 ? * *", // at 12:00 AM every day (once a day)
         };
 
         var job = internalTask.JobDetail

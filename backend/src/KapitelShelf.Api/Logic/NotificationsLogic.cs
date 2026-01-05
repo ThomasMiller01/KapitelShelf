@@ -126,4 +126,14 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         return affectedRows == 1;
     }
+
+    /// <inheritdoc/>
+    public async Task DeleteExpiredNotificationsAsync()
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        await context.Notifications
+            .Where(x => x.Expires <= DateTime.Now)
+            .ExecuteDeleteAsync();
+    }
 }
