@@ -54,11 +54,22 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
             foreach (var user in users)
             {
-                await this.AddNotification(title, message, type, severity, expires, source, userId);
+                await this.AddNotification(title, message, type, severity, expires, source, user);
             }
 
             return;
         }
+
+        // if a notification with that title already exists,
+        // add this notification as a child of the existing one
+        var existingParent = await context.Notifications
+            .Where(x =>
+                x.UserId == userId &&
+                x.ParentId == null &&
+                x.Title != null &&
+                x.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+            .FirstOrDefaultAsync();
+        var parentToUse = parentId ?? existingParent?.Id;
 
         var notificationModel = new NotificationModel
         {
@@ -71,7 +82,7 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             IsRead = false,
             Source = source,
             UserId = (Guid)userId,
-            ParentId = parentId,
+            ParentId = parentToUse,
         };
 
         context.Notifications.Add(notificationModel);
@@ -133,7 +144,7 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         await context.Notifications
-            .Where(x => x.Expires <= DateTime.Now)
+            .Where(x => x.Expires <= DateTime.UtcNow)
             .ExecuteDeleteAsync();
     }
 }
