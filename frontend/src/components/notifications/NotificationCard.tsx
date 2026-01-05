@@ -88,7 +88,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
 
         {!isMobile && (
           <>
-            <Property label="Expires In">
+            <Property label="Expires In" tooltip={notification.expires}>
               <Typography>
                 {FormatTimeUntil(notification.expires, false)}
               </Typography>
