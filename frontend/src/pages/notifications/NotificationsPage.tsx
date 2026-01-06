@@ -3,15 +3,15 @@ import { Box, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 
-import { ButtonWithTooltip } from "../components/base/ButtonWithTooltip";
-import LoadingCard from "../components/base/feedback/LoadingCard";
-import { NoItemsFoundCard } from "../components/base/feedback/NoItemsFoundCard";
-import { RequestErrorCard } from "../components/base/feedback/RequestErrorCard";
-import { NotificationsBadge } from "../components/notifications/NotificationsBadge";
-import { useApi } from "../contexts/ApiProvider";
-import { NotificationsList } from "../features/notifications/NotificationsList";
-import { useMobile } from "../hooks/useMobile";
-import { useUserProfile } from "../hooks/useUserProfile";
+import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
+import LoadingCard from "../../components/base/feedback/LoadingCard";
+import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
+import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import { NotificationsBadge } from "../../components/notifications/NotificationsBadge";
+import { useApi } from "../../contexts/ApiProvider";
+import { NotificationsList } from "../../features/notifications/NotificationsList";
+import { useMobile } from "../../hooks/useMobile";
+import { useUserProfile } from "../../hooks/useUserProfile";
 
 export const NotificationsPage = (): ReactElement => {
   const { isMobile } = useMobile();

@@ -25,6 +25,7 @@ import { ButtonWithTooltip } from "../base/ButtonWithTooltip";
 import { FormatTimeUntil } from "../../utils/TimeUtils";
 import { Property } from "../base/Property";
 import { GetColor } from "../../utils/ColorUtils";
+import { Link } from "react-router-dom";
 
 export interface TitleBadgeProps extends BadgeProps {
   badgeColor?: string;
@@ -60,6 +61,8 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
       }}
     >
       <CardActionArea
+        component={Link}
+        to={`/notifications/${notification.id}`}
         sx={{
           display: "flex",
           justifyContent: "space-between",
