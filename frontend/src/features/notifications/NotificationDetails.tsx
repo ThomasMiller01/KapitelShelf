@@ -1,4 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
+import { NotificationDetailsCard } from "../../components/notifications/NotificationDetailsCard";
 import type { NotificationDto } from "../../lib/api/KapitelShelf.Api/api";
 
 interface NotificationDetailsProps {
@@ -9,20 +10,12 @@ const NotificationDetails: React.FC<NotificationDetailsProps> = ({
   notification,
 }) => {
   return (
-    <Box p={3}>
-      <Typography variant="h5" gutterBottom sx={{ wordBreak: "break-word" }}>
-        {notification.title}
-      </Typography>
-
-      <Typography
-        variant="body1"
-        color="text.secondary"
-        mb="15px"
-        sx={{ wordBreak: "break-word" }}
-      >
-        {notification.message}
-      </Typography>
-    </Box>
+    <Stack spacing={1} p={3}>
+      {notification.children?.map((child) => (
+        <NotificationDetailsCard key={child.id} notification={child} />
+      ))}
+      <NotificationDetailsCard notification={notification} />
+    </Stack>
   );
 };
 

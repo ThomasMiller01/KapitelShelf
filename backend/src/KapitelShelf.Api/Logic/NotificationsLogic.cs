@@ -131,8 +131,11 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
+        // mark notification as well as all children as read
         var affectedRows = await context.Notifications
-            .Where(x => x.Id == id && x.UserId == userId)
+            .Where(x =>
+                (x.Id == id && x.UserId == userId) ||
+                (x.ParentId == id && x.UserId == userId))
             .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.IsRead, true));
 
         return affectedRows == 1;

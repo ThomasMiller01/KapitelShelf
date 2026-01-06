@@ -5,10 +5,10 @@ import {
   IconButton,
   Stack,
   Toolbar,
+  Tooltip,
   tooltipClasses,
   Typography,
 } from "@mui/material";
-import { Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { ReactElement, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
@@ -58,7 +58,7 @@ const BackButton = ({
 };
 
 interface ItemAppBarProps extends BackButtonProps {
-  title: string | null | undefined;
+  title?: string | null | undefined;
   addons?: ReactNode[];
   actions?: ReactNode[];
 }

@@ -42,7 +42,7 @@ export const ProfileMenu = (): ReactElement => {
       );
       return data.filter((x) => !x.isRead);
     },
-    refetchInterval: 5 * SECOND_MS,
+    refetchInterval: 30 * SECOND_MS,
   });
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

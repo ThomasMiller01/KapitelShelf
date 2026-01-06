@@ -68,6 +68,9 @@ public sealed partial class Mapper
             dto.IsRead = dto.Children.All(x => x.IsRead);
             dto.Severity = dto.Children.Max(x => x.Severity);
             dto.Expires = dto.Children.Max(x => x.Expires);
+            dto.Children = dto.Children
+                .OrderByDescending(x => x.Created)
+                .ToList();
         }
 
         return dto;

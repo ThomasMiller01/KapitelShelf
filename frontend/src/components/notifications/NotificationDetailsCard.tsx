@@ -1,11 +1,8 @@
-import CheckIcon from "@mui/icons-material/Check";
 import {
   Badge,
   BadgeProps,
   Box,
   Card,
-  CardActionArea,
-  CardActions,
   CardContent,
   Stack,
   styled,
@@ -13,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 
-import { Link } from "react-router-dom";
 import { useMobile } from "../../hooks/useMobile";
 import { type NotificationDto } from "../../lib/api/KapitelShelf.Api";
 import { GetColor } from "../../utils/ColorUtils";
@@ -24,7 +20,6 @@ import {
   NotificationTypeToString,
 } from "../../utils/NotificationUtils";
 import { FormatTimeUntil } from "../../utils/TimeUtils";
-import { ButtonWithTooltip } from "../base/ButtonWithTooltip";
 import { Property } from "../base/Property";
 
 export interface TitleBadgeProps extends BadgeProps {
@@ -38,18 +33,18 @@ const TitleBadge = styled(Badge, {
     right: -20,
     top: 10,
     padding: "0 4px",
-    borderRadius: 6,
     backgroundColor: GetColor(badgeColor, theme),
   },
 }));
 
-interface NotificationCardProps {
+interface NotificationDetailsCardProps {
   notification: NotificationDto;
 }
 
-export const NotificationCard: React.FC<NotificationCardProps> = ({
-  notification,
-}) => {
+export const NotificationDetailsCard: React.FC<
+  NotificationDetailsCardProps
+> = ({ notification }) => {
+  // TODO: implement proper details card
   const { isMobile } = useMobile();
   return (
     <Card
@@ -58,13 +53,11 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         display: "flex",
         borderLeft: `5px solid`,
         borderLeftColor: NotificationSeverityColor(notification),
-        opacity: notification.isRead ? 0.6 : 1,
       }}
     >
-      <CardActionArea
-        component={Link}
-        to={`/notifications/${notification.id}`}
+      <Box
         sx={{
+          width: "100%",
           display: "flex",
           justifyContent: "space-between",
           paddingRight: isMobile ? "0" : "10px",
@@ -116,31 +109,16 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
           </TitleBadge>
         </CardContent>
 
-        {!isMobile && (
-          <>
-            <Property label="Expires In" tooltip={notification.expires}>
-              <Typography>
-                {FormatTimeUntil(notification.expires, false)}
-              </Typography>
-            </Property>
+        <Property label="Expires In" tooltip={notification.expires}>
+          <Typography>
+            {FormatTimeUntil(notification.expires, false)}
+          </Typography>
+        </Property>
 
-            <Property label="Source">
-              <Typography variant="overline">{notification.source}</Typography>
-            </Property>
-          </>
-        )}
-      </CardActionArea>
-
-      <CardActions>
-        {!notification.isRead ? (
-          <ButtonWithTooltip tooltip="Mark as Read" startIcon={<CheckIcon />}>
-            Read
-          </ButtonWithTooltip>
-        ) : (
-          // read button placeholder
-          <Box width="77px" />
-        )}
-      </CardActions>
+        <Property label="Source">
+          <Typography variant="overline">{notification.source}</Typography>
+        </Property>
+      </Box>
     </Card>
   );
 };

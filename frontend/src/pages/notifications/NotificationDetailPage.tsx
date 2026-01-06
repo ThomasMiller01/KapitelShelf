@@ -73,11 +73,7 @@ const NotificationDetailPage = (): ReactElement => {
 
   return (
     <Box>
-      <ItemAppBar
-        title={notification.title}
-        backTooltip="Go to notifications"
-        backUrl="/notifications"
-      />
+      <ItemAppBar backTooltip="Go to notifications" backUrl="/notifications" />
       <NotificationDetails notification={notification} />
     </Box>
   );

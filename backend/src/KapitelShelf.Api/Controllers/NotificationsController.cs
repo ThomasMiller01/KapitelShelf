@@ -103,11 +103,7 @@ public class NotificationsController(ILogger<NotificationsController> logger, IN
     {
         try
         {
-            var success = await this.logic.MarkAsReadAsync(id, userId);
-            if (!success)
-            {
-                return this.NotFound();
-            }
+            await this.logic.MarkAsReadAsync(id, userId);
 
             return this.NoContent();
         }
