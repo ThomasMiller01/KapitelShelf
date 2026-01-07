@@ -17,6 +17,7 @@ import { IconButtonWithTooltip } from "./IconButtonWithTooltip";
 
 interface SelectorProps {
   icon: ReactElement;
+  subIcon?: ReactElement;
   tooltip?: string;
   options: string[];
   selected?: string[];
@@ -27,6 +28,7 @@ interface SelectorProps {
 
 export const Selector: React.FC<SelectorProps> = ({
   icon,
+  subIcon,
   tooltip,
   options,
   selected: initialSelected = [],
@@ -83,7 +85,16 @@ export const Selector: React.FC<SelectorProps> = ({
     <>
       <IconButtonWithTooltip tooltip={tooltip} onClick={handleOpen}>
         <Badge badgeContent={allSelected ? "" : <NotAllShownBadge />}>
-          {icon}
+          <Badge
+            badgeContent={subIcon}
+            overlap="circular"
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+          >
+            {icon}
+          </Badge>
         </Badge>
       </IconButtonWithTooltip>
       <Menu

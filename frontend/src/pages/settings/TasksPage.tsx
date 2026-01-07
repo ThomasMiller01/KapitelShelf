@@ -1,20 +1,16 @@
-import FilterListIcon from "@mui/icons-material/FilterList";
 import { Box, Stack, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement, useState } from "react";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import { Selector } from "../../components/base/Selector";
+import { HiddenFilter } from "../../components/base/HiddenFilter";
 import { TaskStateIcon } from "../../components/tasks/TaskStateIcon";
 import { useApi } from "../../contexts/ApiProvider";
 import TasksList from "../../features/tasks/TaskList";
-import { useSetting } from "../../hooks/useSetting";
 import type { TaskDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
 import { SECOND_MS } from "../../utils/TimeUtils";
-
-const HIDDEN_CATEGORIES_KEY = "tasks.hide.categories";
 
 export const TasksPage = (): ReactElement => {
   const { clients } = useApi();
@@ -34,43 +30,6 @@ export const TasksPage = (): ReactElement => {
 
   const [filteredTasks, setFilteredTasks] = useState<TaskDTO[]>(tasks ?? []);
 
-  const [hiddenCategories, setHiddenCategories] = useSetting<string[]>(
-    HIDDEN_CATEGORIES_KEY,
-    ["Maintenance"]
-  );
-
-  // extract categories from tasks
-  const [categories, setCategories] = useState<string[]>([]);
-  useEffect(() => {
-    if (tasks === undefined) {
-      return;
-    }
-
-    // extract categories from tasks
-    const allCategories = tasks.map((x) => x.category);
-
-    // only allow strings
-    const filteredCategories = allCategories.filter((x): x is string =>
-      Boolean(x)
-    );
-
-    // get the unique categories and sort
-    const uniqueCategories = Array.from(new Set(filteredCategories));
-    const sortedCategories = uniqueCategories.sort();
-
-    setCategories(sortedCategories);
-  }, [tasks]);
-
-  useEffect(() => {
-    if (tasks === undefined) {
-      return;
-    }
-
-    setFilteredTasks(
-      tasks.filter((x) => !hiddenCategories.includes(x.category ?? ""))
-    );
-  }, [tasks, hiddenCategories]);
-
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Tasks" showRandomFacts />;
   }
@@ -85,19 +44,13 @@ export const TasksPage = (): ReactElement => {
         Tasks
       </Typography>
       <Stack direction="row" justifyContent="end">
-        <Selector
-          icon={<FilterListIcon />}
+        <HiddenFilter
+          items={tasks ?? []}
+          settingsKey="tasks.hide.categories"
+          defaultHiddenOptions={["Maintenance"]}
           tooltip="Hide tasks by category"
-          options={categories}
-          selected={categories.filter((x) => !hiddenCategories.includes(x))}
-          onUnselect={(value: string) =>
-            setHiddenCategories(
-              Array.from(new Set([...hiddenCategories, value]))
-            )
-          }
-          onSelect={(value: string) =>
-            setHiddenCategories(hiddenCategories.filter((x) => x !== value))
-          }
+          extractValue={(x) => x.category}
+          onFilteredChange={(next) => setFilteredTasks(next)}
         />
       </Stack>
       <TasksList

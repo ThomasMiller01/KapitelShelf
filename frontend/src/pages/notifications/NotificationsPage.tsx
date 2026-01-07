@@ -1,17 +1,25 @@
+import CategoryIcon from "@mui/icons-material/Category";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
-import { Box, Typography } from "@mui/material";
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+import { Box, Stack, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { type ReactElement } from "react";
+import { useMemo, useState, type ReactElement } from "react";
 
 import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import { HiddenFilter } from "../../components/base/HiddenFilter";
 import { NotificationsBadge } from "../../components/notifications/NotificationsBadge";
 import { useApi } from "../../contexts/ApiProvider";
 import { NotificationsList } from "../../features/notifications/NotificationsList";
 import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { NotificationDto } from "../../lib/api/KapitelShelf.Api";
+import {
+  NotificationSeverityToString,
+  NotificationTypeToString,
+} from "../../utils/NotificationUtils";
 
 export const NotificationsPage = (): ReactElement => {
   const { isMobile } = useMobile();
@@ -19,7 +27,12 @@ export const NotificationsPage = (): ReactElement => {
   const { clients } = useApi();
   const { profile } = useUserProfile();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const {
+    data: notifications,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["notifications-list", profile?.id],
     queryFn: async () => {
       if (profile?.id === undefined) {
@@ -33,6 +46,22 @@ export const NotificationsPage = (): ReactElement => {
     },
   });
 
+  const [hiddenTypes, setHiddenTypes] = useState<string[]>([]);
+  const [hiddenSeverities, setHiddenSeverities] = useState<string[]>([]);
+
+  const filteredNotifications = useMemo<NotificationDto[]>(() => {
+    const list = notifications ?? [];
+
+    return list.filter((x) => {
+      const severity = NotificationSeverityToString(x.severity);
+      const type = NotificationTypeToString(x.type);
+
+      return (
+        !hiddenSeverities.includes(severity) && !hiddenTypes.includes(type)
+      );
+    });
+  }, [notifications, hiddenSeverities, hiddenTypes]);
+
   if (isLoading) {
     return <LoadingCard delayed itemName="Notifications" small />;
   }
@@ -41,7 +70,7 @@ export const NotificationsPage = (): ReactElement => {
     return <RequestErrorCard itemName="Notifications" onRetry={refetch} />;
   }
 
-  if (data?.length === 0) {
+  if (notifications?.length === 0) {
     return <NoItemsFoundCard itemName="Notifications" small />;
   }
 
@@ -57,15 +86,36 @@ export const NotificationsPage = (): ReactElement => {
       >
         <Typography variant="h5">Notifications</Typography>
       </NotificationsBadge>
-      <Box display="flex" justifyContent="end">
+      <Stack direction="row" spacing={2} justifyContent="end">
+        {/* Severity Filter */}
+        <HiddenFilter
+          items={notifications ?? []}
+          extractValue={(x) => NotificationSeverityToString(x.severity)}
+          onHiddenOptionsChange={(next) => setHiddenSeverities(next)}
+          settingsKey="notifications.hide.severity"
+          subIcon={<ReportProblemIcon fontSize="small" />}
+          tooltip="Hide notifications by severity"
+        />
+
+        {/* Type Filter */}
+        <HiddenFilter
+          items={notifications ?? []}
+          extractValue={(x) => NotificationTypeToString(x.type)}
+          onHiddenOptionsChange={(next) => setHiddenTypes(next)}
+          settingsKey="notifications.hide.type"
+          subIcon={<CategoryIcon fontSize="small" />}
+          tooltip="Hide notifications by type"
+        />
+
+        {/* Read All */}
         <ButtonWithTooltip
           tooltip="Mark all as Read"
           startIcon={<DoneAllIcon />}
         >
           Read All
         </ButtonWithTooltip>
-      </Box>
-      <NotificationsList notifications={data ?? []} />
+      </Stack>
+      <NotificationsList notifications={filteredNotifications ?? []} />
     </Box>
   );
 };
