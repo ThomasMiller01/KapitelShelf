@@ -46,4 +46,11 @@ public interface INotificationsLogic
     /// </summary>
     /// <returns>A task.</returns>
     Task DeleteExpiredNotificationsAsync();
+
+    /// <summary>
+    /// Gets the current notification stats.
+    /// </summary>
+    /// <param name="userId">The user id.</param>
+    /// <returns>The notification stats.</returns>
+    Task<NotificationStatsDto> GetStatsAsync(Guid userId);
 }

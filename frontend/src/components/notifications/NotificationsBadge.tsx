@@ -2,10 +2,7 @@ import type { BadgeProps } from "@mui/material";
 import { Badge, styled } from "@mui/material";
 import type { ReactNode } from "react";
 
-import {
-  type NotificationDto,
-  NotificationSeverityDto,
-} from "../../lib/api/KapitelShelf.Api";
+import { useNotificationStats } from "../../hooks/useNotificationStats";
 
 const StyledBadge = styled(Badge)(() => ({
   "& .MuiBadge-badge": {
@@ -15,23 +12,19 @@ const StyledBadge = styled(Badge)(() => ({
 }));
 
 interface NotificationsBadgeProps extends BadgeProps {
-  notifications: NotificationDto[];
   children: ReactNode;
 }
 
 export const NotificationsBadge: React.FC<NotificationsBadgeProps> = ({
-  notifications,
   children,
   ...props
 }) => {
-  const hasCritical =
-    notifications.filter((x) => x.severity === NotificationSeverityDto.NUMBER_3)
-      .length !== 0;
+  const notificationStats = useNotificationStats();
 
   return (
     <StyledBadge
-      badgeContent={notifications?.length}
-      color={hasCritical ? "error" : "primary"}
+      badgeContent={notificationStats?.unreadCount}
+      color={notificationStats?.unreadHasCritical ? "error" : "primary"}
       max={9}
       {...props}
     >

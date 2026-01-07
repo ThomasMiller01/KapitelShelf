@@ -42,6 +42,26 @@ public class NotificationsController(ILogger<NotificationsController> logger, IN
     }
 
     /// <summary>
+    /// Get all notifications for the current user.
+    /// </summary>
+    /// <param name="userId">The user id.</param>
+    /// <returns>A list of notifications.</returns>
+    [HttpGet("stats")]
+    public async Task<ActionResult<NotificationStatsDto>> GetStats(Guid userId)
+    {
+        try
+        {
+            var notifications = await this.logic.GetStatsAsync(userId);
+            return this.Ok(notifications);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching notification stats");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Mark all notifications as read.
     /// </summary>
     /// <param name="userId">The user id.</param>

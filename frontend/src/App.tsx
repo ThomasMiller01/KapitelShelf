@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactElement, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 
+import { GlobalPollerCollection } from "./components/poller/GlobalPollerCollection";
 import { ApiProvider } from "./contexts/ApiProvider";
 import { ApiNotificationListener } from "./contexts/notification/ApiNotificationListener";
 import { NotificationProvider } from "./contexts/notification/NotificationProvider";
@@ -31,6 +32,7 @@ function App(): ReactElement {
               <NotificationProvider>
                 <BrowserRouter>
                   <ApiNotificationListener />
+                  <GlobalPollerCollection />
                   <LocalizationProvider
                     dateAdapter={AdapterDayjs}
                     adapterLocale="de"

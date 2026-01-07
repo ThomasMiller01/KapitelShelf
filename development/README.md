@@ -31,5 +31,5 @@ If you want to build and run the mobile app locally, you also need:
 Generate swagger json
 
 ```bash
-dotnet tool install --global Swashbuckle.AspNetCore.Cli
+dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 8.1.2
 ```

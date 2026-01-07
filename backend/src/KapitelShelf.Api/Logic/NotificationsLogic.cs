@@ -115,6 +115,36 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
     }
 
     /// <inheritdoc/>
+    public async Task<NotificationStatsDto> GetStatsAsync(Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var userNotifications = context.Notifications
+            .Where(x => x.UserId == userId && x.ParentId == null)
+            .AsQueryable();
+
+        var unreadNotifications = userNotifications
+            .Where(x => !x.IsRead)
+            .AsQueryable();
+
+        var unreadCount = await unreadNotifications
+            .CountAsync();
+
+        var unreadHasCritical = await unreadNotifications
+            .AnyAsync(x => x.Severity == NotificationSeverity.Critical);
+
+        var totalMessages = await userNotifications
+            .CountAsync();
+
+        return new NotificationStatsDto
+        {
+            UnreadCount = unreadCount,
+            UnreadHasCritical = unreadHasCritical,
+            TotalMessages = totalMessages,
+        };
+    }
+
+    /// <inheritdoc/>
     public async Task<bool> MarkAllAsReadAsync(Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

@@ -8,7 +8,6 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -17,33 +16,15 @@ import FancyText from "../../components/FancyText";
 import { NotificationsBadge } from "../../components/notifications/NotificationsBadge";
 import { NotificationsIcon } from "../../components/notifications/NotificationsIcon";
 import { TasksMenuItem } from "../../components/tasks/TasksMenuItem";
-import { useApi } from "../../contexts/ApiProvider";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import {
   ProfileImageTypeDTO,
   type UserDTO,
 } from "../../lib/api/KapitelShelf.Api/api";
-import { SECOND_MS } from "../../utils/TimeUtils";
 import { ProfileImageTypeToSrc } from "../../utils/UserProfileUtils";
 
 export const ProfileMenu = (): ReactElement => {
   const { profile, clearProfile } = useUserProfile();
-  const { clients } = useApi();
-
-  const { data: unreadNotifications } = useQuery({
-    queryKey: ["notifications-list-unread"],
-    queryFn: async () => {
-      if (profile?.id === undefined) {
-        return;
-      }
-
-      const { data } = await clients.notifications.notificationsGet(
-        profile?.id
-      );
-      return data.filter((x) => !x.isRead);
-    },
-    refetchInterval: 30 * SECOND_MS,
-  });
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -60,10 +41,7 @@ export const ProfileMenu = (): ReactElement => {
 
   return (
     <React.Fragment>
-      <NotificationsBadge
-        notifications={unreadNotifications ?? []}
-        overlap="circular"
-      >
+      <NotificationsBadge overlap="circular">
         <IconButton onClick={handleClick} size="small">
           <UserProfileIcon profile={profile} />
         </IconButton>
@@ -119,15 +97,9 @@ export const ProfileMenu = (): ReactElement => {
         <Divider />
         <MenuItem component={Link} to="/notifications" sx={{ my: "6px" }}>
           <ListItemIcon>
-            <NotificationsIcon
-              notifications={unreadNotifications ?? []}
-              fontSize="small"
-            />
+            <NotificationsIcon fontSize="small" />
           </ListItemIcon>
-          <NotificationsBadge
-            notifications={unreadNotifications ?? []}
-            sx={{ "& .MuiBadge-badge": { right: -8 } }}
-          >
+          <NotificationsBadge sx={{ "& .MuiBadge-badge": { right: -8 } }}>
             Notifications
           </NotificationsBadge>
         </MenuItem>

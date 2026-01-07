@@ -778,6 +778,31 @@ export type NotificationSeverityDto = typeof NotificationSeverityDto[keyof typeo
 
 
 /**
+ * The notification stats dto.
+ * @export
+ * @interface NotificationStatsDto
+ */
+export interface NotificationStatsDto {
+    /**
+     * Gets or sets the amount of unread messages.
+     * @type {number}
+     * @memberof NotificationStatsDto
+     */
+    'unreadCount'?: number;
+    /**
+     * Gets or sets a value indicating whether the user has unread critical messages.
+     * @type {boolean}
+     * @memberof NotificationStatsDto
+     */
+    'unreadHasCritical'?: boolean;
+    /**
+     * Gets or sets the total amount of messages.
+     * @type {number}
+     * @memberof NotificationStatsDto
+     */
+    'totalMessages'?: number;
+}
+/**
  * The notification type dto.
  * @export
  * @enum {number}
@@ -3152,6 +3177,41 @@ export const NotificationsApiAxiosParamCreator = function (configuration?: Confi
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Get all notifications for the current user.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        notificationsStatsGet: async (userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/notifications/stats`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -3216,6 +3276,19 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['NotificationsApi.notificationsReadallPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Get all notifications for the current user.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async notificationsStatsGet(userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NotificationStatsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.notificationsStatsGet(userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['NotificationsApi.notificationsStatsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -3267,6 +3340,16 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
          */
         notificationsReadallPost(userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.notificationsReadallPost(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get all notifications for the current user.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        notificationsStatsGet(userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<NotificationStatsDto> {
+            return localVarFp.notificationsStatsGet(userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -3326,6 +3409,18 @@ export class NotificationsApi extends BaseAPI {
      */
     public notificationsReadallPost(userId?: string, options?: RawAxiosRequestConfig) {
         return NotificationsApiFp(this.configuration).notificationsReadallPost(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get all notifications for the current user.
+     * @param {string} [userId] The user id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationsApi
+     */
+    public notificationsStatsGet(userId?: string, options?: RawAxiosRequestConfig) {
+        return NotificationsApiFp(this.configuration).notificationsStatsGet(userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
