@@ -7,6 +7,7 @@ import {
   CardActionArea,
   CardActions,
   CardContent,
+  Container,
   Stack,
   styled,
   Tooltip,
@@ -33,11 +34,13 @@ export interface TitleBadgeProps extends BadgeProps {
 
 const TitleBadge = styled(Badge, {
   shouldForwardProp: (prop) => prop !== "badgeColor",
-})<TitleBadgeProps>(({ theme, badgeColor }) => ({
+})<TitleBadgeProps>(({ theme, badgeColor, badgeContent }) => ({
+  paddingRight: 20,
   "& .MuiBadge-badge": {
-    right: -20,
-    top: 10,
-    padding: "0 4px",
+    right: 0,
+    top: 0,
+    transform: "translateX(8px)",
+    display: badgeContent ? "inline-block" : "none", // required because of the transform
     borderRadius: 6,
     backgroundColor: GetColor(badgeColor, theme),
   },
@@ -65,70 +68,80 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         component={Link}
         to={`/notifications/${notification.id}`}
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
           paddingRight: isMobile ? "0" : "10px",
         }}
       >
-        <CardContent sx={{ padding: "6px 10px !important" }}>
-          <TitleBadge
-            badgeContent={notification.children?.length}
-            max={9}
-            color="primary"
-            badgeColor={NotificationSeverityColor(notification)}
-          >
-            <Stack direction="row" spacing={1.1} alignItems="start">
-              <Box pt="2px">
-                <Tooltip
-                  arrow
-                  disableInteractive
-                  placement="top"
-                  title={
-                    <Stack direction="row" alignItems="baseline" spacing={1}>
-                      <Typography variant="subtitle1">
-                        {NotificationTypeToString(notification.type)}
-                      </Typography>
-                      <Typography
-                        variant="overline"
-                        sx={{
-                          lineHeight: 1.5,
-                          fontWeight: "bold",
-                          color: NotificationSeverityColor(notification),
-                        }}
-                      >
-                        [{NotificationSeverityToString(notification.severity)}]
-                      </Typography>
-                    </Stack>
-                  }
-                >
-                  <Box>{NotificationTypeIcon(notification)}</Box>
-                </Tooltip>
-              </Box>
-              <Stack>
-                <Typography variant="subtitle1" component="div">
-                  {notification.title}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  {notification.message}
-                </Typography>
+        <CardContent
+          sx={{
+            padding: "6px 10px !important",
+            display: "flex",
+            gap: "15px",
+            justifyContent: "space-between",
+          }}
+        >
+          <Container disableGutters maxWidth="sm" sx={{ m: 0 }}>
+            <TitleBadge
+              badgeContent={notification.children?.length}
+              max={9}
+              color="primary"
+              badgeColor={NotificationSeverityColor(notification)}
+            >
+              <Stack direction="row" spacing={1.1} alignItems="start">
+                <Box pt="2px">
+                  <Tooltip
+                    arrow
+                    disableInteractive
+                    placement="top"
+                    title={
+                      <Stack direction="row" alignItems="baseline" spacing={1}>
+                        <Typography variant="subtitle1">
+                          {NotificationTypeToString(notification.type)}
+                        </Typography>
+                        <Typography
+                          variant="overline"
+                          sx={{
+                            lineHeight: 1.5,
+                            fontWeight: "bold",
+                            color: NotificationSeverityColor(notification),
+                          }}
+                        >
+                          [{NotificationSeverityToString(notification.severity)}
+                          ]
+                        </Typography>
+                      </Stack>
+                    }
+                  >
+                    <Box>{NotificationTypeIcon(notification)}</Box>
+                  </Tooltip>
+                </Box>
+                <Stack>
+                  <Typography variant="subtitle1" component="div">
+                    {notification.title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {notification.message}
+                  </Typography>
+                </Stack>
               </Stack>
-            </Stack>
-          </TitleBadge>
+            </TitleBadge>
+          </Container>
+
+          {!isMobile && (
+            <>
+              <Property label="Expires In" tooltip={notification.expires}>
+                <Typography noWrap>
+                  {FormatTimeUntil(notification.expires, false)}
+                </Typography>
+              </Property>
+
+              <Property label="Source">
+                <Typography variant="overline">
+                  {notification.source}
+                </Typography>
+              </Property>
+            </>
+          )}
         </CardContent>
-
-        {!isMobile && (
-          <>
-            <Property label="Expires In" tooltip={notification.expires}>
-              <Typography>
-                {FormatTimeUntil(notification.expires, false)}
-              </Typography>
-            </Property>
-
-            <Property label="Source">
-              <Typography variant="overline">{notification.source}</Typography>
-            </Property>
-          </>
-        )}
       </CardActionArea>
 
       <CardActions>

@@ -48,7 +48,6 @@ export const NotificationsPage = (): ReactElement => {
   return (
     <Box padding={isMobile ? "10px" : "20px"} paddingTop="20px">
       <NotificationsBadge
-        notifications={data?.filter((x) => !x.isRead) ?? []}
         sx={{
           "& .MuiBadge-badge": {
             border: `2px solid #121212`,
