@@ -30,7 +30,7 @@ const DetailNotificationCard: React.FC<NotificationCardProps> = (props) => {
       hideChildCount
       disableLink
       hideActions
-      showDetailsOnMobile
+      showDetails
     />
   );
 };

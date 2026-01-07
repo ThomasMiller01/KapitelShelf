@@ -51,7 +51,7 @@ export interface NotificationCardProps {
   hideReadStatus?: boolean;
   disableLink?: boolean;
   hideActions?: boolean;
-  showDetailsOnMobile?: boolean;
+  showDetails?: boolean;
 }
 
 export const NotificationCard: React.FC<NotificationCardProps> = ({
@@ -60,7 +60,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   hideReadStatus = false,
   disableLink = false,
   hideActions = false,
-  showDetailsOnMobile = false,
+  showDetails = false,
 }) => {
   const { isMobile } = useMobile();
   return (
@@ -139,8 +139,19 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
             </TitleBadge>
           </Container>
 
-          {(!isMobile || showDetailsOnMobile) && (
+          {showDetails && (
             <>
+              <Property label="Created" tooltip={notification.created}>
+                <Stack direction="row" spacing={0.5} alignItems="end">
+                  <Typography noWrap>
+                    {FormatTimeUntil(notification.created, true, "time")}
+                  </Typography>
+                  <Typography variant="body2" color="secondary" noWrap>
+                    {FormatTimeUntil(notification.created, true, "date")}
+                  </Typography>
+                </Stack>
+              </Property>
+
               <Property label="Expires In" tooltip={notification.expires}>
                 <Typography noWrap>
                   {FormatTimeUntil(notification.expires, false)}

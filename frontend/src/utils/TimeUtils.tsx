@@ -6,7 +6,13 @@ export const WEEK_MS = 7 * DAY_MS;
 export const MONTH_MS = 30 * DAY_MS;
 export const YEAR_MS = 365 * DAY_MS;
 
-type FormatTimeUntilMode = "auto" | "calender" | "readable";
+type FormatTimeUntilMode =
+  | "auto"
+  | "calender"
+  | "readable"
+  | "date"
+  | "time"
+  | "datetime";
 
 export const FormatTime = (dateUtc?: string | null): string => {
   if (!dateUtc) {
@@ -107,5 +113,14 @@ export const FormatTimeUntil = (
         return `${preText}about ${months} months${postText}`;
       }
       return `${preText}over a year${postText}`;
+
+    case "date":
+      return date;
+
+    case "time":
+      return localeDate.toLocaleTimeString();
+
+    case "datetime":
+      return localeDate.toLocaleString();
   }
 };
