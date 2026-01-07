@@ -141,7 +141,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
 
           {showDetails && (
             <>
-              <Property label="Created" tooltip={notification.created}>
+              <Property label="Created">
                 <Stack direction="row" spacing={0.5} alignItems="end">
                   <Typography noWrap>
                     {FormatTimeUntil(notification.created, true, "time")}
