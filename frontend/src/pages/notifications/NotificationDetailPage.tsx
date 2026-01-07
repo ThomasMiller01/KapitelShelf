@@ -52,7 +52,7 @@ const NotificationDetailPage = (): ReactElement => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["notifications-stats"],
+        queryKey: ["notifications-stats", profile?.id],
       });
     },
   });

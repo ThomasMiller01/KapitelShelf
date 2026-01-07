@@ -2,7 +2,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import { Box, Stack, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, type ReactElement } from "react";
 
 import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
@@ -26,6 +26,7 @@ export const NotificationsPage = (): ReactElement => {
 
   const { clients } = useApi();
   const { profile } = useUserProfile();
+  const queryClient = useQueryClient();
 
   const {
     data: notifications,
@@ -61,6 +62,35 @@ export const NotificationsPage = (): ReactElement => {
       );
     });
   }, [notifications, hiddenSeverities, hiddenTypes]);
+
+  const { mutate: markAllAsRead } = useMutation({
+    mutationFn: async () => {
+      if (profile?.id === undefined) {
+        return;
+      }
+
+      await clients.notifications.notificationsReadallPost(profile.id);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["notifications-list", profile?.id],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["notifications-stats", profile?.id],
+        }),
+      ]);
+    },
+    meta: {
+      notify: {
+        enabled: true,
+        operation: `Marking all notification as read`,
+        showLoading: true,
+        showSuccess: false,
+        showError: true,
+      },
+    },
+  });
 
   if (isLoading) {
     return <LoadingCard delayed itemName="Notifications" small />;
@@ -111,6 +141,7 @@ export const NotificationsPage = (): ReactElement => {
         <ButtonWithTooltip
           tooltip="Mark all as Read"
           startIcon={<DoneAllIcon />}
+          onClick={() => markAllAsRead()}
         >
           Read All
         </ButtonWithTooltip>
