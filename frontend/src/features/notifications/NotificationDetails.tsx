@@ -1,5 +1,8 @@
 import { Stack } from "@mui/material";
-import { NotificationDetailsCard } from "../../components/notifications/NotificationDetailsCard";
+import {
+  NotificationCard,
+  NotificationCardProps,
+} from "../../components/notifications/NotificationCard";
 import type { NotificationDto } from "../../lib/api/KapitelShelf.Api/api";
 
 interface NotificationDetailsProps {
@@ -10,12 +13,25 @@ const NotificationDetails: React.FC<NotificationDetailsProps> = ({
   notification,
 }) => {
   return (
-    <Stack spacing={1} p={3}>
+    <Stack spacing={1} p={{ xs: 1, sm: 3 }}>
       {notification.children?.map((child) => (
-        <NotificationDetailsCard key={child.id} notification={child} />
+        <DetailNotificationCard key={child.id} notification={child} />
       ))}
-      <NotificationDetailsCard notification={notification} />
+      <DetailNotificationCard notification={notification} />
     </Stack>
+  );
+};
+
+const DetailNotificationCard: React.FC<NotificationCardProps> = (props) => {
+  return (
+    <NotificationCard
+      {...props}
+      hideReadStatus
+      hideChildCount
+      disableLink
+      hideActions
+      showDetailsOnMobile
+    />
   );
 };
 
