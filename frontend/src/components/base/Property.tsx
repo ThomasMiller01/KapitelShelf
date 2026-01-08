@@ -24,7 +24,10 @@ export const Property: React.FC<PropertyProps> = ({
     disableTouchListener={!tooltip}
     sx={{ width }}
   >
-    <Stack spacing={0.3} sx={{ opacity: disabled ? 0.5 : 1 }}>
+    <Stack
+      spacing={0.3}
+      sx={{ opacity: disabled ? 0.5 : 1, height: "100%", width: "fit-content" }}
+    >
       <Typography variant="subtitle2" color="text.secondary">
         {label}
       </Typography>

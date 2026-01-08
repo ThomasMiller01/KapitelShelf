@@ -52,10 +52,10 @@ public class UpdateWatchlists(
                 _ = this.Notifications.AddNotification(
                     "UpdateWatchlistSeriesFailed",
                     titleArgs: [watchlist.Series.Name],
-                    messageArgs: [watchlist.Series.Name, ex],
+                    messageArgs: [watchlist.Series.Name, ex.Message],
                     type: NotificationTypeDto.Error,
                     severity: NotificationSeverityDto.High,
-                    source: "'Update Watchlists' Task");
+                    source: "Task [Update Watchlists]");
 
                 this.Logger.LogError(ex, "Error updating series watchlist with id {Id}", watchlist.Id);
             }
