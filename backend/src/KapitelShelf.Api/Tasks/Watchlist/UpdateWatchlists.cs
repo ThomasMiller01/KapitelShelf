@@ -55,7 +55,8 @@ public class UpdateWatchlists(
                     messageArgs: [watchlist.Series.Name, ex.Message],
                     type: NotificationTypeDto.Error,
                     severity: NotificationSeverityDto.High,
-                    source: "Task [Update Watchlists]");
+                    source: "Task [Update Watchlists]",
+                    userId: watchlist.UserId);
 
                 this.Logger.LogError(ex, "Error updating series watchlist with id {Id}", watchlist.Id);
             }

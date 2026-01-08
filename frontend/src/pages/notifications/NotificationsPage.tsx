@@ -132,6 +132,7 @@ export const NotificationsPage = (): ReactElement => {
           items={notifications ?? []}
           extractValue={(x) => NotificationTypeToString(x.type)}
           onHiddenOptionsChange={(next) => setHiddenTypes(next)}
+          defaultHiddenOptions={["System"]}
           settingsKey="notifications.hide.type"
           subIcon={<CategoryIcon fontSize="small" />}
           tooltip="Hide notifications by type"

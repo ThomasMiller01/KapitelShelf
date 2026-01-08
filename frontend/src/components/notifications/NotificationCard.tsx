@@ -182,6 +182,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                       color: "text.secondary",
                       width: "98%",
                       wordBreak: "break-word",
+                      whiteSpace: "pre-wrap",
                       ...(showDetails
                         ? {}
                         : {

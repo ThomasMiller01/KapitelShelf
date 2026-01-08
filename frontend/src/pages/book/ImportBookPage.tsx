@@ -1,6 +1,6 @@
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Box, Divider } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useCallback } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -17,6 +17,7 @@ const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();
   const { clients } = useApi();
   const { triggerNavigate, triggerError } = useNotification();
+  const queryClient = useQueryClient();
 
   const { mutateAsync: mutateImportBook } = useMutation({
     mutationKey: ["import-book"],
@@ -66,6 +67,9 @@ const ImportBookPage = (): ReactElement => {
           operation: "Importing Books",
           errorMessage: `${importResult.errors.length} Error(s) occurred`,
         });
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ["notifications-stats"] });
+        }, 500);
       }
 
       // if there were any books imported, offer navigation to the library

@@ -117,10 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BookBulkImportFailed_Message" xml:space="preserve">
+    <value>Some books could not be imported:
+- {0}</value>
+  </data>
+  <data name="BookBulkImportFailed_Title" xml:space="preserve">
+    <value>Book import incomplete ({0} items)</value>
+  </data>
+  <data name="TaskExecuteFailed_Message" xml:space="preserve">
+    <value>The task '{0}' could not be completed. 
+Reason:'{1}'</value>
+  </data>
+  <data name="TaskExecuteFailed_Title" xml:space="preserve">
+    <value>Task '{0}' failed.</value>
+  </data>
   <data name="UpdateWatchlistSeriesFailed_Message" xml:space="preserve">
-    <value>During the update of the watchlist series '{0}', the following error was encountered: '{1}'.</value>
+    <value>The watchlist series '{0}' could not be updated.
+Reason: '{1}'</value>
   </data>
   <data name="UpdateWatchlistSeriesFailed_Title" xml:space="preserve">
-    <value>Could not update watchlist series '{0}'.</value>
+    <value>Watchlist update failed</value>
   </data>
 </root>

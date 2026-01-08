@@ -4,6 +4,8 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using DocumentFormat.OpenXml.Drawing;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces;
 using Quartz;
@@ -31,10 +33,10 @@ public abstract class TaskBase(
     /// <inheritdoc/>
     public async Task Execute(IJobExecutionContext context)
     {
+        ArgumentNullException.ThrowIfNull(context);
+
         try
         {
-            ArgumentNullException.ThrowIfNull(context);
-
             this.DataStore.SetProgress(JobKey(context), 0);
 
             await this.ExecuteTask(context);
@@ -52,6 +54,14 @@ public abstract class TaskBase(
         }
         catch (Exception ex)
         {
+            _ = this.Notifications.AddNotification(
+                    "TaskExecuteFailed",
+                    titleArgs: [context.JobDetail.Key],
+                    messageArgs: [context.JobDetail.Description ?? "-", ex.Message],
+                    type: NotificationTypeDto.System,
+                    severity: NotificationSeverityDto.Medium,
+                    source: "Task Base");
+
             this.Logger.LogError(ex, "Error during task execution");
         }
     }
