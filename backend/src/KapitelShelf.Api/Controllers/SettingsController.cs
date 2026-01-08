@@ -4,7 +4,7 @@
 
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic.Interfaces;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;

@@ -11,12 +11,13 @@ namespace KapitelShelf.Api.Tasks.Maintenance;
 /// <summary>
 /// Removes all expired notifications.
 /// </summary>
-public class CleanupExpiredNotifications(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, INotificationsLogic logic) : TaskBase(dataStore, logger)
+public class CleanupExpiredNotifications(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications) : TaskBase(dataStore, logger, notifications)
 {
-    private readonly INotificationsLogic logic = logic;
-
     /// <inheritdoc/>
-    public override async Task ExecuteTask(IJobExecutionContext context) => await this.logic.DeleteExpiredNotificationsAsync();
+    public override async Task ExecuteTask(IJobExecutionContext context) => await this.Notifications.DeleteExpiredNotificationsAsync();
 
     /// <inheritdoc/>
     public override async Task Kill() => await Task.CompletedTask;

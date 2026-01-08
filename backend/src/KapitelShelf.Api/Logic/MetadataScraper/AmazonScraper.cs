@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 
 namespace KapitelShelf.Api.Logic.MetadataScraper;
 

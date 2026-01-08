@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Notifications;
+using KapitelShelf.Api.Localization;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
@@ -14,25 +15,42 @@ namespace KapitelShelf.Api.Logic;
 /// <summary>
 /// The notifications logic.
 /// </summary>
-public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper) : INotificationsLogic
+public class NotificationsLogic(
+    IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
+    Mapper mapper,
+    LocalizationProvider<Notifications> notificationsLocalizations
+) : INotificationsLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly Mapper mapper = mapper;
 
-    /// <summary>
-    /// Add a notification.
-    /// </summary>
-    /// <param name="title">The title.</param>
-    /// <param name="message">The message.</param>
-    /// <param name="type">The type.</param>
-    /// <param name="severity">The severity.</param>
-    /// <param name="expires">The expiry date.</param>
-    /// <param name="source">The source.</param>
-    /// <param name="userId">The user id.</param>
-    /// <param name="parentId">The parent id.</param>
-    /// <returns>A task.</returns>
-    /// <remarks>If userId is null, the notification will be added to all users.</remarks>
+    private readonly LocalizationProvider<Notifications> notificationsLocalizations = notificationsLocalizations;
+
+    /// <inheritdoc/>
+    public async Task AddNotification(
+        string localizationKey,
+        object[]? titleArgs = null,
+        object[]? messageArgs = null,
+        NotificationTypeDto type = NotificationTypeDto.Info,
+        NotificationSeverityDto severity = NotificationSeverityDto.Low,
+        DateTime? expires = null,
+        string source = "",
+        Guid? userId = null,
+        Guid? parentId = null)
+    {
+        var title = titleArgs is null
+            ? this.notificationsLocalizations.Get($"{localizationKey}_Title")
+            : this.notificationsLocalizations.Get($"{localizationKey}_Title", titleArgs);
+
+        var message = messageArgs is null
+            ? this.notificationsLocalizations.Get($"{localizationKey}_Message")
+            : this.notificationsLocalizations.Get($"{localizationKey}_Message", messageArgs);
+
+        await this.AddNotification(title, message, type, severity, expires, source, userId, parentId);
+    }
+
+    /// <inheritdoc/>
     public async Task AddNotification(
         string title,
         string message,
@@ -62,13 +80,19 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
 
         // if a notification with that title already exists,
         // add this notification as a child of the existing one
+#pragma warning disable CA1304 // Specify CultureInfo
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+#pragma warning disable CA1311 // Specify a culture or use an invariant version
         var existingParent = await context.Notifications
             .Where(x =>
                 x.UserId == userId &&
                 x.ParentId == null &&
                 x.Title != null &&
-                x.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+                x.Title.ToLower() == title.ToLower())
             .FirstOrDefaultAsync();
+#pragma warning restore CA1311 // Specify a culture or use an invariant version
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+#pragma warning restore CA1304 // Specify CultureInfo
         var parentToUse = parentId ?? existingParent?.Id;
 
         var notificationModel = new NotificationModel
@@ -78,7 +102,7 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             Type = this.mapper.NotificationTypeDtoToNotificationType(type),
             Severity = this.mapper.NotificationSeverityDtoToNotificationSeverity(severity),
             Created = DateTime.UtcNow,
-            Expires = expires ?? DateTime.MaxValue,
+            Expires = expires ?? DateTime.UtcNow.AddDays(7),
             IsRead = false,
             Source = source,
             UserId = (Guid)userId,
@@ -124,7 +148,7 @@ public class NotificationsLogic(IDbContextFactory<KapitelShelfDBContext> dbConte
             .AsQueryable();
 
         var unreadNotifications = userNotifications
-            .Where(x => !x.IsRead)
+            .Where(x => !x.IsRead || x.Children.Any(c => !c.IsRead))
             .AsQueryable();
 
         var unreadCount = await unreadNotifications

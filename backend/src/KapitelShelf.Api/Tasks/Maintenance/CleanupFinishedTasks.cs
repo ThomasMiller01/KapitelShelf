@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using Quartz;
 using Quartz.Impl.Matchers;
 
@@ -11,7 +12,11 @@ namespace KapitelShelf.Api.Tasks.Maintenance;
 /// <summary>
 /// Remove finished jobs and restart error jobs.
 /// </summary>
-public class CleanupFinishedTasks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ISchedulerFactory schedulerFactory) : TaskBase(dataStore, logger)
+public class CleanupFinishedTasks(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
+    ISchedulerFactory schedulerFactory) : TaskBase(dataStore, logger, notifications)
 {
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 

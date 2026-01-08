@@ -5,7 +5,7 @@
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers;

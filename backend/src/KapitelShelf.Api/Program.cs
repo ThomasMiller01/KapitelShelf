@@ -2,10 +2,12 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api;
+using KapitelShelf.Api.Localization;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces;
@@ -13,11 +15,13 @@ using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Mappings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -133,6 +137,13 @@ builder.Services.AddHostedService<StartupTasksHostedService>();
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<KapitelShelfDBContext>("CheckDatabase");
 
+// localization
+builder.Services.AddLocalization(options =>
+{
+    options.ResourcesPath = "Resources";
+});
+builder.Services.AddTransient<LocalizationProvider<KapitelShelf.Api.Localization.Notifications>>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -170,6 +181,19 @@ app.MapHealthChecks("/health/startup", new HealthCheckOptions
 {
     // Checks all registered health checks (startup, same as readiness)
     Predicate = _ => true,
+});
+
+// localization
+var supportedCultures = new[]
+{
+    new CultureInfo("en"),
+};
+
+app.UseRequestLocalization(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("en");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
 });
 
 app.Run();

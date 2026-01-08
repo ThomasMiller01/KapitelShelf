@@ -7,7 +7,7 @@ using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 

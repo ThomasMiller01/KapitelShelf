@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Data;
@@ -13,7 +14,12 @@ namespace KapitelShelf.Api.Tasks.Watchlist;
 /// <summary>
 /// Updates the watchlist results for series watchlists.
 /// </summary>
-public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, IWatchlistLogic logic, IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger)
+public class UpdateWatchlists(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
+    IWatchlistLogic logic,
+    IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger, notifications)
 {
     private readonly IWatchlistLogic logic = logic;
 
@@ -43,6 +49,14 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
             }
             catch (Exception ex)
             {
+                _ = this.Notifications.AddNotification(
+                    "UpdateWatchlistSeriesFailed",
+                    titleArgs: [watchlist.Series.Name],
+                    messageArgs: [watchlist.Series.Name, ex],
+                    type: NotificationTypeDto.Error,
+                    severity: NotificationSeverityDto.High,
+                    source: "'Update Watchlists' Task");
+
                 this.Logger.LogError(ex, "Error updating series watchlist with id {Id}", watchlist.Id);
             }
 

@@ -137,8 +137,14 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
               max={9}
               color="primary"
               badgeColor={NotificationSeverityColor(notification)}
+              sx={{ width: "100%" }}
             >
-              <Stack direction="row" spacing={1.1} alignItems="start">
+              <Stack
+                direction="row"
+                spacing={1.1}
+                alignItems="start"
+                sx={{ width: "100%" }}
+              >
                 <Box pt="2px">
                   <Tooltip
                     arrow
@@ -166,11 +172,25 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                     <Box>{NotificationTypeIcon(notification)}</Box>
                   </Tooltip>
                 </Box>
-                <Stack>
+                <Stack sx={{ width: "100%" }}>
                   <Typography variant="subtitle1" component="div">
                     {notification.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      width: "98%",
+                      wordBreak: "break-word",
+                      ...(showDetails
+                        ? {}
+                        : {
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }),
+                    }}
+                  >
                     {notification.message}
                   </Typography>
                 </Stack>

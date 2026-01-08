@@ -4,6 +4,7 @@
 
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Mappings;
 using Quartz;
@@ -14,7 +15,12 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// Scan the cloud storages for books.
 /// </summary>
 [DisallowConcurrentExecution]
-public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic, Mapper mapper) : TaskBase(dataStore, logger)
+public class ScanForBooks(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
+    ICloudStoragesLogic logic,
+    Mapper mapper) : TaskBase(dataStore, logger, notifications)
 {
     private readonly ICloudStoragesLogic logic = logic;
 
