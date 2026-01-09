@@ -516,8 +516,6 @@ public class CloudStoragesLogic(
             source: "Cloud Storage",
             disableAutoGrouping: true);
 
-        var startedNotification = startedNotifications.FirstOrDefault();
-
         var localPath = this.storage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
         if (!Directory.Exists(localPath))
         {
@@ -566,12 +564,15 @@ public class CloudStoragesLogic(
 
         await this.MarkStorageAsDownloaded(storage.Id);
 
-        _ = this.notifications.AddNotification(
-            "CloudStorageInitialDownloadFinished",
-            type: NotificationTypeDto.Success,
-            severity: NotificationSeverityDto.Low,
-            source: "Cloud Storage",
-            parentId: startedNotification?.Id);
+        foreach (var startedNotification in startedNotifications)
+        {
+            _ = this.notifications.AddNotification(
+                "CloudStorageInitialDownloadFinished",
+                type: NotificationTypeDto.Success,
+                severity: NotificationSeverityDto.Low,
+                source: "Cloud Storage",
+                parentId: startedNotification.Id);
+        }
     }
 
     /// <inheritdoc/>

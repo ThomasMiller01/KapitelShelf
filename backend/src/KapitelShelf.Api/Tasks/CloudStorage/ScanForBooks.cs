@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
@@ -118,6 +119,15 @@ public class ScanForBooks(
             return;
         }
 
+        var startedNotifications = await this.Notifications.AddNotification(
+            "CloudStorageSingleScanForBookStarted",
+            titleArgs: [$"{storageModel.Type}-{storageModel.CloudOwnerName}"],
+            messageArgs: [storageModel.CloudDirectory ?? "-"],
+            type: NotificationTypeDto.Info,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            disableAutoGrouping: true);
+
         this.DataStore.SetMessage(JobKey(context), $"Scanning '{storageModel.CloudDirectory}' [{storageModel.Type}]");
 
         // check for interrupts and update task progress
@@ -130,6 +140,16 @@ public class ScanForBooks(
         // download new data
         var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
         await this.logic.ScanStorageForBooks(storage, onFileScanned: OnFileScanned);
+
+        foreach (var startedNotification in startedNotifications)
+        {
+            _ = this.Notifications.AddNotification(
+                "CloudStorageSingleScanForBookFinished",
+                type: NotificationTypeDto.Success,
+                severity: NotificationSeverityDto.Low,
+                source: "Cloud Storage",
+                parentId: startedNotification.Id);
+        }
     }
 
     /// <summary>

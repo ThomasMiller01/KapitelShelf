@@ -139,7 +139,7 @@ Reason: {1}</value>
     <value>Failed to delete cloudstorage '{0}'</value>
   </data>
   <data name="CloudStorageInitialDownloadFinished_Message" xml:space="preserve">
-    <value>The initial download of has completed successfully.</value>
+    <value>The initial download has completed successfully.</value>
   </data>
   <data name="CloudStorageInitialDownloadFinished_Title" xml:space="preserve">
     <value>Cloudstorage download completed</value>
@@ -156,6 +156,30 @@ Reason: {1}</value>
   </data>
   <data name="CloudStorageListDirectoriesDirectoryNotFound_Title" xml:space="preserve">
     <value>Directory not found in cloudstorage  '{0}'</value>
+  </data>
+  <data name="CloudStorageSingleScanForBookFinished_Message" xml:space="preserve">
+    <value>The scan for books has completed successfully.</value>
+  </data>
+  <data name="CloudStorageSingleScanForBookFinished_Title" xml:space="preserve">
+    <value>Cloudstorage scan for books completed</value>
+  </data>
+  <data name="CloudStorageSingleScanForBookStarted_Message" xml:space="preserve">
+    <value>The scan for books has started for the directory '{0}'. This may take a while depending on the number of files.</value>
+  </data>
+  <data name="CloudStorageSingleScanForBookStarted_Title" xml:space="preserve">
+    <value>Cloudsstorage scan for books started for '{0}'</value>
+  </data>
+  <data name="CloudStorageSingleSyncFinished_Message" xml:space="preserve">
+    <value>The sync has completed successfully.</value>
+  </data>
+  <data name="CloudStorageSingleSyncFinished_Title" xml:space="preserve">
+    <value>Cloudstorage sync completed</value>
+  </data>
+  <data name="CloudStorageSingleSyncStarted_Message" xml:space="preserve">
+    <value>The sync has started for the directory '{0}'. This may take a while depending on the number of files.</value>
+  </data>
+  <data name="CloudStorageSingleSyncStarted_Title" xml:space="preserve">
+    <value>Cloudsstorage sync started for '{0}'</value>
   </data>
   <data name="TaskExecuteFailed_Message" xml:space="preserve">
     <value>The task '{0}' could not be completed. 
