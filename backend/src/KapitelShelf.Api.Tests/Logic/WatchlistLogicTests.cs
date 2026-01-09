@@ -16,6 +16,7 @@ using KapitelShelf.Data.Models.User;
 using KapitelShelf.Data.Models.Watchlists;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Testcontainers.PostgreSql;
 
@@ -37,6 +38,8 @@ public class WatchlistLogicTests
     private IWatchlistScraperManager watchlistScraperManager;
     private IBookStorage bookStorage;
     private IMetadataLogic metadataLogic;
+    private ILogger<WatchlistLogic> logger;
+    private INotificationsLogic notificationsLogic;
     private WatchlistLogic testee;
 
     /// <summary>
@@ -90,7 +93,18 @@ public class WatchlistLogicTests
         this.watchlistScraperManager = Substitute.For<IWatchlistScraperManager>();
         this.bookStorage = Substitute.For<IBookStorage>();
         this.metadataLogic = Substitute.For<IMetadataLogic>();
-        this.testee = new WatchlistLogic(this.dbContextFactory, this.mapper, this.seriesLogic, this.booksLogic, this.watchlistScraperManager, this.bookStorage, this.metadataLogic);
+        this.logger = Substitute.For<ILogger<WatchlistLogic>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
+        this.testee = new WatchlistLogic(
+            this.dbContextFactory,
+            this.mapper,
+            this.seriesLogic,
+            this.booksLogic,
+            this.watchlistScraperManager,
+            this.bookStorage,
+            this.metadataLogic,
+            this.logger,
+            this.notificationsLogic);
     }
 
     /// <summary>

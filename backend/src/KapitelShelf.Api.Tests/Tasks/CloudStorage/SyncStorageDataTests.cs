@@ -4,6 +4,8 @@
 
 using System.Diagnostics;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Notifications;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Tasks;
@@ -25,6 +27,7 @@ public class SyncStorageDataTests
     private SyncStorageData testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private ICloudStoragesLogic logic;
     private Mapper mapper;
     private IJobExecutionContext context;
@@ -38,6 +41,7 @@ public class SyncStorageDataTests
         // Setup
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
         this.mapper = Testhelper.CreateMapper();
         this.context = Substitute.For<IJobExecutionContext>();
@@ -47,7 +51,7 @@ public class SyncStorageDataTests
         jobDetail.Key.Returns(jobKey);
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new SyncStorageData(this.dataStore, this.logger, this.logic, this.mapper);
+        this.testee = new SyncStorageData(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.mapper);
     }
 
     /// <summary>
@@ -159,6 +163,16 @@ public class SyncStorageDataTests
 
         this.testee.ForSingleStorageId = storage.Id;
         this.logic.GetStorageModel(storage.Id).Returns(storage);
+
+        this.notificationsLogic.AddNotification(
+            Arg.Any<string>(),
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: Arg.Any<NotificationTypeDto>(),
+            severity: Arg.Any<NotificationSeverityDto>(),
+            source: Arg.Any<string>(),
+            disableAutoGrouping: Arg.Any<bool>())
+            .Returns(Task.FromResult<List<NotificationDto>>([]));
 
         // Execute
         await this.testee.ExecuteTask(this.context);

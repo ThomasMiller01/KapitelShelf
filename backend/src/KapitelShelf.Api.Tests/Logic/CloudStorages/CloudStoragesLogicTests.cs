@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
@@ -16,6 +17,7 @@ using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.CloudStorage;
+using KapitelShelf.Data.Models.Notifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -44,6 +46,7 @@ public class CloudStoragesLogicTests
     private IBookParserManager bookParserManager;
     private IBooksLogic booksLogic;
     private IDynamicSettingsManager dynamicSettings;
+    private INotificationsLogic notificationsLogic;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -108,7 +111,19 @@ public class CloudStoragesLogicTests
         this.bookParserManager = Substitute.For<IBookParserManager>();
         this.booksLogic = Substitute.For<IBooksLogic>();
         this.dynamicSettings = Substitute.For<IDynamicSettingsManager>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger, this.bookParserManager, this.booksLogic, this.dynamicSettings);
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
+        this.testee = new CloudStoragesLogic(
+            this.dbContextFactory,
+            this.mapper,
+            this.settings,
+            this.schedulerFactory,
+            this.processUtils,
+            this.storage,
+            this.logger,
+            this.bookParserManager,
+            this.booksLogic,
+            this.dynamicSettings,
+            this.notificationsLogic);
     }
 
     /// <summary>
@@ -1192,6 +1207,16 @@ public class CloudStoragesLogicTests
                 Key = StaticConstants.DynamicSettingCloudStorageExperimentalBisync,
                 Value = true,
             }));
+
+        this.notificationsLogic.AddNotification(
+            Arg.Any<string>(),
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: Arg.Any<NotificationTypeDto>(),
+            severity: Arg.Any<NotificationSeverityDto>(),
+            source: Arg.Any<string>(),
+            disableAutoGrouping: Arg.Any<bool>())
+            .Returns(Task.FromResult<List<NotificationDto>>([]));
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {

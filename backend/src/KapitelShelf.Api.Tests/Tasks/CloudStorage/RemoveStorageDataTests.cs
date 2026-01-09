@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.CloudStorage;
@@ -21,6 +22,7 @@ public class RemoveStorageDataTests
     private RemoveStorageData testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private ICloudStoragesLogic logic;
     private IJobExecutionContext context;
 
@@ -33,6 +35,7 @@ public class RemoveStorageDataTests
         // Setup
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
@@ -41,7 +44,7 @@ public class RemoveStorageDataTests
         jobDetail.Key.Returns(jobKey);
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new RemoveStorageData(this.dataStore, this.logger, this.logic);
+        this.testee = new RemoveStorageData(this.dataStore, this.logger, this.notificationsLogic, this.logic);
     }
 
     /// <summary>

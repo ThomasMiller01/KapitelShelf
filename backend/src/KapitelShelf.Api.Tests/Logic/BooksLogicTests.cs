@@ -42,6 +42,7 @@ public class BooksLogicTests
     private IBookParserManager bookParserManager;
     private IBookStorage bookStorage;
     private IMetadataScraperManager metadataScraperManager;
+    private INotificationsLogic notificationsLogic;
     private BooksLogic testee;
 
     /// <summary>
@@ -94,7 +95,8 @@ public class BooksLogicTests
         this.bookParserManager = Substitute.For<IBookParserManager>();
         this.bookStorage = Substitute.For<IBookStorage>();
         this.metadataScraperManager = Substitute.For<IMetadataScraperManager>();
-        this.testee = new BooksLogic(this.dbContextFactory, this.mapper, this.bookParserManager, this.bookStorage, this.metadataScraperManager);
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
+        this.testee = new BooksLogic(this.dbContextFactory, this.mapper, this.bookParserManager, this.bookStorage, this.metadataScraperManager, this.notificationsLogic);
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.Watchlist;
@@ -30,6 +31,7 @@ public class UpdateWatchlistsTests
 
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private IWatchlistLogic logic;
     private IJobExecutionContext context;
     private UpdateWatchlists testee;
@@ -81,6 +83,7 @@ public class UpdateWatchlistsTests
 
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.logic = Substitute.For<IWatchlistLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
@@ -88,7 +91,7 @@ public class UpdateWatchlistsTests
         jobDetail.Key.Returns(new JobKey("UpdateWatchlists", "Group"));
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.logic, this.dbContextFactory);
+        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.dbContextFactory);
     }
 
     /// <summary>
@@ -169,6 +172,16 @@ public class UpdateWatchlistsTests
         }
 
         this.logic.When(x => x.UpdateWatchlist(watchlist.Id)).Do(_ => throw new InvalidOperationException("fail"));
+
+        this.notificationsLogic.AddNotification(
+            Arg.Any<string>(),
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: Arg.Any<NotificationTypeDto>(),
+            severity: Arg.Any<NotificationSeverityDto>(),
+            source: Arg.Any<string>(),
+            disableAutoGrouping: Arg.Any<bool>())
+            .Returns(Task.FromResult<List<NotificationDto>>([]));
 
         // Execute
         await this.testee.ExecuteTask(this.context);

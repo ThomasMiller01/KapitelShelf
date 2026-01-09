@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -17,6 +18,7 @@ public class TaskBaseTests
 {
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private IJobExecutionContext context;
     private TestTaskBase testee;
 
@@ -28,6 +30,7 @@ public class TaskBaseTests
     {
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
         // job key setup
@@ -36,7 +39,7 @@ public class TaskBaseTests
         jobDetail.Key.Returns(jobKey);
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new TestTaskBase(this.dataStore, this.logger);
+        this.testee = new TestTaskBase(this.dataStore, this.logger, this.notificationsLogic);
     }
 
     /// <summary>
@@ -221,7 +224,10 @@ public class TaskBaseTests
         var jobKey = new JobKey("JobC", "GroupC");
         job.Key.Returns(jobKey);
 
-        var taskBase = Substitute.For<TaskBase>(Substitute.For<ITaskRuntimeDataStore>(), Substitute.For<ILogger<TaskBase>>());
+        var taskBase = Substitute.For<TaskBase>(
+            Substitute.For<ITaskRuntimeDataStore>(),
+            Substitute.For<ILogger<TaskBase>>(),
+            Substitute.For<INotificationsLogic>());
         var context = Substitute.For<IJobExecutionContext>();
         context.JobDetail.Returns(job);
         context.JobInstance.Returns(taskBase);
@@ -278,7 +284,10 @@ public class TaskBaseTests
     /// <summary>
     /// Dummy TaskBase implementation.
     /// </summary>
-    private sealed class TestTaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger) : TaskBase(dataStore, logger)
+    private sealed class TestTaskBase(
+        ITaskRuntimeDataStore dataStore,
+        ILogger<TaskBase> logger,
+        INotificationsLogic notifications) : TaskBase(dataStore, logger, notifications)
     {
 #pragma warning disable SA1401 // Fields should be private
         public Func<IJobExecutionContext, Task> OnExecuteTask = _ => Task.CompletedTask;

@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Tasks;
@@ -25,6 +26,7 @@ public class InitialStorageDownloadTests
     private InitialStorageDownload testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private ICloudStoragesLogic logic;
     private Mapper mapper;
     private IJobExecutionContext context;
@@ -37,6 +39,7 @@ public class InitialStorageDownloadTests
     {
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
         this.mapper = Testhelper.CreateMapper();
         this.context = Substitute.For<IJobExecutionContext>();
@@ -45,7 +48,7 @@ public class InitialStorageDownloadTests
         jobDetail.Key.Returns(new JobKey("DownloadJob", "Group"));
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new InitialStorageDownload(this.dataStore, this.logger, this.logic, this.mapper);
+        this.testee = new InitialStorageDownload(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.mapper);
     }
 
     /// <summary>
