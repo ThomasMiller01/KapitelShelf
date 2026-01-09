@@ -59,9 +59,6 @@
     <EmbeddedResource Update="Resources\Localization\Notifications.resx">
       <Generator></Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Settings\Notifications.resx">
-      <Generator></Generator>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
