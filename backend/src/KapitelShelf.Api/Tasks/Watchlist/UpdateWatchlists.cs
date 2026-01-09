@@ -47,18 +47,9 @@ public class UpdateWatchlists(
                 // wait 10 seconds between series
                 await Task.Delay(10000);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _ = this.Notifications.AddNotification(
-                    "UpdateWatchlistSeriesFailed",
-                    titleArgs: [watchlist.Series.Name],
-                    messageArgs: [watchlist.Series.Name, ex.Message],
-                    type: NotificationTypeDto.Error,
-                    severity: NotificationSeverityDto.High,
-                    source: "Task [Update Watchlists]",
-                    userId: watchlist.UserId);
-
-                this.Logger.LogError(ex, "Error updating series watchlist with id {Id}", watchlist.Id);
+                // ignore and continue with other watchlist series
             }
 
             this.DataStore.SetProgress(JobKey(context), i, watchlists.Count);

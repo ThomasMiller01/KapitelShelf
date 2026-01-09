@@ -89,13 +89,17 @@ public class NotificationsLogic(
         if (!disableAutoGrouping && parentToUse == null)
         {
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+#pragma warning disable CA1304 // Specify CultureInfo
+#pragma warning disable CA1311 // Specify a culture or use an invariant version
             var existingParent = await context.Notifications
                 .Where(x =>
                     x.UserId == userId &&
                     x.ParentId == null &&
                     x.Title != null &&
-                    x.Title.ToLower(CultureInfo.InvariantCulture) == title.ToLower(CultureInfo.InvariantCulture))
+                    x.Title.ToLower() == title.ToLower())
                 .FirstOrDefaultAsync();
+#pragma warning restore CA1311 // Specify a culture or use an invariant version
+#pragma warning restore CA1304 // Specify CultureInfo
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 
             parentToUse = existingParent?.Id;

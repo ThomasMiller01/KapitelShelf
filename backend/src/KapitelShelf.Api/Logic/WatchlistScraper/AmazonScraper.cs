@@ -138,6 +138,8 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
         var bookPageDocument = new HtmlDocument();
         bookPageDocument.LoadHtml(bookPageHtml);
 
+        ThrowWhenBlocked(bookPageHtml);
+
         var cardContextNode = bookPageDocument.DocumentNode.SelectSingleNode("//div[@id='cardContextDataContainer']");
         var seriesAsin = cardContextNode?.GetAttributeValue("data-series-asin", string.Empty);
 
@@ -155,6 +157,8 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
         var seriesPageHtml = await seriesPageResponse.Content.ReadAsStringAsync();
         var seriesPageDocument = new HtmlDocument();
         seriesPageDocument.LoadHtml(seriesPageHtml);
+
+        ThrowWhenBlocked(seriesPageHtml);
 
         // extract asins
         var asinNodes = seriesPageDocument.DocumentNode.SelectNodes("//a[@class='a-size-medium a-link-normal itemBookTitle']");
