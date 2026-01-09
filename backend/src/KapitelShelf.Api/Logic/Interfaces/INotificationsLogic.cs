@@ -23,9 +23,10 @@ public interface INotificationsLogic
     /// <param name="source">The source.</param>
     /// <param name="userId">The user id.</param>
     /// <param name="parentId">The parent id.</param>
+    /// <param name="disableAutoGrouping">Disable that notifications are automatically grouped by their title.</param>
     /// <returns>A task.</returns>
     /// <remarks>If userId is null, the notification will be added to all users.</remarks>
-    Task AddNotification(
+    Task<List<NotificationDto>> AddNotification(
         string localizationKey,
         object[]? titleArgs = null,
         object[]? messageArgs = null,
@@ -34,7 +35,8 @@ public interface INotificationsLogic
         DateTime? expires = null,
         string source = "",
         Guid? userId = null,
-        Guid? parentId = null);
+        Guid? parentId = null,
+        bool disableAutoGrouping = false);
 
     /// <summary>
     /// Add a notification.
@@ -47,9 +49,10 @@ public interface INotificationsLogic
     /// <param name="source">The source.</param>
     /// <param name="userId">The user id.</param>
     /// <param name="parentId">The parent id.</param>
+    /// <param name="disableAutoGrouping">Disable that notifications are automatically grouped by their title.</param>
     /// <returns>A task.</returns>
     /// <remarks>If userId is null, the notification will be added to all users.</remarks>
-    Task AddNotification(
+    Task<List<NotificationDto>> AddNotification(
         string title,
         string message,
         NotificationTypeDto type = NotificationTypeDto.Info,
@@ -57,7 +60,8 @@ public interface INotificationsLogic
         DateTime? expires = null,
         string source = "",
         Guid? userId = null,
-        Guid? parentId = null);
+        Guid? parentId = null,
+        bool disableAutoGrouping = false);
 
     /// <summary>
     /// Get all notifications for the current user.

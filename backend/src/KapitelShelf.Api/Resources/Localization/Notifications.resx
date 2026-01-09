@@ -124,16 +124,49 @@
   <data name="BookBulkImportFailed_Title" xml:space="preserve">
     <value>Book import incomplete ({0} items)</value>
   </data>
+  <data name="CloudStorageBookImportFailedDuringScan_Message" xml:space="preserve">
+    <value>The book '{0}' could not be imported during the cloudstorage scan. No further attempts will be made.
+Reason: {1}</value>
+  </data>
+  <data name="CloudStorageBookImportFailedDuringScan_Title" xml:space="preserve">
+    <value>Failed to import book while scanning cloudstorage '{0}'.</value>
+  </data>
+  <data name="CloudStorageDeleteFailed_Message" xml:space="preserve">
+    <value>The directory '{0}' could not be deleted from the cloudstorage.
+Reason: {1}</value>
+  </data>
+  <data name="CloudStorageDeleteFailed_Title" xml:space="preserve">
+    <value>Failed to delete cloudstorage '{0}'</value>
+  </data>
+  <data name="CloudStorageInitialDownloadFinished_Message" xml:space="preserve">
+    <value>The initial download of has completed successfully.</value>
+  </data>
+  <data name="CloudStorageInitialDownloadFinished_Title" xml:space="preserve">
+    <value>Cloudstorage download completed</value>
+  </data>
+  <data name="CloudStorageInitialDownloadStarted_Message" xml:space="preserve">
+    <value>The initial download has started for the directory '{0}'. This may take a while depending on the number of files.</value>
+  </data>
+  <data name="CloudStorageInitialDownloadStarted_Title" xml:space="preserve">
+    <value>Cloudsstorage download started for '{0}'</value>
+  </data>
+  <data name="CloudStorageListDirectoriesDirectoryNotFound_Message" xml:space="preserve">
+    <value>The directory '{0}' could not be found while listing the cloudstorage directories.
+Reason: {1}</value>
+  </data>
+  <data name="CloudStorageListDirectoriesDirectoryNotFound_Title" xml:space="preserve">
+    <value>Directory not found in cloudstorage  '{0}'</value>
+  </data>
   <data name="TaskExecuteFailed_Message" xml:space="preserve">
     <value>The task '{0}' could not be completed. 
-Reason:'{1}'</value>
+Reason: {1}</value>
   </data>
   <data name="TaskExecuteFailed_Title" xml:space="preserve">
     <value>Task '{0}' failed.</value>
   </data>
   <data name="UpdateWatchlistSeriesFailed_Message" xml:space="preserve">
     <value>The watchlist series '{0}' could not be updated.
-Reason: '{1}'</value>
+Reason: {1}</value>
   </data>
   <data name="UpdateWatchlistSeriesFailed_Title" xml:space="preserve">
     <value>Watchlist update failed</value>

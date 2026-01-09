@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ReactElement, useEffect } from "react";
+import { type ReactElement, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
@@ -9,6 +9,7 @@ import ItemAppBar from "../../components/base/ItemAppBar";
 import { useApi } from "../../contexts/ApiProvider";
 import NotificationDetails from "../../features/notifications/NotificationDetails";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { SECOND_MS } from "../../utils/TimeUtils";
 
 const NotificationDetailPage = (): ReactElement => {
   const { notificationId } = useParams<{
@@ -36,6 +37,7 @@ const NotificationDetailPage = (): ReactElement => {
       );
       return data;
     },
+    refetchInterval: 10 * SECOND_MS,
   });
 
   const { mutateAsync: markNotificationAsRead } = useMutation({
@@ -57,9 +59,23 @@ const NotificationDetailPage = (): ReactElement => {
     },
   });
 
+  const previousChildrenCountRef = useRef<unknown | null>(null);
   useEffect(() => {
+    if (!notification) {
+      return;
+    }
+
+    // only mark as read when there are new children notifications
+    const newChildren =
+      JSON.stringify(previousChildrenCountRef.current) !==
+      JSON.stringify(notification.children?.length);
+    if (!newChildren) {
+      return;
+    }
+
+    previousChildrenCountRef.current = notification.children?.length;
     markNotificationAsRead();
-  }, []);
+  }, [notification]);
 
   if (isLoading) {
     return (
