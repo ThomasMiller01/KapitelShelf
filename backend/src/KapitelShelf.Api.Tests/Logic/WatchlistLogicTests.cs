@@ -5,6 +5,7 @@
 using System.Globalization;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Testcontainers.PostgreSql;
 
 namespace KapitelShelf.Api.Tests.Logic;
@@ -767,6 +769,57 @@ public class WatchlistLogicTests
         // Assert
         using var context2 = new KapitelShelfDBContext(this.dbOptions);
         Assert.That(context2.WatchlistResults.Any(r => r.SeriesId == seriesId), Is.False);
+    }
+
+    /// <summary>
+    /// Tests that UpdateWatchlist logs on error.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task UpdateWatchlist_LogsOnError()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var watchlistId = Guid.NewGuid();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "Series".Unique(),
+                Books = [],
+            });
+            context.Users.Add(new UserModel
+            {
+                Id = userId,
+                Username = "User".Unique(),
+            });
+            context.Watchlist.Add(new WatchlistModel
+            {
+                Id = watchlistId,
+                SeriesId = seriesId,
+                UserId = userId,
+            });
+            await context.SaveChangesAsync();
+        }
+
+        this.watchlistScraperManager.Scrape(Arg.Any<SeriesDTO>())
+            .ThrowsAsync(new NotImplementedException());
+
+        // Execute
+        await this.testee.UpdateWatchlist(watchlistId);
+
+        // Assert
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "UpdateWatchlistSeriesFailed",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Error,
+            severity: NotificationSeverityDto.High,
+            source: "Task [Update Watchlists]",
+            userId: userId);
     }
 
     /// <summary>
