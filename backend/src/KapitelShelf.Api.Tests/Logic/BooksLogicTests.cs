@@ -9,6 +9,7 @@ using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
@@ -1458,6 +1459,15 @@ public class BooksLogicTests
             Assert.That(result.Errors, Has.Count.EqualTo(1));
         });
         Assert.That(result.Errors[0], Does.Contain(book1Title));
+
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "BookBulkImportFailed",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Error,
+            severity: NotificationSeverityDto.Medium,
+            source: "Book Import",
+            userId: null);
     }
 
     /// <summary>

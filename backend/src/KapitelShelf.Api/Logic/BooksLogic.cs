@@ -701,7 +701,6 @@ public class BooksLogic(
 
     private async Task<ImportResultDTO> ImportBulkBookAsync(IFormFile file, Guid? userId = null)
     {
-        // TODO: replace import result with notifications?
         var importResult = new ImportResultDTO
         {
             IsBulkImport = true,
