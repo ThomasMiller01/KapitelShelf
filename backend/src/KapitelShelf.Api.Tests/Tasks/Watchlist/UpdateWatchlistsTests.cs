@@ -173,16 +173,6 @@ public class UpdateWatchlistsTests
 
         this.logic.When(x => x.UpdateWatchlist(watchlist.Id)).Do(_ => throw new InvalidOperationException("fail"));
 
-        this.notificationsLogic.AddNotification(
-            Arg.Any<string>(),
-            titleArgs: Arg.Any<object[]>(),
-            messageArgs: Arg.Any<object[]>(),
-            type: Arg.Any<NotificationTypeDto>(),
-            severity: Arg.Any<NotificationSeverityDto>(),
-            source: Arg.Any<string>(),
-            disableAutoGrouping: Arg.Any<bool>())
-            .Returns(Task.FromResult<List<NotificationDto>>([]));
-
         // Execute
         await this.testee.ExecuteTask(this.context);
 
@@ -193,6 +183,15 @@ public class UpdateWatchlistsTests
             Arg.Is<object>(o => o.ToString()!.Contains("Error updating series watchlist")),
             Arg.Any<InvalidOperationException>(),
             Arg.Any<Func<object, Exception?, string>>());
+
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "UpdateWatchlistSeriesFailed",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Error,
+            severity: NotificationSeverityDto.High,
+            source: "Task [Update Watchlists]",
+            userId: user.Id);
     }
 
     /// <summary>
