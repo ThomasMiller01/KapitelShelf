@@ -13,7 +13,6 @@ using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
-using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Resources;
 using KapitelShelf.Api.Settings;
