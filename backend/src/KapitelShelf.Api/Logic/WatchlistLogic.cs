@@ -253,6 +253,15 @@ public class WatchlistLogic(
                 // add new volume
                 volume.Id = Guid.NewGuid();
                 context.WatchlistResults.Add(volume);
+
+                _ = this.notifications.AddNotification(
+                    "WatchlistNewVolumeFound",
+                    titleArgs: [watchlist.Series.Name],
+                    messageArgs: [watchlist.Series.Name],
+                    type: NotificationTypeDto.Info,
+                    severity: NotificationSeverityDto.Medium,
+                    source: "Watchlist",
+                    userId: watchlist.UserId);
             }
             else
             {

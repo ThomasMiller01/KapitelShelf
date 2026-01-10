@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Globalization;
+using DocumentFormat.OpenXml.Drawing;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Notifications;
@@ -581,6 +582,15 @@ public class WatchlistLogicTests
         // Assert
         using var context2 = new KapitelShelfDBContext(this.dbOptions);
         Assert.That(await context2.WatchlistResults.AnyAsync(x => x.SeriesId == seriesId && x.Title == "Scraped"), Is.True);
+
+        _ = this.notificationsLogic.Received(1).AddNotification(
+                    "WatchlistNewVolumeFound",
+                    titleArgs: Arg.Any<object[]>(),
+                    messageArgs: Arg.Any<object[]>(),
+                    type: NotificationTypeDto.Info,
+                    severity: NotificationSeverityDto.Medium,
+                    source: "Watchlist",
+                    userId: userId);
     }
 
     /// <summary>

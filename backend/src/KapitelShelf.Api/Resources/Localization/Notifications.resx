@@ -195,4 +195,10 @@ Reason: {1}</value>
   <data name="UpdateWatchlistSeriesFailed_Title" xml:space="preserve">
     <value>Watchlist update failed</value>
   </data>
+  <data name="WatchlistNewVolumeFound_Message" xml:space="preserve">
+    <value>A new volume has been found for '{0}'.</value>
+  </data>
+  <data name="WatchlistNewVolumeFound_Title" xml:space="preserve">
+    <value>[Watchlist] New volume found: '{0}'</value>
+  </data>
 </root>
