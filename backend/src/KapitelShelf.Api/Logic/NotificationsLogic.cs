@@ -19,14 +19,14 @@ namespace KapitelShelf.Api.Logic;
 public class NotificationsLogic(
     IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
     Mapper mapper,
-    LocalizationProvider<Notifications> notificationsLocalizations
+    ILocalizationProvider<Notifications> notificationsLocalizations
 ) : INotificationsLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
     private readonly Mapper mapper = mapper;
 
-    private readonly LocalizationProvider<Notifications> notificationsLocalizations = notificationsLocalizations;
+    private readonly ILocalizationProvider<Notifications> notificationsLocalizations = notificationsLocalizations;
 
     /// <inheritdoc/>
     public async Task<List<NotificationDto>> AddNotification(

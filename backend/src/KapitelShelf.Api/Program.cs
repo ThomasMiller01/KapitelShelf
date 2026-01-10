@@ -142,7 +142,7 @@ builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Resources";
 });
-builder.Services.AddTransient<LocalizationProvider<KapitelShelf.Api.Localization.Notifications>>();
+builder.Services.AddTransient<ILocalizationProvider<KapitelShelf.Api.Localization.Notifications>, LocalizationProvider<KapitelShelf.Api.Localization.Notifications>>();
 
 var app = builder.Build();
 

@@ -10,16 +10,11 @@ namespace KapitelShelf.Api.Localization;
 /// Provider with common functionality when using localizations.
 /// </summary>
 /// <typeparam name="T">The localozation resource.</typeparam>
-public class LocalizationProvider<T>(IStringLocalizer<T> localizer)
+public class LocalizationProvider<T>(IStringLocalizer<T> localizer) : ILocalizationProvider<T>
     where T : class
 {
     private readonly IStringLocalizer localizer = localizer;
 
-    /// <summary>
-    /// Get a localized string template.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="args">Arguments for positional formatting.</param>
-    /// <returns>The string template.</returns>
+    /// <inheritdoc/>
     public string Get(string key, params object[] args) => this.localizer[key, args].Value;
 }
