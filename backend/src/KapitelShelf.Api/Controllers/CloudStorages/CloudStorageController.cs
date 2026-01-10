@@ -4,7 +4,7 @@
 
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KapitelShelf.Api.Controllers.CloudStorages;

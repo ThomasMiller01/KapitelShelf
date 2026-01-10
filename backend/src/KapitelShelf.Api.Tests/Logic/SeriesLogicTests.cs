@@ -6,7 +6,7 @@ using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;

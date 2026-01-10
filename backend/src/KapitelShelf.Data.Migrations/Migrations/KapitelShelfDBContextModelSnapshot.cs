@@ -761,6 +761,54 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.ToTable("Locations");
                 });
 
+            modelBuilder.Entity("KapitelShelf.Data.Models.Notifications.NotificationModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Severity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("KapitelShelf.Data.Models.SeriesModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1171,6 +1219,24 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Navigation("FileInfo");
                 });
 
+            modelBuilder.Entity("KapitelShelf.Data.Models.Notifications.NotificationModel", b =>
+                {
+                    b.HasOne("KapitelShelf.Data.Models.Notifications.NotificationModel", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("KapitelShelf.Data.Models.User.UserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("KapitelShelf.Data.Models.User.UserBookMetadataModel", b =>
                 {
                     b.HasOne("KapitelShelf.Data.Models.BookModel", "Book")
@@ -1285,6 +1351,11 @@ namespace KapitelShelf.Data.Migrations.Migrations
             modelBuilder.Entity("KapitelShelf.Data.Models.CategoryModel", b =>
                 {
                     b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("KapitelShelf.Data.Models.Notifications.NotificationModel", b =>
+                {
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("KapitelShelf.Data.Models.SeriesModel", b =>

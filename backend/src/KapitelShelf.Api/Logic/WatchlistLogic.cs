@@ -4,12 +4,13 @@
 
 using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Watchlist;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Mappings;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models.Watchlists;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,18 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="watchlistScraperManager">The watchlist scraper manager.</param>
 /// <param name="bookStorage">The book storage.</param>
 /// <param name="metadataLogic">The metadata logic.</param>
-public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper, ISeriesLogic seriesLogic, IBooksLogic booksLogic, IWatchlistScraperManager watchlistScraperManager, IBookStorage bookStorage, IMetadataLogic metadataLogic) : IWatchlistLogic
+/// <param name="logger">The logger.</param>
+/// <param name="notifications">The notifications logic.</param>
+public class WatchlistLogic(
+    IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
+    Mapper mapper,
+    ISeriesLogic seriesLogic,
+    IBooksLogic booksLogic,
+    IWatchlistScraperManager watchlistScraperManager,
+    IBookStorage bookStorage,
+    IMetadataLogic metadataLogic,
+    ILogger<WatchlistLogic> logger,
+    INotificationsLogic notifications) : IWatchlistLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -43,6 +55,10 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
     private readonly IBookStorage bookStorage = bookStorage;
 
     private readonly IMetadataLogic metadataLogic = metadataLogic;
+
+    private readonly ILogger<WatchlistLogic> logger = logger;
+
+    private readonly INotificationsLogic notifications = notifications;
 
     /// <inheritdoc/>
     public async Task<List<WatchlistDTO>> GetWatchlistAsync(Guid userId)
@@ -189,7 +205,25 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
             return;
         }
 
-        var volumes = await this.watchlistScraperManager.Scrape(this.mapper.SeriesModelToSeriesDto(watchlist.Series));
+        List<WatchlistResultModel> volumes;
+        try
+        {
+            volumes = await this.watchlistScraperManager.Scrape(this.mapper.SeriesModelToSeriesDto(watchlist.Series));
+        }
+        catch (Exception ex)
+        {
+            _ = this.notifications.AddNotification(
+                    "UpdateWatchlistSeriesFailed",
+                    titleArgs: [watchlist.Series.Name],
+                    messageArgs: [watchlist.Series.Name, ex.Message],
+                    type: NotificationTypeDto.Error,
+                    severity: NotificationSeverityDto.High,
+                    source: "Task [Update Watchlists]",
+                    userId: watchlist.UserId);
+
+            this.logger.LogError(ex, "Error updating series watchlist with id {Id}", watchlist.Id);
+            return;
+        }
 
         // filter any volumes that do not exist in the library
         var existingBookTitles = watchlist.Series.Books
@@ -219,6 +253,15 @@ public class WatchlistLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFa
                 // add new volume
                 volume.Id = Guid.NewGuid();
                 context.WatchlistResults.Add(volume);
+
+                _ = this.notifications.AddNotification(
+                    "WatchlistNewVolumeFound",
+                    titleArgs: [watchlist.Series.Name],
+                    messageArgs: [watchlist.Series.Name],
+                    type: NotificationTypeDto.Info,
+                    severity: NotificationSeverityDto.Medium,
+                    source: "Watchlist",
+                    userId: watchlist.UserId);
             }
             else
             {

@@ -9,6 +9,7 @@ using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
@@ -17,7 +18,7 @@ using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Mappings;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;
@@ -42,6 +43,7 @@ public class BooksLogicTests
     private IBookParserManager bookParserManager;
     private IBookStorage bookStorage;
     private IMetadataScraperManager metadataScraperManager;
+    private INotificationsLogic notificationsLogic;
     private BooksLogic testee;
 
     /// <summary>
@@ -94,7 +96,8 @@ public class BooksLogicTests
         this.bookParserManager = Substitute.For<IBookParserManager>();
         this.bookStorage = Substitute.For<IBookStorage>();
         this.metadataScraperManager = Substitute.For<IMetadataScraperManager>();
-        this.testee = new BooksLogic(this.dbContextFactory, this.mapper, this.bookParserManager, this.bookStorage, this.metadataScraperManager);
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
+        this.testee = new BooksLogic(this.dbContextFactory, this.mapper, this.bookParserManager, this.bookStorage, this.metadataScraperManager, this.notificationsLogic);
     }
 
     /// <summary>
@@ -1456,6 +1459,15 @@ public class BooksLogicTests
             Assert.That(result.Errors, Has.Count.EqualTo(1));
         });
         Assert.That(result.Errors[0], Does.Contain(book1Title));
+
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "BookBulkImportFailed",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Error,
+            severity: NotificationSeverityDto.Medium,
+            source: "Book Import",
+            userId: null);
     }
 
     /// <summary>

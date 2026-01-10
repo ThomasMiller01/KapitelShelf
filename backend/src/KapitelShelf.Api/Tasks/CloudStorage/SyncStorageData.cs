@@ -5,7 +5,9 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Utils;
@@ -22,8 +24,9 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 public partial class SyncStorageData(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
     ICloudStoragesLogic logic,
-    Mapper mapper) : TaskBase(dataStore, logger)
+    Mapper mapper) : TaskBase(dataStore, logger, notifications)
 {
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1401 // Fields should be private
@@ -154,6 +157,15 @@ public partial class SyncStorageData(
             return;
         }
 
+        var startedNotifications = await this.Notifications.AddNotification(
+            "CloudStorageSingleSyncStarted",
+            titleArgs: [$"{storageModel.Type}-{storageModel.CloudOwnerName}"],
+            messageArgs: [storageModel.CloudDirectory ?? "-"],
+            type: NotificationTypeDto.Info,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            disableAutoGrouping: true);
+
         this.currentStorageIndex = 0;
         this.totalStorageIndex = 1;
 
@@ -162,6 +174,16 @@ public partial class SyncStorageData(
         // download new data
         var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
         await this.logic.SyncStorage(storage, this.DownloadProgressHandler, this.OnProcessStarted);
+
+        foreach (var startedNotification in startedNotifications)
+        {
+            _ = this.Notifications.AddNotification(
+                "CloudStorageSingleSyncFinished",
+                type: NotificationTypeDto.Success,
+                severity: NotificationSeverityDto.Low,
+                source: "Cloud Storage",
+                parentId: startedNotification.Id);
+        }
     }
 
     /// <summary>

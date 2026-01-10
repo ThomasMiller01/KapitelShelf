@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Data;
@@ -13,7 +14,12 @@ namespace KapitelShelf.Api.Tasks.Watchlist;
 /// <summary>
 /// Updates the watchlist results for series watchlists.
 /// </summary>
-public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, IWatchlistLogic logic, IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger)
+public class UpdateWatchlists(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
+    IWatchlistLogic logic,
+    IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger, notifications)
 {
     private readonly IWatchlistLogic logic = logic;
 
@@ -43,6 +49,15 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
             }
             catch (Exception ex)
             {
+                _ = this.Notifications.AddNotification(
+                    "UpdateWatchlistSeriesFailed",
+                    titleArgs: [watchlist.Series.Name],
+                    messageArgs: [watchlist.Series.Name, ex.Message],
+                    type: NotificationTypeDto.Error,
+                    severity: NotificationSeverityDto.High,
+                    source: "Task [Update Watchlists]",
+                    userId: watchlist.UserId);
+
                 this.Logger.LogError(ex, "Error updating series watchlist with id {Id}", watchlist.Id);
             }
 
@@ -71,7 +86,7 @@ public class UpdateWatchlists(ITaskRuntimeDataStore dataStore, ILogger<TaskBase>
             Category = "Watchlist",
             Description = "Searches for new volumes of the watched series.",
             ShouldRecover = true,
-            Cronjob = "0 0 * ? * *", // every 1 hour
+            Cronjob = "0 0 0 ? * *", // at 12:00 AM every day (once a day)
         };
 
         var job = internalTask.JobDetail

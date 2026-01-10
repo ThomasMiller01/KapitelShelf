@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 
 namespace KapitelShelf.Api.Logic.MetadataScraper;
 
@@ -59,6 +59,8 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase,
         var bookListHtml = await bookListResponse.Content.ReadAsStringAsync();
         var bookListDocument = new HtmlDocument();
         bookListDocument.LoadHtml(bookListHtml);
+
+        ThrowWhenBlocked(bookListHtml);
 
         // extract book links
         var bookListNodes = bookListDocument.DocumentNode
@@ -119,11 +121,7 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase,
             var bookDocument = new HtmlDocument();
             bookDocument.LoadHtml(bookHtml);
 
-            if (bookHtml.Contains("Sorry, we just need to make sure you're not a robot."))
-            {
-                // Blocked by amazon, possibly due to bot detection
-                throw new HttpRequestException(StaticConstants.MetadataScrapingBlockedKey);
-            }
+            ThrowWhenBlocked(bookHtml);
 
             // Title
             var titleNode = bookDocument.DocumentNode.SelectSingleNode("//span[@id='productTitle']");
@@ -176,6 +174,19 @@ public partial class AmazonScraper(HttpClient httpClient) : MetadataScraperBase,
         {
             // ignore errors for individual books, continue
             return null;
+        }
+    }
+
+    internal static void ThrowWhenBlocked(string html)
+    {
+        // Blocked by amazon, possibly due to bot detection
+        if (html.Contains("Sorry, we just need to make sure you're not a robot."))
+        {
+            throw new HttpRequestException(StaticConstants.MetadataScrapingBlockedKey);
+        }
+        else if (html.Contains("Click the button below to continue shopping"))
+        {
+            throw new HttpRequestException(StaticConstants.MetadataScrapingBlockedKey);
         }
     }
 

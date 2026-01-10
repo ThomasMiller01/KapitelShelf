@@ -5,6 +5,7 @@
 using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using Quartz;
 
@@ -15,7 +16,11 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// <summary>
 /// Deletes all the local data of a cloud storage.
 /// </summary>
-public class RemoveStorageData(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic) : TaskBase(dataStore, logger)
+public class RemoveStorageData(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
+    ICloudStoragesLogic logic) : TaskBase(dataStore, logger, notifications)
 {
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1401 // Fields should be private

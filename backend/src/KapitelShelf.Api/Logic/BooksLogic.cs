@@ -8,13 +8,14 @@ using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Mappings;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,14 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="bookParserManager">The book parser manager.</param>
 /// <param name="bookStorage">The book storage.</param>
 /// <param name="metadataScraperManager">The metadata scraper manager.</param>
-public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactory, Mapper mapper, IBookParserManager bookParserManager, IBookStorage bookStorage, IMetadataScraperManager metadataScraperManager) : IBooksLogic
+/// <param name="notifications">The notifications logic.</param>
+public class BooksLogic(
+    IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
+    Mapper mapper,
+    IBookParserManager bookParserManager,
+    IBookStorage bookStorage,
+    IMetadataScraperManager metadataScraperManager,
+    INotificationsLogic notifications) : IBooksLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -40,6 +48,8 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     private readonly IBookStorage bookStorage = bookStorage;
 
     private readonly IMetadataScraperManager metadataScraperManager = metadataScraperManager;
+
+    private readonly INotificationsLogic notifications = notifications;
 
     /// <inheritdoc/>
     public async Task<IList<BookDTO>> GetBooksAsync()
@@ -449,11 +459,11 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     }
 
     /// <inheritdoc/>
-    public async Task<ImportResultDTO> ImportBookAsync(IFormFile file)
+    public async Task<ImportResultDTO> ImportBookAsync(IFormFile file, Guid? userId = null)
     {
         if (this.bookParserManager.IsBulkFile(file))
         {
-            return await this.ImportBulkBookAsync(file);
+            return await this.ImportBulkBookAsync(file, userId);
         }
 
         return await this.ImportSingleBookAsync(file);
@@ -689,7 +699,7 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         return importResult;
     }
 
-    private async Task<ImportResultDTO> ImportBulkBookAsync(IFormFile file)
+    private async Task<ImportResultDTO> ImportBulkBookAsync(IFormFile file, Guid? userId = null)
     {
         var importResult = new ImportResultDTO
         {
@@ -714,6 +724,20 @@ public class BooksLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             {
                 importResult.Errors.Add($"{bulkResult.Book.Title}: A book with this title (or location) already exists");
             }
+        }
+
+        if (importResult.Errors.Count > 0)
+        {
+            var importErrorsText = string.Join("\n- ", importResult.Errors);
+
+            _ = this.notifications.AddNotification(
+                "BookBulkImportFailed",
+                titleArgs: [importResult.Errors.Count],
+                messageArgs: [importErrorsText],
+                type: NotificationTypeDto.Error,
+                severity: NotificationSeverityDto.Medium,
+                source: "Book Import",
+                userId: userId);
         }
 
         return importResult;

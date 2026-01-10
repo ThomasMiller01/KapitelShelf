@@ -28,6 +28,7 @@ public class StartupTasksHostedService(ISchedulerFactory schedulerFactory, IDyna
         // Maintenance
         await CleanupFinishedTasks.Schedule(scheduler);
         await CleanupDatabase.Schedule(scheduler);
+        await CleanupExpiredNotifications.Schedule(scheduler);
 
         // CloudStorage
         await SyncStorageData.Schedule(scheduler);

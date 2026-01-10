@@ -11,7 +11,11 @@ namespace KapitelShelf.Api.Tasks.Maintenance;
 /// <summary>
 /// Removes all orphanes database entires as well as associated files.
 /// </summary>
-public class CleanupDatabase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, IBooksLogic logic) : TaskBase(dataStore, logger)
+public class CleanupDatabase(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
+    IBooksLogic logic) : TaskBase(dataStore, logger, notifications)
 {
     private readonly IBooksLogic logic = logic;
 

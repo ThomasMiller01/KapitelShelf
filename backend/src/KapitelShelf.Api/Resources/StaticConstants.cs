@@ -5,7 +5,7 @@
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Location;
 
-namespace KapitelShelf.Api.Settings
+namespace KapitelShelf.Api.Resources
 {
     /// <summary>
     /// The static constants.

@@ -3,7 +3,9 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Mappings;
 using Quartz;
@@ -14,7 +16,12 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 /// Scan the cloud storages for books.
 /// </summary>
 [DisallowConcurrentExecution]
-public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger, ICloudStoragesLogic logic, Mapper mapper) : TaskBase(dataStore, logger)
+public class ScanForBooks(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
+    ICloudStoragesLogic logic,
+    Mapper mapper) : TaskBase(dataStore, logger, notifications)
 {
     private readonly ICloudStoragesLogic logic = logic;
 
@@ -112,6 +119,15 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
             return;
         }
 
+        var startedNotifications = await this.Notifications.AddNotification(
+            "CloudStorageSingleScanForBookStarted",
+            titleArgs: [$"{storageModel.Type}-{storageModel.CloudOwnerName}"],
+            messageArgs: [storageModel.CloudDirectory ?? "-"],
+            type: NotificationTypeDto.Info,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            disableAutoGrouping: true);
+
         this.DataStore.SetMessage(JobKey(context), $"Scanning '{storageModel.CloudDirectory}' [{storageModel.Type}]");
 
         // check for interrupts and update task progress
@@ -124,6 +140,16 @@ public class ScanForBooks(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> log
         // download new data
         var storage = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
         await this.logic.ScanStorageForBooks(storage, onFileScanned: OnFileScanned);
+
+        foreach (var startedNotification in startedNotifications)
+        {
+            _ = this.Notifications.AddNotification(
+                "CloudStorageSingleScanForBookFinished",
+                type: NotificationTypeDto.Success,
+                severity: NotificationSeverityDto.Low,
+                source: "Cloud Storage",
+                parentId: startedNotification.Id);
+        }
     }
 
     /// <summary>

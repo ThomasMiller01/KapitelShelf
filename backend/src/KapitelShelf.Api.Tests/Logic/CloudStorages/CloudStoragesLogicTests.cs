@@ -5,12 +5,14 @@
 using System.Diagnostics;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Mappings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Utils;
 using KapitelShelf.Data;
@@ -19,6 +21,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Quartz;
 using Testcontainers.PostgreSql;
 
@@ -43,6 +46,7 @@ public class CloudStoragesLogicTests
     private IBookParserManager bookParserManager;
     private IBooksLogic booksLogic;
     private IDynamicSettingsManager dynamicSettings;
+    private INotificationsLogic notificationsLogic;
     private CloudStoragesLogic testee;
 
     /// <summary>
@@ -107,7 +111,19 @@ public class CloudStoragesLogicTests
         this.bookParserManager = Substitute.For<IBookParserManager>();
         this.booksLogic = Substitute.For<IBooksLogic>();
         this.dynamicSettings = Substitute.For<IDynamicSettingsManager>();
-        this.testee = new CloudStoragesLogic(this.dbContextFactory, this.mapper, this.settings, this.schedulerFactory, this.processUtils, this.storage, this.logger, this.bookParserManager, this.booksLogic, this.dynamicSettings);
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
+        this.testee = new CloudStoragesLogic(
+            this.dbContextFactory,
+            this.mapper,
+            this.settings,
+            this.schedulerFactory,
+            this.processUtils,
+            this.storage,
+            this.logger,
+            this.bookParserManager,
+            this.booksLogic,
+            this.dynamicSettings,
+            this.notificationsLogic);
     }
 
     /// <summary>
@@ -398,6 +414,46 @@ public class CloudStoragesLogicTests
 
         // Assert
         Assert.That(result, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests ListCloudStorageDirectories returns empty if storage missing.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ListCloudStorageDirectories_AddsNotificationOnError()
+    {
+        // Setup
+        var modelType = CloudType.OneDrive;
+        var storage = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            Type = modelType,
+            RCloneConfig = "rclone.conf",
+            CloudOwnerName = "Name".Unique(),
+            CloudOwnerEmail = "Email".Unique(),
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storage);
+            context.SaveChanges();
+        }
+
+        this.processUtils.RunProcessAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<string>?>(), Arg.Any<Action<Process>?>(), Arg.Any<CancellationToken>())
+            .ThrowsAsync(new InvalidOperationException("directory not found"));
+
+        // Execute
+        Assert.ThrowsAsync<InvalidOperationException>(() => this.testee.ListCloudStorageDirectories(storage.Id, "/"));
+
+        // Assert
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageListDirectoriesDirectoryNotFound",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Warning,
+            severity: NotificationSeverityDto.Medium,
+            source: "Cloud Storage");
     }
 
     /// <summary>
@@ -1056,6 +1112,56 @@ public class CloudStoragesLogicTests
     }
 
     /// <summary>
+    /// Tests ScanStorageForBooks continues when a book import throws.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ScanStorageForBooks_ContinuesOnError()
+    {
+        // Setup
+        var storageModel = new CloudStorageModel
+        {
+            Id = Guid.NewGuid(),
+            CloudDirectory = "test",
+            CloudOwnerEmail = "test",
+            CloudOwnerName = "test",
+            RCloneConfig = "rclone.conf",
+        };
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.CloudStorages.Add(storageModel);
+            context.SaveChanges();
+        }
+
+        var storageDto = this.mapper.CloudStorageModelToCloudStorageDto(storageModel);
+
+        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tmpDir);
+        var bookPath = Path.Combine(tmpDir, "book.pdf");
+        File.WriteAllBytes(bookPath, BookParserHelper.BluePixelBytes);
+
+        this.bookParserManager.SupportedFileEndings().Returns(["pdf"]);
+        this.storage.FullPath(storageDto, StaticConstants.CloudStorageCloudDataSubPath).Returns(tmpDir);
+        this.booksLogic.BookFileExists(Arg.Any<IFormFile>()).Returns(false);
+
+        this.booksLogic.ImportBookAsync(Arg.Any<IFormFile>()).ThrowsAsync(new NotImplementedException());
+
+        // Execute
+        await this.testee.ScanStorageForBooks(storageDto);
+
+        // Assert
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageBookImportFailedDuringScan",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Error,
+            severity: NotificationSeverityDto.High,
+            source: "Cloud Storage");
+
+        Directory.Delete(tmpDir, true);
+    }
+
+    /// <summary>
     /// Tests ScanStorageForBooks skips already imported or failed files.
     /// </summary>
     /// <returns>A task.</returns>
@@ -1192,6 +1298,19 @@ public class CloudStoragesLogicTests
                 Value = true,
             }));
 
+        var notificationId = Guid.NewGuid();
+        this.notificationsLogic.AddNotification(
+            Arg.Any<string>(),
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: Arg.Any<NotificationTypeDto>(),
+            severity: Arg.Any<NotificationSeverityDto>(),
+            source: Arg.Any<string>(),
+            disableAutoGrouping: Arg.Any<bool>())
+            .Returns(Task.FromResult<List<NotificationDto>>([
+                new NotificationDto { Id = notificationId }
+            ]));
+
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
             context.CloudStorages.Add(storageModel);
@@ -1203,6 +1322,20 @@ public class CloudStoragesLogicTests
 
         // Assert
         Assert.That(Directory.Exists(path), Is.True);
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageInitialDownloadStarted",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Info,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            disableAutoGrouping: true);
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageInitialDownloadFinished",
+            type: NotificationTypeDto.Success,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            parentId: notificationId);
 
         // Cleanup
         Directory.Delete(path, true);

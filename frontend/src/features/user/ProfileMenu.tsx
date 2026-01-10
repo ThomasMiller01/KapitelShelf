@@ -13,6 +13,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import FancyText from "../../components/FancyText";
+import { NotificationsBadge } from "../../components/notifications/NotificationsBadge";
+import { NotificationsIcon } from "../../components/notifications/NotificationsIcon";
 import { TasksMenuItem } from "../../components/tasks/TasksMenuItem";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import {
@@ -39,9 +41,11 @@ export const ProfileMenu = (): ReactElement => {
 
   return (
     <React.Fragment>
-      <IconButton onClick={handleClick} size="small">
-        <UserProfileIcon profile={profile} />
-      </IconButton>
+      <NotificationsBadge overlap="circular">
+        <IconButton onClick={handleClick} size="small">
+          <UserProfileIcon profile={profile} />
+        </IconButton>
+      </NotificationsBadge>
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -91,6 +95,14 @@ export const ProfileMenu = (): ReactElement => {
           My Watchlist
         </MenuItem>
         <Divider />
+        <MenuItem component={Link} to="/notifications" sx={{ my: "6px" }}>
+          <ListItemIcon>
+            <NotificationsIcon fontSize="small" />
+          </ListItemIcon>
+          <NotificationsBadge sx={{ "& .MuiBadge-badge": { right: -8 } }}>
+            Notifications
+          </NotificationsBadge>
+        </MenuItem>
         <TasksMenuItem />
         {/* <Divider /> */}
         <MenuItem onClick={handleSwitchProfile} sx={{ my: "6px" }}>

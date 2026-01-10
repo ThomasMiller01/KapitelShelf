@@ -4,7 +4,10 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using DocumentFormat.OpenXml.Drawing;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using Quartz;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
@@ -14,21 +17,26 @@ namespace KapitelShelf.Api.Tasks;
 /// <summary>
 /// The base class for all tasks to inherit from.
 /// </summary>
-public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger) : IJob
+public abstract class TaskBase(
+    ITaskRuntimeDataStore dataStore,
+    ILogger<TaskBase> logger,
+    INotificationsLogic notifications) : IJob
 {
 #pragma warning disable SA1401 // Fields should be private
     internal readonly ILogger<TaskBase> Logger = logger;
 
     internal readonly ITaskRuntimeDataStore DataStore = dataStore;
+
+    internal readonly INotificationsLogic Notifications = notifications;
 #pragma warning restore SA1401 // Fields should be private
 
     /// <inheritdoc/>
     public async Task Execute(IJobExecutionContext context)
     {
+        ArgumentNullException.ThrowIfNull(context);
+
         try
         {
-            ArgumentNullException.ThrowIfNull(context);
-
             this.DataStore.SetProgress(JobKey(context), 0);
 
             await this.ExecuteTask(context);
@@ -46,6 +54,14 @@ public abstract class TaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase
         }
         catch (Exception ex)
         {
+            _ = this.Notifications.AddNotification(
+                    "TaskExecuteFailed",
+                    titleArgs: [context.JobDetail.Key],
+                    messageArgs: [context.JobDetail.Description ?? "-", ex.Message],
+                    type: NotificationTypeDto.System,
+                    severity: NotificationSeverityDto.Medium,
+                    source: "Task Base");
+
             this.Logger.LogError(ex, "Error during task execution");
         }
     }

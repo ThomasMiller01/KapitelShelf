@@ -7,12 +7,14 @@ using System.Text.Json;
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.CloudStorage.RClone;
 using KapitelShelf.Api.DTOs.FileInfo;
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Mappings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Api.Settings;
 using KapitelShelf.Api.Tasks.CloudStorage;
 using KapitelShelf.Api.Utils;
@@ -36,7 +38,8 @@ public class CloudStoragesLogic(
     ILogger<CloudStoragesLogic> logger,
     IBookParserManager bookParserManager,
     IBooksLogic booksLogic,
-    IDynamicSettingsManager dynamicSettings) : ICloudStoragesLogic
+    IDynamicSettingsManager dynamicSettings,
+    INotificationsLogic notifications) : ICloudStoragesLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -57,6 +60,8 @@ public class CloudStoragesLogic(
     private readonly IBooksLogic booksLogic = booksLogic;
 
     private readonly IDynamicSettingsManager dynamicSettings = dynamicSettings;
+
+    private readonly INotificationsLogic notifications = notifications;
 
     /// <inheritdoc/>
     public async Task<bool> IsConfigured(CloudTypeDTO cloudType)
@@ -238,6 +243,14 @@ public class CloudStoragesLogic(
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("directory not found"))
         {
+            _ = this.notifications.AddNotification(
+                    "CloudStorageListDirectoriesDirectoryNotFound",
+                    titleArgs: [$"{cloudStorage.Type}-{cloudStorage.CloudOwnerName}"],
+                    messageArgs: [path, ex.Message],
+                    type: NotificationTypeDto.Warning,
+                    severity: NotificationSeverityDto.Medium,
+                    source: "Cloud Storage");
+
             throw new InvalidOperationException(StaticConstants.CloudStorageDirectoryNotFoundExceptionKey);
         }
     }
@@ -398,6 +411,14 @@ public class CloudStoragesLogic(
             }
             catch (Exception ex)
             {
+                _ = this.notifications.AddNotification(
+                    "CloudStorageDeleteFailed",
+                    titleArgs: [$"{storage.Type}-{storage.CloudOwnerName}"],
+                    messageArgs: [storagePath, ex.Message],
+                    type: NotificationTypeDto.Warning,
+                    severity: NotificationSeverityDto.Low,
+                    source: "Cloud Storage");
+
                 this.logger.LogError(ex, "Could not delete directory '{Directory}' in cloud storage", storagePath);
             }
         }
@@ -448,6 +469,14 @@ public class CloudStoragesLogic(
             }
             catch (Exception ex)
             {
+                _ = this.notifications.AddNotification(
+                    "CloudStorageBookImportFailedDuringScan",
+                    titleArgs: [$"{storage.Type}-{storage.CloudOwnerName}"],
+                    messageArgs: [filePath, ex.Message],
+                    type: NotificationTypeDto.Error,
+                    severity: NotificationSeverityDto.High,
+                    source: "Cloud Storage");
+
                 await this.AddCloudFileImportFail(storage, file.ToFileInfo(filePath), ex.Message);
             }
 
@@ -476,6 +505,15 @@ public class CloudStoragesLogic(
 
         var storageModel = await this.GetStorageModel(storage.Id);
         ArgumentNullException.ThrowIfNull(storageModel);
+
+        var startedNotifications = await this.notifications.AddNotification(
+            "CloudStorageInitialDownloadStarted",
+            titleArgs: [$"{storage.Type}-{storage.CloudOwnerName}"],
+            messageArgs: [storage.CloudDirectory ?? "-"],
+            type: NotificationTypeDto.Info,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            disableAutoGrouping: true);
 
         var localPath = this.storage.FullPath(storage, StaticConstants.CloudStorageCloudDataSubPath);
         if (!Directory.Exists(localPath))
@@ -524,6 +562,16 @@ public class CloudStoragesLogic(
         }
 
         await this.MarkStorageAsDownloaded(storage.Id);
+
+        foreach (var startedNotification in startedNotifications)
+        {
+            _ = this.notifications.AddNotification(
+                "CloudStorageInitialDownloadFinished",
+                type: NotificationTypeDto.Success,
+                severity: NotificationSeverityDto.Low,
+                source: "Cloud Storage",
+                parentId: startedNotification.Id);
+        }
     }
 
     /// <inheritdoc/>

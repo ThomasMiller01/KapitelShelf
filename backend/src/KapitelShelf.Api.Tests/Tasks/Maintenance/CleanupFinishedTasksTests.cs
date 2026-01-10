@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.Maintenance;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,7 @@ public class CleanupFinishedTasksTests
 {
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private ISchedulerFactory schedulerFactory;
     private IScheduler scheduler;
     private CleanupFinishedTasks testee;
@@ -32,6 +34,7 @@ public class CleanupFinishedTasksTests
     {
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.schedulerFactory = Substitute.For<ISchedulerFactory>();
         this.scheduler = Substitute.For<IScheduler>();
         this.context = Substitute.For<IJobExecutionContext>();
@@ -42,7 +45,7 @@ public class CleanupFinishedTasksTests
         jobDetail.Key.Returns(jobKey);
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new CleanupFinishedTasks(this.dataStore, this.logger, this.schedulerFactory);
+        this.testee = new CleanupFinishedTasks(this.dataStore, this.logger, this.notificationsLogic, this.schedulerFactory);
     }
 
     /// <summary>

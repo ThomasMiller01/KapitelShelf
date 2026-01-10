@@ -22,7 +22,7 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
     /// <summary>
     /// The batch size for fetching volumes.
     /// </summary>
-    private const int BatchSize = 5;
+    private const int BatchSize = 3;
 
     private readonly HttpClient httpClient = httpClient;
 
@@ -81,6 +81,7 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
         // Parse each book seperately
         // process ASINs in batches with delay
         var asinResults = new List<MetadataDTO?>();
+        var rnd = new Random();
 
         for (int i = 0; i < asins.Count; i += BatchSize)
         {
@@ -97,7 +98,8 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
             // add delay only if there are more batches left
             if (i + BatchSize < asins.Count)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                var randomSeconds = rnd.Next(10, 20);
+                await Task.Delay(TimeSpan.FromSeconds(randomSeconds));
             }
         }
 
@@ -136,6 +138,8 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
         var bookPageDocument = new HtmlDocument();
         bookPageDocument.LoadHtml(bookPageHtml);
 
+        ThrowWhenBlocked(bookPageHtml);
+
         var cardContextNode = bookPageDocument.DocumentNode.SelectSingleNode("//div[@id='cardContextDataContainer']");
         var seriesAsin = cardContextNode?.GetAttributeValue("data-series-asin", string.Empty);
 
@@ -153,6 +157,8 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
         var seriesPageHtml = await seriesPageResponse.Content.ReadAsStringAsync();
         var seriesPageDocument = new HtmlDocument();
         seriesPageDocument.LoadHtml(seriesPageHtml);
+
+        ThrowWhenBlocked(seriesPageHtml);
 
         // extract asins
         var asinNodes = seriesPageDocument.DocumentNode.SelectNodes("//a[@class='a-size-medium a-link-normal itemBookTitle']");

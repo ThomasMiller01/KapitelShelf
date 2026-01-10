@@ -4,6 +4,7 @@
 
 using System.Net;
 using KapitelShelf.Api.Logic.MetadataScraper;
+using NPOI.SS.Formula.Functions;
 using RichardSzalay.MockHttp;
 
 namespace KapitelShelf.Api.Tests.Logic.MetadataScraper;
@@ -290,5 +291,39 @@ public class AmazonScraperTests
 
         // Execute and Assert
         Assert.ThrowsAsync<HttpRequestException>(async () => await scraper.ScrapeFromAsin(asin));
+    }
+
+    /// <summary>
+    /// ThrowWhenBlocked does not throw when not blocked.
+    /// </summary>
+    [Test]
+    public void ThrowWhenBlocked_DoesNotThrowWhenNotBlocked()
+    {
+        // Setup
+        var notBlockedHtml = @"
+<html>
+  <body>
+    <span id='productTitle'>ASIN Book Title</span>
+    <span class='author'><a>ASIN Author</a></span>
+    <div data-feature-name='bookDescription'><noscript>ASIN Description</noscript></div>
+    <img class='a-dynamic-image' src='https://images.amazon.com/asin.jpg' />
+  </body>
+</html>";
+
+        // Execute and Assert
+        AmazonScraper.ThrowWhenBlocked(notBlockedHtml);
+    }
+
+    /// <summary>
+    /// ThrowWhenBlocked throws when blocked.
+    /// </summary>
+    [Test]
+    public void ThrowWhenBlocked_ThrowsWhenBlocked()
+    {
+        // Setup
+        var notBlockedHtml = @"Sorry, we just need to make sure you're not a robot.";
+
+        // Execute and Assert
+        Assert.Throws<HttpRequestException>(() => AmazonScraper.ThrowWhenBlocked(notBlockedHtml));
     }
 }

@@ -4,15 +4,22 @@ import React from "react";
 
 interface ButtonWithTooltipProps extends ButtonProps {
   tooltip: string | undefined;
+  disabledTooltip?: string;
   to?: string;
 }
 
 export const ButtonWithTooltip: React.FC<ButtonWithTooltipProps> = ({
   tooltip,
   children,
+  disabled,
+  disabledTooltip = undefined,
   ...props
 }) => (
-  <Tooltip title={tooltip}>
-    <Button {...props}>{children}</Button>
+  <Tooltip title={disabledTooltip && disabled ? disabledTooltip : tooltip}>
+    <span>
+      <Button {...props} disabled={disabled}>
+        {children}
+      </Button>
+    </span>
   </Tooltip>
 );

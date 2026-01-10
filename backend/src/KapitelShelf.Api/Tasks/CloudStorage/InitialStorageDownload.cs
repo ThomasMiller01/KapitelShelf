@@ -4,6 +4,7 @@
 
 using KapitelShelf.Api.DTOs.CloudStorage;
 using KapitelShelf.Api.DTOs.Tasks;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Utils;
@@ -17,8 +18,9 @@ namespace KapitelShelf.Api.Tasks.CloudStorage;
 public partial class InitialStorageDownload(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
+    INotificationsLogic notifications,
     ICloudStoragesLogic logic,
-    Mapper mapper) : TaskBase(dataStore, logger)
+    Mapper mapper) : TaskBase(dataStore, logger, notifications)
 {
     private readonly ICloudStoragesLogic logic = logic;
 

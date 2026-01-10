@@ -61,8 +61,9 @@ public interface IBooksLogic
     /// Imports a book from a file.
     /// </summary>
     /// <param name="file">The file containing the book to import.</param>
+    /// <param name="userId">The id of the user triggering this action.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="ImportResultDTO"/>.</returns>
-    Task<ImportResultDTO> ImportBookAsync(IFormFile file);
+    Task<ImportResultDTO> ImportBookAsync(IFormFile file, Guid? userId = null);
 
     /// <summary>
     /// Imports a book from an asin.

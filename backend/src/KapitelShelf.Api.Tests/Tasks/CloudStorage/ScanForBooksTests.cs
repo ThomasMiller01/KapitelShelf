@@ -3,6 +3,8 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.CloudStorage;
+using KapitelShelf.Api.DTOs.Notifications;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.CloudStorages;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Tasks;
@@ -23,6 +25,7 @@ public class ScanForBooksTests
     private ScanForBooks testee;
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private ICloudStoragesLogic logic;
     private Mapper mapper;
     private IJobExecutionContext context;
@@ -37,6 +40,7 @@ public class ScanForBooksTests
     {
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.logic = Substitute.For<ICloudStoragesLogic>();
         this.mapper = Testhelper.CreateMapper();
         this.context = Substitute.For<IJobExecutionContext>();
@@ -63,6 +67,7 @@ public class ScanForBooksTests
         this.testee = new ScanForBooks(
             this.dataStore,
             this.logger,
+            this.notificationsLogic,
             this.logic,
             this.mapper);
     }
@@ -138,11 +143,38 @@ public class ScanForBooksTests
         this.testee.ForSingleStorageId = this.storageModel.Id;
         this.logic.GetStorageModel(this.storageModel.Id).Returns(this.storageModel);
 
+        var notificationId = Guid.NewGuid();
+        this.notificationsLogic.AddNotification(
+            Arg.Any<string>(),
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: Arg.Any<NotificationTypeDto>(),
+            severity: Arg.Any<NotificationSeverityDto>(),
+            source: Arg.Any<string>(),
+            disableAutoGrouping: Arg.Any<bool>())
+            .Returns(Task.FromResult<List<NotificationDto>>([
+                new NotificationDto { Id = notificationId }
+            ]));
+
         // Execute
         await this.testee.ExecuteTask(this.context);
 
         // Assert
         this.dataStore.Received().SetMessage("Test.ScanBooks", Arg.Is<string>(msg => msg.Contains("TestDir")));
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageSingleScanForBookStarted",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Info,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            disableAutoGrouping: true);
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageSingleScanForBookFinished",
+            type: NotificationTypeDto.Success,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            parentId: notificationId);
     }
 
     /// <summary>

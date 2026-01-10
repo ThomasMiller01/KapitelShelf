@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks;
 using KapitelShelf.Api.Tasks.Watchlist;
@@ -30,6 +31,7 @@ public class UpdateWatchlistsTests
 
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private IWatchlistLogic logic;
     private IJobExecutionContext context;
     private UpdateWatchlists testee;
@@ -81,6 +83,7 @@ public class UpdateWatchlistsTests
 
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.logic = Substitute.For<IWatchlistLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
@@ -88,7 +91,7 @@ public class UpdateWatchlistsTests
         jobDetail.Key.Returns(new JobKey("UpdateWatchlists", "Group"));
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.logic, this.dbContextFactory);
+        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.dbContextFactory);
     }
 
     /// <summary>
@@ -180,6 +183,15 @@ public class UpdateWatchlistsTests
             Arg.Is<object>(o => o.ToString()!.Contains("Error updating series watchlist")),
             Arg.Any<InvalidOperationException>(),
             Arg.Any<Func<object, Exception?, string>>());
+
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "UpdateWatchlistSeriesFailed",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Error,
+            severity: NotificationSeverityDto.High,
+            source: "Task [Update Watchlists]",
+            userId: user.Id);
     }
 
     /// <summary>

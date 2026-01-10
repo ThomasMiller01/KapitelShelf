@@ -2,6 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Notifications;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -17,6 +19,7 @@ public class TaskBaseTests
 {
     private ITaskRuntimeDataStore dataStore;
     private ILogger<TaskBase> logger;
+    private INotificationsLogic notificationsLogic;
     private IJobExecutionContext context;
     private TestTaskBase testee;
 
@@ -28,6 +31,7 @@ public class TaskBaseTests
     {
         this.dataStore = Substitute.For<ITaskRuntimeDataStore>();
         this.logger = Substitute.For<ILogger<TaskBase>>();
+        this.notificationsLogic = Substitute.For<INotificationsLogic>();
         this.context = Substitute.For<IJobExecutionContext>();
 
         // job key setup
@@ -36,7 +40,7 @@ public class TaskBaseTests
         jobDetail.Key.Returns(jobKey);
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new TestTaskBase(this.dataStore, this.logger);
+        this.testee = new TestTaskBase(this.dataStore, this.logger, this.notificationsLogic);
     }
 
     /// <summary>
@@ -86,6 +90,13 @@ public class TaskBaseTests
         // Execute and Assert
         Assert.DoesNotThrowAsync(async () => await this.testee.Execute(this.context));
         this.logger.Received().LogError(Arg.Any<Exception>(), "Error during task execution");
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "TaskExecuteFailed",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.System,
+            severity: NotificationSeverityDto.Medium,
+            source: "Task Base");
         this.dataStore.DidNotReceive().ClearData(Arg.Any<string>());
     }
 
@@ -221,7 +232,10 @@ public class TaskBaseTests
         var jobKey = new JobKey("JobC", "GroupC");
         job.Key.Returns(jobKey);
 
-        var taskBase = Substitute.For<TaskBase>(Substitute.For<ITaskRuntimeDataStore>(), Substitute.For<ILogger<TaskBase>>());
+        var taskBase = Substitute.For<TaskBase>(
+            Substitute.For<ITaskRuntimeDataStore>(),
+            Substitute.For<ILogger<TaskBase>>(),
+            Substitute.For<INotificationsLogic>());
         var context = Substitute.For<IJobExecutionContext>();
         context.JobDetail.Returns(job);
         context.JobInstance.Returns(taskBase);
@@ -278,7 +292,10 @@ public class TaskBaseTests
     /// <summary>
     /// Dummy TaskBase implementation.
     /// </summary>
-    private sealed class TestTaskBase(ITaskRuntimeDataStore dataStore, ILogger<TaskBase> logger) : TaskBase(dataStore, logger)
+    private sealed class TestTaskBase(
+        ITaskRuntimeDataStore dataStore,
+        ILogger<TaskBase> logger,
+        INotificationsLogic notifications) : TaskBase(dataStore, logger, notifications)
     {
 #pragma warning disable SA1401 // Fields should be private
         public Func<IJobExecutionContext, Task> OnExecuteTask = _ => Task.CompletedTask;

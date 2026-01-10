@@ -7,7 +7,7 @@ using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
-using KapitelShelf.Api.Settings;
+using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -122,13 +122,14 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// Import a new book.
     /// </summary>
     /// <param name="bookFile">Thebook file to import.</param>
+    /// <param name="userId">The user id.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost("import")]
-    public async Task<ActionResult<ImportResultDTO>> ImportBook(IFormFile bookFile)
+    public async Task<ActionResult<ImportResultDTO>> ImportBook(IFormFile bookFile, Guid? userId)
     {
         try
         {
-            var importResult = await this.logic.ImportBookAsync(bookFile);
+            var importResult = await this.logic.ImportBookAsync(bookFile, userId);
 
             return CreatedAtAction(nameof(ImportBook), importResult);
         }
