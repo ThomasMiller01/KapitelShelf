@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Tasks;
 using Microsoft.Extensions.Logging;
@@ -89,6 +90,13 @@ public class TaskBaseTests
         // Execute and Assert
         Assert.DoesNotThrowAsync(async () => await this.testee.Execute(this.context));
         this.logger.Received().LogError(Arg.Any<Exception>(), "Error during task execution");
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "TaskExecuteFailed",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.System,
+            severity: NotificationSeverityDto.Medium,
+            source: "Task Base");
         this.dataStore.DidNotReceive().ClearData(Arg.Any<string>());
     }
 
