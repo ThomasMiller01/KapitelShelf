@@ -164,6 +164,7 @@ public class SyncStorageDataTests
         this.testee.ForSingleStorageId = storage.Id;
         this.logic.GetStorageModel(storage.Id).Returns(storage);
 
+        var notificationId = Guid.NewGuid();
         this.notificationsLogic.AddNotification(
             Arg.Any<string>(),
             titleArgs: Arg.Any<object[]>(),
@@ -172,7 +173,9 @@ public class SyncStorageDataTests
             severity: Arg.Any<NotificationSeverityDto>(),
             source: Arg.Any<string>(),
             disableAutoGrouping: Arg.Any<bool>())
-            .Returns(Task.FromResult<List<NotificationDto>>([]));
+            .Returns(Task.FromResult<List<NotificationDto>>([
+                new NotificationDto { Id = notificationId }
+            ]));
 
         // Execute
         await this.testee.ExecuteTask(this.context);
@@ -181,6 +184,20 @@ public class SyncStorageDataTests
         await this.logic.Received(1)
             .SyncStorage(Arg.Is<CloudStorageDTO>(x => x.Id == storage.Id), Arg.Any<Action<string>>(), Arg.Any<Action<Process>>());
         this.dataStore.Received().SetMessage(Arg.Any<string>(), Arg.Is<string>(msg => msg.Contains("Synching")));
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageSingleSyncStarted",
+            titleArgs: Arg.Any<object[]>(),
+            messageArgs: Arg.Any<object[]>(),
+            type: NotificationTypeDto.Info,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            disableAutoGrouping: true);
+        _ = this.notificationsLogic.Received(1).AddNotification(
+            "CloudStorageSingleSyncFinished",
+            type: NotificationTypeDto.Success,
+            severity: NotificationSeverityDto.Low,
+            source: "Cloud Storage",
+            parentId: notificationId);
     }
 
     /// <summary>
