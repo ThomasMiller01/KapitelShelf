@@ -14,6 +14,7 @@ import { NotificationsBadge } from "../../components/notifications/Notifications
 import { useApi } from "../../contexts/ApiProvider";
 import { NotificationsList } from "../../features/notifications/NotificationsList";
 import { useMobile } from "../../hooks/useMobile";
+import { useNotificationStats } from "../../hooks/useNotificationStats";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import { NotificationDto } from "../../lib/api/KapitelShelf.Api";
 import {
@@ -27,6 +28,8 @@ export const NotificationsPage = (): ReactElement => {
   const { clients } = useApi();
   const { profile } = useUserProfile();
   const queryClient = useQueryClient();
+
+  const notificationStats = useNotificationStats();
 
   const {
     data: notifications,
@@ -143,6 +146,8 @@ export const NotificationsPage = (): ReactElement => {
           tooltip="Mark all as Read"
           startIcon={<DoneAllIcon />}
           onClick={() => markAllAsRead()}
+          disabled={notificationStats?.unreadCount === 0}
+          disabledTooltip="All notifications are already read"
         >
           Read All
         </ButtonWithTooltip>
