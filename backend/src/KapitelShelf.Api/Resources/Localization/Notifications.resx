@@ -181,6 +181,13 @@ Reason: {1}</value>
   <data name="CloudStorageSingleSyncStarted_Title" xml:space="preserve">
     <value>Cloudsstorage sync started for '{0}'</value>
   </data>
+  <data name="HookDispatchFailed_Message" xml:space="preserve">
+    <value>One of the registered events for the hook failed.
+Reason: {0}</value>
+  </data>
+  <data name="HookDispatchFailed_Title" xml:space="preserve">
+    <value>Hook '{0}' failed</value>
+  </data>
   <data name="TaskExecuteFailed_Message" xml:space="preserve">
     <value>The task '{0}' could not be completed. 
 Reason: {1}</value>
