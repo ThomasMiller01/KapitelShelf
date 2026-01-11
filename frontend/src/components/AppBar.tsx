@@ -48,7 +48,7 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
         <SearchBar />
         <Stack
           direction="row"
-          spacing={{ md: 2 }}
+          spacing={{ xs: 2 }}
           alignItems="center"
           ml={isMobile ? "15px" : "30px"}
         >

@@ -124,12 +124,15 @@ export const ResponsiveDrawerAppBar = ({
     >
       <Toolbar>
         <IconButton
-          color="inherit"
           edge="start"
           onClick={toggle}
           sx={{ mr: 2, ...(open && !isMobile && { display: "none" }) }}
         >
-          <MenuIcon />
+          <MenuIcon
+            sx={(theme) => ({
+              color: theme.palette.text.primary,
+            })}
+          />
         </IconButton>
         {children}
       </Toolbar>

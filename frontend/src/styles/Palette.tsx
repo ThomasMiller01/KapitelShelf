@@ -23,21 +23,31 @@ export const PaletteDark: PaletteOptions = {
 
 export const PaletteLight: PaletteOptions = {
   mode: "light",
+
+  // accents stay muted and secondary
   primary: {
-    main: "#0B5E73",
+    main: "#6B7C82", // desaturated blue-gray
   },
+
   secondary: {
-    main: "#2C9ED6",
+    main: "#A8895B", // warm muted beige-gold
   },
+
+  // this is where the theme lives
   background: {
-    default: "#E6F4F7",
-    paper: "#FBFEFF",
+    default: "#EFEAE2", // warm linen / desk
+    paper: "#FCF9F4", // clean book page
   },
+
+  // text must carry contrast
   text: {
-    primary: "#0A2A33",
-    secondary: "#3A5F6B",
+    primary: "#2A2621", // warm ink
+    secondary: "#6B6258", // readable, soft
   },
+
+  divider: "#DED6C9",
+
   error: {
-    main: "#E11D48",
+    main: "#C44536", // warm red, not alarming
   },
 };
