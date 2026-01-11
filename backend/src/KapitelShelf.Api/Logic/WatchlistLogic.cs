@@ -257,7 +257,7 @@ public class WatchlistLogic(
                 _ = this.notifications.AddNotification(
                     "WatchlistNewVolumeFound",
                     titleArgs: [watchlist.Series.Name],
-                    messageArgs: [watchlist.Series.Name],
+                    messageArgs: [volume.Volume ?? 0, volume.Title],
                     type: NotificationTypeDto.Info,
                     severity: NotificationSeverityDto.Medium,
                     source: "Watchlist",

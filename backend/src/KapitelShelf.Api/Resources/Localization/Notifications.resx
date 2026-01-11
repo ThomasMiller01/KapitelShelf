@@ -196,7 +196,7 @@ Reason: {1}</value>
     <value>Watchlist update failed</value>
   </data>
   <data name="WatchlistNewVolumeFound_Message" xml:space="preserve">
-    <value>A new volume has been found for '{0}'.</value>
+    <value>A new volume #{0} has been found: '{1}'</value>
   </data>
   <data name="WatchlistNewVolumeFound_Title" xml:space="preserve">
     <value>[Watchlist] New volume found: '{0}'</value>
