@@ -38,6 +38,8 @@ public class UpdateWatchlists(
             .Where(x => x.LastChecked < twentyFourHoursAgo) // only check watchlists once per 24 hours
             .ToListAsync();
 
+        var rnd = new Random();
+
         for (int i = 0; i < watchlists.Count; i++)
         {
             var watchlist = watchlists[i];
@@ -48,8 +50,8 @@ public class UpdateWatchlists(
             {
                 await this.logic.UpdateWatchlist(watchlist.Id);
 
-                // wait 10 seconds between series
-                await Task.Delay(10000);
+                // wait 15-30 seconds between series
+                await Task.Delay(TimeSpan.FromSeconds(rnd.Next(15, 30)));
             }
             catch (Exception ex)
             {
