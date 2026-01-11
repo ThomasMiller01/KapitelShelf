@@ -22,6 +22,12 @@ public class UpdateWatchlists(
     IWatchlistLogic logic,
     IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger, notifications)
 {
+#pragma warning disable SA1401 // Fields should be private
+    internal int WaitDelayMin = 15;
+
+    internal int WaitDelayMax = 30;
+#pragma warning restore SA1401 // Fields should be private
+
     private readonly IWatchlistLogic logic = logic;
 
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
@@ -51,7 +57,7 @@ public class UpdateWatchlists(
                 await this.logic.UpdateWatchlist(watchlist.Id);
 
                 // wait 15-30 seconds between series
-                await Task.Delay(TimeSpan.FromSeconds(rnd.Next(15, 30)));
+                await Task.Delay(TimeSpan.FromSeconds(rnd.Next(this.WaitDelayMin, this.WaitDelayMax)));
             }
             catch (Exception ex)
             {

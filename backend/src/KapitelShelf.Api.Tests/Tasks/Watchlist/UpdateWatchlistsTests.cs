@@ -91,7 +91,11 @@ public class UpdateWatchlistsTests
         jobDetail.Key.Returns(new JobKey("UpdateWatchlists", "Group"));
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.dbContextFactory);
+        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.dbContextFactory)
+        {
+            WaitDelayMin = 1,
+            WaitDelayMax = 1,
+        };
     }
 
     /// <summary>
