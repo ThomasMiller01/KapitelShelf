@@ -1,7 +1,16 @@
 import AddBoxIcon from "@mui/icons-material/AddBox";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import { Box, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  SpeedDial,
+  SpeedDialAction,
+  Stack,
+  useColorScheme,
+} from "@mui/material";
 import { type ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +26,14 @@ interface TopAppBarProps {
 
 export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
   const { isMobile } = useMobile();
+  const { mode, systemMode, setMode } = useColorScheme();
+
+  if (!mode) {
+    // mode is undefined on first render
+    return <></>;
+  }
+
+  const currentMode = mode === "system" ? systemMode : mode;
 
   return (
     <ResponsiveDrawerAppBar open={open} toggle={toggle}>
@@ -31,14 +48,20 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
         <SearchBar />
         <Stack
           direction="row"
-          spacing={{ xs: 2, md: 3 }}
+          spacing={{ xs: 2 }}
           alignItems="center"
           ml={isMobile ? "15px" : "30px"}
         >
           <AddBookActions />
-          {/* <Box ml={isMobile ? "10px !important" : ""}>
-            <ThemeToggle />
-          </Box> */}
+
+          {/* Color mode button not shown on mobile, instead part of user context menu */}
+          {!isMobile && (
+            <IconButton
+              onClick={() => setMode(currentMode === "dark" ? "light" : "dark")}
+            >
+              {currentMode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          )}
           <ProfileMenu />
         </Stack>
       </Box>

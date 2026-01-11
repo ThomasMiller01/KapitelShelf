@@ -1,13 +1,19 @@
 import "./Fonts";
 
-import type { Theme } from "@mui/material/styles";
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
 import { PaletteDark, PaletteLight } from "./Palette";
 
-export const getTheme = (mode: "light" | "dark"): Theme => {
-  let theme = createTheme({
-    palette: mode === "dark" ? PaletteDark : PaletteLight,
+export const theme = responsiveFontSizes(
+  createTheme({
+    colorSchemes: {
+      light: {
+        palette: PaletteLight,
+      },
+      dark: {
+        palette: PaletteDark,
+      },
+    },
     shape: {
       borderRadius: 8,
     },
@@ -20,7 +26,5 @@ export const getTheme = (mode: "light" | "dark"): Theme => {
         xl: 1536,
       },
     },
-  });
-  theme = responsiveFontSizes(theme);
-  return theme;
-};
+  })
+);

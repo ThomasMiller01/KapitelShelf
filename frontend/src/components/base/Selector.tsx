@@ -24,6 +24,7 @@ interface SelectorProps {
   onChange?: (selected: string[]) => void;
   onSelect?: (selected: string) => void;
   onUnselect?: (unselected: string) => void;
+  textColor?: (option: string) => string;
 }
 
 export const Selector: React.FC<SelectorProps> = ({
@@ -35,6 +36,7 @@ export const Selector: React.FC<SelectorProps> = ({
   onChange,
   onSelect,
   onUnselect,
+  textColor = (_: string) => "inherit",
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -141,7 +143,14 @@ export const Selector: React.FC<SelectorProps> = ({
               sx={{ padding: "6px", mr: 1 }}
               size="small"
             />
-            <Box sx={{ fontSize: "1rem" }}>{option}</Box>
+            <Box
+              sx={{
+                fontSize: "1rem",
+                color: textColor(option),
+              }}
+            >
+              {option}
+            </Box>
           </MenuItem>
         ))}
       </Menu>

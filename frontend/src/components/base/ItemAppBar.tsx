@@ -70,7 +70,11 @@ const ItemAppBar = ({
   backTooltip = "Go back",
   backUrl = undefined,
 }: ItemAppBarProps): ReactElement => (
-  <AppBar position="static" color="default" elevation={1}>
+  <AppBar
+    position="static"
+    elevation={1}
+    sx={{ bgcolor: "background.paper", color: "text.primary" }}
+  >
     <Toolbar sx={{ py: "8px" }}>
       <BackButton backTooltip={backTooltip} backUrl={backUrl} />
       <Stack direction={{ xs: "column", md: "row" }} spacing={1} width="100%">

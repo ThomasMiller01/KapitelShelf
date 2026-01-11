@@ -35,8 +35,8 @@ const BookCard = ({
       title={book.title}
       description={book.description}
       link={`/library/books/${book.id}`}
-      image={CoverUrl(book)}
       onClick={onClick}
+      image={CoverUrl(book)}
       fallbackImage={bookCover}
       badge={
         book.seriesNumber !== 0 ? book.seriesNumber?.toString() : undefined

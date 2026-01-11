@@ -11,22 +11,28 @@ import {
   NotificationTypeDto,
 } from "../lib/api/KapitelShelf.Api";
 
-export const NotificationSeverityColor = (
+export const NotificationToSeverityColor = (
   notification: NotificationDto
 ): string => {
-  switch (notification.severity) {
+  return NotificationSeverityToColor(notification.severity);
+};
+
+export const NotificationSeverityToColor = (
+  severity: NotificationSeverityDto | undefined
+): string => {
+  switch (severity) {
     case NotificationSeverityDto.NUMBER_0:
     default:
       return "primary.dark";
 
     case NotificationSeverityDto.NUMBER_1:
-      return "#A67C52";
-
-    case NotificationSeverityDto.NUMBER_2:
       return "#D27A1A";
 
-    case NotificationSeverityDto.NUMBER_3:
+    case NotificationSeverityDto.NUMBER_2:
       return "error.main";
+
+    case NotificationSeverityDto.NUMBER_3:
+      return "#7055A3";
   }
 };
 
@@ -38,33 +44,35 @@ export const NotificationTypeIcon = (
     default:
       return (
         <InfoOutlineIcon
-          sx={{ color: NotificationSeverityColor(notification) }}
+          sx={{ color: NotificationToSeverityColor(notification) }}
         />
       );
 
     case NotificationTypeDto.NUMBER_1:
       return (
-        <TaskAltIcon sx={{ color: NotificationSeverityColor(notification) }} />
+        <TaskAltIcon
+          sx={{ color: NotificationToSeverityColor(notification) }}
+        />
       );
 
     case NotificationTypeDto.NUMBER_2:
       return (
         <WarningRoundedIcon
-          sx={{ color: NotificationSeverityColor(notification) }}
+          sx={{ color: NotificationToSeverityColor(notification) }}
         />
       );
 
     case NotificationTypeDto.NUMBER_3:
       return (
         <ReportGmailerrorredIcon
-          sx={{ color: NotificationSeverityColor(notification) }}
+          sx={{ color: NotificationToSeverityColor(notification) }}
         />
       );
 
     case NotificationTypeDto.NUMBER_4:
       return (
         <DesktopWindowsRoundedIcon
-          sx={{ color: NotificationSeverityColor(notification) }}
+          sx={{ color: NotificationToSeverityColor(notification) }}
         />
       );
   }
@@ -95,9 +103,9 @@ export const NotificationTypeToString = (
 };
 
 export const NotificationSeverityToString = (
-  type: NotificationSeverityDto | undefined
+  severity: NotificationSeverityDto | undefined
 ): string => {
-  switch (type) {
+  switch (severity) {
     case NotificationSeverityDto.NUMBER_0:
       return "Low";
 
@@ -112,5 +120,26 @@ export const NotificationSeverityToString = (
 
     default:
       return "Unknown";
+  }
+};
+
+export const NotificationSeverityStringToDto = (
+  severity: string | undefined
+): NotificationSeverityDto => {
+  switch (severity) {
+    case "Low":
+      return NotificationSeverityDto.NUMBER_0;
+
+    case "Medium":
+      return NotificationSeverityDto.NUMBER_1;
+
+    case "High":
+      return NotificationSeverityDto.NUMBER_2;
+
+    case "Critical":
+      return NotificationSeverityDto.NUMBER_3;
+
+    default:
+      return NotificationSeverityDto.NUMBER_0;
   }
 };

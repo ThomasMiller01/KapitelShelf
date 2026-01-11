@@ -18,6 +18,8 @@ import { useNotificationStats } from "../../hooks/useNotificationStats";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import { NotificationDto } from "../../lib/api/KapitelShelf.Api";
 import {
+  NotificationSeverityStringToDto,
+  NotificationSeverityToColor,
   NotificationSeverityToString,
   NotificationTypeToString,
 } from "../../utils/NotificationUtils";
@@ -128,6 +130,9 @@ export const NotificationsPage = (): ReactElement => {
           settingsKey="notifications.hide.severity"
           subIcon={<ReportProblemIcon fontSize="small" />}
           tooltip="Hide notifications by severity"
+          textColor={(x) =>
+            NotificationSeverityToColor(NotificationSeverityStringToDto(x))
+          }
         />
 
         {/* Type Filter */}

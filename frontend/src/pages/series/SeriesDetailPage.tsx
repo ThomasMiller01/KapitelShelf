@@ -258,9 +258,7 @@ const SeriesDetailPage = (): ReactElement => {
           />,
         ]}
       />
-      <Box padding="24px">
-        <SeriesBooksList seriesId={series?.id ?? ""} />
-      </Box>
+      <SeriesBooksList seriesId={series?.id ?? ""} />
       <DeleteDialog
         open={deleteOpen}
         onCancel={() => setDeleteOpen(false)}
