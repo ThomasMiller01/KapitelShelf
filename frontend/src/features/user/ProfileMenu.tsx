@@ -1,3 +1,5 @@
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import PeopleIcon from "@mui/icons-material/People";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import {
@@ -7,6 +9,7 @@ import {
   ListItemIcon,
   Menu,
   MenuItem,
+  useColorScheme,
 } from "@mui/material";
 import type { ReactElement } from "react";
 import React from "react";
@@ -16,6 +19,7 @@ import FancyText from "../../components/FancyText";
 import { NotificationsBadge } from "../../components/notifications/NotificationsBadge";
 import { NotificationsIcon } from "../../components/notifications/NotificationsIcon";
 import { TasksMenuItem } from "../../components/tasks/TasksMenuItem";
+import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import {
   ProfileImageTypeDTO,
@@ -25,6 +29,7 @@ import { ProfileImageTypeToSrc } from "../../utils/UserProfileUtils";
 
 export const ProfileMenu = (): ReactElement => {
   const { profile, clearProfile } = useUserProfile();
+  const { isMobile } = useMobile();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -38,6 +43,15 @@ export const ProfileMenu = (): ReactElement => {
     handleClose();
     clearProfile();
   };
+
+  const { mode, systemMode, setMode } = useColorScheme();
+
+  if (!mode) {
+    // mode is undefined on first render
+    return <></>;
+  }
+
+  const currentMode = mode === "system" ? systemMode : mode;
 
   return (
     <React.Fragment>
@@ -83,18 +97,25 @@ export const ProfileMenu = (): ReactElement => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
+        {/* User Profile */}
         <MenuItem component={Link} to="/profile">
           <UserProfileIcon profile={profile} />
           <FancyText ml="6px">{profile?.username}</FancyText>
         </MenuItem>
+
         <Divider />
+
+        {/* Watchlist */}
         <MenuItem component={Link} to="/watchlist" sx={{ my: "6px" }}>
           <ListItemIcon>
             <TrackChangesIcon fontSize="small" />
           </ListItemIcon>
           My Watchlist
         </MenuItem>
+
         <Divider />
+
+        {/* Notifications */}
         <MenuItem component={Link} to="/notifications" sx={{ my: "6px" }}>
           <ListItemIcon>
             <NotificationsIcon fontSize="small" />
@@ -103,8 +124,30 @@ export const ProfileMenu = (): ReactElement => {
             Notifications
           </NotificationsBadge>
         </MenuItem>
+
+        {/* Tasks */}
         <TasksMenuItem />
-        {/* <Divider /> */}
+
+        <Divider />
+
+        {/* Color mode button not shown on mobile, instead part of user context menu */}
+        {isMobile && (
+          <MenuItem
+            onClick={() => setMode(currentMode === "dark" ? "light" : "dark")}
+            sx={{ my: "6px", textTransform: "capitalize" }}
+          >
+            <ListItemIcon>
+              {currentMode === "dark" ? (
+                <LightModeIcon fontSize="small" />
+              ) : (
+                <DarkModeIcon fontSize="small" />
+              )}
+            </ListItemIcon>
+            {currentMode == "dark" ? "light" : "dark"} Mode
+          </MenuItem>
+        )}
+
+        {/* Switch Profile */}
         <MenuItem onClick={handleSwitchProfile} sx={{ my: "6px" }}>
           <ListItemIcon>
             <PeopleIcon fontSize="small" />
