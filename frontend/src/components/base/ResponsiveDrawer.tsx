@@ -68,16 +68,10 @@ export const ResponsiveDrawer = ({
               component="img"
               src={logo}
               alt="My Image"
-              sx={(theme) => ({
+              sx={{
                 width: 40,
                 objectFit: "cover",
-                filter:
-                  theme.palette.mode === "light"
-                    ? "drop-shadow(0 0 6px rgba(0,0,0,0.75)) " +
-                      "drop-shadow(0 0 14px rgba(0,0,0,0.55)) " +
-                      "drop-shadow(0 0 26px rgba(0,0,0,0.35))"
-                    : "none",
-              })}
+              }}
             />
           )}
           {name && (

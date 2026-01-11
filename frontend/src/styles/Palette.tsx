@@ -24,20 +24,20 @@ export const PaletteDark: PaletteOptions = {
 export const PaletteLight: PaletteOptions = {
   mode: "light",
   primary: {
-    main: "#F7E8C9",
+    main: "#0B5E73",
   },
   secondary: {
-    main: "#8B6F4E",
+    main: "#2C9ED6",
   },
   background: {
-    default: "#FAFAFA",
-    paper: "#fcf2e1",
+    default: "#E6F4F7",
+    paper: "#FBFEFF",
   },
   text: {
-    primary: "#1E1E1E",
-    secondary: "#555555",
+    primary: "#0A2A33",
+    secondary: "#3A5F6B",
   },
   error: {
-    main: "#D32F2F",
+    main: "#E11D48",
   },
 };
