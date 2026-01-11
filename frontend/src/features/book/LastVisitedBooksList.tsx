@@ -39,15 +39,18 @@ const LastVisitedBooksList = (): ReactElement => {
     return <RequestErrorCard itemName="Last Visited Books" onRetry={refetch} />;
   }
 
-  if (data?.totalCount === 0) {
-    return <NoItemsFoundCard itemName="Last Visited Books" small />;
-  }
-
   return (
-    <ScrollableList title="Last Visited Books" itemWidth={150} itemGap={16}>
+    <ScrollableList
+      title="Last Visited Books"
+      itemWidth={data?.totalCount == 0 ? 450 : 150}
+      itemGap={16}
+    >
       {data?.items?.map((x) => (
         <BookCard key={x.id} book={x} small />
       ))}
+      {data?.totalCount === 0 && (
+        <NoItemsFoundCard itemName="Last Visited Books" extraSmall />
+      )}
     </ScrollableList>
   );
 };

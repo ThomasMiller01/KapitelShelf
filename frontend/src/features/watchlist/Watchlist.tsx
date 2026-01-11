@@ -8,7 +8,8 @@ import { WatchlistDetails } from "../../components/watchlist/WatchlistDetails";
 import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import type { BookDTO, WatchlistDTO } from "../../lib/api/KapitelShelf.Api";
+import type { WatchlistDTO } from "../../lib/api/KapitelShelf.Api";
+import { SplitByReleaseWindow } from "../../utils/WatchlistUtils";
 
 const Watchlist: React.FC = () => {
   const { profile } = useUserProfile();
@@ -38,36 +39,7 @@ const Watchlist: React.FC = () => {
     return <NoItemsFoundCard itemName="Series on your Watchlist" extraSmall />;
   }
 
-  // get release date from the first item
-  const getFirstReleaseDate = (watchlist: WatchlistDTO): Date | null => {
-    const first: BookDTO | undefined = watchlist.items?.[0];
-    if (!first?.releaseDate) {
-      return null;
-    }
-    const date = new Date(first.releaseDate);
-    return isNaN(date.getTime()) ? null : date;
-  };
-
-  const now = new Date();
-  const weekFromNow = new Date(now);
-  weekFromNow.setDate(now.getDate() + 7);
-  const monthFromNow = new Date(now);
-  monthFromNow.setDate(now.getDate() + 30);
-
-  const arrivingSoon = data.filter((w) => {
-    const date = getFirstReleaseDate(w);
-    return date && date <= weekFromNow;
-  });
-
-  const comingUp = data.filter((w) => {
-    const date = getFirstReleaseDate(w);
-    return date && date > weekFromNow && date <= monthFromNow;
-  });
-
-  const later = data.filter((w) => {
-    const date = getFirstReleaseDate(w);
-    return !date || date > monthFromNow;
-  });
+  const { arrivingSoon, comingUp, later } = SplitByReleaseWindow(data);
 
   return (
     <Box>
