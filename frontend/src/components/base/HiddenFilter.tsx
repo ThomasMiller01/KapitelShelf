@@ -13,6 +13,7 @@ interface HiddenFilterProps<TItem> {
   defaultHiddenOptions?: string[];
   subIcon?: ReactElement;
   tooltip?: string;
+  textColor?: (option: string) => string;
 }
 
 export const HiddenFilter = <TItem,>({
@@ -24,6 +25,7 @@ export const HiddenFilter = <TItem,>({
   defaultHiddenOptions = [],
   subIcon,
   tooltip = "Filter elements",
+  textColor = undefined,
 }: HiddenFilterProps<TItem>): ReactElement => {
   const [filteredItems, setFilteredItems] = useState<TItem[]>(items);
 
@@ -83,6 +85,7 @@ export const HiddenFilter = <TItem,>({
       onSelect={(value: string) =>
         setHiddenOptions((prev) => prev.filter((x) => x !== value))
       }
+      textColor={textColor}
     />
   );
 };

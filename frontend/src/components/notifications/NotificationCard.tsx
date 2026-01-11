@@ -20,8 +20,8 @@ import { useUserProfile } from "../../hooks/useUserProfile";
 import { type NotificationDto } from "../../lib/api/KapitelShelf.Api";
 import { GetColor } from "../../utils/ColorUtils";
 import {
-  NotificationSeverityColor,
   NotificationSeverityToString,
+  NotificationToSeverityColor,
   NotificationTypeIcon,
   NotificationTypeToString,
 } from "../../utils/NotificationUtils";
@@ -108,7 +108,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
       sx={{
         display: "flex",
         borderLeft: `5px solid`,
-        borderLeftColor: NotificationSeverityColor(notification),
+        borderLeftColor: NotificationToSeverityColor(notification),
         opacity: !hideReadStatus && notification.isRead ? 0.6 : 1,
       }}
     >
@@ -136,7 +136,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
               badgeContent={hideChildCount ? 0 : notification.children?.length}
               max={9}
               color="primary"
-              badgeColor={NotificationSeverityColor(notification)}
+              badgeColor={NotificationToSeverityColor(notification)}
               sx={{ width: "100%" }}
             >
               <Stack
@@ -160,7 +160,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                           sx={{
                             lineHeight: 1.5,
                             fontWeight: "bold",
-                            color: NotificationSeverityColor(notification),
+                            color: NotificationToSeverityColor(notification),
                           }}
                         >
                           [{NotificationSeverityToString(notification.severity)}
