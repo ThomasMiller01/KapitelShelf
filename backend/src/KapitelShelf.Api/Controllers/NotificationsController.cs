@@ -12,7 +12,7 @@ namespace KapitelShelf.Api.Controllers;
 /// Initializes a new instance of the <see cref="NotificationsController"/> class.
 /// </summary>
 /// <param name="logger">The logger.</param>
-/// <param name="logic">The series logic.</param>
+/// <param name="logic">The notifications logic.</param>
 [ApiController]
 [Route("notifications")]
 public class NotificationsController(ILogger<NotificationsController> logger, INotificationsLogic logic) : ControllerBase

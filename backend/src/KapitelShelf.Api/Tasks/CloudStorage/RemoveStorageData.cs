@@ -46,7 +46,6 @@ public class RemoveStorageData(
     public bool RemoveOnlyCloudData { private get; set; }
 
     /// <inheritdoc/>
-    // this.fileStorage.DeleteDirectory(this.mapper.CloudStorageModelToCloudStorageDto(storage));
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
         if (!Enum.TryParse(this.StorageType, out CloudTypeDTO type))

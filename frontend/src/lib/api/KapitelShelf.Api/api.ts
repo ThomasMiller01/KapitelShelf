@@ -1498,11 +1498,12 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * 
          * @summary Import a new book.
+         * @param {string} [userId] The user id.
          * @param {File} [bookFile] Thebook file to import.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksImportPost: async (bookFile?: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        booksImportPost: async (userId?: string, bookFile?: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/books/import`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1515,6 +1516,10 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
             const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
 
 
             if (bookFile !== undefined) { 
@@ -1781,12 +1786,13 @@ export const BooksApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Import a new book.
+         * @param {string} [userId] The user id.
          * @param {File} [bookFile] Thebook file to import.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImportResultDTO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksImportPost(bookFile, options);
+        async booksImportPost(userId?: string, bookFile?: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImportResultDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksImportPost(userId, bookFile, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksImportPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1938,12 +1944,13 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         /**
          * 
          * @summary Import a new book.
+         * @param {string} [userId] The user id.
          * @param {File} [bookFile] Thebook file to import.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig): AxiosPromise<ImportResultDTO> {
-            return localVarFp.booksImportPost(bookFile, options).then((request) => request(axios, basePath));
+        booksImportPost(userId?: string, bookFile?: File, options?: RawAxiosRequestConfig): AxiosPromise<ImportResultDTO> {
+            return localVarFp.booksImportPost(userId, bookFile, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2101,13 +2108,14 @@ export class BooksApi extends BaseAPI {
     /**
      * 
      * @summary Import a new book.
+     * @param {string} [userId] The user id.
      * @param {File} [bookFile] Thebook file to import.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
      */
-    public booksImportPost(bookFile?: File, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksImportPost(bookFile, options).then((request) => request(this.axios, this.basePath));
+    public booksImportPost(userId?: string, bookFile?: File, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksImportPost(userId, bookFile, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2832,6 +2840,115 @@ export class CloudStorageApi extends BaseAPI {
      */
     public cloudstorageStoragesStorageIdSyncPut(storageId: string, options?: RawAxiosRequestConfig) {
         return CloudStorageApiFp(this.configuration).cloudstorageStoragesStorageIdSyncPut(storageId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * HooksApi - axios parameter creator
+ * @export
+ */
+export const HooksApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary User sessions starts, once he opened the application.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        hooksSessionStartPost: async (userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/hooks/session-start`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * HooksApi - functional programming interface
+ * @export
+ */
+export const HooksApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = HooksApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary User sessions starts, once he opened the application.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async hooksSessionStartPost(userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.hooksSessionStartPost(userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HooksApi.hooksSessionStartPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * HooksApi - factory interface
+ * @export
+ */
+export const HooksApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = HooksApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary User sessions starts, once he opened the application.
+         * @param {string} [userId] The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        hooksSessionStartPost(userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.hooksSessionStartPost(userId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * HooksApi - object-oriented interface
+ * @export
+ * @class HooksApi
+ * @extends {BaseAPI}
+ */
+export class HooksApi extends BaseAPI {
+    /**
+     * 
+     * @summary User sessions starts, once he opened the application.
+     * @param {string} [userId] The user id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HooksApi
+     */
+    public hooksSessionStartPost(userId?: string, options?: RawAxiosRequestConfig) {
+        return HooksApiFp(this.configuration).hooksSessionStartPost(userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

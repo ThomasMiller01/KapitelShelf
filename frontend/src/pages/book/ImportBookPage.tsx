@@ -10,19 +10,21 @@ import FancyText from "../../components/FancyText";
 import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotification } from "../../hooks/useNotification";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import type { ImportResultDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { BookFileTypes } from "../../utils/FileTypesUtils";
 
 const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();
   const { clients } = useApi();
+  const { profile } = useUserProfile();
   const { triggerNavigate, triggerError } = useNotification();
   const queryClient = useQueryClient();
 
   const { mutateAsync: mutateImportBook } = useMutation({
     mutationKey: ["import-book"],
     mutationFn: async (file: File) => {
-      const { data } = await clients.books.booksImportPost(file);
+      const { data } = await clients.books.booksImportPost(profile?.id, file);
       return data;
     },
     meta: {

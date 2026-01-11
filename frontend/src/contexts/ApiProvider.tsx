@@ -1,18 +1,19 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
-import { NotificationsApi } from "../lib/api/KapitelShelf.Api/api";
 import {
+  BooksApi,
+  CloudStorageApi,
+  HooksApi,
+  MetadataApi,
+  NotificationsApi,
+  OneDriveApi,
   SeriesApi,
   SettingsApi,
+  TasksApi,
+  UsersApi,
+  VersionApi,
   WatchlistApi,
 } from "../lib/api/KapitelShelf.Api/api";
-import { VersionApi } from "../lib/api/KapitelShelf.Api/api";
-import { MetadataApi } from "../lib/api/KapitelShelf.Api/api";
-import { UsersApi } from "../lib/api/KapitelShelf.Api/api";
-import { TasksApi } from "../lib/api/KapitelShelf.Api/api";
-import { CloudStorageApi } from "../lib/api/KapitelShelf.Api/api";
-import { OneDriveApi } from "../lib/api/KapitelShelf.Api/api";
-import { BooksApi } from "../lib/api/KapitelShelf.Api/api";
 import { Configuration } from "../lib/api/KapitelShelf.Api/configuration";
 import { GetMobileApiBaseUrl, IsMobileApp } from "../utils/MobileUtils";
 
@@ -28,6 +29,7 @@ interface ApiClients {
   settings: SettingsApi;
   watchlist: WatchlistApi;
   notifications: NotificationsApi;
+  hooks: HooksApi;
 }
 
 interface ApiContextData {
@@ -71,6 +73,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
       settings: new SettingsApi(config),
       watchlist: new WatchlistApi(config),
       notifications: new NotificationsApi(config),
+      hooks: new HooksApi(config),
     };
   }, [basePath]);
 

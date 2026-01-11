@@ -14,6 +14,7 @@ namespace KapitelShelf.Api.Tasks.Watchlist;
 /// <summary>
 /// Updates the watchlist results for series watchlists.
 /// </summary>
+[DisallowConcurrentExecution]
 public class UpdateWatchlists(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
@@ -28,11 +29,14 @@ public class UpdateWatchlists(
     /// <inheritdoc/>
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
+        var twentyFourHoursAgo = DateTime.UtcNow.AddHours(-24);
+
         using var dbContext = await this.dbContextFactory.CreateDbContextAsync();
-        var watchlists = dbContext.Watchlist
+        var watchlists = await dbContext.Watchlist
             .AsNoTracking()
             .Include(x => x.Series)
-            .ToList();
+            .Where(x => x.LastChecked < twentyFourHoursAgo) // only check watchlists once per 24 hours
+            .ToListAsync();
 
         for (int i = 0; i < watchlists.Count; i++)
         {
@@ -85,8 +89,7 @@ public class UpdateWatchlists(
             Title = "Update Watchlists",
             Category = "Watchlist",
             Description = "Searches for new volumes of the watched series.",
-            ShouldRecover = true,
-            Cronjob = "0 0 0 ? * *", // at 12:00 AM every day (once a day)
+            StartNow = true,
         };
 
         var job = internalTask.JobDetail

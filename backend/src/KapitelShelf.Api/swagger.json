@@ -207,6 +207,17 @@
           "Books"
         ],
         "summary": "Import a new book.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -877,6 +888,30 @@
             "description": "The cloud directory.",
             "schema": {
               "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/hooks/session-start": {
+      "post": {
+        "tags": [
+          "Hooks"
+        ],
+        "summary": "User sessions starts, once he opened the application.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The user id.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],

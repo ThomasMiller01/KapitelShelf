@@ -35,4 +35,9 @@ public class WatchlistModel
     /// Gets or sets the user.
     /// </summary>
     public virtual UserModel User { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the last time this series was checked.
+    /// </summary>
+    public DateTime LastChecked { get; set; }
 }

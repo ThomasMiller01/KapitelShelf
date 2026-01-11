@@ -193,7 +193,6 @@ public class WatchlistLogic(
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         var watchlist = await context.Watchlist
-            .AsNoTracking()
             .Include(x => x.Series)
                 .ThenInclude(x => x.Books)
                     .ThenInclude(x => x.Location)
@@ -204,6 +203,10 @@ public class WatchlistLogic(
         {
             return;
         }
+
+        // immediately update the last checked time to prevent duplicate scraping
+        watchlist.LastChecked = DateTime.UtcNow;
+        await context.SaveChangesAsync();
 
         List<WatchlistResultModel> volumes;
         try
