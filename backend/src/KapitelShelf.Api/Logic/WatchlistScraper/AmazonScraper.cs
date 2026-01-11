@@ -19,10 +19,16 @@ namespace KapitelShelf.Api.Logic.WatchlistScraper;
 /// </summary>
 public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : AmazonMetadataScraper(httpClient), IWatchlistScraper
 {
+#pragma warning disable SA1401 // Fields should be private
+    internal int WaitDelayMin = 30;
+
+    internal int WaitDelayMax = 60;
+#pragma warning restore SA1401 // Fields should be private
+
     /// <summary>
     /// The batch size for fetching volumes.
     /// </summary>
-    private const int BatchSize = 3;
+    private const int BatchSize = 2;
 
     private readonly HttpClient httpClient = httpClient;
 
@@ -65,6 +71,10 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
             return [];
         }
 
+        var rnd = new Random();
+
+        await Task.Delay(TimeSpan.FromSeconds(rnd.Next(this.WaitDelayMin, this.WaitDelayMax)));
+
         var asins = await this.GetVolumeASINS(seriesASIN!);
 
         // only take the asins take are after the last volume in the library
@@ -78,11 +88,11 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
             return [];
         }
 
+        await Task.Delay(TimeSpan.FromSeconds(rnd.Next(this.WaitDelayMin, this.WaitDelayMax)));
+
         // Parse each book seperately
         // process ASINs in batches with delay
         var asinResults = new List<MetadataDTO?>();
-        var rnd = new Random();
-
         for (int i = 0; i < asins.Count; i += BatchSize)
         {
             var batch = asins
@@ -98,8 +108,7 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
             // add delay only if there are more batches left
             if (i + BatchSize < asins.Count)
             {
-                var randomSeconds = rnd.Next(10, 20);
-                await Task.Delay(TimeSpan.FromSeconds(randomSeconds));
+                await Task.Delay(TimeSpan.FromSeconds(rnd.Next(this.WaitDelayMin, this.WaitDelayMax)));
             }
         }
 

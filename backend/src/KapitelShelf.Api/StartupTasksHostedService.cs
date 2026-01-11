@@ -13,11 +13,13 @@ namespace KapitelShelf.Api;
 /// <summary>
 /// Hosted service for initially starting up system tasks that run automatically.
 /// </summary>
-public class StartupTasksHostedService(ISchedulerFactory schedulerFactory, IDynamicSettingsManager dynamicSettings) : IHostedService
+public class StartupTasksHostedService(ISchedulerFactory schedulerFactory, IDynamicSettingsManager dynamicSettings, IHooksLogic hooks) : IHostedService
 {
     private readonly ISchedulerFactory schedulerFactory = schedulerFactory;
 
     private readonly IDynamicSettingsManager dynamicSettings = dynamicSettings;
+
+    private readonly IHooksLogic hooks = hooks;
 
     /// <inheritdoc/>
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -34,11 +36,13 @@ public class StartupTasksHostedService(ISchedulerFactory schedulerFactory, IDyna
         await SyncStorageData.Schedule(scheduler);
         await ScanForBooks.Schedule(scheduler);
 
-        // Watchlist
-        await UpdateWatchlists.Schedule(scheduler);
-
         // ---------- Settings ----------
         await this.dynamicSettings.InitializeOnStartup();
+
+        // ---------- Hooks ----------
+        this.hooks.SessionStart += async (userId) => await UpdateWatchlists.Schedule(scheduler);
+
+        // TODO: prevent it from being triggered more than once per day
     }
 
     /// <inheritdoc/>

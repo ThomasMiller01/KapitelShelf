@@ -33,3 +33,9 @@ Generate swagger json
 ```bash
 dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 8.1.2
 ```
+
+## .NET EFCore Migrations
+
+```bash
+dotnet tool install --global dotnet-ef --version 9.0.5
+```

@@ -14,6 +14,7 @@ namespace KapitelShelf.Api.Tasks.Watchlist;
 /// <summary>
 /// Updates the watchlist results for series watchlists.
 /// </summary>
+[DisallowConcurrentExecution]
 public class UpdateWatchlists(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
@@ -21,6 +22,12 @@ public class UpdateWatchlists(
     IWatchlistLogic logic,
     IDbContextFactory<KapitelShelfDBContext> dbContextFactory) : TaskBase(dataStore, logger, notifications)
 {
+#pragma warning disable SA1401 // Fields should be private
+    internal int WaitDelayMin = 15;
+
+    internal int WaitDelayMax = 30;
+#pragma warning restore SA1401 // Fields should be private
+
     private readonly IWatchlistLogic logic = logic;
 
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
@@ -28,11 +35,16 @@ public class UpdateWatchlists(
     /// <inheritdoc/>
     public override async Task ExecuteTask(IJobExecutionContext context)
     {
+        var twentyFourHoursAgo = DateTime.UtcNow.AddHours(-24);
+
         using var dbContext = await this.dbContextFactory.CreateDbContextAsync();
-        var watchlists = dbContext.Watchlist
+        var watchlists = await dbContext.Watchlist
             .AsNoTracking()
             .Include(x => x.Series)
-            .ToList();
+            .Where(x => x.LastChecked < twentyFourHoursAgo) // only check watchlists once per 24 hours
+            .ToListAsync();
+
+        var rnd = new Random();
 
         for (int i = 0; i < watchlists.Count; i++)
         {
@@ -44,8 +56,8 @@ public class UpdateWatchlists(
             {
                 await this.logic.UpdateWatchlist(watchlist.Id);
 
-                // wait 10 seconds between series
-                await Task.Delay(10000);
+                // wait 15-30 seconds between series
+                await Task.Delay(TimeSpan.FromSeconds(rnd.Next(this.WaitDelayMin, this.WaitDelayMax)));
             }
             catch (Exception ex)
             {
@@ -85,8 +97,7 @@ public class UpdateWatchlists(
             Title = "Update Watchlists",
             Category = "Watchlist",
             Description = "Searches for new volumes of the watched series.",
-            ShouldRecover = true,
-            Cronjob = "0 0 0 ? * *", // at 12:00 AM every day (once a day)
+            StartNow = true,
         };
 
         var job = internalTask.JobDetail

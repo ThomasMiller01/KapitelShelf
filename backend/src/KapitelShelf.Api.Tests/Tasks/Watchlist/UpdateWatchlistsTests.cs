@@ -91,7 +91,11 @@ public class UpdateWatchlistsTests
         jobDetail.Key.Returns(new JobKey("UpdateWatchlists", "Group"));
         this.context.JobDetail.Returns(jobDetail);
 
-        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.dbContextFactory);
+        this.testee = new UpdateWatchlists(this.dataStore, this.logger, this.notificationsLogic, this.logic, this.dbContextFactory)
+        {
+            WaitDelayMin = 1,
+            WaitDelayMax = 1,
+        };
     }
 
     /// <summary>
@@ -192,6 +196,68 @@ public class UpdateWatchlistsTests
             severity: NotificationSeverityDto.High,
             source: "Task [Update Watchlists]",
             userId: user.Id);
+    }
+
+    /// <summary>
+    /// Tests ExecuteTask does not call UpdateWatchlist for watchlists checked within the last 24 hours.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ExecuteTask_DoesNotCallUpdateWatchlist_WhenLastCheckedWithin24Hours()
+    {
+        // Setup
+        var seriesOld = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "SeriesOld".Unique(),
+        };
+        var seriesRecent = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "SeriesRecent".Unique(),
+        };
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "User".Unique(),
+        };
+
+        var watchlistOld = new WatchlistModel
+        {
+            Id = Guid.NewGuid(),
+            Series = seriesOld,
+            SeriesId = seriesOld.Id,
+            UserId = user.Id,
+            LastChecked = DateTime.UtcNow.AddHours(-25),
+        };
+
+        var watchlistRecent = new WatchlistModel
+        {
+            Id = Guid.NewGuid(),
+            Series = seriesRecent,
+            SeriesId = seriesRecent.Id,
+            UserId = user.Id,
+            LastChecked = DateTime.UtcNow.AddHours(-1),
+        };
+
+        using (var db = new KapitelShelfDBContext(this.dbOptions))
+        {
+            db.Series.AddRange(seriesOld, seriesRecent);
+            db.Users.Add(user);
+            db.Watchlist.AddRange(watchlistOld, watchlistRecent);
+            db.SaveChanges();
+        }
+
+        // Execute
+        await this.testee.ExecuteTask(this.context);
+
+        // Assert
+        await this.logic.Received(1).UpdateWatchlist(watchlistOld.Id);
+        await this.logic.DidNotReceive().UpdateWatchlist(watchlistRecent.Id);
+
+        this.dataStore.Received().SetMessage(
+            "Group.UpdateWatchlists",
+            Arg.Is<string>(m => m.Contains(seriesOld.Name)));
     }
 
     /// <summary>

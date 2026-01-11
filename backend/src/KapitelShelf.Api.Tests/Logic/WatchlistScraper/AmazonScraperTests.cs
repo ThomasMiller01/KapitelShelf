@@ -76,7 +76,11 @@ public class AmazonScraperTests
         mockHttp.When("https://www.amazon.com/dp/BOOK2*")
             .Respond("text/html", bookHtml);
 
-        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper)
+        {
+            WaitDelayMin = 1,
+            WaitDelayMax = 1,
+        };
         var series = new SeriesDTO
         {
             Id = Guid.NewGuid(),
@@ -115,7 +119,11 @@ public class AmazonScraperTests
     [Test]
     public async Task Scrape_ReturnsEmpty_WhenNoLocation()
     {
-        var scraper = new AmazonScraper(new HttpClient(), this.mapper);
+        var scraper = new AmazonScraper(new HttpClient(), this.mapper)
+        {
+            WaitDelayMin = 1,
+            WaitDelayMax = 1,
+        };
         var series = new SeriesDTO
         {
             Id = Guid.NewGuid(),
@@ -140,7 +148,11 @@ public class AmazonScraperTests
         mockHttp.When("https://www.amazon.com/dp/ROOTBOOK*")
             .Respond("text/html", html);
 
-        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper)
+        {
+            WaitDelayMin = 1,
+            WaitDelayMax = 1,
+        };
         var series = new SeriesDTO
         {
             Id = Guid.NewGuid(),
@@ -176,7 +188,11 @@ public class AmazonScraperTests
         var seriesHtml = "<html><body>No volumes here</body></html>";
         mockHttp.When("https://www.amazon.com/dp/SERIESASIN*").Respond("text/html", seriesHtml);
 
-        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper)
+        {
+            WaitDelayMin = 1,
+            WaitDelayMax = 1,
+        };
         var series = new SeriesDTO
         {
             Id = Guid.NewGuid(),
@@ -200,7 +216,11 @@ public class AmazonScraperTests
         mockHttp.When("https://www.amazon.com/dp/ROOTBOOK*")
             .Respond(HttpStatusCode.InternalServerError);
 
-        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper);
+        var scraper = new AmazonScraper(mockHttp.ToHttpClient(), this.mapper)
+        {
+            WaitDelayMin = 1,
+            WaitDelayMax = 1,
+        };
         var series = new SeriesDTO
         {
             Id = Guid.NewGuid(),

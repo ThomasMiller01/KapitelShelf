@@ -3,6 +3,7 @@ import { useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
 import { SettingsLayout } from "../components/layout/SettingsLayout";
+import { useSessionStart } from "../hooks/apihooks/useSessionStart";
 import { useUserProfile } from "../hooks/useUserProfile";
 import BookDetailPage from "../pages/book/BookDetailPage";
 import CreateBookPage from "../pages/book/CreateBookPage";
@@ -32,6 +33,7 @@ import {
 
 const AppRoutes = (): ReactElement | null => {
   const { profile } = useUserProfile();
+  useSessionStart();
 
   return useRoutes(
     IsMobileApp() && !IsMobileApiBaseUrlConfigured()
