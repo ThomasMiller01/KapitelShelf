@@ -64,6 +64,7 @@ const SeriesBooksList = ({ seriesId }: SeriesBooksListProps): ReactElement => {
       next={fetchNextPage}
       hasMore={hasNextPage}
       loader={<LoadingCard itemName="more" />}
+      style={{ padding: "24px" }}
     >
       <Grid container spacing={2}>
         {data?.pages
