@@ -171,7 +171,7 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialSeriesName">The partial series name.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/series")]
-    public async Task<ActionResult<List<string>>> AutocompleteSeries(string partialSeriesName)
+    public async Task<ActionResult<List<string>>> AutocompleteSeries(string? partialSeriesName)
     {
         try
         {
@@ -191,7 +191,7 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialAuthor">The partial author.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/author")]
-    public async Task<ActionResult<List<string>>> AutocompleteAuthor(string partialAuthor)
+    public async Task<ActionResult<List<string>>> AutocompleteAuthor(string? partialAuthor)
     {
         try
         {

@@ -530,7 +530,7 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
-    public async Task<List<string>> AutocompleteSeriesAsync(string partialSeriesName)
+    public async Task<List<string>> AutocompleteSeriesAsync(string? partialSeriesName)
     {
         if (string.IsNullOrWhiteSpace(partialSeriesName))
         {
@@ -549,7 +549,7 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
-    public async Task<List<string>> AutocompleteAuthorAsync(string partialAuthor)
+    public async Task<List<string>> AutocompleteAuthorAsync(string? partialAuthor)
     {
         if (string.IsNullOrWhiteSpace(partialAuthor))
         {

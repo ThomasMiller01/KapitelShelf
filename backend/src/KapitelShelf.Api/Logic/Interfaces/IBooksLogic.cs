@@ -90,14 +90,14 @@ public interface IBooksLogic
     /// </summary>
     /// <param name="partialSeriesName">The partial series name.</param>
     /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteSeriesAsync(string partialSeriesName);
+    Task<List<string>> AutocompleteSeriesAsync(string? partialSeriesName);
 
     /// <summary>
     /// Get the autocomplete result for the author.
     /// </summary>
     /// <param name="partialAuthor">The partial author.</param>
     /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteAuthorAsync(string partialAuthor);
+    Task<List<string>> AutocompleteAuthorAsync(string? partialAuthor);
 
     /// <summary>
     /// Cleans up the database by removing orphaned entities such as authors, series, categories, tags, locations, and files.
