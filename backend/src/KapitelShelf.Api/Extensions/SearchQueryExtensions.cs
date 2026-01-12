@@ -98,4 +98,127 @@ public static class SearchQueryExtensions
                 // trigram fuzzy match
                 ((float)PgTrgmExtensions.Similarity(x.Name, name) * 0.3f));
     }
+
+    /// <summary>
+    /// Filter by author query.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="author">The author.</param>
+    /// <returns>The filtered query.</returns>
+    public static IQueryable<AuthorModel> FilterByAuthorQuery(this IQueryable<AuthorModel> query, string author)
+    {
+        return query.Where(x =>
+
+                // full-text search
+                EF.Functions.ToTsVector("english", x.FirstName + " " + x.LastName).Matches(EF.Functions.PlainToTsQuery("english", author)) ||
+
+                // partial matches
+                EF.Functions.ILike(x.FirstName + " " + x.LastName, $"%{author}%") ||
+
+                // trigram fuzzy match
+                PgTrgmExtensions.Similarity(x.FirstName + " " + x.LastName, author) > 0.2);
+    }
+
+    /// <summary>
+    /// Sort by author query.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="author">The author.</param>
+    /// <returns>The sorted query.</returns>
+    public static IQueryable<AuthorModel> SortByAuthorQuery(this IQueryable<AuthorModel> query, string author)
+    {
+        return query.OrderByDescending(x =>
+
+                // full-text search
+                (EF.Functions.ToTsVector("english", x.FirstName + " " + x.LastName).Rank(EF.Functions.PlainToTsQuery("english", author)) * 1.0f) +
+
+                // partial matches
+                // soft boost for substring matches
+                (EF.Functions.ILike(x.FirstName + " " + x.LastName, $"%{author}%") ? 0.1f : 0.0f) +
+
+                // trigram fuzzy match
+                ((float)PgTrgmExtensions.Similarity(x.FirstName + " " + x.LastName, author) * 0.3f));
+    }
+
+    /// <summary>
+    /// Filter by category query.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="name">The category name.</param>
+    /// <returns>The filtered query.</returns>
+    public static IQueryable<CategoryModel> FilterByCategoryQuery(this IQueryable<CategoryModel> query, string name)
+    {
+        return query.Where(x =>
+
+                // full-text search
+                EF.Functions.ToTsVector("english", x.Name).Matches(EF.Functions.PlainToTsQuery("english", name)) ||
+
+                // partial matches
+                EF.Functions.ILike(x.Name, $"%{name}%") ||
+
+                // trigram fuzzy match
+                PgTrgmExtensions.Similarity(x.Name, name) > 0.2);
+    }
+
+    /// <summary>
+    /// Sort by category query.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="name">The category name.</param>
+    /// <returns>The sorted query.</returns>
+    public static IQueryable<CategoryModel> SortByCategoryQuery(this IQueryable<CategoryModel> query, string name)
+    {
+        return query.OrderByDescending(x =>
+
+                // full-text search
+                (EF.Functions.ToTsVector("english", x.Name).Rank(EF.Functions.PlainToTsQuery("english", name)) * 1.0f) +
+
+                // partial matches
+                // soft boost for substring matches
+                (EF.Functions.ILike(x.Name, $"%{name}%") ? 0.1f : 0.0f) +
+
+                // trigram fuzzy match
+                ((float)PgTrgmExtensions.Similarity(x.Name, name) * 0.3f));
+    }
+
+    /// <summary>
+    /// Filter by tag query.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="name">The tag name.</param>
+    /// <returns>The filtered query.</returns>
+    public static IQueryable<TagModel> FilterByTagQuery(this IQueryable<TagModel> query, string name)
+    {
+        return query.Where(x =>
+
+                // full-text search
+                EF.Functions.ToTsVector("english", x.Name).Matches(EF.Functions.PlainToTsQuery("english", name)) ||
+
+                // partial matches
+                EF.Functions.ILike(x.Name, $"%{name}%") ||
+
+                // trigram fuzzy match
+                PgTrgmExtensions.Similarity(x.Name, name) > 0.2);
+    }
+
+    /// <summary>
+    /// Sort by tag query.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="name">The tag name.</param>
+    /// <returns>The sorted query.</returns>
+    public static IQueryable<TagModel> SortByTagQuery(this IQueryable<TagModel> query, string name)
+    {
+        return query.OrderByDescending(x =>
+
+                // full-text search
+                (EF.Functions.ToTsVector("english", x.Name).Rank(EF.Functions.PlainToTsQuery("english", name)) * 1.0f) +
+
+                // partial matches
+                // soft boost for substring matches
+                (EF.Functions.ILike(x.Name, $"%{name}%") ? 0.1f : 0.0f) +
+
+                // trigram fuzzy match
+                ((float)PgTrgmExtensions.Similarity(x.Name, name) * 0.3f));
+    }
 }

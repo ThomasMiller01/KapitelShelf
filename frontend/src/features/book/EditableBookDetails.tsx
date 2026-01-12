@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
+import { AutoComplete } from "../../components/base/AutoComplete";
 import FileUploadButton from "../../components/base/FileUploadButton";
 import ItemList from "../../components/base/ItemList";
 import { useApi } from "../../contexts/ApiProvider";
@@ -312,7 +313,16 @@ const EditableBookDetails = ({
                   name="author"
                   control={control}
                   render={({ field }) => (
-                    <TextField {...field} label="Author" variant="filled" />
+                    <AutoComplete
+                      {...field}
+                      label="Author"
+                      variant="filled"
+                      fetchSuggestions={async (value) => {
+                        const { data } =
+                          await clients.books.booksAutocompleteAuthorGet(value);
+                        return data;
+                      }}
+                    />
                   )}
                 />
 
@@ -322,11 +332,20 @@ const EditableBookDetails = ({
                     name="series"
                     control={control}
                     render={({ field }) => (
-                      <TextField
+                      <AutoComplete
                         {...field}
                         label="Series"
                         variant="filled"
                         fullWidth
+                        error={Boolean(errors.series)}
+                        helperText={errors.series?.message}
+                        fetchSuggestions={async (value) => {
+                          const { data } =
+                            await clients.books.booksAutocompleteSeriesGet(
+                              value
+                            );
+                          return data;
+                        }}
                       />
                     )}
                   />
@@ -366,6 +385,12 @@ const EditableBookDetails = ({
                         itemName="Category"
                         items={field.value?.map((x) => x ?? "")}
                         onChange={field.onChange}
+                        useAutocomplete
+                        autocompleteFetchSuggestions={async (x) => {
+                          const { data } =
+                            await clients.books.booksAutocompleteCategoryGet(x);
+                          return data;
+                        }}
                       />
                     )}
                   />
@@ -383,6 +408,12 @@ const EditableBookDetails = ({
                         items={field.value?.map((x) => x ?? "")}
                         onChange={field.onChange}
                         variant="outlined"
+                        useAutocomplete
+                        autocompleteFetchSuggestions={async (x) => {
+                          const { data } =
+                            await clients.books.booksAutocompleteTagGet(x);
+                          return data;
+                        }}
                       />
                     )}
                   />
