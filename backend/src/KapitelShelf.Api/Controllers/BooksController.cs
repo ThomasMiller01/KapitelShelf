@@ -206,6 +206,46 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     }
 
     /// <summary>
+    /// Autocomplete the book category.
+    /// </summary>
+    /// <param name="partialCategoryName">The partial category name.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("autocomplete/category")]
+    public async Task<ActionResult<List<string>>> AutocompleteCategory(string? partialCategoryName)
+    {
+        try
+        {
+            var autocompleteResult = await this.logic.AutocompleteCategoryAsync(partialCategoryName);
+            return Ok(autocompleteResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting category for autocomplete");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Autocomplete the book tag.
+    /// </summary>
+    /// <param name="partialTagName">The partial tag name.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("autocomplete/tag")]
+    public async Task<ActionResult<List<string>>> AutocompleteTag(string? partialTagName)
+    {
+        try
+        {
+            var autocompleteResult = await this.logic.AutocompleteTagAsync(partialTagName);
+            return Ok(autocompleteResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting tag for autocomplete");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Get book by the id.
     /// </summary>
     /// <param name="bookId">The id of the book to get.</param>

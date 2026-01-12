@@ -1202,6 +1202,41 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Autocomplete the book category.
+         * @param {string} [partialCategoryName] The partial category name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksAutocompleteCategoryGet: async (partialCategoryName?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/books/autocomplete/category`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (partialCategoryName !== undefined) {
+                localVarQueryParameter['partialCategoryName'] = partialCategoryName;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Autocomplete the book series.
          * @param {string} [partialSeriesName] The partial series name.
          * @param {*} [options] Override http request option.
@@ -1222,6 +1257,41 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
 
             if (partialSeriesName !== undefined) {
                 localVarQueryParameter['partialSeriesName'] = partialSeriesName;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Autocomplete the book tag.
+         * @param {string} [partialTagName] The partial tag name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksAutocompleteTagGet: async (partialTagName?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/books/autocomplete/tag`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (partialTagName !== undefined) {
+                localVarQueryParameter['partialTagName'] = partialTagName;
             }
 
 
@@ -1748,6 +1818,19 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Autocomplete the book category.
+         * @param {string} [partialCategoryName] The partial category name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksAutocompleteCategoryGet(partialCategoryName?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksAutocompleteCategoryGet(partialCategoryName, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksAutocompleteCategoryGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Autocomplete the book series.
          * @param {string} [partialSeriesName] The partial series name.
          * @param {*} [options] Override http request option.
@@ -1757,6 +1840,19 @@ export const BooksApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.booksAutocompleteSeriesGet(partialSeriesName, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksAutocompleteSeriesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Autocomplete the book tag.
+         * @param {string} [partialTagName] The partial tag name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksAutocompleteTagGet(partialTagName?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksAutocompleteTagGet(partialTagName, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksAutocompleteTagGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1956,6 +2052,16 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @summary Autocomplete the book category.
+         * @param {string} [partialCategoryName] The partial category name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksAutocompleteCategoryGet(partialCategoryName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.booksAutocompleteCategoryGet(partialCategoryName, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Autocomplete the book series.
          * @param {string} [partialSeriesName] The partial series name.
          * @param {*} [options] Override http request option.
@@ -1963,6 +2069,16 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          */
         booksAutocompleteSeriesGet(partialSeriesName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
             return localVarFp.booksAutocompleteSeriesGet(partialSeriesName, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Autocomplete the book tag.
+         * @param {string} [partialTagName] The partial tag name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksAutocompleteTagGet(partialTagName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.booksAutocompleteTagGet(partialTagName, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2124,6 +2240,18 @@ export class BooksApi extends BaseAPI {
 
     /**
      * 
+     * @summary Autocomplete the book category.
+     * @param {string} [partialCategoryName] The partial category name.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksAutocompleteCategoryGet(partialCategoryName?: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksAutocompleteCategoryGet(partialCategoryName, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Autocomplete the book series.
      * @param {string} [partialSeriesName] The partial series name.
      * @param {*} [options] Override http request option.
@@ -2132,6 +2260,18 @@ export class BooksApi extends BaseAPI {
      */
     public booksAutocompleteSeriesGet(partialSeriesName?: string, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksAutocompleteSeriesGet(partialSeriesName, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Autocomplete the book tag.
+     * @param {string} [partialTagName] The partial tag name.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksAutocompleteTagGet(partialTagName?: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksAutocompleteTagGet(partialTagName, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -317,16 +317,12 @@ const EditableBookDetails = ({
                       {...field}
                       label="Author"
                       variant="filled"
-                      // fullWidth
-                      error={Boolean(errors.author)}
-                      helperText={errors.author?.message}
                       fetchSuggestions={async (value) => {
                         const { data } =
                           await clients.books.booksAutocompleteAuthorGet(value);
                         return data;
                       }}
                     />
-                    // <TextField {...field} label="Author" variant="filled" />
                   )}
                 />
 
@@ -389,6 +385,12 @@ const EditableBookDetails = ({
                         itemName="Category"
                         items={field.value?.map((x) => x ?? "")}
                         onChange={field.onChange}
+                        useAutocomplete
+                        autocompleteFetchSuggestions={async (x) => {
+                          const { data } =
+                            await clients.books.booksAutocompleteCategoryGet(x);
+                          return data;
+                        }}
                       />
                     )}
                   />
@@ -406,6 +408,12 @@ const EditableBookDetails = ({
                         items={field.value?.map((x) => x ?? "")}
                         onChange={field.onChange}
                         variant="outlined"
+                        useAutocomplete
+                        autocompleteFetchSuggestions={async (x) => {
+                          const { data } =
+                            await clients.books.booksAutocompleteTagGet(x);
+                          return data;
+                        }}
                       />
                     )}
                   />

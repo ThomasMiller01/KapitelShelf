@@ -9,7 +9,8 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { type ReactElement, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { AutoComplete } from "./AutoComplete";
 
 type ChipVariant = React.ComponentProps<typeof Chip>["variant"];
 
@@ -19,15 +20,19 @@ interface ItemListProps {
   onChange: (items: string[]) => void;
   width?: string;
   variant?: ChipVariant;
+  useAutocomplete?: boolean;
+  autocompleteFetchSuggestions?: (value: string) => Promise<string[]>;
 }
 
-const ItemList = ({
+const ItemList: React.FC<ItemListProps> = ({
   itemName,
   items: initial = [],
   onChange,
   width = "25ch",
   variant = "filled",
-}: ItemListProps): ReactElement => {
+  useAutocomplete = false,
+  autocompleteFetchSuggestions = undefined,
+}) => {
   const [items, setItems] = useState<string[]>(initial);
   useEffect(() => {
     onChange(items);
@@ -42,13 +47,11 @@ const ItemList = ({
 
   const [showAddTextfield, setShowAddTextfield] = useState(false);
   const [addTextfield, setAddTextfield] = useState("");
-  const onSave = (): void => {
-    if (addTextfield !== "") {
+  const onSave = (value?: string): void => {
+    const next: string = value ?? addTextfield;
+    if (next !== "") {
       // dont allow duplicates
-      setItems((items) => [
-        ...items.filter((x) => x !== addTextfield),
-        addTextfield,
-      ]);
+      setItems((items) => [...items.filter((x) => x !== next), next]);
     }
 
     onClose();
@@ -94,33 +97,101 @@ const ItemList = ({
       )}
       {showAddTextfield && (
         <Stack direction="row" spacing={1} alignItems="center">
-          <TextField
-            label={itemName}
-            size="small"
-            variant="outlined"
-            value={addTextfield}
-            autoFocus
-            onChange={(event) => setAddTextfield(event.target.value)}
-            onKeyDown={(event) => onKeyDown(event.key)}
-            sx={{ width }}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={onSave} edge="end">
-                      <SaveIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+          {useAutocomplete && autocompleteFetchSuggestions ? (
+            <ItemListAutoComplete
+              label={itemName}
+              value={addTextfield}
+              onChange={setAddTextfield}
+              onKeyDown={onKeyDown}
+              onSave={onSave}
+              width={width}
+              fetchSuggestions={autocompleteFetchSuggestions}
+            />
+          ) : (
+            <ItemListTextField
+              label={itemName}
+              value={addTextfield}
+              onChange={setAddTextfield}
+              onKeyDown={onKeyDown}
+              onSave={onSave}
+              width={width}
+            />
+          )}
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
         </Stack>
       )}
     </Stack>
+  );
+};
+
+interface ItemListTextFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: React.SetStateAction<string>) => void;
+  onKeyDown: (key: string) => void;
+  width: string;
+  onSave: () => void;
+}
+
+const ItemListTextField: React.FC<ItemListTextFieldProps> = ({
+  label,
+  value,
+  onChange,
+  onKeyDown,
+  width,
+  onSave,
+}) => {
+  return (
+    <TextField
+      label={label}
+      size="small"
+      variant="outlined"
+      value={value}
+      autoFocus
+      onChange={(event) => onChange(event.target.value)}
+      onKeyDown={(event) => onKeyDown(event.key)}
+      sx={{ width }}
+      slotProps={{
+        input: {
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={onSave} edge="end">
+                <SaveIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        },
+      }}
+    />
+  );
+};
+
+interface ItemListAutoCompleteProps extends ItemListTextFieldProps {
+  fetchSuggestions: (value: string) => Promise<string[]>;
+}
+
+const ItemListAutoComplete: React.FC<ItemListAutoCompleteProps> = ({
+  label,
+  value,
+  onKeyDown,
+  width,
+  onSave,
+  fetchSuggestions,
+}) => {
+  return (
+    <AutoComplete
+      label={label}
+      size="small"
+      variant="outlined"
+      value={value}
+      autoFocus
+      onChange={onSave}
+      onKeyDown={(event) => onKeyDown(event.key)}
+      sx={{ width }}
+      fetchSuggestions={fetchSuggestions}
+    />
   );
 };
 

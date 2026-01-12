@@ -100,6 +100,20 @@ public interface IBooksLogic
     Task<List<string>> AutocompleteAuthorAsync(string? partialAuthor);
 
     /// <summary>
+    /// Get the autocomplete result for the category.
+    /// </summary>
+    /// <param name="partialCategoryName">The partial category name.</param>
+    /// <returns>The autocomplete result.</returns>
+    Task<List<string>> AutocompleteCategoryAsync(string? partialCategoryName);
+
+    /// <summary>
+    /// Get the autocomplete result for the tag.
+    /// </summary>
+    /// <param name="partialTagName">The partial tag name.</param>
+    /// <returns>The autocomplete result.</returns>
+    Task<List<string>> AutocompleteTagAsync(string? partialTagName);
+
+    /// <summary>
     /// Cleans up the database by removing orphaned entities such as authors, series, categories, tags, locations, and files.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
