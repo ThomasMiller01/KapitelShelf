@@ -49,6 +49,31 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     }
 
     /// <summary>
+    /// Create a new book.
+    /// </summary>
+    /// <param name="createBookDto">The create book dto.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPost]
+    public async Task<ActionResult<BookDTO>> CreateBook(CreateBookDTO createBookDto)
+    {
+        try
+        {
+            var book = await this.logic.CreateBookAsync(createBookDto);
+
+            return CreatedAtAction(nameof(CreateBook), book);
+        }
+        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
+        {
+            return Conflict(new { error = "A book with this title (or location) already exists." });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error creating book with title: {Title}", createBookDto?.Title);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Search books with a search term.
     /// </summary>
     /// <param name="searchterm">The search term.</param>
@@ -89,31 +114,6 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error fetching suggestions by searchterm: {SearchTerm}", searchterm);
-            return StatusCode(500, new { error = "An unexpected error occurred." });
-        }
-    }
-
-    /// <summary>
-    /// Create a new book.
-    /// </summary>
-    /// <param name="createBookDto">The create book dto.</param>
-    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpPost]
-    public async Task<ActionResult<BookDTO>> CreateBook(CreateBookDTO createBookDto)
-    {
-        try
-        {
-            var book = await this.logic.CreateBookAsync(createBookDto);
-
-            return CreatedAtAction(nameof(CreateBook), book);
-        }
-        catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
-        {
-            return Conflict(new { error = "A book with this title (or location) already exists." });
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error creating book with title: {Title}", createBookDto?.Title);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
@@ -161,6 +161,46 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error importing book from asin");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Autocomplete the book series.
+    /// </summary>
+    /// <param name="partialSeriesName">The partial series name.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("autocomplete/series")]
+    public async Task<ActionResult<List<string>>> AutocompleteSeries(string partialSeriesName)
+    {
+        try
+        {
+            var autocompleteResult = await this.logic.AutocompleteSeriesAsync(partialSeriesName);
+            return Ok(autocompleteResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting series for autocomplete");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Autocomplete the book author.
+    /// </summary>
+    /// <param name="partialAuthor">The partial author.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("autocomplete/author")]
+    public async Task<ActionResult<List<string>>> AutocompleteAuthor(string partialAuthor)
+    {
+        try
+        {
+            var autocompleteResult = await this.logic.AutocompleteAuthorAsync(partialAuthor);
+            return Ok(autocompleteResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting author for autocomplete");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
