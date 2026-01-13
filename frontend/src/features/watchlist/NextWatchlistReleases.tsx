@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import { ScrollableList } from "../../components/ScrollableList";
+import { ScrollableList } from "../../components/base/ScrollableList";
 import { ResultCard } from "../../components/watchlist/ResultCard";
 import { useApi } from "../../contexts/ApiProvider";
 import { useUserProfile } from "../../hooks/useUserProfile";

@@ -46,7 +46,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 
   // update input value when external value changes
   useEffect(() => {
-    console.log("value", value);
     setInputValue(value ?? "");
   }, [value]);
 
@@ -87,7 +86,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
           selected = selected.slice(4, selected.length);
         }
 
-        console.log("selected", selected);
         onChange?.(selected);
       }}
       filterOptions={(opts, state) => {

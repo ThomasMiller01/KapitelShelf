@@ -10,7 +10,7 @@ import React from "react";
 import { FreeMode, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useMobile } from "../hooks/useMobile";
+import { useMobile } from "../../hooks/useMobile";
 
 type ScrollableListProps = {
   title?: string;
@@ -26,6 +26,8 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
   itemGap = 24,
 }) => {
   const { isMobile } = useMobile();
+
+  const items = React.Children.toArray(children);
 
   return (
     <Box
@@ -43,10 +45,11 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
       )}
       <Box
         sx={{
-          width: "100%",
-          maxWidth: "100%",
+          width: "calc(100% - 16px)",
+          maxWidth: "calc(100% - 16px)",
           minWidth: 0,
           overflow: "hidden",
+          margin: "0 8px",
           ".swiper": {
             minWidth: 0,
             maxWidth: "100vw",
@@ -83,9 +86,9 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
           spaceBetween={itemGap}
           slidesPerView="auto"
           autoHeight
-          style={{ margin: "0 8px", padding: "18px 0" }}
+          style={{ padding: "18px 0" }}
         >
-          {React.Children.map(children, (child, _) => (
+          {items.map((child, _) => (
             <SwiperSlide>
               <Box sx={{ width: itemWidth }}>{child}</Box>
             </SwiperSlide>
