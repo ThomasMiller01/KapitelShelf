@@ -59,8 +59,8 @@ export const ResponsiveDrawer = ({
         "& .MuiDrawer-paper": {
           width: DRAWER_WIDTH,
           boxSizing: "border-box",
-          paddingTop: IsMobileApp() ? "24px" : 0,
-          paddingBottom: IsMobileApp() ? "24px" : 0,
+          paddingTop: IsMobileApp() ? "30px" : 0,
+          paddingBottom: IsMobileApp() ? "10px" : 0,
         },
       }}
     >
@@ -121,7 +121,7 @@ export const ResponsiveDrawerAppBar = ({
         width: open && !isMobile ? `calc(100% - ${DRAWER_WIDTH}px)` : "100%",
         ml: open && !isMobile ? `${DRAWER_WIDTH}px` : 0,
         bgcolor: "background.paper",
-        paddingTop: IsMobileApp() ? "24px" : 0,
+        paddingTop: IsMobileApp() ? "30px" : 0,
         paddingRight: "0 !important",
         transition: (theme) =>
           theme.transitions.create(["margin", "width"], {

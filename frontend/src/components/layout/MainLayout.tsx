@@ -32,8 +32,8 @@ export const MainLayout = (): ReactElement => {
       sx={{
         display: "flex",
         minWidth: 0,
-        paddingTop: IsMobileApp() ? "24px" : 0,
-        paddingBottom: IsMobileApp() ? "24px" : 0,
+        paddingTop: IsMobileApp() ? "30px" : 0,
+        paddingBottom: IsMobileApp() ? "10px" : 0,
       }}
     >
       <Sidebar open={open} onClose={toggleDrawer} />

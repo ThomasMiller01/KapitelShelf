@@ -1,7 +1,6 @@
 import { App } from "@capacitor/app";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
-import { PaletteDark } from "./styles/Palette";
 import { IsMobileApp } from "./utils/MobileUtils";
 
 export const InitializeMobile = async (): Promise<void> => {
@@ -9,17 +8,22 @@ export const InitializeMobile = async (): Promise<void> => {
     return;
   }
 
-  await PreventStatusBarOverlay();
   InterceptMobileBackButton();
 };
 
-const PreventStatusBarOverlay = async (): Promise<void> => {
-  // prevent overlay (content will layout below the status bar)
-  await StatusBar.setOverlaysWebView({ overlay: false });
-  await StatusBar.setBackgroundColor({
-    color: PaletteDark.background?.paper ?? "#1E1E1E",
+export const ApplyModeToMobile = async (
+  mode: "light" | "dark"
+): Promise<void> => {
+  if (!IsMobileApp()) {
+    return;
+  }
+
+  await StatusBar.setStyle({
+    style: mode === "dark" ? Style.Dark : Style.Light,
   });
-  await StatusBar.setStyle({ style: Style.Dark });
+  await StatusBar.setBackgroundColor({
+    color: mode === "dark" ? "#000000" : "#ffffff",
+  });
 };
 
 const InterceptMobileBackButton = (): void => {
