@@ -543,7 +543,7 @@ public class BooksLogic(
             .AsNoTracking()
             .FilterBySeriesNameQuery(partialSeriesName)
             .SortBySeriesNameQuery(partialSeriesName)
-            .Take(10)
+            .Take(5)
             .Select(x => x.Name)
             .ToListAsync();
     }
@@ -562,7 +562,7 @@ public class BooksLogic(
             .AsNoTracking()
             .FilterByAuthorQuery(partialAuthor)
             .SortByAuthorQuery(partialAuthor)
-            .Take(10)
+            .Take(5)
             .Select(x => x.FirstName + " " + x.LastName)
             .ToListAsync();
     }
@@ -581,7 +581,7 @@ public class BooksLogic(
             .AsNoTracking()
             .FilterByCategoryQuery(partialCategoryName)
             .SortByCategoryQuery(partialCategoryName)
-            .Take(10)
+            .Take(5)
             .Select(x => x.Name)
             .ToListAsync();
     }
@@ -600,7 +600,7 @@ public class BooksLogic(
             .AsNoTracking()
             .FilterByTagQuery(partialTagName)
             .SortByTagQuery(partialTagName)
-            .Take(10)
+            .Take(5)
             .Select(x => x.Name)
             .ToListAsync();
     }

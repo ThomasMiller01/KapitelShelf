@@ -1716,7 +1716,7 @@ public class BooksLogicTests
 
         // assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.LessThanOrEqualTo(10));
+        Assert.That(result, Has.Count.EqualTo(5));
         Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
     }
 
@@ -1806,7 +1806,7 @@ public class BooksLogicTests
 
         // assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.LessThanOrEqualTo(10));
+        Assert.That(result, Has.Count.EqualTo(5));
         Assert.Multiple(() =>
         {
             Assert.That(result.All(x => x.Contains(token, StringComparison.OrdinalIgnoreCase)), Is.True);
@@ -1899,7 +1899,7 @@ public class BooksLogicTests
 
         // assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.LessThanOrEqualTo(10));
+        Assert.That(result, Has.Count.EqualTo(5));
         Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
     }
 
@@ -1987,7 +1987,7 @@ public class BooksLogicTests
 
         // assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.LessThanOrEqualTo(10));
+        Assert.That(result, Has.Count.EqualTo(5));
         Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
     }
 
