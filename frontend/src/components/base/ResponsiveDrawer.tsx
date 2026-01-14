@@ -13,6 +13,7 @@ import { styled } from "@mui/material/styles";
 import type { ReactElement, ReactNode } from "react";
 
 import { useMobile } from "../../hooks/useMobile";
+import { IsMobileApp } from "../../utils/MobileUtils";
 import FancyText from "../FancyText";
 
 export const DRAWER_WIDTH = 280;
@@ -58,10 +59,16 @@ export const ResponsiveDrawer = ({
         "& .MuiDrawer-paper": {
           width: DRAWER_WIDTH,
           boxSizing: "border-box",
+          paddingTop: IsMobileApp() ? "30px" : 0,
+          paddingBottom: IsMobileApp() ? "10px" : 0,
         },
       }}
     >
-      <DrawerHeader sx={{ justifyContent: "space-between" }}>
+      <DrawerHeader
+        sx={{
+          justifyContent: "space-between",
+        }}
+      >
         <Stack direction="row" spacing={1} alignItems="center">
           {logo && (
             <Box
@@ -114,6 +121,7 @@ export const ResponsiveDrawerAppBar = ({
         width: open && !isMobile ? `calc(100% - ${DRAWER_WIDTH}px)` : "100%",
         ml: open && !isMobile ? `${DRAWER_WIDTH}px` : 0,
         bgcolor: "background.paper",
+        paddingTop: IsMobileApp() ? "30px" : 0,
         paddingRight: "0 !important",
         transition: (theme) =>
           theme.transitions.create(["margin", "width"], {

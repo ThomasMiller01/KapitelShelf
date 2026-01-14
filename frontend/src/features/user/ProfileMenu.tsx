@@ -21,6 +21,7 @@ import { NotificationsIcon } from "../../components/notifications/NotificationsI
 import { TasksMenuItem } from "../../components/tasks/TasksMenuItem";
 import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { ApplyModeToMobile } from "../../InitializeMobile";
 import {
   ProfileImageTypeDTO,
   type UserDTO,
@@ -45,7 +46,6 @@ export const ProfileMenu = (): ReactElement => {
   };
 
   const { mode, systemMode, setMode } = useColorScheme();
-
   if (!mode) {
     // mode is undefined on first render
     return <></>;
@@ -133,7 +133,10 @@ export const ProfileMenu = (): ReactElement => {
         {/* Color mode button not shown on mobile, instead part of user context menu */}
         {isMobile && (
           <MenuItem
-            onClick={() => setMode(currentMode === "dark" ? "light" : "dark")}
+            onClick={() => {
+              setMode(currentMode === "dark" ? "light" : "dark");
+              ApplyModeToMobile(currentMode === "dark" ? "light" : "dark");
+            }}
             sx={{ my: "6px", textTransform: "capitalize" }}
           >
             <ListItemIcon>

@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ProfileMenu } from "../features/user/ProfileMenu";
 import { useMobile } from "../hooks/useMobile";
+import { ApplyModeToMobile } from "../InitializeMobile";
 import { ResponsiveDrawerAppBar } from "./base/ResponsiveDrawer";
 import { SearchBar } from "./search/SearchBar";
 
@@ -57,7 +58,10 @@ export const AppBar = ({ open, toggle }: TopAppBarProps): ReactElement => {
           {/* Color mode button not shown on mobile, instead part of user context menu */}
           {!isMobile && (
             <IconButton
-              onClick={() => setMode(currentMode === "dark" ? "light" : "dark")}
+              onClick={() => {
+                setMode(currentMode === "dark" ? "light" : "dark");
+                ApplyModeToMobile(currentMode === "dark" ? "light" : "dark");
+              }}
             >
               {currentMode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>

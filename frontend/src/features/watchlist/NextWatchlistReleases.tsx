@@ -34,7 +34,7 @@ const NextWatchlistReleasesList = (): ReactElement => {
     return <RequestErrorCard itemName="Next Releases" onRetry={refetch} />;
   }
 
-  if (data === undefined || data === null || data.length === 0) {
+  if (data === undefined || data === null) {
     return <NoItemsFoundCard itemName="Next Releases" small />;
   }
 

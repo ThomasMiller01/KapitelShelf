@@ -1,10 +1,11 @@
-import { Box, CssBaseline, Toolbar } from "@mui/material";
+import { Box, Toolbar } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { ReactElement } from "react";
 import { Outlet } from "react-router-dom";
 
 import { useMobile } from "../../hooks/useMobile";
 import { useResponsiveDrawer } from "../../hooks/useResponsiveDrawer";
+import { IsMobileApp } from "../../utils/MobileUtils";
 import { AppBar } from "../AppBar";
 import { DRAWER_WIDTH } from "../base/ResponsiveDrawer";
 import { Sidebar } from "../Sidebar";
@@ -27,8 +28,14 @@ export const MainLayout = (): ReactElement => {
   const [open, toggleDrawer] = useResponsiveDrawer();
 
   return (
-    <Box sx={{ display: "flex", minWidth: 0 }}>
-      <CssBaseline />
+    <Box
+      sx={{
+        display: "flex",
+        minWidth: 0,
+        paddingTop: IsMobileApp() ? "30px" : 0,
+        paddingBottom: IsMobileApp() ? "10px" : 0,
+      }}
+    >
       <Sidebar open={open} onClose={toggleDrawer} />
       <AppBar open={open} toggle={toggleDrawer} />
       <Main open={open} isMobile={isMobile}>
