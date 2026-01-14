@@ -1,17 +1,54 @@
-import { Grid } from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import SeriesCard from "../../components/SeriesCard";
 import { SeriesDTO } from "../../lib/api/KapitelShelf.Api";
-import { useSeriesList } from "../../lib/requests/series/useSeriesList";
+import { useSeriesListSimpleQuery } from "../../lib/requests/series/useSeriesListSimpleQuery";
+import { FormatTime } from "../../utils/TimeUtils";
+
+export const columns: GridColDef<SeriesDTO>[] = [
+  {
+    field: "name",
+    headerName: "Series",
+    flex: 1,
+    minWidth: 220,
+    sortable: true,
+    valueGetter: (_, row) => row.name ?? "-",
+  },
+  {
+    field: "totalBooks",
+    headerName: "Books",
+    type: "number",
+    width: 120,
+    sortable: true,
+    align: "right",
+    headerAlign: "right",
+    valueGetter: (_, row) => row.totalBooks ?? 0,
+  },
+  {
+    field: "updatedAt",
+    headerName: "Updated",
+    width: 180,
+    sortable: true,
+    valueGetter: (_, row) => FormatTime(row.createdAt),
+  },
+  {
+    field: "createdAt",
+    headerName: "Created",
+    width: 180,
+    sortable: true,
+    valueGetter: (_, row) => FormatTime(row.createdAt),
+  },
+];
 
 export const ManageSeriesList = () => {
-  const [pageSize, setPageSize] = useState(100);
+  const [pageSize, setPageSize] = useState(15);
+  const [page, setPage] = useState(1);
 
-  const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
-    useSeriesList(pageSize);
+  const { data, isLoading, isError, refetch } = useSeriesListSimpleQuery({
+    page,
+    pageSize,
+  });
 
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Series" showRandomFacts />;
@@ -22,22 +59,24 @@ export const ManageSeriesList = () => {
   }
 
   return (
-    <InfiniteScroll
-      dataLength={data?.pages.flatMap((p) => p.items).length ?? 0}
-      next={fetchNextPage}
-      hasMore={hasNextPage}
-      loader={<LoadingCard itemName="more" />}
-    >
-      <Grid container spacing={2}>
-        {data?.pages
-          .flatMap((p) => p.items)
-          .filter((series): series is SeriesDTO => Boolean(series))
-          .map((series) => (
-            <Grid key={series.id}>
-              <SeriesCard series={series} />
-            </Grid>
-          ))}
-      </Grid>
-    </InfiniteScroll>
+    <DataGrid
+      rows={data?.items ?? []}
+      columns={columns}
+      rowCount={data?.totalCount}
+      loading={isLoading}
+      disableRowSelectionOnClick
+      disableColumnSorting
+      disableColumnFilter
+      checkboxSelection
+      density="compact"
+      pagination
+      paginationMode="server"
+      pageSizeOptions={[15, 25, 50]}
+      paginationModel={{ page: page - 1, pageSize }}
+      onPaginationModelChange={(model) => {
+        setPage(model.page + 1);
+        setPageSize(model.pageSize);
+      }}
+    />
   );
 };
