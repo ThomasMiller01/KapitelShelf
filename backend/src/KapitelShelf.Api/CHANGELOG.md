@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.3.4](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.3...api@0.3.4) (2026-01-14)
+
 ## [0.3.3](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.2...api@0.3.3) (2025-10-12)
 
 
