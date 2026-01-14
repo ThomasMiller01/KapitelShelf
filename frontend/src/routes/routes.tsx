@@ -19,6 +19,7 @@ import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
 import { CloudStoragesPage } from "../pages/settings/CloudStoragesPage";
+import { ManageLibraryPage } from "../pages/settings/ManageLibrary";
 import { SettingsPage } from "../pages/settings/SettingsPage";
 import { TasksPage } from "../pages/settings/TasksPage";
 import { CreateProfilePage } from "../pages/user/CreateProfilePage";
@@ -90,6 +91,10 @@ const AppRoutes = (): ReactElement | null => {
                   {
                     path: "cloudstorages",
                     element: <CloudStoragesPage />,
+                  },
+                  {
+                    path: "manage-library",
+                    element: <ManageLibraryPage />,
                   },
                 ],
               },

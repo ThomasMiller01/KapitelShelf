@@ -2,6 +2,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import CloudIcon from "@mui/icons-material/Cloud";
 import CloudQueueIcon from "@mui/icons-material/CloudQueue";
 import DevicesIcon from "@mui/icons-material/Devices";
+import EditNoteIcon from "@mui/icons-material/EditNote";
 import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -81,6 +82,13 @@ export const Sidebar = ({ open, onClose }: SidebarProps): ReactElement => {
               name="Cloud Storages"
               icon={<CloudIcon />}
               link="/settings/cloudstorages"
+              onClose={isMobile ? onClose : undefined}
+              nestingLevel={1}
+            />
+            <SidebarLinkItem
+              name="Manage Library"
+              icon={<EditNoteIcon />}
+              link="/settings/manage-library"
               onClose={isMobile ? onClose : undefined}
               nestingLevel={1}
             />
