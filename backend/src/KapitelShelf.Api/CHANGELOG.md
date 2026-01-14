@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.4](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.3...api@0.3.4) (2026-01-14)
+
+
+### Features
+
+* Add a notification system ([#346](https://github.com/ThomasMiller01/KapitelShelf/issues/346)) ([2e4d8da](https://github.com/ThomasMiller01/KapitelShelf/commit/2e4d8da6351ab3333c52426f762b128318edbb33))
+* Improve watchlist scraping strategy ([#347](https://github.com/ThomasMiller01/KapitelShelf/issues/347)) ([b2dbf5b](https://github.com/ThomasMiller01/KapitelShelf/commit/b2dbf5ba13635a69c237ca88a7fea2ce7b16ad85))
+* Add autocomplete when editing books for series, author, category and tag ([#353](https://github.com/ThomasMiller01/KapitelShelf/issues/353)) ([307cb33](https://github.com/ThomasMiller01/KapitelShelf/commit/307cb33c373cf8c8bc5b8ec59be555f261b1f882))
+
 ## [0.3.3](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.2...api@0.3.3) (2025-10-12)
 
 
