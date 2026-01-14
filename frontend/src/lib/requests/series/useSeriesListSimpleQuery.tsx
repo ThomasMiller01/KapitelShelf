@@ -23,5 +23,6 @@ export const useSeriesListSimpleQuery = ({
     },
     placeholderData: (previousData) => previousData,
     staleTime: 5 * MINUTE_MS,
+    refetchOnMount: "always",
   });
 };
