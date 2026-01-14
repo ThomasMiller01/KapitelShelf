@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.3](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.3.2...frontend@0.3.3) (2026-01-14)
+
+
+### Bug Fixes
+
+* android build ([#341](https://github.com/ThomasMiller01/KapitelShelf/issues/341)) ([3a1b735](https://github.com/ThomasMiller01/KapitelShelf/commit/3a1b735aad95d89e3f85c28d6866e68daa94782e))
+* mobile bottom navigation being white ([#359](https://github.com/ThomasMiller01/KapitelShelf/issues/359)) ([a3bb254](https://github.com/ThomasMiller01/KapitelShelf/commit/a3bb2542273d6db8b17e6921b1e0192d7b0f319f))
+* ScrollableList has one additional element in some cases ([#357](https://github.com/ThomasMiller01/KapitelShelf/issues/357)) ([2b0c80d](https://github.com/ThomasMiller01/KapitelShelf/commit/2b0c80d3dc60efc80ad4e4b24c481baba34e3c94))
+
 ## [0.3.2](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.3.1...frontend@0.3.2) (2025-10-09)
 
 
