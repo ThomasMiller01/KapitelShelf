@@ -1,6 +1,7 @@
 import { Alert, Box, Tab, Tabs, Typography } from "@mui/material";
 import { useState, type ReactElement } from "react";
 import { TabPanel } from "../../components/base/TabPanel";
+import { ManageSeriesList } from "../../features/series/ManageSeriesList";
 
 export const ManageLibraryPage = (): ReactElement => {
   const [activeTab, setActiveTab] = useState(0);
@@ -25,7 +26,7 @@ export const ManageLibraryPage = (): ReactElement => {
           <Alert severity="info">This section is not yet implemented.</Alert>
         </TabPanel>
         <TabPanel value={activeTab} index={1}>
-          <Alert severity="info">This section is not yet implemented.</Alert>
+          <ManageSeriesList />
         </TabPanel>
         <TabPanel value={activeTab} index={2}>
           <Alert severity="info">This section is not yet implemented.</Alert>

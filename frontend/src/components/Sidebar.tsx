@@ -21,7 +21,7 @@ import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import { useMobile } from "../hooks/useMobile";
-import { useVersion } from "../hooks/useVersion";
+import { useVersion } from "../lib/requests/version/useVersion";
 import { ResponsiveDrawer } from "./base/ResponsiveDrawer";
 
 interface SidebarProps {
