@@ -1,9 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useEffect, useState } from "react";
 
 import type { UserDTO } from "../lib/api/KapitelShelf.Api/api";
-import { useApi } from "./ApiProvider";
+import { useLoadUser } from "../lib/requests/users/useLoadUser";
 
 export interface UserProfileContextProps {
   profile: UserDTO | null;
@@ -23,16 +22,9 @@ export const UserProfileProvider = ({
 }: {
   children: ReactNode;
 }): ReactElement => {
-  const { clients } = useApi();
   const [profile, setProfileState] = useState<UserDTO | null>(null);
 
-  const { mutateAsync: mutateLoadProfile } = useMutation({
-    mutationKey: ["load-profile"],
-    mutationFn: async (userId: string) => {
-      const { data } = await clients.users.usersUserIdGet(userId);
-      return data;
-    },
-  });
+  const { mutateAsync: mutateLoadProfile } = useLoadUser();
 
   // load profile on mount
   useEffect(() => {

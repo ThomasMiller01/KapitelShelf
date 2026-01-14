@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useApi } from "../contexts/ApiProvider";
-import { NotificationStatsDto } from "../lib/api/KapitelShelf.Api";
-import { useUserProfile } from "./useUserProfile";
+import { useApi } from "../../../contexts/ApiProvider";
+import { useUserProfile } from "../../../hooks/useUserProfile";
+import { NotificationStatsDto } from "../../api/KapitelShelf.Api";
 
 export const useNotificationStats = ():
   | NotificationStatsDto

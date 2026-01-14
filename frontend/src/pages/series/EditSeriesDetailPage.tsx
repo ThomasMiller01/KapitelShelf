@@ -1,17 +1,17 @@
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { Box, Button, Chip, styled } from "@mui/material";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import { useApi } from "../../contexts/ApiProvider";
 import EditableSeriesDetails from "../../features/series/EditableSeriesDetails";
 import { useMobile } from "../../hooks/useMobile";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useSeriesById } from "../../lib/requests/series/useSeriesById";
+import { useUpdateSeries } from "../../lib/requests/series/useUpdateSeries";
 
 const EditingBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",
@@ -23,45 +23,11 @@ const EditSeriesDetailPage = (): ReactElement => {
   const { seriesId } = useParams<{
     seriesId: string;
   }>();
-  const navigate = useNavigate();
-  const { clients } = useApi();
   const { isMobile } = useMobile();
+  const navigate = useNavigate();
 
-  const {
-    data: series,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["series-by-id", seriesId],
-    queryFn: async () => {
-      if (seriesId === undefined) {
-        return null;
-      }
-
-      const { data } = await clients.series.seriesSeriesIdGet(seriesId);
-      return data;
-    },
-  });
-
-  const { mutateAsync: mutateUpdateSeries } = useMutation({
-    mutationKey: ["update-series-by-id"],
-    mutationFn: async (series: SeriesDTO) => {
-      if (seriesId === undefined) {
-        return null;
-      }
-
-      await clients.series.seriesSeriesIdPut(seriesId, series);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Updating series",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
+  const { data: series, isLoading, isError, refetch } = useSeriesById(seriesId);
+  const { mutateAsync: updateSeries } = useUpdateSeries(seriesId);
 
   if (isLoading) {
     return (
@@ -74,7 +40,7 @@ const EditSeriesDetailPage = (): ReactElement => {
   }
 
   const onUpdate = async (series: SeriesDTO): Promise<void> => {
-    await mutateUpdateSeries(series);
+    await updateSeries(series);
 
     navigate(`/library/series/${seriesId}`);
   };

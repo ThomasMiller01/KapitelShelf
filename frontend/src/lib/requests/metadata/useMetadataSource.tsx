@@ -1,12 +1,12 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
-import { useApi } from "../contexts/ApiProvider";
+import { useApi } from "../../../contexts/ApiProvider";
+import { MetadataSourceToString } from "../../../utils/MetadataUtils";
 import type {
   MetadataDTO,
   MetadataSources,
-} from "../lib/api/KapitelShelf.Api/api";
-import { MetadataSourceToString } from "../utils/MetadataUtils";
+} from "../../api/KapitelShelf.Api/api";
 
 interface useMetadataSourceProps {
   source: MetadataSources;

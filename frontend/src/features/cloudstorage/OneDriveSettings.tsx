@@ -1,7 +1,6 @@
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import TuneIcon from "@mui/icons-material/Tune";
 import { Button, Divider, Paper, Stack, Typography } from "@mui/material";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
@@ -13,7 +12,10 @@ import { ConfigureCloudConfigurationDialog } from "../../components/cloudstorage
 import { useApi } from "../../contexts/ApiProvider";
 import type { ConfigureCloudDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { CloudTypeDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { IsMobileApp } from "../../utils/MobileUtils";
+import { useConfigureStorage } from "../../lib/requests/cloudstorages/useConfigureStorage";
+import { useListStorages } from "../../lib/requests/cloudstorages/useListStorages";
+import { useOneDriveStartOAuthFlow } from "../../lib/requests/cloudstorages/useOneDriveStartOAuthFlow";
+import { useStorageConfigured } from "../../lib/requests/cloudstorages/useSorageConfigured";
 
 export const OneDriveSettings = (): ReactElement => {
   const { clients } = useApi();
@@ -24,49 +26,17 @@ export const OneDriveSettings = (): ReactElement => {
     isLoading,
     isError,
     refetch,
-  } = useQuery({
-    queryKey: ["cloudstorage-onedrive-isconfigured"],
-    queryFn: async () => {
-      const { data } = await clients.cloudstorages.cloudstorageIsconfiguredGet(
-        CloudTypeDTO.NUMBER_0
-      );
-      return data;
-    },
-  });
+  } = useStorageConfigured(CloudTypeDTO.NUMBER_0);
 
-  const { data: cloudstorages, refetch: updateStorages } = useQuery({
-    queryKey: ["cloudstorage-onedrive-list-cloudstorages"],
-    queryFn: async () => {
-      const { data } = await clients.cloudstorages.cloudstorageStoragesGet(
-        CloudTypeDTO.NUMBER_0
-      );
-      return data;
-    },
-  });
+  const { data: cloudstorages, refetch: updateStorages } = useListStorages(
+    CloudTypeDTO.NUMBER_0
+  );
 
-  const { mutate: startOAuthFlow } = useMutation({
-    mutationKey: ["cloudstorage-onedrive-oauth-flow"],
-    mutationFn: async () => {
-      const redirectUrl = IsMobileApp()
-        ? "kapitelshelf://auth/callback"
-        : window.location.href;
-      const { data } = await clients.onedrive.cloudstorageOnedriveOauthGet(
-        redirectUrl
-      );
-      window.location.href = data;
-    },
-  });
+  const { mutate: startOAuthFlow } = useOneDriveStartOAuthFlow();
 
-  const { mutate: configure } = useMutation({
-    mutationKey: ["cloudstorage-onedrive-configure"],
-    mutationFn: async (configuration: ConfigureCloudDTO) => {
-      await clients.cloudstorages.cloudstorageConfigurePut(
-        CloudTypeDTO.NUMBER_0,
-        configuration
-      );
-      refetch();
-    },
-  });
+  const { mutate: configure } = useConfigureStorage(CloudTypeDTO.NUMBER_0, () =>
+    refetch()
+  );
 
   if (isLoading) {
     return (

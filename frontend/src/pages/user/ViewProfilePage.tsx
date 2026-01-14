@@ -2,45 +2,26 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import PeopleIcon from "@mui/icons-material/People";
 import { Box, Divider } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { Link } from "react-router-dom";
 
 import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import { useApi } from "../../contexts/ApiProvider";
 import { ProfileDetails } from "../../features/user/ProfileDetails";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { useDeleteUser } from "../../lib/requests/users/useDeleteUser";
 
 export const ViewProfilePage = (): ReactElement => {
-  const { clients } = useApi();
-  const { profile, clearProfile } = useUserProfile();
+  const { clearProfile } = useUserProfile();
 
-  const { mutateAsync: mutateDeleteProfile } = useMutation({
-    mutationKey: ["delete-profile", profile?.id],
-    mutationFn: async () => {
-      if (profile?.id === undefined) {
-        return null;
-      }
-
-      await clients.users.usersUserIdDelete(profile.id);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Deleting profile",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
+  const { mutateAsync: deleteProfile } = useDeleteUser();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const onDelete = async (): Promise<void> => {
     setDeleteOpen(false);
 
-    await mutateDeleteProfile();
+    await deleteProfile();
     clearProfile();
   };
 

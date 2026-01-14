@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useApi } from "../../contexts/ApiProvider";
-import { useUserProfile } from "../useUserProfile";
+import { useApi } from "../../../contexts/ApiProvider";
+import { useUserProfile } from "../../../hooks/useUserProfile";
 
 export const useSessionStart = () => {
   const { profile } = useUserProfile();

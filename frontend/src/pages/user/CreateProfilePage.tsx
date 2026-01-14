@@ -1,41 +1,24 @@
 import { Box, Container, Divider, Typography } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useApi } from "../../contexts/ApiProvider";
 import EditableProfileDetails from "../../features/user/EditableProfileDetails";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import type {
-  CreateUserDTO,
-  UserDTO,
-} from "../../lib/api/KapitelShelf.Api/api";
+import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useCreateUser } from "../../lib/requests/users/useCreateUser";
 
 export const CreateProfilePage = (): ReactElement => {
   const navigate = useNavigate();
-  const { clients } = useApi();
   const { setProfile } = useUserProfile();
 
-  const { mutateAsync: mutateCreateUserProfile } = useMutation({
-    mutationKey: ["create-user-profile"],
-    mutationFn: async (createUser: CreateUserDTO) =>
-      clients.users.usersPost(createUser),
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Adding profile",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
+  const { mutateAsync: createUserProfile } = useCreateUser();
 
   const onSave = (user: UserDTO | undefined): void => {
     if (user === undefined) {
       return;
     }
 
-    mutateCreateUserProfile(user).then((response) => {
+    createUserProfile(user).then((response) => {
       setProfile(response.data);
       navigate(-1);
     });

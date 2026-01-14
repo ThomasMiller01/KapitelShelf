@@ -13,11 +13,9 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
-import { useUserProfile } from "../../hooks/useUserProfile";
 import { type NotificationDto } from "../../lib/api/KapitelShelf.Api";
+import { useMarkNotificationAsRead } from "../../lib/requests/notifications/useMarkNotificationAsRead";
 import { GetColor } from "../../utils/ColorUtils";
 import {
   NotificationSeverityToString,
@@ -66,41 +64,8 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   showDetails = false,
 }) => {
   const { isMobile } = useMobile();
-  const { profile } = useUserProfile();
-  const { clients } = useApi();
-  const queryClient = useQueryClient();
 
-  const { mutate: markAsRead } = useMutation({
-    mutationFn: async () => {
-      if (profile?.id === undefined || notification.id === undefined) {
-        return;
-      }
-
-      await clients.notifications.notificationsIdReadPost(
-        notification.id,
-        profile.id
-      );
-    },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["notifications-list", profile?.id],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ["notifications-stats", profile?.id],
-        }),
-      ]);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: `Marking notification as read`,
-        showLoading: true,
-        showSuccess: false,
-        showError: true,
-      },
-    },
-  });
+  const { mutate: markAsRead } = useMarkNotificationAsRead();
 
   return (
     <Card
@@ -241,7 +206,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
             <ButtonWithTooltip
               tooltip="Mark as Read"
               startIcon={<CheckIcon />}
-              onClick={() => markAsRead()}
+              onClick={() => markAsRead(notification.id)}
             >
               Read
             </ButtonWithTooltip>

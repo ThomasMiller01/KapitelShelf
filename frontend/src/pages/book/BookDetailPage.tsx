@@ -1,7 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Box, IconButton } from "@mui/material";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -9,59 +8,25 @@ import DeleteDialog from "../../components/base/feedback/DeleteDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import { useApi } from "../../contexts/ApiProvider";
 import BookDetails from "../../features/book/BookDetails";
-import { useUserProfile } from "../../hooks/useUserProfile";
+import { useBookById } from "../../lib/requests/books/useBookById";
+import { useDeleteBook } from "../../lib/requests/books/useDeleteBook";
 
 const BookDetailPage = (): ReactElement => {
   const { bookId } = useParams<{
     bookId: string;
   }>();
   const navigate = useNavigate();
-  const { clients } = useApi();
-  const { profile } = useUserProfile();
 
-  const {
-    data: book,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["book-by-id", bookId],
-    queryFn: async () => {
-      if (bookId === undefined) {
-        return null;
-      }
+  const { data: book, isLoading, isError, refetch } = useBookById(bookId);
 
-      const { data } = await clients.books.booksBookIdGet(bookId, profile?.id);
-      return data;
-    },
-  });
-
-  const { mutateAsync: mutateDeleteBook } = useMutation({
-    mutationKey: ["delete-book", bookId],
-    mutationFn: async () => {
-      if (bookId === undefined) {
-        return null;
-      }
-
-      await clients.books.booksBookIdDelete(bookId);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Deleting book",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
+  const { mutateAsync: deleteBook } = useDeleteBook(bookId);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const onDelete = async (): Promise<void> => {
     setDeleteOpen(false);
 
-    await mutateDeleteBook();
+    await deleteBook();
 
     navigate(`/library/series/${book?.series?.id}`);
   };

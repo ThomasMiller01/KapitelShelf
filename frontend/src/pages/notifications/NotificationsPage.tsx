@@ -2,7 +2,6 @@ import CategoryIcon from "@mui/icons-material/Category";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import { Box, Stack, Typography } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, type ReactElement } from "react";
 
 import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
@@ -11,12 +10,12 @@ import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCar
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { HiddenFilter } from "../../components/base/HiddenFilter";
 import { NotificationsBadge } from "../../components/notifications/NotificationsBadge";
-import { useApi } from "../../contexts/ApiProvider";
 import { NotificationsList } from "../../features/notifications/NotificationsList";
 import { useMobile } from "../../hooks/useMobile";
-import { useNotificationStats } from "../../hooks/useNotificationStats";
-import { useUserProfile } from "../../hooks/useUserProfile";
 import { NotificationDto } from "../../lib/api/KapitelShelf.Api";
+import { useMarkAllNotifictaionsAsRead } from "../../lib/requests/notifications/useMarkAllNotificationsAsRead";
+import { useNotificationList } from "../../lib/requests/notifications/useNotificationList";
+import { useNotificationStats } from "../../lib/requests/notifications/useNotificationStats";
 import {
   NotificationSeverityStringToDto,
   NotificationSeverityToColor,
@@ -27,10 +26,6 @@ import {
 export const NotificationsPage = (): ReactElement => {
   const { isMobile } = useMobile();
 
-  const { clients } = useApi();
-  const { profile } = useUserProfile();
-  const queryClient = useQueryClient();
-
   const notificationStats = useNotificationStats();
 
   const {
@@ -38,19 +33,7 @@ export const NotificationsPage = (): ReactElement => {
     isLoading,
     isError,
     refetch,
-  } = useQuery({
-    queryKey: ["notifications-list", profile?.id],
-    queryFn: async () => {
-      if (profile?.id === undefined) {
-        return null;
-      }
-
-      const { data } = await clients.notifications.notificationsGet(
-        profile?.id
-      );
-      return data;
-    },
-  });
+  } = useNotificationList();
 
   const [hiddenTypes, setHiddenTypes] = useState<string[]>([]);
   const [hiddenSeverities, setHiddenSeverities] = useState<string[]>([]);
@@ -68,34 +51,7 @@ export const NotificationsPage = (): ReactElement => {
     });
   }, [notifications, hiddenSeverities, hiddenTypes]);
 
-  const { mutate: markAllAsRead } = useMutation({
-    mutationFn: async () => {
-      if (profile?.id === undefined) {
-        return;
-      }
-
-      await clients.notifications.notificationsReadallPost(profile.id);
-    },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["notifications-list", profile?.id],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ["notifications-stats", profile?.id],
-        }),
-      ]);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: `Marking all notification as read`,
-        showLoading: true,
-        showSuccess: false,
-        showError: true,
-      },
-    },
-  });
+  const { mutate: markAllAsRead } = useMarkAllNotifictaionsAsRead();
 
   if (isLoading) {
     return <LoadingCard delayed itemName="Notifications" small />;

@@ -3,7 +3,7 @@ import NotificationsIconMUI from "@mui/icons-material/Notifications";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import type { SvgIconProps } from "@mui/material";
 
-import { useNotificationStats } from "../../hooks/useNotificationStats";
+import { useNotificationStats } from "../../lib/requests/notifications/useNotificationStats";
 
 export const NotificationsIcon: React.FC<SvgIconProps> = ({ ...props }) => {
   const notificationStats = useNotificationStats();

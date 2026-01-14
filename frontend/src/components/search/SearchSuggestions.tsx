@@ -1,10 +1,9 @@
 import { Box, Grid } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useState } from "react";
 
-import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useBookSearchSuggestions } from "../../lib/requests/books/useBookSearchSuggestions";
 import { NoItemsFoundCard } from "../base/feedback/NoItemsFoundCard";
 import BookCard from "../BookCard";
 
@@ -21,30 +20,21 @@ export const SearchSuggestions = ({
   onClick,
 }: SearchSuggestionsProps): ReactElement => {
   const { isMobile } = useMobile();
-  const { clients } = useApi();
-  const { mutateAsync: mutateGetSearchSuggestions, isSuccess } = useMutation({
-    mutationKey: ["search-suggestions", searchterm],
-    mutationFn: async (term: string) => {
-      if (term === "") {
-        return [];
-      }
 
-      const { data } = await clients.books.booksSearchSuggestionsGet(term);
-      return data;
-    },
-  });
+  const { mutateAsync: getSearchSuggestions, isSuccess } =
+    useBookSearchSuggestions();
 
   const [suggestions, setSuggestions] = useState<BookDTO[]>([]);
   useEffect(() => {
     const handle = setTimeout(
       () =>
-        mutateGetSearchSuggestions(searchterm).then((response) =>
+        getSearchSuggestions(searchterm).then((response) =>
           setSuggestions(response)
         ),
       SEARCHTERM_REST_MS
     );
     return (): void => clearTimeout(handle);
-  }, [searchterm, mutateGetSearchSuggestions]);
+  }, [searchterm, getSearchSuggestions]);
 
   if (searchterm !== "" && suggestions.length === 0 && isSuccess) {
     return <NoItemsFoundCard itemName="Books" small />;

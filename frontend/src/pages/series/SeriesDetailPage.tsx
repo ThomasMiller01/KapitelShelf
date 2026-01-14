@@ -13,7 +13,6 @@ import {
   MenuItem,
   styled,
 } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -22,13 +21,17 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import { useApi } from "../../contexts/ApiProvider";
 import MergeSeriesDialog from "../../features/series/MergeSeriesDialog";
 import SeriesBooksList from "../../features/series/SeriesBooksList";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotification } from "../../hooks/useNotification";
-import { useUserProfile } from "../../hooks/useUserProfile";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useDeleteSeries } from "../../lib/requests/series/useDeleteSeries";
+import { useMergeSeries } from "../../lib/requests/series/useMergeSeries";
+import { useSeriesById } from "../../lib/requests/series/useSeriesById";
+import { useAddSeriesToWatchlist } from "../../lib/requests/watchlist/useAddSeriesToWatchlist";
+import { useRemoveSeriesFromWatchlist } from "../../lib/requests/watchlist/useRemoveSeriesFromWatchlist";
+import { useSeriesOnWatchlist } from "../../lib/requests/watchlist/useSeriesOnWatchlist";
 import { SeriesSupportsWatchlist } from "../../utils/WatchlistUtils";
 
 const VolumesBadge = styled(Chip, {
@@ -38,153 +41,33 @@ const VolumesBadge = styled(Chip, {
 }));
 
 const SeriesDetailPage = (): ReactElement => {
-  const { profile } = useUserProfile();
   const { seriesId } = useParams<{ seriesId: string }>();
+
   const navigate = useNavigate();
-  const { clients } = useApi();
-  const queryClient = useQueryClient();
   const { isMobile } = useMobile();
   const { triggerNavigate } = useNotification();
 
-  const {
-    data: series,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["series-details", seriesId],
-    queryFn: async () => {
-      if (seriesId === undefined) {
-        return null;
-      }
-
-      const { data } = await clients.series.seriesSeriesIdGet(seriesId);
-      return data;
-    },
-  });
-
-  const { data: isOnWatchlist } = useQuery({
-    queryKey: ["series-is-on-watchlist", seriesId],
-    queryFn: async () => {
-      if (seriesId === undefined || profile?.id === undefined) {
-        return null;
-      }
-
-      const { data } =
-        await clients.watchlist.watchlistSeriesSeriesIdIswatchedGet(
-          seriesId,
-          profile.id
-        );
-      return data;
-    },
-    enabled: SeriesSupportsWatchlist(series),
-  });
-
-  const { mutateAsync: mutateDeleteSeries } = useMutation({
-    mutationKey: ["delete-series", seriesId],
-    mutationFn: async () => {
-      if (seriesId === undefined) {
-        return null;
-      }
-
-      await clients.series.seriesSeriesIdDelete(seriesId);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Deleting series",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
-
-  const { mutateAsync: mutateMergeSeries } = useMutation({
-    mutationKey: ["merge-series", seriesId],
-    mutationFn: async (targetSeriesId: string | undefined) => {
-      if (seriesId === undefined || targetSeriesId === undefined) {
-        return null;
-      }
-
-      await clients.series.seriesSeriesIdMergeTargetSeriesIdPut(
-        seriesId,
-        targetSeriesId
-      );
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Merging series",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
-
-  const { mutateAsync: addSeriesToWatchlist } = useMutation({
-    mutationKey: ["add-series-to-watchlist", seriesId],
-    mutationFn: async () => {
-      if (seriesId === undefined || profile?.id === undefined) {
-        return null;
-      }
-
-      await clients.watchlist.watchlistSeriesSeriesIdWatchPut(
-        seriesId,
-        profile.id
-      );
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Adding series to watchlist",
-        showLoading: false,
-        showSuccess: false,
-      },
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["series-is-on-watchlist", seriesId],
-      });
+  const { data: series, isLoading, isError, refetch } = useSeriesById(seriesId);
+  const { data: isOnWatchlist } = useSeriesOnWatchlist(series);
+  const { mutateAsync: deleteSeries } = useDeleteSeries(seriesId);
+  const { mutateAsync: mergeSeries } = useMergeSeries(seriesId);
+  const { mutateAsync: addSeriesToWatchlist } = useAddSeriesToWatchlist(
+    seriesId,
+    () =>
       triggerNavigate({
         operation: "Added series to watchlist",
         itemName: series?.name ?? "Series",
         url: "/watchlist",
-      });
-    },
-  });
-
-  const { mutateAsync: removeSeriesToWatchlist } = useMutation({
-    mutationKey: ["remove-series-to-watchlist", seriesId],
-    mutationFn: async () => {
-      if (seriesId === undefined || profile?.id === undefined) {
-        return null;
-      }
-
-      await clients.watchlist.watchlistSeriesSeriesIdWatchDelete(
-        seriesId,
-        profile.id
-      );
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Removing series from watchlist",
-        showLoading: false,
-        showSuccess: true,
-      },
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["series-is-on-watchlist", seriesId],
-      });
-    },
-  });
+      })
+  );
+  const { mutateAsync: removeSeriesFromWatchlist } =
+    useRemoveSeriesFromWatchlist(seriesId);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const onDelete = async (): Promise<void> => {
     setDeleteOpen(false);
 
-    await mutateDeleteSeries();
+    await deleteSeries();
 
     navigate("/library");
   };
@@ -193,7 +76,7 @@ const SeriesDetailPage = (): ReactElement => {
   const onMergeSeries = (series: SeriesDTO): void => {
     setMergeSeriesOpen(false);
 
-    mutateMergeSeries(series.id).then((_) =>
+    mergeSeries(series.id).then((_) =>
       navigate(`/library/series/${series.id}`)
     );
   };
@@ -227,7 +110,7 @@ const SeriesDetailPage = (): ReactElement => {
               } the watchlist`}
               onClick={
                 isOnWatchlist
-                  ? () => removeSeriesToWatchlist()
+                  ? () => removeSeriesFromWatchlist()
                   : () => addSeriesToWatchlist()
               }
               key="watchlist"

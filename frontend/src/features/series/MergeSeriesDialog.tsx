@@ -11,14 +11,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useState } from "react";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import SeriesCard from "../../components/SeriesCard";
-import { useApi } from "../../contexts/ApiProvider";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useMergeSeriesSuggestions } from "../../lib/requests/series/useMergeSeriesSuggestions";
 
 // 600ms after user stops typing
 const SERIESNAME_REST_MS = 600;
@@ -36,22 +35,11 @@ const MergeSeriesList = ({
   selectedSeries,
   onSelectSeries,
 }: MergeSeriesListProps): ReactElement => {
-  const { clients } = useApi();
   const {
     mutateAsync: mutateGetSeriesSuggestions,
     isSuccess,
     isPending,
-  } = useMutation({
-    mutationKey: ["merge-series-suggestions", seriesName],
-    mutationFn: async (name: string | undefined | null) => {
-      if (name === "" || name === undefined || name === null) {
-        return [];
-      }
-
-      const { data } = await clients.series.seriesSearchSuggestionsGet(name);
-      return data;
-    },
-  });
+  } = useMergeSeriesSuggestions();
 
   const [suggestions, setSuggestions] = useState<SeriesDTO[]>([]);
   useEffect(() => {

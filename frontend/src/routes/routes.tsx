@@ -3,8 +3,9 @@ import { useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
 import { SettingsLayout } from "../components/layout/SettingsLayout";
-import { useSessionStart } from "../hooks/apihooks/useSessionStart";
 import { useUserProfile } from "../hooks/useUserProfile";
+import { useSessionStart } from "../lib/requests/hooks/useSessionStart";
+import { useGlobalApiPoller } from "../lib/requests/useGlobalApiPoller";
 import BookDetailPage from "../pages/book/BookDetailPage";
 import CreateBookPage from "../pages/book/CreateBookPage";
 import EditBookDetailPage from "../pages/book/EditBookDetailPage";
@@ -34,6 +35,9 @@ import {
 
 const AppRoutes = (): ReactElement | null => {
   const { profile } = useUserProfile();
+
+  // singletons
+  useGlobalApiPoller();
   useSessionStart();
 
   return useRoutes(

@@ -1,39 +1,24 @@
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Box, Divider } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useCallback } from "react";
 import { NavLink } from "react-router-dom";
 
 import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
 import FileUploadDropzone from "../../components/base/FileUploadDropzone";
 import FancyText from "../../components/FancyText";
-import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotification } from "../../hooks/useNotification";
-import { useUserProfile } from "../../hooks/useUserProfile";
 import type { ImportResultDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useImportBook } from "../../lib/requests/books/useImportBook";
 import { BookFileTypes } from "../../utils/FileTypesUtils";
 
 const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();
-  const { clients } = useApi();
-  const { profile } = useUserProfile();
   const { triggerNavigate, triggerError } = useNotification();
   const queryClient = useQueryClient();
 
-  const { mutateAsync: mutateImportBook } = useMutation({
-    mutationKey: ["import-book"],
-    mutationFn: async (file: File) => {
-      const { data } = await clients.books.booksImportPost(profile?.id, file);
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Importing Book",
-      },
-    },
-  });
+  const { mutateAsync: importBook } = useImportBook();
 
   const onSingleImportResult = useCallback(
     async (importResult: ImportResultDTO): Promise<void> => {
@@ -88,7 +73,7 @@ const ImportBookPage = (): ReactElement => {
 
   const importFile = useCallback(
     async (file: File): Promise<void> => {
-      const importResult = await mutateImportBook(file);
+      const importResult = await importBook(file);
 
       if (importResult.isBulkImport) {
         onBulkImportResult(importResult);
@@ -96,7 +81,7 @@ const ImportBookPage = (): ReactElement => {
         onSingleImportResult(importResult);
       }
     },
-    [mutateImportBook, onSingleImportResult, onBulkImportResult]
+    [importBook, onSingleImportResult, onBulkImportResult]
   );
 
   const onImport = useCallback(

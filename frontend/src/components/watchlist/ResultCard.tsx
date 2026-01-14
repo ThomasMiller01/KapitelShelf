@@ -10,15 +10,13 @@ import {
   ListItemButton,
   ListItemText,
 } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import bookCover from "../../assets/books/nocover.png";
-import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
-import { useUserProfile } from "../../hooks/useUserProfile";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api";
+import { useAddResultToLibrary } from "../../lib/requests/watchlist/useAddResultToLibrary";
 import { LocationUrl } from "../../utils/LocationUtils";
 import { FormatTimeUntil } from "../../utils/TimeUtils";
 import ItemCardLayout, {
@@ -30,42 +28,17 @@ interface ResultCardProps {
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({ book }) => {
-  const { profile } = useUserProfile();
   const { isMobile } = useMobile();
-  const { clients } = useApi();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { mutateAsync: mutateAddBookToLibrary } = useMutation({
-    mutationKey: ["adding-watchlist-result-to-library"],
-    mutationFn: async () => {
-      if (book.id === undefined) {
-        return;
-      }
-
-      const { data } =
-        await clients.watchlist.watchlistResultResultIdLibraryPut(book.id);
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Adding book to library",
-        showSuccess: true,
-        showLoading: true,
-      },
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["watchlist", profile?.id] });
-    },
-  });
+  const { mutateAsync: mutateAddBookToLibrary } = useAddResultToLibrary();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
   const onClickAddToLibrary = async (): Promise<void> => {
     setMenuOpen(false);
 
-    const bookDto = await mutateAddBookToLibrary();
+    const bookDto = await mutateAddBookToLibrary(book);
     if (bookDto === undefined) {
       return;
     }

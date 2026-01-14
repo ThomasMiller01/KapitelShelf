@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { useApi } from "../../contexts/ApiProvider";
-import { useUserProfile } from "../../hooks/useUserProfile";
-import { SECOND_MS } from "../../utils/TimeUtils";
+import { useApi } from "../../../contexts/ApiProvider";
+import { useUserProfile } from "../../../hooks/useUserProfile";
+import { SECOND_MS } from "../../../utils/TimeUtils";
 
-export const NotificationsStatsPoller: React.FC = () => {
+export const useNotificationStatsPoller = () => {
   const { profile } = useUserProfile();
   const { clients } = useApi();
 
@@ -19,6 +19,4 @@ export const NotificationsStatsPoller: React.FC = () => {
     refetchInterval: 30 * SECOND_MS,
     staleTime: Infinity,
   });
-
-  return null;
 };

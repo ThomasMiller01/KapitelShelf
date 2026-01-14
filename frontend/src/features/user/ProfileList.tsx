@@ -1,7 +1,6 @@
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditSquareIcon from "@mui/icons-material/EditSquare";
 import { Box, Grid } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,28 +8,15 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import UserProfileCard from "../../components/UserProfileCard";
-import { useApi } from "../../contexts/ApiProvider";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { useUsersList } from "../../lib/requests/users/useUsersList";
 import { ClearMobileApiBaseUrl, IsMobileApp } from "../../utils/MobileUtils";
 
 export const ProfileList = (): ReactElement => {
   const { setProfile } = useUserProfile();
   const navigate = useNavigate();
-  const { clients } = useApi();
 
-  const {
-    data: userProfiles,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["user-profile-list"],
-    queryFn: async () => {
-      const { data } = await clients.users.usersGet();
-      return data;
-    },
-    refetchOnMount: "always",
-  });
+  const { data: userProfiles, isLoading, isError, refetch } = useUsersList();
 
   if (isLoading) {
     return (

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { useApi } from "../contexts/ApiProvider";
+import { useApi } from "../../../contexts/ApiProvider";
 
 declare const __APP_VERSION__: string;
 

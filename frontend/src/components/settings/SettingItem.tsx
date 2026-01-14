@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Stack, Typography } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import React from "react";
 
-import { useApi } from "../../contexts/ApiProvider";
 import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
+import { useUpdateSetting } from "../../lib/requests/settings/useUpdateSetting";
 import { BooleanSetting } from "./BooleanSetting";
 
 type SettingType = "boolean";
@@ -24,22 +23,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
   details,
   ...props
 }) => {
-  const { clients } = useApi();
-  const queryClient = useQueryClient();
-
-  const { mutate: updateSetting } = useMutation({
-    mutationKey: ["setting-update", setting?.key],
-    mutationFn: async (value: any) => {
-      if (setting === undefined || setting.id === undefined) {
-        return;
-      }
-
-      await clients.settings.settingsSettingIdPut(setting.id, value);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["settings-list"] });
-    },
-  });
+  const { mutate: updateSetting } = useUpdateSetting(setting);
 
   if (setting === undefined) {
     return <></>;

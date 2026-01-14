@@ -1,31 +1,16 @@
 import { Box, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { WatchlistDetails } from "../../components/watchlist/WatchlistDetails";
-import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
-import { useUserProfile } from "../../hooks/useUserProfile";
 import type { WatchlistDTO } from "../../lib/api/KapitelShelf.Api";
+import { useWatchlist } from "../../lib/requests/watchlist/useWatchlist";
 import { SplitByReleaseWindow } from "../../utils/WatchlistUtils";
 
 const Watchlist: React.FC = () => {
-  const { profile } = useUserProfile();
-  const { clients } = useApi();
-
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["watchlist", profile?.id],
-    queryFn: async () => {
-      if (profile?.id === undefined) {
-        return null;
-      }
-
-      const { data } = await clients.watchlist.watchlistGet(profile?.id);
-      return data;
-    },
-  });
+  const { data, isLoading, isError, refetch } = useWatchlist();
 
   if (isLoading) {
     return <LoadingCard delayed itemName="Watchlist" small />;
