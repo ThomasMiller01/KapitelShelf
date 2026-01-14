@@ -5,7 +5,7 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 
 [![Frontend Version](https://img.shields.io/badge/frontend-v0.3.3-0078D7)](./frontend/CHANGELOG.md)
 [![API Version](https://img.shields.io/badge/api-v0.3.4-28A745)](./backend/src/KapitelShelf.Api/CHANGELOG.md)
-[![Helm Chart](https://img.shields.io/badge/helm-v0.3.2-F97316)](./helm/kapitelshelf/README.md)
+[![Helm Chart](https://img.shields.io/badge/helm-v0.3.3-F97316)](./helm/kapitelshelf/README.md)
 [![License](https://img.shields.io/github/license/thomasmiller01/kapitelshelf)](./LICENSE)
 
 ![Home Page](./docs/.attachments/home_page.png)
