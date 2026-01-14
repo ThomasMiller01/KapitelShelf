@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.3](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.3.2...frontend@0.3.3) (2026-01-14)
+
+
+### Features
+
+* Add a notification system ([#346](https://github.com/ThomasMiller01/KapitelShelf/issues/346)) ([2e4d8da](https://github.com/ThomasMiller01/KapitelShelf/commit/2e4d8da6351ab3333c52426f762b128318edbb33))
+* Improve watchlist scraping strategy ([#347](https://github.com/ThomasMiller01/KapitelShelf/issues/347)) ([b2dbf5b](https://github.com/ThomasMiller01/KapitelShelf/commit/b2dbf5ba13635a69c237ca88a7fea2ce7b16ad85))
+* Enable light mode option ([#347](https://github.com/ThomasMiller01/KapitelShelf/issues/348)) ([bb50dca](https://github.com/ThomasMiller01/KapitelShelf/commit/bb50dca8f0c3d3387742d853649c350c230a40ad))
+* Show next watchlist releases on home page ([#350](https://github.com/ThomasMiller01/KapitelShelf/issues/350)) ([76ec3f9](https://github.com/ThomasMiller01/KapitelShelf/commit/76ec3f9c03661a24c6512163bde1f8d835cf404d))
+* Add autocomplete when editing books for series, author, category and tag ([#353](https://github.com/ThomasMiller01/KapitelShelf/issues/353)) ([307cb33](https://github.com/ThomasMiller01/KapitelShelf/commit/307cb33c373cf8c8bc5b8ec59be555f261b1f882))
+
+### Bug Fixes
+
+* mobile bottom navigation being white ([#359](https://github.com/ThomasMiller01/KapitelShelf/issues/359)) ([a3bb254](https://github.com/ThomasMiller01/KapitelShelf/commit/a3bb2542273d6db8b17e6921b1e0192d7b0f319f))
+* ScrollableList has one additional element in some cases ([#357](https://github.com/ThomasMiller01/KapitelShelf/issues/357)) ([2b0c80d](https://github.com/ThomasMiller01/KapitelShelf/commit/2b0c80d3dc60efc80ad4e4b24c481baba34e3c94))
+
 ## [0.3.2](https://github.com/ThomasMiller01/KapitelShelf/compare/frontend@0.3.1...frontend@0.3.2) (2025-10-09)
 
 
