@@ -5,9 +5,9 @@ This document describes the requirements and steps to build and run the mobile a
 ## Requirements
 
 - **Node.js** (already required for frontend)
-- **Java JDK 25**
-  - Windows: if you encounter Gradle errors like `Unsupported class file major version 69`, install a JDK 25 distribution and set `org.gradle.java.home` in `./frontend/android/gradle.properties`.
-  - Linux: install a matching JDK distribution (e.g. Temurin 25)
+- **Java JDK 21**
+  - Windows: if you encounter Gradle errors like `Unsupported class file major version 69`, install a JDK 21 distribution and set `org.gradle.java.home` in `./frontend/android/gradle.properties`.
+  - Linux: install a matching JDK distribution (e.g. Temurin 21)
 - **Android Studio**
   - Install [Android Studio](https://developer.android.com/studio)
   - Includes:
