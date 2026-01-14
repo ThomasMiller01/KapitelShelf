@@ -13,7 +13,7 @@ import ImportBookFromASINPage from "../pages/book/ImportBookFromASINPage";
 import ImportBookPage from "../pages/book/ImportBookPage";
 import { ConfigureMobileBackendUrlPage } from "../pages/ConfigureMoibleBackendUrlPage";
 import HomePage from "../pages/HomePage";
-import BooksPage from "../pages/LibraryPage";
+import LibraryPage from "../pages/LibraryPage";
 import NotificationDetailPage from "../pages/notifications/NotificationDetailPage";
 import { NotificationsPage } from "../pages/notifications/NotificationsPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
@@ -53,7 +53,7 @@ const AppRoutes = (): ReactElement | null => {
               { index: true, element: <HomePage /> },
               { path: "profile", element: <ViewProfilePage /> },
               { path: "profile/edit", element: <EditProfilePage /> },
-              { path: "library", element: <BooksPage /> },
+              { path: "library", element: <LibraryPage /> },
               {
                 path: "library/series/:seriesId",
                 element: <SeriesDetailPage />,

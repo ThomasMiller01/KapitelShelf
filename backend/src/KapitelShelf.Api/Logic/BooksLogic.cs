@@ -52,7 +52,8 @@ public class BooksLogic(
     private readonly INotificationsLogic notifications = notifications;
 
     /// <inheritdoc/>
-    public async Task<IList<BookDTO>> GetBooksAsync()
+    [Obsolete("Use GetBooksAsync() instead", false)]
+    public async Task<IList<BookDTO>> GetBooksAsyncDeprecated()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -74,6 +75,46 @@ public class BooksLogic(
 
             .Select(x => this.mapper.BookModelToBookDto(x))
             .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var query = context.Books
+            .AsNoTracking();
+
+        var items = await query
+            .Include(x => x.Series)
+            .Include(x => x.Author)
+            .Include(x => x.Categories)
+                .ThenInclude(x => x.Category)
+            .Include(x => x.Tags)
+                .ThenInclude(x => x.Tag)
+            .Include(x => x.Cover)
+            .Include(x => x.Location)
+#nullable disable
+                .ThenInclude(x => x.FileInfo)
+#nullable restore
+            .AsSingleQuery()
+
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.BookModelToBookDto(x))
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
+
+        return new PagedResult<BookDTO>
+        {
+            Items = items
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .ToList(),
+            TotalCount = totalCount,
+        };
     }
 
     /// <inheritdoc/>

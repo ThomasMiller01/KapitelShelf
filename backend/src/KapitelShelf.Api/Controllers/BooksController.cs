@@ -34,11 +34,35 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// </summary>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
-    public async Task<ActionResult<IList<BookDTO>>> GetBooks()
+    [Obsolete("Use GetBooksAsync() instead", false)]
+    public async Task<ActionResult<IList<BookDTO>>> GetBooksDeprecated()
     {
         try
         {
-            var books = await this.logic.GetBooksAsync();
+            var books = await this.logic.GetBooksAsyncDeprecated();
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching books");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Fetch all books.
+    /// </summary>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("paginated")]
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetBooks(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 24)
+    {
+        try
+        {
+            var books = await this.logic.GetBooksAsync(page, pageSize);
             return Ok(books);
         }
         catch (Exception ex)

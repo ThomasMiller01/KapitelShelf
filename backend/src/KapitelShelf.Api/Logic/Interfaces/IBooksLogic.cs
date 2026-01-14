@@ -16,7 +16,16 @@ public interface IBooksLogic
     /// Retrieves all books.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="BookDTO"/>.</returns>
-    Task<IList<BookDTO>> GetBooksAsync();
+    [Obsolete("Use GetBooksAsync() instead", false)]
+    Task<IList<BookDTO>> GetBooksAsyncDeprecated();
+
+    /// <summary>
+    /// Retrieves all books.
+    /// </summary>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="BookDTO"/>.</returns>
+    Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize);
 
     /// <summary>
     /// Retrieves a book by its id.

@@ -1,6 +1,7 @@
 import { Alert, Box, Tab, Tabs, Typography } from "@mui/material";
 import { useState, type ReactElement } from "react";
 import { TabPanel } from "../../components/base/TabPanel";
+import { ManageBooksList } from "../../features/book/ManageBooksList";
 import { ManageSeriesList } from "../../features/series/ManageSeriesList";
 
 export const ManageLibraryPage = (): ReactElement => {
@@ -23,7 +24,7 @@ export const ManageLibraryPage = (): ReactElement => {
           <Tab label="Tags" />
         </Tabs>
         <TabPanel value={activeTab} index={0}>
-          <Alert severity="info">This section is not yet implemented.</Alert>
+          <ManageBooksList />
         </TabPanel>
         <TabPanel value={activeTab} index={1}>
           <ManageSeriesList />

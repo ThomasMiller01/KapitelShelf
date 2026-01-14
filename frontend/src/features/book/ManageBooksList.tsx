@@ -1,0 +1,145 @@
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useState } from "react";
+import LoadingCard from "../../components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import { BookDTO } from "../../lib/api/KapitelShelf.Api";
+import { useBooksList } from "../../lib/requests/books/useBooksList";
+import { LocationTypeToString } from "../../utils/LocationUtils";
+import { FormatTime } from "../../utils/TimeUtils";
+
+const formatList = (
+  values: Array<{ name?: string | null }> | null | undefined,
+  max: number
+): string => {
+  const items = (values ?? [])
+    .map((x) => x.name?.trim())
+    .filter((x): x is string => Boolean(x));
+
+  if (items.length === 0) {
+    return "—";
+  }
+
+  const head = items.slice(0, max).join(", ");
+  return items.length > max ? `${head} +${items.length - max}` : head;
+};
+
+export const columns: GridColDef<BookDTO>[] = [
+  {
+    field: "title",
+    headerName: "Title",
+    flex: 1,
+    minWidth: 260,
+    sortable: true,
+    valueGetter: (_, row) => row.title ?? "—",
+  },
+  {
+    field: "author",
+    headerName: "Author",
+    width: 150,
+    sortable: true,
+    valueGetter: (_, row) => {
+      {
+        const first = row.author?.firstName?.trim() ?? "";
+        const last = row.author?.lastName?.trim() ?? "";
+        const full = `${first} ${last}`.trim();
+
+        return full.length > 0 ? full : "-";
+      }
+    },
+  },
+  {
+    field: "series",
+    headerName: "Series",
+    width: 200,
+    sortable: true,
+    valueGetter: (_, row) => row.series?.name ?? "-",
+  },
+  {
+    field: "seriesNumber",
+    headerName: "Volume",
+    width: 80,
+    sortable: true,
+    align: "center",
+  },
+  {
+    field: "pageNumber",
+    headerName: "Pages",
+    type: "number",
+    width: 80,
+    sortable: true,
+    align: "right",
+    headerAlign: "right",
+    valueGetter: (_, row) => row.pageNumber ?? "-",
+  },
+  {
+    field: "releaseDate",
+    headerName: "Release",
+    width: 170,
+    sortable: true,
+    valueGetter: (_, row) => FormatTime(row.releaseDate),
+  },
+  {
+    field: "categories",
+    headerName: "Categories",
+    width: 220,
+    sortable: false,
+    valueGetter: (_, row) => formatList(row.categories ?? null, 3),
+  },
+  {
+    field: "tags",
+    headerName: "Tags",
+    width: 220,
+    sortable: false,
+    valueGetter: (_, row) => formatList(row.tags ?? null, 3),
+  },
+  {
+    field: "location",
+    headerName: "Location",
+    width: 150,
+    sortable: false,
+    valueGetter: (_, row) =>
+      row.location?.type === undefined
+        ? "-"
+        : LocationTypeToString[row.location.type],
+  },
+];
+
+export const ManageBooksList = () => {
+  const [pageSize, setPageSize] = useState(15);
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, isError, refetch } = useBooksList({
+    page,
+    pageSize,
+  });
+
+  if (isLoading) {
+    return <LoadingCard useLogo delayed itemName="Books" showRandomFacts />;
+  }
+
+  if (isError) {
+    return <RequestErrorCard itemName="books" onRetry={refetch} />;
+  }
+
+  return (
+    <DataGrid
+      rows={data?.items ?? []}
+      columns={columns}
+      rowCount={data?.totalCount}
+      loading={isLoading}
+      disableRowSelectionOnClick
+      disableColumnSorting
+      disableColumnFilter
+      checkboxSelection
+      density="compact"
+      pagination
+      paginationMode="server"
+      pageSizeOptions={[15, 25, 50]}
+      paginationModel={{ page: page - 1, pageSize }}
+      onPaginationModelChange={(model) => {
+        setPage(model.page + 1);
+        setPageSize(model.pageSize);
+      }}
+    />
+  );
+};
