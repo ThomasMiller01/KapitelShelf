@@ -1,6 +1,6 @@
 import { Alert, Box, Tab, Tabs, Typography } from "@mui/material";
 import { useMemo, type ReactElement } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { TabPanel } from "../../components/base/TabPanel";
 import { ManageBooksList } from "../../features/book/ManageBooksList";
 import { ManageSeriesList } from "../../features/series/ManageSeriesList";
@@ -17,14 +17,18 @@ export const ManageLibraryPage = (): ReactElement => {
   const navigate = useNavigate();
   const { section } = useParams();
 
-  const activeTab = useMemo(() => {
-    const index = TABS.findIndex((t) => t.value === section);
-    return index >= 0 ? index : 0;
-  }, [section]);
+  const activeTab = useMemo(
+    () => TABS.findIndex((t) => t.value === section),
+    [section]
+  );
 
   const handleTabChange = (_: unknown, index: number) => {
     navigate(`/settings/manage-library/${TABS[index].value}`);
   };
+
+  if (activeTab === -1) {
+    return <Navigate to="/settings/manage-library/books" replace />;
+  }
 
   return (
     <Box padding="20px">
