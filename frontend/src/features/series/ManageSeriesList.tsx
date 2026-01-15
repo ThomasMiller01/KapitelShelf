@@ -68,6 +68,7 @@ export const ManageSeriesList = () => {
       totalItems={data?.totalCount ?? 0}
       isLoading={isLoading}
       columns={columns}
+      itemName="serie"
       page={page}
       pageSize={pageSize}
       setPagination={setPagination}

@@ -131,6 +131,7 @@ export const ManageBooksList = () => {
       totalItems={data?.totalCount ?? 0}
       isLoading={isLoading}
       columns={columns}
+      itemName="book"
       page={page}
       pageSize={pageSize}
       setPagination={setPagination}

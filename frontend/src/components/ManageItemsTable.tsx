@@ -2,6 +2,7 @@ import LaunchIcon from "@mui/icons-material/Launch";
 import { IconButton } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { NavLink } from "react-router-dom";
+import { toTitleCase } from "../utils/TextUtils";
 
 interface ManageItemsTableProps {
   // data
@@ -11,6 +12,7 @@ interface ManageItemsTableProps {
 
   // layout
   columns: GridColDef<any>[];
+  itemName?: string;
 
   // pagination
   page: number;
@@ -23,31 +25,46 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
   totalItems,
   isLoading,
   columns,
+  itemName,
   page,
   pageSize,
   setPagination,
-}) => {
-  return (
-    <DataGrid
-      rows={items}
-      columns={columns}
-      rowCount={totalItems}
-      loading={isLoading}
-      disableRowSelectionOnClick
-      disableColumnSorting
-      disableColumnFilter
-      checkboxSelection
-      density="compact"
-      pagination
-      paginationMode="server"
-      pageSizeOptions={[15, 25, 50]}
-      paginationModel={{ page: page - 1, pageSize }}
-      onPaginationModelChange={(model) =>
-        setPagination(model.page + 1, model.pageSize)
-      }
-    />
-  );
-};
+}) => (
+  <DataGrid
+    rows={items}
+    columns={columns}
+    rowCount={totalItems}
+    loading={isLoading}
+    disableRowSelectionOnClick
+    disableColumnSorting
+    disableColumnFilter
+    checkboxSelection
+    density="compact"
+    pagination
+    paginationMode="server"
+    pageSizeOptions={[15, 25, 50]}
+    paginationModel={{ page: page - 1, pageSize }}
+    onPaginationModelChange={(model) =>
+      setPagination(model.page + 1, model.pageSize)
+    }
+    localeText={{
+      noRowsLabel: `No ${itemName ?? "row"}s`,
+      noResultsOverlayLabel: `No ${itemName ?? "result"}s found`,
+      footerRowSelected: (count) =>
+        count !== 1
+          ? `${count.toLocaleString()} ${itemName ?? "row"}s selected`
+          : `${count.toLocaleString()} ${itemName ?? "row"} selected`,
+      footerTotalRows: `Total ${toTitleCase(itemName) ?? "Row"}s:`,
+      checkboxSelectionSelectAllRows: `Select all ${itemName ?? "row"}s`,
+      checkboxSelectionUnselectAllRows: `Unselect all ${itemName ?? "row"}s`,
+      checkboxSelectionSelectRow: `Select ${itemName ?? "row"}`,
+      checkboxSelectionUnselectRow: `Unselect ${itemName ?? "row"}`,
+      MuiTablePagination: {
+        labelRowsPerPage: `${toTitleCase(itemName) ?? "Row"}s per page`,
+      },
+    }}
+  />
+);
 
 export const LinkColumn = (
   to: (params: GridRenderCellParams) => string
