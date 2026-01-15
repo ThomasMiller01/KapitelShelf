@@ -1,7 +1,11 @@
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { useState } from "react";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import {
+  LinkColumn,
+  ManageItemsTable,
+} from "../../components/ManageItemsTable";
 import { SeriesDTO } from "../../lib/api/KapitelShelf.Api";
 import { useSeriesListSimpleQuery } from "../../lib/requests/series/useSeriesListSimpleQuery";
 import { FormatTime } from "../../utils/TimeUtils";
@@ -35,10 +39,11 @@ export const columns: GridColDef<SeriesDTO>[] = [
   {
     field: "createdAt",
     headerName: "Created",
-    width: 180,
+    width: 120,
     sortable: true,
-    valueGetter: (_, row) => FormatTime(row.createdAt),
+    valueGetter: (_, row) => FormatTime(row.createdAt, "date"),
   },
+  LinkColumn((params) => `/library/series/${params.row.id}`),
 ];
 
 export const ManageSeriesList = () => {
@@ -59,24 +64,15 @@ export const ManageSeriesList = () => {
   }
 
   return (
-    <DataGrid
-      rows={data?.items ?? []}
+    <ManageItemsTable
+      items={data?.items ?? []}
+      totalItems={data?.totalCount ?? 0}
+      isLoading={isLoading}
       columns={columns}
-      rowCount={data?.totalCount}
-      loading={isLoading}
-      disableRowSelectionOnClick
-      disableColumnSorting
-      disableColumnFilter
-      checkboxSelection
-      density="compact"
-      pagination
-      paginationMode="server"
-      pageSizeOptions={[15, 25, 50]}
-      paginationModel={{ page: page - 1, pageSize }}
-      onPaginationModelChange={(model) => {
-        setPage(model.page + 1);
-        setPageSize(model.pageSize);
-      }}
+      pageSize={pageSize}
+      setPageSize={setPageSize}
+      page={page}
+      setPage={setPage}
     />
   );
 };

@@ -14,7 +14,10 @@ type FormatTimeUntilMode =
   | "time"
   | "datetime";
 
-export const FormatTime = (dateUtc?: string | null): string => {
+export const FormatTime = (
+  dateUtc?: string | null,
+  mode: FormatTimeUntilMode = "auto"
+): string => {
   if (!dateUtc) {
     return "-";
   }
@@ -24,7 +27,47 @@ export const FormatTime = (dateUtc?: string | null): string => {
     return "Invalid date";
   }
 
-  return localeDate.toLocaleString();
+  const now = new Date();
+  const diffMs = localeDate.getTime() - now.getTime();
+  const diffSeconds = Math.round(diffMs / 1000);
+  const diffMinutes = Math.round(diffSeconds / 60);
+  const diffHours = Math.round(diffMinutes / 60);
+  const diffDays = Math.round(diffHours / 24);
+
+  // date (yyyy-mm-dd)
+  const date = localeDate.toISOString().slice(0, 10);
+
+  switch (mode) {
+    default:
+    case "auto":
+      // readable for +/- 7 days, otherwise date
+      if (Math.abs(diffDays) <= 7) {
+        return FormatTimeUntil(dateUtc, true, "auto");
+      }
+      return date;
+
+    case "calender":
+      if (diffDays === 0) {
+        return "today";
+      } else if (diffDays === -1) {
+        return "yesterday";
+      } else if (diffDays === 1) {
+        return "tomorrow";
+      }
+      return date;
+
+    case "readable":
+      return FormatTimeUntil(dateUtc, true, "auto");
+
+    case "date":
+      return date;
+
+    case "time":
+      return localeDate.toLocaleTimeString();
+
+    case "datetime":
+      return localeDate.toLocaleString();
+  }
 };
 
 export const FormatTimeUntil = (

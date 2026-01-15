@@ -1,7 +1,11 @@
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { useState } from "react";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
+import {
+  LinkColumn,
+  ManageItemsTable,
+} from "../../components/ManageItemsTable";
 import { BookDTO } from "../../lib/api/KapitelShelf.Api";
 import { useBooksList } from "../../lib/requests/books/useBooksList";
 import { LocationTypeToString } from "../../utils/LocationUtils";
@@ -74,9 +78,9 @@ export const columns: GridColDef<BookDTO>[] = [
   {
     field: "releaseDate",
     headerName: "Release",
-    width: 170,
+    width: 100,
     sortable: true,
-    valueGetter: (_, row) => FormatTime(row.releaseDate),
+    valueGetter: (_, row) => FormatTime(row.releaseDate, "date"),
   },
   {
     field: "categories",
@@ -102,6 +106,7 @@ export const columns: GridColDef<BookDTO>[] = [
         ? "-"
         : LocationTypeToString[row.location.type],
   },
+  LinkColumn((params) => `/library/books/${params.row.id}`),
 ];
 
 export const ManageBooksList = () => {
@@ -122,24 +127,15 @@ export const ManageBooksList = () => {
   }
 
   return (
-    <DataGrid
-      rows={data?.items ?? []}
+    <ManageItemsTable
+      items={data?.items ?? []}
+      totalItems={data?.totalCount ?? 0}
+      isLoading={isLoading}
       columns={columns}
-      rowCount={data?.totalCount}
-      loading={isLoading}
-      disableRowSelectionOnClick
-      disableColumnSorting
-      disableColumnFilter
-      checkboxSelection
-      density="compact"
-      pagination
-      paginationMode="server"
-      pageSizeOptions={[15, 25, 50]}
-      paginationModel={{ page: page - 1, pageSize }}
-      onPaginationModelChange={(model) => {
-        setPage(model.page + 1);
-        setPageSize(model.pageSize);
-      }}
+      pageSize={pageSize}
+      setPageSize={setPageSize}
+      page={page}
+      setPage={setPage}
     />
   );
 };
