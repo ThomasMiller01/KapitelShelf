@@ -13,10 +13,9 @@ interface ManageItemsTableProps {
   columns: GridColDef<any>[];
 
   // pagination
-  pageSize: number;
-  setPageSize: (value: number) => void;
   page: number;
-  setPage: (value: number) => void;
+  pageSize: number;
+  setPagination: (nextPage: number, nextPageSize: number) => void;
 }
 
 export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
@@ -24,10 +23,9 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
   totalItems,
   isLoading,
   columns,
-  pageSize,
-  setPageSize,
   page,
-  setPage,
+  pageSize,
+  setPagination,
 }) => {
   return (
     <DataGrid
@@ -44,10 +42,9 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
       paginationMode="server"
       pageSizeOptions={[15, 25, 50]}
       paginationModel={{ page: page - 1, pageSize }}
-      onPaginationModelChange={(model) => {
-        setPage(model.page + 1);
-        setPageSize(model.pageSize);
-      }}
+      onPaginationModelChange={(model) =>
+        setPagination(model.page + 1, model.pageSize)
+      }
     />
   );
 };

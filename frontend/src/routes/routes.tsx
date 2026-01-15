@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useRoutes } from "react-router-dom";
+import { Navigate, useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
 import { SettingsLayout } from "../components/layout/SettingsLayout";
@@ -98,7 +98,16 @@ const AppRoutes = (): ReactElement | null => {
                   },
                   {
                     path: "manage-library",
-                    element: <ManageLibraryPage />,
+                    children: [
+                      {
+                        index: true,
+                        element: <Navigate to="books" />,
+                      },
+                      {
+                        path: ":section",
+                        element: <ManageLibraryPage />,
+                      },
+                    ],
                   },
                 ],
               },

@@ -1,11 +1,11 @@
 import { GridColDef } from "@mui/x-data-grid";
-import { useState } from "react";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import {
   LinkColumn,
   ManageItemsTable,
 } from "../../components/ManageItemsTable";
+import { usePaginationParams } from "../../hooks/url/usePaginationParams";
 import { SeriesDTO } from "../../lib/api/KapitelShelf.Api";
 import { useSeriesListSimpleQuery } from "../../lib/requests/series/useSeriesListSimpleQuery";
 import { FormatTime } from "../../utils/TimeUtils";
@@ -47,8 +47,7 @@ export const columns: GridColDef<SeriesDTO>[] = [
 ];
 
 export const ManageSeriesList = () => {
-  const [pageSize, setPageSize] = useState(15);
-  const [page, setPage] = useState(1);
+  const { page, pageSize, setPagination } = usePaginationParams(1, 15);
 
   const { data, isLoading, isError, refetch } = useSeriesListSimpleQuery({
     page,
@@ -69,10 +68,9 @@ export const ManageSeriesList = () => {
       totalItems={data?.totalCount ?? 0}
       isLoading={isLoading}
       columns={columns}
-      pageSize={pageSize}
-      setPageSize={setPageSize}
       page={page}
-      setPage={setPage}
+      pageSize={pageSize}
+      setPagination={setPagination}
     />
   );
 };
