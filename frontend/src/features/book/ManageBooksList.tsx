@@ -20,7 +20,7 @@ const formatList = (
     .filter((x): x is string => Boolean(x));
 
   if (items.length === 0) {
-    return "—";
+    return "-";
   }
 
   const head = items.slice(0, max).join(", ");
@@ -34,7 +34,7 @@ export const columns: GridColDef<BookDTO>[] = [
     flex: 1,
     minWidth: 260,
     sortable: true,
-    valueGetter: (_, row) => row.title ?? "—",
+    valueGetter: (_, row) => row.title ?? "-",
   },
   {
     field: "author",
