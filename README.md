@@ -69,7 +69,7 @@ See [LICENSE](./LICENSE) for more information.
 
 ## Credits
 
-❤️ Special thanks to Leonie Tröster for drawing the wonderful images featured in KapitelShelf.
+❤️ Special thanks to [Leonie Tröster](https://leonie-troester.de/) for drawing the wonderful images featured in KapitelShelf.
 
 ## Fun Fact
 
