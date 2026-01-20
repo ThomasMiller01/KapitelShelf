@@ -7,6 +7,7 @@ import {
 } from "../../components/ManageItemsTable";
 import { usePaginationParams } from "../../hooks/url/usePaginationParams";
 import { SeriesDTO } from "../../lib/api/KapitelShelf.Api";
+import { useDeleteSeriesBulk } from "../../lib/requests/series/useDeleteSeriesBulk";
 import { useSeriesListSimpleQuery } from "../../lib/requests/series/useSeriesListSimpleQuery";
 import { FormatTime } from "../../utils/TimeUtils";
 
@@ -54,6 +55,8 @@ export const ManageSeriesList = () => {
     pageSize,
   });
 
+  const { mutate: deleteSeries } = useDeleteSeriesBulk();
+
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Series" showRandomFacts />;
   }
@@ -72,6 +75,7 @@ export const ManageSeriesList = () => {
       page={page}
       pageSize={pageSize}
       setPagination={setPagination}
+      deleteAction={deleteSeries}
     />
   );
 };

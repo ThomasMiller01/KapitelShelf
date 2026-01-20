@@ -4373,11 +4373,11 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 
          * @summary Delete series in bulk.
-         * @param {string} [seriesIdsToDelete] The series ids to delete.
+         * @param {Array<string>} [requestBody] The series ids to delete.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesDelete: async (seriesIdsToDelete?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        seriesDelete: async (requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/series`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4390,15 +4390,14 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            if (seriesIdsToDelete !== undefined) {
-                localVarQueryParameter['seriesIdsToDelete'] = seriesIdsToDelete;
-            }
-
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4726,12 +4725,12 @@ export const SeriesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Delete series in bulk.
-         * @param {string} [seriesIdsToDelete] The series ids to delete.
+         * @param {Array<string>} [requestBody] The series ids to delete.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async seriesDelete(seriesIdsToDelete?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesDelete(seriesIdsToDelete, options);
+        async seriesDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesDelete(requestBody, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4860,12 +4859,12 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
         /**
          * 
          * @summary Delete series in bulk.
-         * @param {string} [seriesIdsToDelete] The series ids to delete.
+         * @param {Array<string>} [requestBody] The series ids to delete.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesDelete(seriesIdsToDelete?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.seriesDelete(seriesIdsToDelete, options).then((request) => request(axios, basePath));
+        seriesDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.seriesDelete(requestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4967,13 +4966,13 @@ export class SeriesApi extends BaseAPI {
     /**
      * 
      * @summary Delete series in bulk.
-     * @param {string} [seriesIdsToDelete] The series ids to delete.
+     * @param {Array<string>} [requestBody] The series ids to delete.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SeriesApi
      */
-    public seriesDelete(seriesIdsToDelete?: string, options?: RawAxiosRequestConfig) {
-        return SeriesApiFp(this.configuration).seriesDelete(seriesIdsToDelete, options).then((request) => request(this.axios, this.basePath));
+    public seriesDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesDelete(requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -53,7 +53,7 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     /// <param name="seriesIdsToDelete">The series ids to delete.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpDelete]
-    public async Task<IActionResult> DeleteBulk(Guid seriesIdsToDelete)
+    public async Task<IActionResult> DeleteBulk(List<Guid> seriesIdsToDelete)
     {
         try
         {
