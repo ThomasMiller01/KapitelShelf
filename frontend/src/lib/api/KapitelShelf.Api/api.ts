@@ -1572,6 +1572,40 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Delete books in bulk.
+         * @param {Array<string>} [requestBody] The book ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksDelete: async (requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/books`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Fetch all books.
          * @param {*} [options] Override http request option.
          * @deprecated
@@ -1993,6 +2027,19 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Delete books in bulk.
+         * @param {Array<string>} [requestBody] The book ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksDelete(requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Fetch all books.
          * @param {*} [options] Override http request option.
          * @deprecated
@@ -2212,6 +2259,16 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @summary Delete books in bulk.
+         * @param {Array<string>} [requestBody] The book ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.booksDelete(requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Fetch all books.
          * @param {*} [options] Override http request option.
          * @deprecated
@@ -2428,6 +2485,18 @@ export class BooksApi extends BaseAPI {
      */
     public booksBookIdPut(bookId: string, bookDTO?: BookDTO, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksBookIdPut(bookId, bookDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete books in bulk.
+     * @param {Array<string>} [requestBody] The book ids to delete.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksDelete(requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

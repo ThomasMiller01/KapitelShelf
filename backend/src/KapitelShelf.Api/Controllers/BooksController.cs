@@ -98,6 +98,26 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     }
 
     /// <summary>
+    /// Delete books in bulk.
+    /// </summary>
+    /// <param name="bookIdsToDelete">The book ids to delete.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete]
+    public async Task<IActionResult> DeleteBulk(List<Guid> bookIdsToDelete)
+    {
+        try
+        {
+            await this.logic.DeleteBooksAsync(bookIdsToDelete);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting boops with ids: {Ids}", bookIdsToDelete);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Search books with a search term.
     /// </summary>
     /// <param name="searchterm">The search term.</param>

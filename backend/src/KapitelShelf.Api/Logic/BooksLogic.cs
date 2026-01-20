@@ -500,6 +500,27 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
+    public async Task DeleteBooksAsync(List<Guid> bookIdsToDelete)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var books = await context.Books
+            .Where(x => bookIdsToDelete.Contains(x.Id))
+            .ToListAsync();
+
+        foreach (var book in books)
+        {
+            this.DeleteFiles(book.Id);
+
+            context.Books.Remove(book);
+        }
+
+        await context.SaveChangesAsync();
+
+        await this.CleanupDatabase();
+    }
+
+    /// <inheritdoc/>
     public async Task<ImportResultDTO> ImportBookAsync(IFormFile file, Guid? userId = null)
     {
         if (this.bookParserManager.IsBulkFile(file))

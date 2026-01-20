@@ -52,6 +52,13 @@ public interface IBooksLogic
     Task<BookDTO?> CreateBookAsync(CreateBookDTO createBookDTO);
 
     /// <summary>
+    /// Delete books in bulk.
+    /// </summary>
+    /// <param name="bookIdsToDelete">The book ids to delete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteBooksAsync(List<Guid> bookIdsToDelete);
+
+    /// <summary>
     /// Updates an existing book.
     /// </summary>
     /// <param name="bookId">The id of the book to update.</param>
