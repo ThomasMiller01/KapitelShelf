@@ -54,6 +54,13 @@ public interface ISeriesLogic
     Task<SeriesDTO?> DeleteSeriesAsync(Guid seriesId);
 
     /// <summary>
+    /// Delete series in bulk.
+    /// </summary>
+    /// <param name="seriesIdsToDelete">The series ids to delete.</param>
+    /// <returns>A <see cref="Task{SeriesDTO}"/> representing the result of the asynchronous operation.</returns>
+    Task DeleteSeriesAsync(List<Guid> seriesIdsToDelete);
+
+    /// <summary>
     /// Update a series.
     /// </summary>
     /// <param name="seriesId">The id of the series to update.</param>

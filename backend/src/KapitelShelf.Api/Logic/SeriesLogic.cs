@@ -197,6 +197,27 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     }
 
     /// <inheritdoc/>
+    public async Task DeleteSeriesAsync(List<Guid> seriesIdsToDelete)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var series = await context.Series
+            .Where(x => seriesIdsToDelete.Contains(x.Id))
+            .ToListAsync();
+
+        foreach (var serie in series)
+        {
+            await this.DeleteFilesAsync(serie.Id);
+
+            context.Series.Remove(serie);
+        }
+
+        await context.SaveChangesAsync();
+
+        await this.booksLogic.CleanupDatabase();
+    }
+
+    /// <inheritdoc/>
     public async Task<SeriesDTO?> UpdateSeriesAsync(Guid seriesId, SeriesDTO seriesDto)
     {
         if (seriesDto is null)

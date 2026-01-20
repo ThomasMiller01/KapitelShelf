@@ -48,6 +48,26 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     }
 
     /// <summary>
+    /// Delete series in bulk.
+    /// </summary>
+    /// <param name="seriesIdsToDelete">The series ids to delete.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete]
+    public async Task<IActionResult> DeleteBulk(Guid seriesIdsToDelete)
+    {
+        try
+        {
+            await this.logic.DeleteSeriesAsync(seriesIdsToDelete);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting series with Ids: {Ids}", seriesIdsToDelete);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Search series with the series name.
     /// </summary>
     /// <param name="name">The series name.</param>

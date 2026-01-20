@@ -131,7 +131,7 @@ const ManageItemsActionBar: React.FC<ManageItemsActionBarProps> = ({
           {deleteAction && (
             <>
               <IconButtonWithTooltip
-                tooltip={`Delete all ${selected.length} selected ${
+                tooltip={`Delete ${selected.length} selected ${
                   itemName ?? "row"
                 }${selected.length > 1 ? "s" : ""}`}
                 disabled={selected.length === 0}
