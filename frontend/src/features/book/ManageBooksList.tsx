@@ -8,12 +8,13 @@ import {
 import { usePaginationParams } from "../../hooks/url/usePaginationParams";
 import { BookDTO } from "../../lib/api/KapitelShelf.Api";
 import { useBooksList } from "../../lib/requests/books/useBooksList";
+import { useDeleteBooks } from "../../lib/requests/books/useDeleteBooks";
 import { LocationTypeToString } from "../../utils/LocationUtils";
 import { FormatTime } from "../../utils/TimeUtils";
 
 const formatList = (
   values: Array<{ name?: string | null }> | null | undefined,
-  max: number
+  max: number,
 ): string => {
   const items = (values ?? [])
     .map((x) => x.name?.trim())
@@ -117,6 +118,8 @@ export const ManageBooksList = () => {
     pageSize,
   });
 
+  const { mutate: deleteBooks } = useDeleteBooks();
+
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Books" showRandomFacts />;
   }
@@ -135,6 +138,7 @@ export const ManageBooksList = () => {
       page={page}
       pageSize={pageSize}
       setPagination={setPagination}
+      deleteAction={deleteBooks}
     />
   );
 };
