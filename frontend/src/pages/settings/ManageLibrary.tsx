@@ -19,7 +19,7 @@ export const ManageLibraryPage = (): ReactElement => {
 
   const activeTab = useMemo(
     () => TABS.findIndex((t) => t.value === section),
-    [section]
+    [section],
   );
 
   const handleTabChange = (_: unknown, index: number) => {
