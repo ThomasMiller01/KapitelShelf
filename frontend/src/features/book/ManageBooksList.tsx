@@ -5,7 +5,7 @@ import {
   LinkColumn,
   ManageItemsTable,
 } from "../../components/ManageItemsTable";
-import { usePaginationParams } from "../../hooks/url/usePaginationParams";
+import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
 import { BookDTO } from "../../lib/api/KapitelShelf.Api";
 import { useBooksList } from "../../lib/requests/books/useBooksList";
 import { useDeleteBooks } from "../../lib/requests/books/useDeleteBooks";
@@ -111,7 +111,9 @@ export const columns: GridColDef<BookDTO>[] = [
 ];
 
 export const ManageBooksList = () => {
-  const { page, pageSize, setPagination } = usePaginationParams(1, 15);
+  const { page, pageSize, sorting, setItemsTableParams } = useItemsTableParams({
+    defaultPageSize: 15,
+  });
 
   const { data, isLoading, isError, refetch } = useBooksList({
     page,
@@ -130,14 +132,19 @@ export const ManageBooksList = () => {
 
   return (
     <ManageItemsTable
+      // data
       items={data?.items ?? []}
-      totalItems={data?.totalCount ?? 0}
       isLoading={isLoading}
+      totalItems={data?.totalCount ?? 0}
+      // layout
       columns={columns}
       itemName="book"
+      // pagination & sorting
       page={page}
       pageSize={pageSize}
-      setPagination={setPagination}
+      sorting={sorting}
+      setItemsTableParams={setItemsTableParams}
+      // actions
       deleteAction={deleteBooks}
     />
   );

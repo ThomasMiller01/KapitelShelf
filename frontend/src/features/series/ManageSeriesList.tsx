@@ -5,7 +5,7 @@ import {
   LinkColumn,
   ManageItemsTable,
 } from "../../components/ManageItemsTable";
-import { usePaginationParams } from "../../hooks/url/usePaginationParams";
+import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
 import { SeriesDTO } from "../../lib/api/KapitelShelf.Api";
 import { useDeleteSeriesBulk } from "../../lib/requests/series/useDeleteSeriesBulk";
 import { useSeriesListSimpleQuery } from "../../lib/requests/series/useSeriesListSimpleQuery";
@@ -48,7 +48,9 @@ export const columns: GridColDef<SeriesDTO>[] = [
 ];
 
 export const ManageSeriesList = () => {
-  const { page, pageSize, setPagination } = usePaginationParams(1, 15);
+  const { page, pageSize, setItemsTableParams } = useItemsTableParams({
+    defaultPageSize: 15,
+  });
 
   const { data, isLoading, isError, refetch } = useSeriesListSimpleQuery({
     page,
@@ -67,14 +69,18 @@ export const ManageSeriesList = () => {
 
   return (
     <ManageItemsTable
+      // data
       items={data?.items ?? []}
-      totalItems={data?.totalCount ?? 0}
       isLoading={isLoading}
+      totalItems={data?.totalCount ?? 0}
+      // layout
       columns={columns}
       itemName="serie"
+      // pagination
       page={page}
       pageSize={pageSize}
-      setPagination={setPagination}
+      setItemsTableParams={setItemsTableParams}
+      // actions
       deleteAction={deleteSeries}
     />
   );

@@ -4,6 +4,10 @@ import { Box, IconButton, Stack, Typography } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import {
+  setItemsTableParamsProps,
+  SortingModel,
+} from "../hooks/url/useItemsTableParams";
 import { toTitleCase } from "../utils/TextUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
 import DeleteDialog from "./base/feedback/DeleteDialog";
@@ -15,28 +19,37 @@ interface Actions {
 interface ManageItemsTableProps extends Actions {
   // data
   items: any[];
-  totalItems: number;
   isLoading: boolean;
+  totalItems?: number;
 
   // layout
   columns: GridColDef<any>[];
   itemName?: string;
 
-  // pagination
-  page: number;
-  pageSize: number;
-  setPagination: (nextPage: number, nextPageSize: number) => void;
+  // pagination & sorting
+  page?: number;
+  pageSize?: number;
+  sorting?: SortingModel;
+  setItemsTableParams?: (params: setItemsTableParamsProps) => void;
 }
 
 export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
+  // data
   items,
-  totalItems,
   isLoading,
+  totalItems,
+
+  // layout
   columns,
   itemName,
-  page,
-  pageSize,
-  setPagination,
+
+  // pagination & sorting
+  page = 1,
+  pageSize = items.length,
+  sorting,
+  setItemsTableParams,
+
+  // actions
   deleteAction,
 }) => {
   const [selected, setSelected] = useState<string[]>([]);
@@ -49,25 +62,57 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         deleteAction={deleteAction}
       />
       <DataGrid
+        // data
         rows={items}
         columns={columns}
         rowCount={totalItems}
         loading={isLoading}
-        disableRowSelectionOnClick
-        disableColumnSorting
+        // misc
         disableColumnFilter
+        // styling
         density="compact"
+        // selection
         checkboxSelection
         onRowSelectionModelChange={(newRowSelectionModel) =>
           setSelected(newRowSelectionModel.map((x) => String(x)))
         }
+        disableRowSelectionOnClick
+        // pagination
         pagination
         paginationMode="server"
         pageSizeOptions={[15, 25, 50]}
         paginationModel={{ page: page - 1, pageSize }}
         onPaginationModelChange={(model) =>
-          setPagination(model.page + 1, model.pageSize)
+          setItemsTableParams?.({
+            nextPage: model.page + 1,
+            nextPageSize: model.pageSize,
+          })
         }
+        // sorting
+        disableColumnSorting={!sorting}
+        sortingMode="server"
+        sortModel={
+          sorting && sorting.field && sorting.sort
+            ? [{ field: sorting.field, sort: sorting.sort }]
+            : []
+        }
+        onSortModelChange={(sortingModel) => {
+          const first = sortingModel[0];
+
+          setItemsTableParams?.({
+            nextSorting: {
+              field: first?.field ?? null,
+              sort:
+                first?.sort === "asc" || first?.sort === "desc"
+                  ? first.sort
+                  : null,
+            },
+
+            // reset pagination when trying to sort
+            nextPage: 1,
+          });
+        }}
+        // language
         localeText={{
           noRowsLabel: `No ${itemName ?? "row"}s`,
           noResultsOverlayLabel: `No ${itemName ?? "result"}s found`,
