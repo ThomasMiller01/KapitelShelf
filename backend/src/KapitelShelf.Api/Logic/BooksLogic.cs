@@ -365,6 +365,7 @@ public class BooksLogic(
             bookDto.PageNumber,
             bookDto.ReleaseDate,
             bookDto.SeriesNumber,
+            UpdatedAt = DateTime.UtcNow,
         });
 
         // upsert Author (N:1)
@@ -375,14 +376,14 @@ public class BooksLogic(
         else
         {
             var author = await context.Authors
-                   .SingleOrDefaultAsync(x =>
-                        x.FirstName == bookDto.Author.FirstName
-                        && x.LastName == bookDto.Author.LastName)
-                    ?? new AuthorModel
-                    {
-                        FirstName = bookDto.Author.FirstName,
-                        LastName = bookDto.Author.LastName,
-                    };
+                .SingleOrDefaultAsync(x =>
+                    x.FirstName == bookDto.Author.FirstName
+                    && x.LastName == bookDto.Author.LastName)
+                ?? new AuthorModel
+                {
+                    FirstName = bookDto.Author.FirstName,
+                    LastName = bookDto.Author.LastName,
+                };
 
             book.Author = author;
         }

@@ -55,6 +55,16 @@ public class BookModel
     public Guid? AuthorId { get; set; }
 
     /// <summary>
+    /// Gets or sets the creation time.
+    /// </summary>
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Gets or sets the update time.
+    /// </summary>
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
     /// Gets or sets the author.
     /// </summary>
     public virtual AuthorModel? Author { get; set; }

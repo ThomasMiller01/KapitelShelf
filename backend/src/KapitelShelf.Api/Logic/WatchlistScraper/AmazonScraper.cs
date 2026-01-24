@@ -79,6 +79,7 @@ public partial class AmazonScraper(HttpClient httpClient, Mapper mapper) : Amazo
 
         // only take the asins take are after the last volume in the library
         asins = asins
+            .Order()
             .Skip(series.LastVolume.SeriesNumber)
             .ToList();
 

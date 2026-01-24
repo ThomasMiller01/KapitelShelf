@@ -246,7 +246,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         context.Entry(series).CurrentValues.SetValues(new
         {
             seriesDto.Name,
-            updatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         });
 
         // commit
@@ -289,8 +289,8 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             throw new ArgumentException("Unknown source series id.");
         }
 
-        var targetSeriesExists = await context.Series.AnyAsync(x => x.Id == targetSeriesId);
-        if (!targetSeriesExists)
+        var targetSeries = await context.Series.FirstOrDefaultAsync(x => x.Id == targetSeriesId);
+        if (targetSeries is null)
         {
             throw new ArgumentException("Unknown target series id.");
         }
@@ -299,7 +299,10 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         foreach (var book in sourceSeries.Books)
         {
             book.SeriesId = targetSeriesId;
+            book.UpdatedAt = DateTime.Now;
         }
+
+        targetSeries.UpdatedAt = DateTime.Now;
 
         await context.SaveChangesAsync();
 
