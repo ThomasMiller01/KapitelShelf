@@ -31,6 +31,8 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(BookModel.Tags))]
     [MapperIgnoreSource(nameof(BookModel.SeriesId))]
     [MapperIgnoreSource(nameof(BookModel.AuthorId))]
+    [MapperIgnoreSource(nameof(BookModel.CreatedAt))]
+    [MapperIgnoreSource(nameof(BookModel.UpdatedAt))]
     [MapperIgnoreTarget(nameof(BookDTO.Categories))]
     [MapperIgnoreTarget(nameof(BookDTO.Tags))]
     public partial BookDTO BookModelToBookDtoCore(BookModel model);
@@ -101,6 +103,8 @@ public sealed partial class Mapper
     [MapperIgnoreTarget(nameof(BookModel.Tags))]
     [MapperIgnoreTarget(nameof(BookModel.Cover))]
     [MapperIgnoreTarget(nameof(BookModel.Location))]
+    [MapperIgnoreTarget(nameof(BookModel.CreatedAt))]
+    [MapperIgnoreTarget(nameof(BookModel.UpdatedAt))]
     public partial BookModel CreateBookDtoToBookModelCore(CreateBookDTO dto);
 
     /// <summary>

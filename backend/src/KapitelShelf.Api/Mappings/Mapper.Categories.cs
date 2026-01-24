@@ -19,6 +19,8 @@ public sealed partial class Mapper
     /// <param name="model">The category model.</param>
     /// <returns>The category dto.</returns>
     [MapperIgnoreSource(nameof(CategoryModel.Books))]
+    [MapperIgnoreSource(nameof(CategoryModel.CreatedAt))]
+    [MapperIgnoreSource(nameof(CategoryModel.UpdatedAt))]
     public partial CategoryDTO CategoryModelToCategoryDto(CategoryModel model);
 
     /// <summary>
@@ -28,6 +30,8 @@ public sealed partial class Mapper
     /// <returns>The category model.</returns>
     [MapperIgnoreTarget(nameof(CategoryModel.Id))]
     [MapperIgnoreTarget(nameof(CategoryModel.Books))]
+    [MapperIgnoreTarget(nameof(CategoryModel.CreatedAt))]
+    [MapperIgnoreTarget(nameof(CategoryModel.UpdatedAt))]
     public partial CategoryModel CreateCategoryDtoToCategoryModel(CreateCategoryDTO dto);
 
     /// <summary>

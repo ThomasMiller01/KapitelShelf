@@ -19,6 +19,8 @@ public sealed partial class Mapper
     /// <param name="model">The tag model.</param>
     /// <returns>The tag dto.</returns>
     [MapperIgnoreSource(nameof(TagModel.Books))]
+    [MapperIgnoreSource(nameof(TagModel.CreatedAt))]
+    [MapperIgnoreSource(nameof(TagModel.UpdatedAt))]
     public partial TagDTO TagModelToTagDto(TagModel model);
 
     /// <summary>
@@ -28,6 +30,8 @@ public sealed partial class Mapper
     /// <returns>The tag model.</returns>
     [MapperIgnoreTarget(nameof(TagModel.Id))]
     [MapperIgnoreTarget(nameof(TagModel.Books))]
+    [MapperIgnoreTarget(nameof(TagModel.CreatedAt))]
+    [MapperIgnoreTarget(nameof(TagModel.UpdatedAt))]
     public partial TagModel CreateTagDtoToTagModel(CreateTagDTO dto);
 
     /// <summary>

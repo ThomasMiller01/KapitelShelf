@@ -22,6 +22,8 @@ public sealed partial class Mapper
     /// <param name="model">The author model.</param>
     /// <returns>The author dto.</returns>
     [MapperIgnoreSource(nameof(AuthorModel.Books))]
+    [MapperIgnoreSource(nameof(AuthorModel.CreatedAt))]
+    [MapperIgnoreSource(nameof(AuthorModel.UpdatedAt))]
     public partial AuthorDTO AuthorModelToAuthorDto(AuthorModel model);
 
     /// <summary>
@@ -31,6 +33,8 @@ public sealed partial class Mapper
     /// <returns>The author model.</returns>
     [MapperIgnoreTarget(nameof(AuthorModel.Id))]
     [MapperIgnoreTarget(nameof(AuthorModel.Books))]
+    [MapperIgnoreTarget(nameof(AuthorModel.CreatedAt))]
+    [MapperIgnoreTarget(nameof(AuthorModel.UpdatedAt))]
     public partial AuthorModel CreateAuthorDtoToAuthorModel(CreateAuthorDTO dto);
 
     /// <summary>
