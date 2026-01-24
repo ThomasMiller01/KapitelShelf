@@ -99,6 +99,8 @@ public class BooksLogic(
 #nullable restore
             .AsSingleQuery()
 
+            .OrderByDescending(x => x.UpdatedAt)
+
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
