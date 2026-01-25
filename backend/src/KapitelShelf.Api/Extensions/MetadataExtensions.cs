@@ -1,4 +1,4 @@
-﻿// <copyright file="MetadataExtension.cs" company="KapitelShelf">
+﻿// <copyright file="MetadataExtensions.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ namespace KapitelShelf.Api.Extensions;
 /// <summary>
 /// Metadata extension methods.
 /// </summary>
-public static class MetadataExtension
+public static class MetadataExtensions
 {
     /// <summary>
     /// Convert a metadata source to its string representation.

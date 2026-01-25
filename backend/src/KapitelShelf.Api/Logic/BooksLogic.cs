@@ -78,7 +78,7 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
-    public async Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize)
+    public async Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -99,7 +99,7 @@ public class BooksLogic(
 #nullable restore
             .AsSingleQuery()
 
-            .OrderByDescending(x => x.UpdatedAt)
+            .ApplySorting(sortBy, sortDir)
 
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

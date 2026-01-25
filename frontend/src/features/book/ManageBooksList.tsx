@@ -79,6 +79,7 @@ export const columns: GridColDef<BookDTO>[] = [
   {
     field: "releaseDate",
     headerName: "Release",
+    align: "center",
     width: 100,
     sortable: true,
     valueGetter: (_, row) => FormatTime(row.releaseDate, "date"),
@@ -118,6 +119,7 @@ export const ManageBooksList = () => {
   const { data, isLoading, isError, refetch } = useBooksList({
     page,
     pageSize,
+    sorting,
   });
 
   const { mutate: deleteBooks } = useDeleteBooks();

@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "../../../contexts/ApiProvider";
 import { SortingModel } from "../../../hooks/url/useItemsTableParams";
+import {
+  ToBookSortByDTO,
+  ToSortDirectionDTO,
+} from "../../../utils/SortingUtils";
 import { MINUTE_MS } from "../../../utils/TimeUtils";
 
 const DEFAULT_PAGE_SIZE = 24;
@@ -21,8 +25,15 @@ export const useBooksList = ({
   return useQuery({
     queryKey: ["books", page, pageSize, sorting],
     queryFn: async () => {
-      // TODO: use sorting
-      const { data } = await clients.books.booksPaginatedGet(page, pageSize);
+      const sortBy = ToBookSortByDTO(sorting?.field);
+      const sortDir = ToSortDirectionDTO(sorting?.sort);
+
+      const { data } = await clients.books.booksPaginatedGet(
+        page,
+        pageSize,
+        sortBy,
+        sortDir,
+      );
       return data;
     },
     placeholderData: (previousData) => previousData,

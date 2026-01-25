@@ -147,6 +147,25 @@ export interface BookDTOPagedResult {
     'totalCount'?: number;
 }
 /**
+ * The sort by enum for books.
+ * @export
+ * @enum {number}
+ */
+
+export const BookSortByDTO = {
+    NUMBER_0: 0,
+    NUMBER_1: 1,
+    NUMBER_2: 2,
+    NUMBER_3: 3,
+    NUMBER_4: 4,
+    NUMBER_5: 5,
+    NUMBER_6: 6
+} as const;
+
+export type BookSortByDTO = typeof BookSortByDTO[keyof typeof BookSortByDTO];
+
+
+/**
  * The category dto.
  * @export
  * @interface CategoryDTO
@@ -929,6 +948,20 @@ export interface SeriesDTOPagedResult {
      */
     'totalCount'?: number;
 }
+/**
+ * The sort direction enum.
+ * @export
+ * @enum {number}
+ */
+
+export const SortDirectionDTO = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+
+export type SortDirectionDTO = typeof SortDirectionDTO[keyof typeof SortDirectionDTO];
+
+
 /**
  * The tag dto.
  * @export
@@ -1719,10 +1752,12 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
          * @summary Fetch all books.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
+         * @param {BookSortByDTO} [sortBy] Sort the books by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksPaginatedGet: async (page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        booksPaginatedGet: async (page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/books/paginated`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1741,6 +1776,14 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
 
             if (pageSize !== undefined) {
                 localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (sortDir !== undefined) {
+                localVarQueryParameter['sortDir'] = sortDir;
             }
 
 
@@ -2083,11 +2126,13 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * @summary Fetch all books.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
+         * @param {BookSortByDTO} [sortBy] Sort the books by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksPaginatedGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksPaginatedGet(page, pageSize, options);
+        async booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksPaginatedGet(page, pageSize, sortBy, sortDir, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksPaginatedGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2303,11 +2348,13 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * @summary Fetch all books.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
+         * @param {BookSortByDTO} [sortBy] Sort the books by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksPaginatedGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
-            return localVarFp.booksPaginatedGet(page, pageSize, options).then((request) => request(axios, basePath));
+        booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
+            return localVarFp.booksPaginatedGet(page, pageSize, sortBy, sortDir, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2541,12 +2588,14 @@ export class BooksApi extends BaseAPI {
      * @summary Fetch all books.
      * @param {number} [page] The page number.
      * @param {number} [pageSize] The page size.
+     * @param {BookSortByDTO} [sortBy] Sort the books by this field.
+     * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
      */
-    public booksPaginatedGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksPaginatedGet(page, pageSize, options).then((request) => request(this.axios, this.basePath));
+    public booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksPaginatedGet(page, pageSize, sortBy, sortDir, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

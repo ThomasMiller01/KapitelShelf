@@ -162,6 +162,22 @@
               "format": "int32",
               "default": 24
             }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort the books by this field.",
+            "schema": {
+              "$ref": "#/components/schemas/BookSortByDTO"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Sort the books in this direction.",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirectionDTO"
+            }
           }
         ],
         "responses": {
@@ -2951,6 +2967,20 @@
         "additionalProperties": false,
         "description": "The paginated result."
       },
+      "BookSortByDTO": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "description": "The sort by enum for books.",
+        "format": "int32"
+      },
       "CategoryDTO": {
         "type": "object",
         "properties": {
@@ -3610,6 +3640,15 @@
         },
         "additionalProperties": false,
         "description": "The paginated result."
+      },
+      "SortDirectionDTO": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "The sort direction enum.",
+        "format": "int32"
       },
       "TagDTO": {
         "type": "object",
