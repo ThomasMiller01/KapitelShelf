@@ -51,6 +51,8 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .FilterBySeriesNameQuery(filter)
             .SortBySeriesNameQuery(filter);
 
+        // apply sorting, if no filter is specified
+        // or if a specific sorting is requested
         if (filter is null || sortBy != SeriesSortByDTO.Default)
         {
             query = query.ApplySorting(sortBy, sortDir);

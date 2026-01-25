@@ -100,6 +100,8 @@ public class BooksLogic(
             .FilterBySearchtermQuery(filter)
             .SortBySearchtermQuery(filter);
 
+        // apply sorting, if no filter is specified
+        // or if a specific sorting is requested
         if (filter is null || sortBy != BookSortByDTO.Default)
         {
             query = query.ApplySorting(sortBy, sortDir);
