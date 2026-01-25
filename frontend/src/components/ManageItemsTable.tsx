@@ -1,6 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import LaunchIcon from "@mui/icons-material/Launch";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Stack } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -187,36 +187,52 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   return (
-    <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
-      {/* Columns */}
-      <GridToolbarColumnsButton />
-
-      {/* Filter */}
-      {showQuickFilter && <GridToolbarQuickFilter debounceMs={400} />}
-
-      {/* Delete */}
-      {deleteAction && (
-        <>
-          <IconButtonWithTooltip
-            tooltip={`Delete ${selected.length} selected ${itemName ?? "row"}${
-              selected.length > 1 ? "s" : ""
-            }`}
-            disabled={selected.length === 0}
-            color="error"
-            onClick={() => setDeleteDialogOpen(true)}
-          >
-            <DeleteIcon />
-          </IconButtonWithTooltip>
-          <DeleteDialog
-            open={deleteDialogOpen}
-            onCancel={() => setDeleteDialogOpen(false)}
-            onConfirm={() => {
-              deleteAction(selected);
-              setDeleteDialogOpen(false);
-            }}
+    <GridToolbarContainer sx={{ px: 1 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        justifyContent="space-between"
+        alignItems="end"
+        sx={{ width: "100%" }}
+      >
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={2}
+          alignItems="start"
+        >
+          {/* Columns */}
+          <GridToolbarColumnsButton
+            slotProps={{ tooltip: { title: undefined } }}
           />
-        </>
-      )}
+
+          {/* Filter */}
+          {showQuickFilter && <GridToolbarQuickFilter debounceMs={400} />}
+        </Stack>
+
+        {/* Delete */}
+        {deleteAction && (
+          <>
+            <IconButtonWithTooltip
+              tooltip={`Delete ${selected.length} selected ${
+                itemName ?? "row"
+              }${selected.length > 1 ? "s" : ""}`}
+              disabled={selected.length === 0}
+              color="error"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <DeleteIcon />
+            </IconButtonWithTooltip>
+            <DeleteDialog
+              open={deleteDialogOpen}
+              onCancel={() => setDeleteDialogOpen(false)}
+              onConfirm={() => {
+                deleteAction(selected);
+                setDeleteDialogOpen(false);
+              }}
+            />
+          </>
+        )}
+      </Stack>
     </GridToolbarContainer>
   );
 };
