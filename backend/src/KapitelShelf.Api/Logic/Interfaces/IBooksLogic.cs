@@ -26,8 +26,9 @@ public interface IBooksLogic
     /// <param name="pageSize">The size of the pages.</param>
     /// <param name="sortBy">Sort the books by this field.</param>
     /// <param name="sortDir">Sort the books in this direction.</param>
+    /// <param name="filter">Filter the books.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="BookDTO"/>.</returns>
-    Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir);
+    Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir, string? filter);
 
     /// <summary>
     /// Retrieves a book by its id.

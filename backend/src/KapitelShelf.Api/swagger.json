@@ -178,6 +178,14 @@
             "schema": {
               "$ref": "#/components/schemas/SortDirectionDTO"
             }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Filter the books.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1754,6 +1762,14 @@
             "description": "Sort the series in this direction.",
             "schema": {
               "$ref": "#/components/schemas/SortDirectionDTO"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Filter the series.",
+            "schema": {
+              "type": "string"
             }
           }
         ],

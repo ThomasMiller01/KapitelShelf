@@ -78,14 +78,13 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
-    public async Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir)
+    public async Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir, string? filter)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         var query = context.Books
-            .AsNoTracking();
+            .AsNoTracking()
 
-        var items = await query
             .Include(x => x.Series)
             .Include(x => x.Author)
             .Include(x => x.Categories)
@@ -97,8 +96,9 @@ public class BooksLogic(
 #nullable disable
                 .ThenInclude(x => x.FileInfo)
 #nullable restore
-            .AsSingleQuery()
+            .AsSingleQuery();
 
+        var items = await query
             .ApplySorting(sortBy, sortDir)
 
             .Skip((page - 1) * pageSize)

@@ -31,17 +31,19 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     /// <param name="pageSize">The page size.</param>
     /// <param name="sortBy">Sort the series by this field.</param>
     /// <param name="sortDir">Sort the series in this direction.</param>
+    /// <param name="filter">Filter the series.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
     public async Task<ActionResult<PagedResult<SeriesDTO>>> GetSeries(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 24,
         [FromQuery] SeriesSortByDTO sortBy = SeriesSortByDTO.Default,
-        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Asc)
+        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Asc,
+        [FromQuery] string? filter = null)
     {
         try
         {
-            var series = await this.logic.GetSeriesAsync(page, pageSize, sortBy, sortDir);
+            var series = await this.logic.GetSeriesAsync(page, pageSize, sortBy, sortDir, filter);
             return Ok(series);
         }
         catch (Exception ex)

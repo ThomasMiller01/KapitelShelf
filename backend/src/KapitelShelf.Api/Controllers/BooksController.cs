@@ -56,17 +56,19 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="pageSize">The page size.</param>
     /// <param name="sortBy">Sort the books by this field.</param>
     /// <param name="sortDir">Sort the books in this direction.</param>
+    /// <param name="filter">Filter the books.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("paginated")]
     public async Task<ActionResult<PagedResult<BookDTO>>> GetBooks(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 24,
         [FromQuery] BookSortByDTO sortBy = BookSortByDTO.Default,
-        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Asc)
+        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Asc,
+        [FromQuery] string? filter = null)
     {
         try
         {
-            var books = await this.logic.GetBooksAsync(page, pageSize, sortBy, sortDir);
+            var books = await this.logic.GetBooksAsync(page, pageSize, sortBy, sortDir, filter);
             return Ok(books);
         }
         catch (Exception ex)

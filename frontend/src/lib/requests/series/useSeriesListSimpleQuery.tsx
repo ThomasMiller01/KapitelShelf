@@ -13,17 +13,19 @@ interface useSeriesListSimpleQueryProps {
   page: number;
   pageSize?: number;
   sorting?: SortingModel;
+  filter?: string | null;
 }
 
 export const useSeriesListSimpleQuery = ({
   page,
   pageSize = DEFAULT_PAGE_SIZE,
   sorting,
+  filter,
 }: useSeriesListSimpleQueryProps) => {
   const { clients } = useApi();
 
   return useQuery({
-    queryKey: ["series", page, pageSize, sorting],
+    queryKey: ["series", page, pageSize, sorting, filter],
     queryFn: async () => {
       const sortBy = ToSeriesSortByDTO(sorting?.field);
       const sortDir = ToSortDirectionDTO(sorting?.sort);
@@ -33,6 +35,7 @@ export const useSeriesListSimpleQuery = ({
         pageSize,
         sortBy,
         sortDir,
+        filter ?? undefined,
       );
       return data;
     },

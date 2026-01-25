@@ -1771,10 +1771,11 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
          * @param {number} [pageSize] The page size.
          * @param {BookSortByDTO} [sortBy] Sort the books by this field.
          * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
+         * @param {string} [filter] Filter the books.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksPaginatedGet: async (page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        booksPaginatedGet: async (page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/books/paginated`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1801,6 +1802,10 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
 
             if (sortDir !== undefined) {
                 localVarQueryParameter['sortDir'] = sortDir;
+            }
+
+            if (filter !== undefined) {
+                localVarQueryParameter['filter'] = filter;
             }
 
 
@@ -2145,11 +2150,12 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * @param {number} [pageSize] The page size.
          * @param {BookSortByDTO} [sortBy] Sort the books by this field.
          * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
+         * @param {string} [filter] Filter the books.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksPaginatedGet(page, pageSize, sortBy, sortDir, options);
+        async booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BookDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksPaginatedGet(page, pageSize, sortBy, sortDir, filter, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksPaginatedGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2367,11 +2373,12 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * @param {number} [pageSize] The page size.
          * @param {BookSortByDTO} [sortBy] Sort the books by this field.
          * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
+         * @param {string} [filter] Filter the books.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
-            return localVarFp.booksPaginatedGet(page, pageSize, sortBy, sortDir, options).then((request) => request(axios, basePath));
+        booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): AxiosPromise<BookDTOPagedResult> {
+            return localVarFp.booksPaginatedGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2607,12 +2614,13 @@ export class BooksApi extends BaseAPI {
      * @param {number} [pageSize] The page size.
      * @param {BookSortByDTO} [sortBy] Sort the books by this field.
      * @param {SortDirectionDTO} [sortDir] Sort the books in this direction.
+     * @param {string} [filter] Filter the books.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
      */
-    public booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksPaginatedGet(page, pageSize, sortBy, sortDir, options).then((request) => request(this.axios, this.basePath));
+    public booksPaginatedGet(page?: number, pageSize?: number, sortBy?: BookSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksPaginatedGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4477,10 +4485,11 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {number} [pageSize] The page size.
          * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
          * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
+         * @param {string} [filter] Filter the series.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesGet: async (page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        seriesGet: async (page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/series`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4507,6 +4516,10 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
 
             if (sortDir !== undefined) {
                 localVarQueryParameter['sortDir'] = sortDir;
+            }
+
+            if (filter !== undefined) {
+                localVarQueryParameter['filter'] = filter;
             }
 
 
@@ -4818,11 +4831,12 @@ export const SeriesApiFp = function(configuration?: Configuration) {
          * @param {number} [pageSize] The page size.
          * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
          * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
+         * @param {string} [filter] Filter the series.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeriesDTOPagedResult>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesGet(page, pageSize, sortBy, sortDir, options);
+        async seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeriesDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesGet(page, pageSize, sortBy, sortDir, filter, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4951,11 +4965,12 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          * @param {number} [pageSize] The page size.
          * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
          * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
+         * @param {string} [filter] Filter the series.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): AxiosPromise<SeriesDTOPagedResult> {
-            return localVarFp.seriesGet(page, pageSize, sortBy, sortDir, options).then((request) => request(axios, basePath));
+        seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): AxiosPromise<SeriesDTOPagedResult> {
+            return localVarFp.seriesGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5062,12 +5077,13 @@ export class SeriesApi extends BaseAPI {
      * @param {number} [pageSize] The page size.
      * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
      * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
+     * @param {string} [filter] Filter the series.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SeriesApi
      */
-    public seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig) {
-        return SeriesApiFp(this.configuration).seriesGet(page, pageSize, sortBy, sortDir, options).then((request) => request(this.axios, this.basePath));
+    public seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
