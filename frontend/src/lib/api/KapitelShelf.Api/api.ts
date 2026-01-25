@@ -949,6 +949,23 @@ export interface SeriesDTOPagedResult {
     'totalCount'?: number;
 }
 /**
+ * The sort by enum for series.
+ * @export
+ * @enum {number}
+ */
+
+export const SeriesSortByDTO = {
+    NUMBER_0: 0,
+    NUMBER_1: 1,
+    NUMBER_2: 2,
+    NUMBER_3: 3,
+    NUMBER_4: 4
+} as const;
+
+export type SeriesSortByDTO = typeof SeriesSortByDTO[keyof typeof SeriesSortByDTO];
+
+
+/**
  * The sort direction enum.
  * @export
  * @enum {number}
@@ -4458,10 +4475,12 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
          * @summary Fetch all series.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
+         * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesGet: async (page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        seriesGet: async (page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/series`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4480,6 +4499,14 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
 
             if (pageSize !== undefined) {
                 localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (sortDir !== undefined) {
+                localVarQueryParameter['sortDir'] = sortDir;
             }
 
 
@@ -4789,11 +4816,13 @@ export const SeriesApiFp = function(configuration?: Configuration) {
          * @summary Fetch all series.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
+         * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async seriesGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeriesDTOPagedResult>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesGet(page, pageSize, options);
+        async seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeriesDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesGet(page, pageSize, sortBy, sortDir, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4920,11 +4949,13 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          * @summary Fetch all series.
          * @param {number} [page] The page number.
          * @param {number} [pageSize] The page size.
+         * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<SeriesDTOPagedResult> {
-            return localVarFp.seriesGet(page, pageSize, options).then((request) => request(axios, basePath));
+        seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig): AxiosPromise<SeriesDTOPagedResult> {
+            return localVarFp.seriesGet(page, pageSize, sortBy, sortDir, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5029,12 +5060,14 @@ export class SeriesApi extends BaseAPI {
      * @summary Fetch all series.
      * @param {number} [page] The page number.
      * @param {number} [pageSize] The page size.
+     * @param {SeriesSortByDTO} [sortBy] Sort the series by this field.
+     * @param {SortDirectionDTO} [sortDir] Sort the series in this direction.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SeriesApi
      */
-    public seriesGet(page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
-        return SeriesApiFp(this.configuration).seriesGet(page, pageSize, options).then((request) => request(this.axios, this.basePath));
+    public seriesGet(page?: number, pageSize?: number, sortBy?: SeriesSortByDTO, sortDir?: SortDirectionDTO, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesGet(page, pageSize, sortBy, sortDir, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

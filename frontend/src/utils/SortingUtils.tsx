@@ -1,5 +1,9 @@
 import { SortDirection } from "@mui/material";
-import { BookSortByDTO, SortDirectionDTO } from "../lib/api/KapitelShelf.Api";
+import {
+  BookSortByDTO,
+  SeriesSortByDTO,
+  SortDirectionDTO,
+} from "../lib/api/KapitelShelf.Api";
 
 export const ToBookSortByDTO = (value: string | null | undefined) => {
   switch (value) {
@@ -24,6 +28,26 @@ export const ToBookSortByDTO = (value: string | null | undefined) => {
     case "default":
     default:
       return BookSortByDTO.NUMBER_0;
+  }
+};
+
+export const ToSeriesSortByDTO = (value: string | null | undefined) => {
+  switch (value) {
+    case "name":
+      return SeriesSortByDTO.NUMBER_1;
+
+    case "totalBooks":
+      return SeriesSortByDTO.NUMBER_2;
+
+    case "updatedAt":
+      return SeriesSortByDTO.NUMBER_3;
+
+    case "createdAt":
+      return SeriesSortByDTO.NUMBER_4;
+
+    case "default":
+    default:
+      return SeriesSortByDTO.NUMBER_0;
   }
 };
 

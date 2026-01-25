@@ -48,13 +48,14 @@ export const columns: GridColDef<SeriesDTO>[] = [
 ];
 
 export const ManageSeriesList = () => {
-  const { page, pageSize, setItemsTableParams } = useItemsTableParams({
+  const { page, pageSize, sorting, setItemsTableParams } = useItemsTableParams({
     defaultPageSize: 15,
   });
 
   const { data, isLoading, isError, refetch } = useSeriesListSimpleQuery({
     page,
     pageSize,
+    sorting,
   });
 
   const { mutate: deleteSeries } = useDeleteSeriesBulk();
@@ -76,9 +77,10 @@ export const ManageSeriesList = () => {
       // layout
       columns={columns}
       itemName="serie"
-      // pagination
+      // pagination & sorting
       page={page}
       pageSize={pageSize}
+      sorting={sorting}
       setItemsTableParams={setItemsTableParams}
       // actions
       deleteAction={deleteSeries}

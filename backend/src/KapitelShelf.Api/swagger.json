@@ -1739,6 +1739,22 @@
               "format": "int32",
               "default": 24
             }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort the series by this field.",
+            "schema": {
+              "$ref": "#/components/schemas/SeriesSortByDTO"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Sort the series in this direction.",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirectionDTO"
+            }
           }
         ],
         "responses": {
@@ -3640,6 +3656,18 @@
         },
         "additionalProperties": false,
         "description": "The paginated result."
+      },
+      "SeriesSortByDTO": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "description": "The sort by enum for series.",
+        "format": "int32"
       },
       "SortDirectionDTO": {
         "enum": [

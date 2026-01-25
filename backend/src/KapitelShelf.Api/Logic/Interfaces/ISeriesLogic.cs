@@ -18,8 +18,10 @@ public interface ISeriesLogic
     /// </summary>
     /// <param name="page">The page to get.</param>
     /// <param name="pageSize">The size of the pages.</param>
+    /// <param name="sortBy">Sort the series by this field.</param>
+    /// <param name="sortDir">Sort the series in this direction.</param>
     /// <returns>A <see cref="Task{IList}"/> representing the result of the asynchronous operation.</returns>
-    Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize);
+    Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize, SeriesSortByDTO sortBy, SortDirectionDTO sortDir);
 
     /// <summary>
     /// Get a series by id.

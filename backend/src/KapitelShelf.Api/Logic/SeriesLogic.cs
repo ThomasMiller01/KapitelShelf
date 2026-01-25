@@ -33,7 +33,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     private readonly IBooksLogic booksLogic = booksLogic;
 
     /// <inheritdoc/>
-    public async Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize)
+    public async Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize, SeriesSortByDTO sortBy, SortDirectionDTO sortDir)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
         context.ChangeTracker.LazyLoadingEnabled = false;
@@ -48,7 +48,8 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
                 .ThenInclude(b => b.Cover)
             .AsSingleQuery()
 
-            .OrderByDescending(x => x.UpdatedAt)
+            .ApplySorting(sortBy, sortDir)
+
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
