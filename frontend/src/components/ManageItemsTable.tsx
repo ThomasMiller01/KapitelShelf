@@ -81,8 +81,6 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         columns={columns}
         rowCount={totalItems}
         loading={isLoading}
-        // misc
-        disableColumnFilter
         // styling
         density="compact"
         // selection
@@ -127,6 +125,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
           });
         }}
         // filter
+        disableColumnFilter
         filterMode="server"
         filterModel={{
           items: [],
@@ -182,8 +181,6 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
   deleteAction,
   showQuickFilter,
 }) => {
-  console.log("2", showQuickFilter);
-
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   return (

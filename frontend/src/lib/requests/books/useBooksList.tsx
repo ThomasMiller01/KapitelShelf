@@ -30,13 +30,12 @@ export const useBooksList = ({
       const sortBy = ToBookSortByDTO(sorting?.field);
       const sortDir = ToSortDirectionDTO(sorting?.sort);
 
-      // TODO: use filter
-
       const { data } = await clients.books.booksPaginatedGet(
         page,
         pageSize,
         sortBy,
         sortDir,
+        filter ?? undefined,
       );
       return data;
     },

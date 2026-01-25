@@ -81,30 +81,35 @@ public class BooksLogic(
     public async Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir, string? filter)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
+        context.ChangeTracker.LazyLoadingEnabled = false;
 
-        var query = context.Books
+        var query = context.BookSearchView
             .AsNoTracking()
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Series)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Cover)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Location)
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            .AsSingleQuery()
 
-            .Include(x => x.Series)
-            .Include(x => x.Author)
-            .Include(x => x.Categories)
-                .ThenInclude(x => x.Category)
-            .Include(x => x.Tags)
-                .ThenInclude(x => x.Tag)
-            .Include(x => x.Cover)
-            .Include(x => x.Location)
-#nullable disable
-                .ThenInclude(x => x.FileInfo)
-#nullable restore
-            .AsSingleQuery();
+            .FilterBySearchtermQuery(filter)
+            .SortBySearchtermQuery(filter);
+
+        if (filter is null || sortBy != BookSortByDTO.Default)
+        {
+            query = query.ApplySorting(sortBy, sortDir);
+        }
 
         var items = await query
-            .ApplySorting(sortBy, sortDir)
-
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
-            .Select(x => this.mapper.BookModelToBookDto(x))
+            .Select(x => this.mapper.BookModelToBookDtoNullable(x.BookModel))
             .ToListAsync();
 
         var totalCount = await query.CountAsync();

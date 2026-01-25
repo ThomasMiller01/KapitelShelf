@@ -51,9 +51,12 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .FilterBySeriesNameQuery(filter)
             .SortBySeriesNameQuery(filter);
 
-        var items = await query
-            .ApplySorting(sortBy, sortDir)
+        if (filter is null || sortBy != SeriesSortByDTO.Default)
+        {
+            query = query.ApplySorting(sortBy, sortDir);
+        }
 
+        var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
