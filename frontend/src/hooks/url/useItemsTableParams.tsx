@@ -17,6 +17,7 @@ export interface setItemsTableParamsProps {
   nextPage?: number;
   nextPageSize?: number;
   nextSorting?: SortingModel;
+  nextFilter?: string;
 }
 
 export const useItemsTableParams = ({
@@ -54,10 +55,13 @@ export const useItemsTableParams = ({
     return { field: parsedField, sort: parsedSort };
   }, [params]);
 
+  const filter = useMemo<string | null>(() => params.get("filter"), [params]);
+
   const setItemsTableParams = ({
     nextPage,
     nextPageSize,
     nextSorting,
+    nextFilter,
   }: setItemsTableParamsProps) => {
     setParams((prev) => {
       const next = new URLSearchParams(prev);
@@ -75,22 +79,30 @@ export const useItemsTableParams = ({
         const trimmedField = nextSorting.field?.trim() ?? "";
         if (!trimmedField || !nextSorting.sort) {
           next.delete("sort");
-          return next;
+        } else {
+          next.set("sort", `${trimmedField}:${nextSorting.sort}`);
         }
+      }
 
-        next.set("sort", `${trimmedField}:${nextSorting.sort}`);
+      // filter
+      if (nextFilter !== undefined) {
+        const trimmedField = nextFilter.trim();
+        if (!trimmedField) {
+          next.delete("filter");
+        } else {
+          next.set("filter", trimmedField);
+        }
       }
 
       return next;
     });
-
-    return Promise.resolve();
   };
 
   return {
     page,
     pageSize,
     sorting,
+    filter,
     setItemsTableParams,
   };
 };

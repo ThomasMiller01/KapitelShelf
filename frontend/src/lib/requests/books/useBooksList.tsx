@@ -13,20 +13,24 @@ interface useBooksListProps {
   page: number;
   pageSize?: number;
   sorting?: SortingModel;
+  filter?: string | null;
 }
 
 export const useBooksList = ({
   page,
   pageSize = DEFAULT_PAGE_SIZE,
   sorting,
+  filter,
 }: useBooksListProps) => {
   const { clients } = useApi();
 
   return useQuery({
-    queryKey: ["books", page, pageSize, sorting],
+    queryKey: ["books", page, pageSize, sorting, filter],
     queryFn: async () => {
       const sortBy = ToBookSortByDTO(sorting?.field);
       const sortDir = ToSortDirectionDTO(sorting?.sort);
+
+      // TODO: use filter
 
       const { data } = await clients.books.booksPaginatedGet(
         page,

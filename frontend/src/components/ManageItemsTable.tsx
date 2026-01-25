@@ -1,7 +1,15 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import LaunchIcon from "@mui/icons-material/Launch";
-import { Box, IconButton, Stack, Typography } from "@mui/material";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { Box, IconButton } from "@mui/material";
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridToolbarColumnsButton,
+  GridToolbarContainer,
+  GridToolbarProps,
+  GridToolbarQuickFilter,
+} from "@mui/x-data-grid";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -30,6 +38,7 @@ interface ManageItemsTableProps extends Actions {
   page?: number;
   pageSize?: number;
   sorting?: SortingModel;
+  filter?: string | null;
   setItemsTableParams?: (params: setItemsTableParamsProps) => void;
 }
 
@@ -47,6 +56,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
   page = 1,
   pageSize = items.length,
   sorting,
+  filter,
   setItemsTableParams,
 
   // actions
@@ -54,13 +64,17 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
 }) => {
   const [selected, setSelected] = useState<string[]>([]);
 
+  const CustomToolbar = ({ ...props }) => (
+    <ManageItemsToolbar
+      selected={selected}
+      itemName={itemName}
+      deleteAction={deleteAction}
+      {...props}
+    />
+  );
+
   return (
     <Box>
-      <ManageItemsActionBar
-        selected={selected}
-        itemName={itemName}
-        deleteAction={deleteAction}
-      />
       <DataGrid
         // data
         rows={items}
@@ -112,6 +126,20 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
             nextPage: 1,
           });
         }}
+        // filter
+        filterMode="server"
+        filterModel={{
+          items: [],
+          quickFilterValues: filter?.split(" "),
+        }}
+        onFilterModelChange={(model, _) =>
+          setItemsTableParams?.({
+            nextFilter: model.quickFilterValues?.join(" "),
+
+            // reset pagination when trying to filter
+            nextPage: 1,
+          })
+        }
         // language
         localeText={{
           noRowsLabel: `No ${itemName ?? "row"}s`,
@@ -131,73 +159,65 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
             labelRowsPerPage: `${toTitleCase(itemName) ?? "Row"}s per page`,
           },
         }}
+        // Toolbar
+        slots={{ toolbar: CustomToolbar }}
+        slotProps={{
+          toolbar: {
+            showQuickFilter: filter !== undefined,
+          },
+        }}
       />
     </Box>
   );
 };
 
-interface ManageItemsActionBarProps extends Actions {
+interface ManageItemsToolbarProps extends GridToolbarProps, Actions {
   selected: string[];
   itemName?: string;
 }
 
-const ManageItemsActionBar: React.FC<ManageItemsActionBarProps> = ({
+const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
   selected,
   itemName,
   deleteAction,
+  showQuickFilter,
 }) => {
+  console.log("2", showQuickFilter);
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   return (
-    <Box
-      sx={{
-        mb: 1.5,
-        px: 2,
-        py: 1,
-        borderRadius: 1,
-        backgroundColor: (theme) => theme.palette.background.paper,
-        border: "1px solid",
-        borderColor: "divider",
-      }}
-    >
-      <Stack
-        direction="row"
-        spacing={2}
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Typography>Manage your {toTitleCase(itemName) ?? "Row"}s</Typography>
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="end"
-          alignItems="center"
-        >
-          {deleteAction && (
-            <>
-              <IconButtonWithTooltip
-                tooltip={`Delete ${selected.length} selected ${
-                  itemName ?? "row"
-                }${selected.length > 1 ? "s" : ""}`}
-                disabled={selected.length === 0}
-                color="error"
-                onClick={() => setDeleteDialogOpen(true)}
-              >
-                <DeleteIcon />
-              </IconButtonWithTooltip>
-              <DeleteDialog
-                open={deleteDialogOpen}
-                onCancel={() => setDeleteDialogOpen(false)}
-                onConfirm={() => {
-                  deleteAction(selected);
-                  setDeleteDialogOpen(false);
-                }}
-              />
-            </>
-          )}
-        </Stack>
-      </Stack>
-    </Box>
+    <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
+      {/* Columns */}
+      <GridToolbarColumnsButton />
+
+      {/* Filter */}
+      {showQuickFilter && <GridToolbarQuickFilter debounceMs={400} />}
+
+      {/* Delete */}
+      {deleteAction && (
+        <>
+          <IconButtonWithTooltip
+            tooltip={`Delete ${selected.length} selected ${itemName ?? "row"}${
+              selected.length > 1 ? "s" : ""
+            }`}
+            disabled={selected.length === 0}
+            color="error"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            <DeleteIcon />
+          </IconButtonWithTooltip>
+          <DeleteDialog
+            open={deleteDialogOpen}
+            onCancel={() => setDeleteDialogOpen(false)}
+            onConfirm={() => {
+              deleteAction(selected);
+              setDeleteDialogOpen(false);
+            }}
+          />
+        </>
+      )}
+    </GridToolbarContainer>
   );
 };
 

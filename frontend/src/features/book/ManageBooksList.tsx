@@ -112,14 +112,16 @@ export const columns: GridColDef<BookDTO>[] = [
 ];
 
 export const ManageBooksList = () => {
-  const { page, pageSize, sorting, setItemsTableParams } = useItemsTableParams({
-    defaultPageSize: 15,
-  });
+  const { page, pageSize, sorting, filter, setItemsTableParams } =
+    useItemsTableParams({
+      defaultPageSize: 15,
+    });
 
   const { data, isLoading, isError, refetch } = useBooksList({
     page,
     pageSize,
     sorting,
+    filter,
   });
 
   const { mutate: deleteBooks } = useDeleteBooks();
@@ -145,6 +147,7 @@ export const ManageBooksList = () => {
       page={page}
       pageSize={pageSize}
       sorting={sorting}
+      filter={filter}
       setItemsTableParams={setItemsTableParams}
       // actions
       deleteAction={deleteBooks}
