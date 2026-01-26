@@ -15,15 +15,23 @@ export interface DeleteDialogProps {
   onCancel: () => void;
   onConfirm: () => void;
   confirmText?: string;
+  confirmColor?:
+    | "primary"
+    | "secondary"
+    | "error"
+    | "warning"
+    | "info"
+    | "success";
 }
 
-const DeleteDialog = ({
+const ConfirmDialog = ({
   open,
   title = "Confirm Delete",
   description = "Are you sure you want to delete this item? This action cannot be undone.",
   onCancel,
   onConfirm,
   confirmText = "Delete",
+  confirmColor = "error",
 }: DeleteDialogProps): ReactElement => (
   <Dialog open={open} onClose={onCancel}>
     <DialogTitle textTransform="uppercase">{title}</DialogTitle>
@@ -32,11 +40,11 @@ const DeleteDialog = ({
     </DialogContent>
     <DialogActions>
       <Button onClick={onCancel}>Cancel</Button>
-      <Button color="error" variant="contained" onClick={onConfirm}>
+      <Button color={confirmColor} variant="contained" onClick={onConfirm}>
         {confirmText}
       </Button>
     </DialogActions>
   </Dialog>
 );
 
-export default DeleteDialog;
+export default ConfirmDialog;

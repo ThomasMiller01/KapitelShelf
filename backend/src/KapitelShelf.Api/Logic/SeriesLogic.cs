@@ -285,19 +285,9 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     }
 
     /// <inheritdoc/>
-    public async Task MergeSeries(Guid sourceSeriesId, Guid targetSeriesId)
+    public async Task MergeSeries(Guid targetSeriesId, List<Guid> sourceSeriesIds)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        var sourceSeries = await context.Series
-            .Include(x => x.Books)
-            .Where(x => x.Id == sourceSeriesId)
-            .FirstOrDefaultAsync();
-
-        if (sourceSeries is null)
-        {
-            throw new ArgumentException("Unknown source series id.");
-        }
 
         var targetSeries = await context.Series.FirstOrDefaultAsync(x => x.Id == targetSeriesId);
         if (targetSeries is null)
@@ -305,19 +295,30 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             throw new ArgumentException("Unknown target series id.");
         }
 
-        // move all books to the target series
-        foreach (var book in sourceSeries.Books)
+        var sourceSeries = await context.Series
+            .Include(x => x.Books)
+            .Where(x => sourceSeriesIds.Contains(x.Id))
+            .ToListAsync();
+
+        if (sourceSeries is null)
         {
-            book.SeriesId = targetSeriesId;
-            book.UpdatedAt = DateTime.Now;
+            throw new ArgumentException("Unknown source series ids.");
         }
 
-        targetSeries.UpdatedAt = DateTime.Now;
+        // move all books to the target series
+        var sourceBooks = sourceSeries.SelectMany(x => x.Books);
+        foreach (var book in sourceBooks)
+        {
+            book.SeriesId = targetSeriesId;
+            book.UpdatedAt = DateTime.UtcNow;
+        }
+
+        targetSeries.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
 
         // delete source series
-        await this.DeleteSeriesAsync(sourceSeriesId);
+        await this.DeleteSeriesAsync(sourceSeries.Select(x => x.Id).ToList());
     }
 
     internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)

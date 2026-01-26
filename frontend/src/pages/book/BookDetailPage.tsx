@@ -4,7 +4,7 @@ import { Box, IconButton } from "@mui/material";
 import { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
@@ -59,7 +59,7 @@ const BookDetailPage = (): ReactElement => {
         ]}
       />
       <BookDetails book={book} />
-      <DeleteDialog
+      <ConfirmDialog
         open={deleteOpen}
         onCancel={() => setDeleteOpen(false)}
         onConfirm={onDelete}

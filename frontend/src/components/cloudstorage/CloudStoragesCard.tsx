@@ -32,7 +32,7 @@ import { useDeleteStorage } from "../../lib/requests/cloudstorages/useDeleteStor
 import { useScanStorage } from "../../lib/requests/cloudstorages/useScanStorage";
 import { useSyncStorage } from "../../lib/requests/cloudstorages/useSyncStorage";
 import { CloudTypeToString } from "../../utils/CloudStorageUtils";
-import DeleteDialog from "../base/feedback/DeleteDialog";
+import ConfirmDialog from "../base/feedback/ConfirmDialog";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
 import { CloudStorageDownloadStatus } from "./CloudStorageDownloadStatus";
@@ -57,7 +57,7 @@ interface CloudStorageCardProps {
   cloudstorage: CloudStorageDTO;
   getOAuthUrl: (
     redirectUrl?: string,
-    options?: RawAxiosRequestConfig
+    options?: RawAxiosRequestConfig,
   ) => Promise<AxiosResponse<string, any>>;
   update: () => void;
 }
@@ -215,7 +215,7 @@ export const CloudStorageCard = ({
         onConfirm={onConfigureDirectory}
         cloudType={cloudstorage.type}
       />
-      <DeleteDialog
+      <ConfirmDialog
         open={openDeleteDialog}
         onCancel={() => setOpenDeleteDialog(false)}
         onConfirm={() => deleteStorage(cloudstorage.id)}

@@ -1,6 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import LaunchIcon from "@mui/icons-material/Launch";
-import { Box, IconButton, Stack } from "@mui/material";
+import { Box, Button, IconButton, Stack } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,7 +10,7 @@ import {
   GridToolbarProps,
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   setItemsTableParamsProps,
@@ -18,10 +18,18 @@ import {
 } from "../hooks/url/useItemsTableParams";
 import { toTitleCase } from "../utils/TextUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
-import DeleteDialog from "./base/feedback/DeleteDialog";
+import ConfirmDialog from "./base/feedback/ConfirmDialog";
+
+interface AdditionalAction {
+  label: string;
+  icon?: ReactNode;
+  action: (selectedItemIds: string[]) => void;
+  disabled?: (selectedItemIds: string[]) => boolean;
+}
 
 interface Actions {
   deleteAction?: (selectedItemIds: string[]) => void;
+  additionalActions?: AdditionalAction[];
 }
 
 interface ManageItemsTableProps extends Actions {
@@ -61,6 +69,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
 
   // actions
   deleteAction,
+  additionalActions,
 }) => {
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -69,6 +78,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
       selected={selected}
       itemName={itemName}
       deleteAction={deleteAction}
+      additionalActions={additionalActions}
       {...props}
     />
   );
@@ -179,6 +189,7 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
   selected,
   itemName,
   deleteAction,
+  additionalActions,
   showQuickFilter,
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -206,29 +217,47 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
           {showQuickFilter && <GridToolbarQuickFilter debounceMs={400} />}
         </Stack>
 
-        {/* Delete */}
-        {deleteAction && (
-          <>
-            <IconButtonWithTooltip
-              tooltip={`Delete ${selected.length} selected ${
-                itemName ?? "row"
-              }${selected.length > 1 ? "s" : ""}`}
-              disabled={selected.length === 0}
-              color="error"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <DeleteIcon />
-            </IconButtonWithTooltip>
-            <DeleteDialog
-              open={deleteDialogOpen}
-              onCancel={() => setDeleteDialogOpen(false)}
-              onConfirm={() => {
-                deleteAction(selected);
-                setDeleteDialogOpen(false);
-              }}
-            />
-          </>
-        )}
+        <Stack direction="row" spacing={1} alignItems="center">
+          {additionalActions?.map(({ label, action, icon, disabled }) => {
+            const isDisabled = disabled?.(selected);
+            return (
+              <Button
+                size="small"
+                variant="contained"
+                color="secondary"
+                startIcon={icon}
+                disabled={isDisabled}
+                onClick={() => action(selected)}
+              >
+                {label}
+              </Button>
+            );
+          })}
+
+          {/* Delete */}
+          {deleteAction && (
+            <>
+              <IconButtonWithTooltip
+                tooltip={`Delete ${selected.length} selected ${
+                  itemName ?? "row"
+                }${selected.length > 1 ? "s" : ""}`}
+                disabled={selected.length === 0}
+                color="error"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <DeleteIcon />
+              </IconButtonWithTooltip>
+              <ConfirmDialog
+                open={deleteDialogOpen}
+                onCancel={() => setDeleteDialogOpen(false)}
+                onConfirm={() => {
+                  deleteAction(selected);
+                  setDeleteDialogOpen(false);
+                }}
+              />
+            </>
+          )}
+        </Stack>
       </Stack>
     </GridToolbarContainer>
   );
@@ -238,7 +267,7 @@ export const LinkColumn = (
   to: (params: GridRenderCellParams) => string,
 ): GridColDef<any> => {
   return {
-    field: "link",
+    field: "Link",
     headerName: "",
     width: 64,
     sortable: false,

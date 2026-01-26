@@ -199,6 +199,32 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     }
 
     /// <summary>
+    /// Merge all source series into the target series.
+    /// </summary>
+    /// <param name="seriesId">The target series id.</param>
+    /// <param name="sourceSeriesIds">The source series ids.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{seriesId}/merge/bulk")]
+    public async Task<IActionResult> MergeSeriesBulk(Guid seriesId, List<Guid> sourceSeriesIds)
+    {
+        try
+        {
+            await this.logic.MergeSeries(seriesId, sourceSeriesIds);
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error merging multiple series into series with Id: {SeriesId}", seriesId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Merge the series into the target series.
     /// </summary>
     /// <param name="seriesId">The source series id.</param>
@@ -209,7 +235,7 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     {
         try
         {
-            await this.logic.MergeSeries(seriesId, targetSeriesId);
+            await this.logic.MergeSeries(targetSeriesId, [seriesId]);
 
             return NoContent();
         }
@@ -219,7 +245,7 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error updating series with Id: {SeriesId}", seriesId);
+            this.logger.LogError(ex, "Error mergin series with Id: {SourceSeriesId} into series with Id {TargetSeriesId}", seriesId, targetSeriesId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

@@ -4727,6 +4727,44 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
+         * @summary Merge all source series into the target series.
+         * @param {string} seriesId The target series id.
+         * @param {Array<string>} [requestBody] The source series ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdMergeBulkPut: async (seriesId: string, requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'seriesId' is not null or undefined
+            assertParamExists('seriesSeriesIdMergeBulkPut', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}/merge/bulk`
+                .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Merge the series into the target series.
          * @param {string} seriesId The source series id.
          * @param {string} targetSeriesId The target series id.
@@ -4912,6 +4950,20 @@ export const SeriesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Merge all source series into the target series.
+         * @param {string} seriesId The target series id.
+         * @param {Array<string>} [requestBody] The source series ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async seriesSeriesIdMergeBulkPut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdMergeBulkPut(seriesId, requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdMergeBulkPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Merge the series into the target series.
          * @param {string} seriesId The source series id.
          * @param {string} targetSeriesId The target series id.
@@ -5025,6 +5077,17 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          */
         seriesSeriesIdGet(seriesId: string, options?: RawAxiosRequestConfig): AxiosPromise<SeriesDTO> {
             return localVarFp.seriesSeriesIdGet(seriesId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Merge all source series into the target series.
+         * @param {string} seriesId The target series id.
+         * @param {Array<string>} [requestBody] The source series ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        seriesSeriesIdMergeBulkPut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.seriesSeriesIdMergeBulkPut(seriesId, requestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5148,6 +5211,19 @@ export class SeriesApi extends BaseAPI {
      */
     public seriesSeriesIdGet(seriesId: string, options?: RawAxiosRequestConfig) {
         return SeriesApiFp(this.configuration).seriesSeriesIdGet(seriesId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Merge all source series into the target series.
+     * @param {string} seriesId The target series id.
+     * @param {Array<string>} [requestBody] The source series ids.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SeriesApi
+     */
+    public seriesSeriesIdMergeBulkPut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdMergeBulkPut(seriesId, requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

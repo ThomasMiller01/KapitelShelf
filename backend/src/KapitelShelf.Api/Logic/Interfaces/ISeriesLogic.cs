@@ -81,8 +81,8 @@ public interface ISeriesLogic
     /// <summary>
     /// Merge all books from the source series into the target series.
     /// </summary>
-    /// <param name="sourceSeriesId">The source series id.</param>
     /// <param name="targetSeriesId">The target series id.</param>
+    /// <param name="sourceSeriesIds">The source series ids.</param>
     /// <returns>A task.</returns>
-    Task MergeSeries(Guid sourceSeriesId, Guid targetSeriesId);
+    Task MergeSeries(Guid targetSeriesId, List<Guid> sourceSeriesIds);
 }

@@ -3,7 +3,7 @@ import { Box, Button, Chip, Container, styled } from "@mui/material";
 import { type ReactElement, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
 import ItemAppBar from "../../components/base/ItemAppBar";
 import EditableProfileDetails from "../../features/user/EditableProfileDetails";
 import { useMobile } from "../../hooks/useMobile";
@@ -75,7 +75,7 @@ export const EditProfilePage = (): ReactElement => {
           }}
         />
       </Container>
-      <DeleteDialog
+      <ConfirmDialog
         open={deleteOpen}
         onCancel={() => setDeleteOpen(false)}
         onConfirm={onDelete}

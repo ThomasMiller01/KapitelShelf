@@ -16,7 +16,7 @@ import {
 import React, { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
@@ -58,7 +58,7 @@ const SeriesDetailPage = (): ReactElement => {
         operation: "Added series to watchlist",
         itemName: series?.name ?? "Series",
         url: "/watchlist",
-      })
+      }),
   );
   const { mutateAsync: removeSeriesFromWatchlist } =
     useRemoveSeriesFromWatchlist(seriesId);
@@ -77,7 +77,7 @@ const SeriesDetailPage = (): ReactElement => {
     setMergeSeriesOpen(false);
 
     mergeSeries(series.id).then((_) =>
-      navigate(`/library/series/${series.id}`)
+      navigate(`/library/series/${series.id}`),
     );
   };
 
@@ -142,7 +142,7 @@ const SeriesDetailPage = (): ReactElement => {
         ]}
       />
       <SeriesBooksList seriesId={series?.id ?? ""} />
-      <DeleteDialog
+      <ConfirmDialog
         open={deleteOpen}
         onCancel={() => setDeleteOpen(false)}
         onConfirm={onDelete}

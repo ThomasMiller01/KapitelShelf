@@ -5,7 +5,7 @@ import { Box, Divider } from "@mui/material";
 import { type ReactElement, useState } from "react";
 import { Link } from "react-router-dom";
 
-import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
 import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import ItemAppBar from "../../components/base/ItemAppBar";
 import { ProfileDetails } from "../../features/user/ProfileDetails";
@@ -58,7 +58,7 @@ export const ViewProfilePage = (): ReactElement => {
       <Box padding="24px">
         <ProfileDetails />
       </Box>
-      <DeleteDialog
+      <ConfirmDialog
         open={deleteOpen}
         onCancel={() => setDeleteOpen(false)}
         onConfirm={onDelete}

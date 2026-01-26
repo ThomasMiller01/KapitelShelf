@@ -2057,6 +2057,63 @@
         }
       }
     },
+    "/series/{seriesId}/merge/bulk": {
+      "put": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Merge all source series into the target series.",
+        "parameters": [
+          {
+            "name": "seriesId",
+            "in": "path",
+            "description": "The target series id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The source series ids.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/series/{seriesId}/merge/{targetSeriesId}": {
       "put": {
         "tags": [
