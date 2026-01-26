@@ -1,7 +1,10 @@
 import AutocompleteMUI, {
   AutocompleteProps as AutocompletePropsMUI,
 } from "@mui/material/Autocomplete";
-import TextField, { TextFieldVariants } from "@mui/material/TextField";
+import TextField, {
+  TextFieldPropsSizeOverrides,
+  TextFieldVariants,
+} from "@mui/material/TextField";
 import { debounce } from "@mui/material/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ReactNode, useEffect, useMemo, useState } from "react";
@@ -17,12 +20,13 @@ export type AutoCompleteProps = Omit<
   | "getOptionLabel"
   | "filterOptions"
 > & {
-  label: string;
+  label?: string;
   onChange: (value: string | null) => void;
   fetchSuggestions: (value: string) => Promise<string[]>;
   variant?: TextFieldVariants;
   error?: boolean;
   helperText?: ReactNode;
+  size?: TextFieldPropsSizeOverrides;
 };
 
 export const AutoComplete: React.FC<AutoCompleteProps> = ({
@@ -33,6 +37,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
   variant = "filled",
   error = false,
   helperText = undefined,
+  size,
   ...props
 }) => {
   const [inputValue, setInputValue] = useState<string>(value ?? "");
@@ -95,7 +100,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
         }
 
         const exists: boolean = opts.some(
-          (x) => x.toLowerCase() === typed.toLowerCase()
+          (x) => x.toLowerCase() === typed.toLowerCase(),
         );
         if (exists) {
           return opts;
@@ -115,6 +120,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
           variant={variant}
           error={error}
           helperText={helperText}
+          size={size}
           slotProps={{
             input: {
               ...params.InputProps,
