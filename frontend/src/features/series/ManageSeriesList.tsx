@@ -95,6 +95,7 @@ export const ManageSeriesList = () => {
   return (
     <>
       <ManageItemsTable
+        settingKey="manage-series"
         // data
         items={data?.items ?? []}
         isLoading={isLoading}

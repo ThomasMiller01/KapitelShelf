@@ -3,6 +3,7 @@ import LaunchIcon from "@mui/icons-material/Launch";
 import { Box, Button, IconButton, Stack } from "@mui/material";
 import {
   DataGrid,
+  GRID_CHECKBOX_SELECTION_COL_DEF,
   GridColDef,
   GridRenderCellParams,
   GridToolbarColumnsButton,
@@ -10,12 +11,13 @@ import {
   GridToolbarProps,
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
-import { ReactNode, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   setItemsTableParamsProps,
   SortingModel,
 } from "../hooks/url/useItemsTableParams";
+import { useSetting } from "../hooks/useSetting";
 import { toTitleCase } from "../utils/TextUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
 import ConfirmDialog from "./base/feedback/ConfirmDialog";
@@ -33,6 +35,8 @@ interface Actions {
 }
 
 interface ManageItemsTableProps extends Actions {
+  settingKey: string;
+
   // data
   items: any[];
   isLoading: boolean;
@@ -51,13 +55,15 @@ interface ManageItemsTableProps extends Actions {
 }
 
 export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
+  settingKey,
+
   // data
   items,
   isLoading,
   totalItems,
 
   // layout
-  columns,
+  columns: baseColumns,
   itemName,
 
   // pagination & sorting
@@ -71,6 +77,22 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
   deleteAction,
   additionalActions,
 }) => {
+  const columns = useMemo(
+    () => [
+      {
+        ...GRID_CHECKBOX_SELECTION_COL_DEF,
+        hideable: true,
+      },
+      ...baseColumns,
+    ],
+    [baseColumns],
+  );
+
+  const [visibleColumns, setVisibleColumns] = useSetting(
+    `${settingKey}-columns`,
+    columns.map((x) => x.field),
+  );
+
   const [selected, setSelected] = useState<string[]>([]);
 
   const CustomToolbar = ({ ...props }) => (
@@ -93,6 +115,23 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         loading={isLoading}
         // styling
         density="compact"
+        // columns visibility
+        columnVisibilityModel={Object.fromEntries(
+          columns.map((column) => [
+            column.field,
+            visibleColumns.includes(column.field),
+          ]),
+        )}
+        onColumnVisibilityModelChange={(visibilityModel) => {
+          const allFields = columns.map((c) => c.field);
+
+          const newVisibleColumns =
+            Object.keys(visibilityModel).length === 0
+              ? allFields
+              : allFields.filter((field) => visibilityModel[field] !== false);
+
+          setVisibleColumns(newVisibleColumns);
+        }}
         // selection
         checkboxSelection
         onRowSelectionModelChange={(newRowSelectionModel) =>
@@ -222,6 +261,7 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
             const isDisabled = disabled?.(selected);
             return (
               <Button
+                key={label}
                 size="small"
                 variant="contained"
                 color="secondary"

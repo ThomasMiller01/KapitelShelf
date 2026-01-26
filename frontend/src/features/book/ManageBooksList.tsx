@@ -136,6 +136,7 @@ export const ManageBooksList = () => {
 
   return (
     <ManageItemsTable
+      settingKey="manage-books"
       // data
       items={data?.items ?? []}
       isLoading={isLoading}
