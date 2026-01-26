@@ -38,7 +38,7 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 24,
         [FromQuery] SeriesSortByDTO sortBy = SeriesSortByDTO.Default,
-        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Asc,
+        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Desc,
         [FromQuery] string? filter = null)
     {
         try

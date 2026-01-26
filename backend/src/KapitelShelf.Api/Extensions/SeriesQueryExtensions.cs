@@ -22,49 +22,47 @@ public static class SeriesQueryExtensions
     /// <returns>The sorted query.</returns>
     public static IQueryable<SeriesModel> ApplySorting(this IQueryable<SeriesModel> query, SeriesSortByDTO sortBy, SortDirectionDTO sortDir)
     {
-        var desc = sortDir == SortDirectionDTO.Desc;
-
-        return (sortBy, desc) switch
+        return (sortBy, sortDir) switch
         {
             // Name
-            (SeriesSortByDTO.Name, false) =>
+            (SeriesSortByDTO.Name, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.Name)
                     .ThenBy(x => x.UpdatedAt),
 
-            (SeriesSortByDTO.Name, true) =>
+            (SeriesSortByDTO.Name, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.Name)
                     .ThenByDescending(x => x.UpdatedAt),
 
             // Total Books
-            (SeriesSortByDTO.TotalBooks, false) =>
+            (SeriesSortByDTO.TotalBooks, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.Books.Count())
                      .ThenBy(x => x.UpdatedAt),
 
-            (SeriesSortByDTO.TotalBooks, true) =>
+            (SeriesSortByDTO.TotalBooks, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.Books.Count())
                      .ThenByDescending(x => x.UpdatedAt),
 
             // Updated
-            (SeriesSortByDTO.Updated, false) =>
+            (SeriesSortByDTO.Updated, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.UpdatedAt),
 
-            (SeriesSortByDTO.Updated, true) =>
+            (SeriesSortByDTO.Updated, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.UpdatedAt),
 
             // Created
-            (SeriesSortByDTO.Created, false) =>
+            (SeriesSortByDTO.Created, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.CreatedAt)
                     .ThenBy(x => x.UpdatedAt),
 
-            (SeriesSortByDTO.Created, true) =>
+            (SeriesSortByDTO.Created, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.CreatedAt)
                     .ThenByDescending(x => x.UpdatedAt),
 
             // Default
-            (SeriesSortByDTO.Default, false) =>
+            (SeriesSortByDTO.Default, SortDirectionDTO.Asc) =>
                 query.ApplySorting(SeriesSortByDTO.Updated, SortDirectionDTO.Asc),
 
-            (SeriesSortByDTO.Default, true) =>
+            (SeriesSortByDTO.Default, SortDirectionDTO.Desc) =>
                 query.ApplySorting(SeriesSortByDTO.Updated, SortDirectionDTO.Desc),
 
             _ => query.ApplySorting(SeriesSortByDTO.Updated, SortDirectionDTO.Asc),

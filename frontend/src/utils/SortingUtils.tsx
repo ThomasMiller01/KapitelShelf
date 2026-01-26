@@ -53,11 +53,11 @@ export const ToSeriesSortByDTO = (value: string | null | undefined) => {
 
 export const ToSortDirectionDTO = (value: SortDirection | null | undefined) => {
   switch (value) {
-    case "desc":
-      return SortDirectionDTO.NUMBER_1;
-
     case "asc":
-    default:
       return SortDirectionDTO.NUMBER_0;
+
+    case "desc":
+    default:
+      return SortDirectionDTO.NUMBER_1;
   }
 };

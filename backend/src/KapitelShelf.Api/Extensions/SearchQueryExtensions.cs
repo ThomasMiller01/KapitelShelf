@@ -79,71 +79,69 @@ public static class SearchQueryExtensions
     /// <returns>The sorted query.</returns>
     public static IQueryable<BookSearchView> ApplySorting(this IQueryable<BookSearchView> query, BookSortByDTO sortBy, SortDirectionDTO sortDir)
     {
-        var desc = sortDir == SortDirectionDTO.Desc;
-
-        return (sortBy, desc) switch
+        return (sortBy, sortDir) switch
         {
             // Title
-            (BookSortByDTO.Title, false) =>
+            (BookSortByDTO.Title, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.Title)
                     .ThenBy(x => x.BookModel!.UpdatedAt),
 
-            (BookSortByDTO.Title, true) =>
+            (BookSortByDTO.Title, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.Title)
                     .ThenByDescending(x => x.BookModel!.UpdatedAt),
 
             // Author
-            (BookSortByDTO.Author, false) =>
+            (BookSortByDTO.Author, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.AuthorNames)
                      .ThenBy(x => x.BookModel!.UpdatedAt),
 
-            (BookSortByDTO.Author, true) =>
+            (BookSortByDTO.Author, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.AuthorNames)
                      .ThenByDescending(x => x.BookModel!.UpdatedAt),
 
             // Series
-            (BookSortByDTO.Series, false) =>
+            (BookSortByDTO.Series, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.SeriesName)
                      .ThenBy(x => x.BookModel!.SeriesNumber)
                      .ThenBy(x => x.BookModel!.UpdatedAt),
 
-            (BookSortByDTO.Series, true) =>
+            (BookSortByDTO.Series, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.SeriesName)
                      .ThenByDescending(x => x.BookModel!.SeriesNumber)
                      .ThenByDescending(x => x.BookModel!.UpdatedAt),
 
             // Volume
-            (BookSortByDTO.Volume, false) =>
+            (BookSortByDTO.Volume, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.BookModel!.SeriesNumber)
                     .ThenBy(x => x.BookModel!.UpdatedAt),
 
-            (BookSortByDTO.Volume, true) =>
+            (BookSortByDTO.Volume, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.BookModel!.SeriesNumber)
                     .ThenByDescending(x => x.BookModel!.UpdatedAt),
 
             // Pages
-            (BookSortByDTO.Pages, false) =>
+            (BookSortByDTO.Pages, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.BookModel!.PageNumber)
                     .ThenBy(x => x.BookModel!.UpdatedAt),
 
-            (BookSortByDTO.Pages, true) =>
+            (BookSortByDTO.Pages, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.BookModel!.PageNumber)
                     .ThenByDescending(x => x.BookModel!.UpdatedAt),
 
             // Release
-            (BookSortByDTO.Release, false) =>
+            (BookSortByDTO.Release, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.BookModel!.ReleaseDate)
                     .ThenBy(x => x.BookModel!.UpdatedAt),
 
-            (BookSortByDTO.Release, true) =>
+            (BookSortByDTO.Release, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.BookModel!.ReleaseDate)
                     .ThenByDescending(x => x.BookModel!.UpdatedAt),
 
             // Default
-            (BookSortByDTO.Default, false) =>
+            (BookSortByDTO.Default, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.BookModel!.UpdatedAt),
 
-            (BookSortByDTO.Default, true) =>
+            (BookSortByDTO.Default, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.BookModel!.UpdatedAt),
 
             _ => query.OrderBy(x => x.Title)

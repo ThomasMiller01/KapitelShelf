@@ -39,7 +39,7 @@ export const columns: GridColDef<SeriesDTO>[] = [
     headerName: "Updated",
     width: 180,
     sortable: true,
-    valueGetter: (_, row) => FormatTime(row.createdAt),
+    valueGetter: (_, row) => FormatTime(row.updatedAt),
   },
   {
     field: "createdAt",
