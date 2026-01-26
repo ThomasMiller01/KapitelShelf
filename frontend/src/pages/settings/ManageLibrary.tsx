@@ -6,8 +6,8 @@ import { ManageBooksList } from "../../features/book/ManageBooksList";
 import { ManageSeriesList } from "../../features/series/ManageSeriesList";
 
 const TABS = [
-  { label: "Books", value: "books" },
   { label: "Series", value: "series" },
+  { label: "Books", value: "books" },
   { label: "Authors", value: "authors" },
   { label: "Categories", value: "categories" },
   { label: "Tags", value: "tags" },
@@ -27,7 +27,7 @@ export const ManageLibraryPage = (): ReactElement => {
   };
 
   if (activeTab === -1) {
-    return <Navigate to="/settings/manage-library/books" replace />;
+    return <Navigate to="/settings/manage-library/series" replace />;
   }
 
   return (
@@ -40,17 +40,17 @@ export const ManageLibraryPage = (): ReactElement => {
           variant="scrollable"
           scrollButtons="auto"
         >
-          <Tab label="Books" />
           <Tab label="Series" />
+          <Tab label="Books" />
           <Tab label="Authors" />
           <Tab label="Categories" />
           <Tab label="Tags" />
         </Tabs>
         <TabPanel value={activeTab} index={0}>
-          <ManageBooksList />
+          <ManageSeriesList />
         </TabPanel>
         <TabPanel value={activeTab} index={1}>
-          <ManageSeriesList />
+          <ManageBooksList />
         </TabPanel>
         <TabPanel value={activeTab} index={2}>
           <Alert severity="info">This section is not yet implemented.</Alert>

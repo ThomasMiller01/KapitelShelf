@@ -101,7 +101,7 @@ const AppRoutes = (): ReactElement | null => {
                     children: [
                       {
                         index: true,
-                        element: <Navigate to="books" />,
+                        element: <Navigate to="series" />,
                       },
                       {
                         path: ":section",
@@ -117,7 +117,7 @@ const AppRoutes = (): ReactElement | null => {
             path: "/create-user-profile",
             element: <CreateProfilePage />,
           },
-        ]
+        ],
   );
 };
 
