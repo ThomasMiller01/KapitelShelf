@@ -72,6 +72,7 @@ export const columns: GridColDef<BookDTO>[] = [
         },
       };
     },
+    // TODO edit with autocomplete
   },
   {
     field: "series",
@@ -90,6 +91,7 @@ export const columns: GridColDef<BookDTO>[] = [
             : undefined,
       };
     },
+    // TODO edit with autocomplete
   },
   {
     field: "seriesNumber",
@@ -139,6 +141,7 @@ export const columns: GridColDef<BookDTO>[] = [
     editable: true,
     valueGetter: (_, row) => row.categories ?? null,
     valueFormatter: (value) => formatList(value, 3),
+    // TODO edit category
   },
   {
     field: "tags",
@@ -148,6 +151,7 @@ export const columns: GridColDef<BookDTO>[] = [
     editable: true,
     valueGetter: (_, row) => row.tags ?? null,
     valueFormatter: (value) => formatList(value, 3),
+    // TODO edit tags
   },
   {
     field: "location",
