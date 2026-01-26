@@ -13,6 +13,7 @@ import { SeriesDTO } from "../../lib/api/KapitelShelf.Api";
 import { useDeleteSeriesBulk } from "../../lib/requests/series/useDeleteSeriesBulk";
 import { useMergeSeriesBulk } from "../../lib/requests/series/useMergeSeriesBulk";
 import { useSeriesListSimpleQuery } from "../../lib/requests/series/useSeriesListSimpleQuery";
+import { useUpdateSeries } from "../../lib/requests/series/useUpdateSeries";
 import { FormatTime } from "../../utils/TimeUtils";
 
 export const columns: GridColDef<SeriesDTO>[] = [
@@ -22,6 +23,7 @@ export const columns: GridColDef<SeriesDTO>[] = [
     flex: 1,
     minWidth: 220,
     sortable: true,
+    editable: true,
     valueGetter: (_, row) => row.name ?? "-",
   },
   {
@@ -66,6 +68,7 @@ export const ManageSeriesList = () => {
 
   const { mutate: deleteSeries } = useDeleteSeriesBulk();
   const { mutate: mergeSeries } = useMergeSeriesBulk();
+  const { mutate: updateSeries } = useUpdateSeries();
 
   const [mergeTargetSeries, setMergeTargetSeries] = useState<
     SeriesDTO | undefined
@@ -119,6 +122,10 @@ export const ManageSeriesList = () => {
             disabled: (selected) => selected.length <= 1,
           },
         ]}
+        // editing
+        onRowEdit={(updatedSeries, _) =>
+          updateSeries({ ...updatedSeries, lastVolume: null, totalBooks: null })
+        }
       />
       <ConfirmDialog
         open={mergeSeriesDialogOpen}

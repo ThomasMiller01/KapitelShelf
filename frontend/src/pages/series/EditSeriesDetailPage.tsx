@@ -27,7 +27,7 @@ const EditSeriesDetailPage = (): ReactElement => {
   const navigate = useNavigate();
 
   const { data: series, isLoading, isError, refetch } = useSeriesById(seriesId);
-  const { mutateAsync: updateSeries } = useUpdateSeries(seriesId);
+  const { mutateAsync: updateSeries } = useUpdateSeries();
 
   if (isLoading) {
     return (
@@ -40,7 +40,7 @@ const EditSeriesDetailPage = (): ReactElement => {
   }
 
   const onUpdate = async (series: SeriesDTO): Promise<void> => {
-    await updateSeries(series);
+    await updateSeries({ id: seriesId, ...series });
 
     navigate(`/library/series/${seriesId}`);
   };

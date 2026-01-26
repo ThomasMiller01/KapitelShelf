@@ -35,6 +35,7 @@ export const columns: GridColDef<BookDTO>[] = [
     flex: 1,
     minWidth: 260,
     sortable: true,
+    editable: true,
     valueGetter: (_, row) => row.title ?? "-",
   },
   {
@@ -42,6 +43,7 @@ export const columns: GridColDef<BookDTO>[] = [
     headerName: "Author",
     width: 150,
     sortable: true,
+    editable: true,
     valueGetter: (_, row) => {
       {
         const first = row.author?.firstName?.trim() ?? "";
@@ -57,6 +59,7 @@ export const columns: GridColDef<BookDTO>[] = [
     headerName: "Series",
     width: 200,
     sortable: true,
+    editable: true,
     valueGetter: (_, row) => row.series?.name ?? "-",
   },
   {
@@ -64,6 +67,7 @@ export const columns: GridColDef<BookDTO>[] = [
     headerName: "Volume",
     width: 80,
     sortable: true,
+    editable: true,
     align: "center",
   },
   {
@@ -72,6 +76,7 @@ export const columns: GridColDef<BookDTO>[] = [
     type: "number",
     width: 80,
     sortable: true,
+    editable: true,
     align: "right",
     headerAlign: "right",
     valueGetter: (_, row) => row.pageNumber ?? "-",
@@ -82,6 +87,7 @@ export const columns: GridColDef<BookDTO>[] = [
     align: "center",
     width: 100,
     sortable: true,
+    editable: true,
     valueGetter: (_, row) => FormatTime(row.releaseDate, "date"),
   },
   {
@@ -89,6 +95,7 @@ export const columns: GridColDef<BookDTO>[] = [
     headerName: "Categories",
     width: 220,
     sortable: false,
+    editable: true,
     valueGetter: (_, row) => formatList(row.categories ?? null, 3),
   },
   {
@@ -96,6 +103,7 @@ export const columns: GridColDef<BookDTO>[] = [
     headerName: "Tags",
     width: 220,
     sortable: false,
+    editable: true,
     valueGetter: (_, row) => formatList(row.tags ?? null, 3),
   },
   {

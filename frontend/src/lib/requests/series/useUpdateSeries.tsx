@@ -1,17 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "../../../contexts/ApiProvider";
 import { SeriesDTO } from "../../api/KapitelShelf.Api";
 
-export const useUpdateSeries = (seriesId: string | undefined) => {
+export const useUpdateSeries = () => {
   const { clients } = useApi();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (series: SeriesDTO) => {
-      if (seriesId === undefined) {
+      if (series.id === undefined) {
         return null;
       }
 
-      await clients.series.seriesSeriesIdPut(seriesId, series);
+      await clients.series.seriesSeriesIdPut(series.id, series);
     },
     meta: {
       notify: {
@@ -21,5 +22,7 @@ export const useUpdateSeries = (seriesId: string | undefined) => {
         showSuccess: true,
       },
     },
+    onSuccess: async () =>
+      queryClient.invalidateQueries({ queryKey: ["series"] }),
   });
 };

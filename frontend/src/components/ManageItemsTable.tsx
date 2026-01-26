@@ -52,6 +52,9 @@ interface ManageItemsTableProps extends Actions {
   sorting?: SortingModel;
   filter?: string | null;
   setItemsTableParams?: (params: setItemsTableParamsProps) => void;
+
+  // editing
+  onRowEdit?: (updatedRow: any, originalRow: any) => void;
 }
 
 export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
@@ -76,6 +79,9 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
   // actions
   deleteAction,
   additionalActions,
+
+  // editing
+  onRowEdit,
 }) => {
   const columns = useMemo(
     () => [
@@ -188,6 +194,19 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
             nextPage: 1,
           })
         }
+        // editing
+        editMode="row"
+        processRowUpdate={(updatedRow, originalRow) => {
+          const updatedJson = JSON.stringify(updatedRow);
+          const originalJson = JSON.stringify(originalRow);
+
+          if (updatedJson !== originalJson) {
+            // only call onRowEdit, if updated and original differ
+            onRowEdit?.(updatedRow, originalRow);
+          }
+
+          return updatedRow;
+        }}
         // language
         localeText={{
           noRowsLabel: `No ${itemName ?? "row"}s`,
