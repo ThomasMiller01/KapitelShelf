@@ -15,6 +15,8 @@ export const IconButtonWithTooltip: React.FC<IconButtonWithTooltipProps> = ({
   ...props
 }) => (
   <Tooltip title={tooltip}>
-    <IconButton {...props}>{children}</IconButton>
+    <span>
+      <IconButton {...props}>{children}</IconButton>
+    </span>
   </Tooltip>
 );

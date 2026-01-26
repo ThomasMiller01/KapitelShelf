@@ -55,6 +55,23 @@ export const columns: GridColDef<BookDTO>[] = [
       }
     },
     valueFormatter: (value) => value ?? "-",
+    valueSetter: (value, row) => {
+      if (value === null) {
+        return {
+          ...row,
+          author: undefined,
+        };
+      }
+
+      const parts = value?.split(" ").filter(Boolean);
+      return {
+        ...row,
+        author: {
+          firstName: parts.slice(0, -1).join(" "),
+          lastName: parts[parts.length - 1] ?? "",
+        },
+      };
+    },
   },
   {
     field: "series",
@@ -64,6 +81,15 @@ export const columns: GridColDef<BookDTO>[] = [
     editable: true,
     valueGetter: (_, row) => row.series?.name ?? null,
     valueFormatter: (value) => value ?? "-",
+    valueSetter: (value, row) => {
+      return {
+        ...row,
+        series:
+          value.length > 0
+            ? ({ ...row.series, name: value } as any)
+            : undefined,
+      };
+    },
   },
   {
     field: "seriesNumber",
@@ -180,7 +206,7 @@ export const ManageBooksList = () => {
       deleteAction={deleteBooks}
       // editing
       // editing
-      onRowEdit={(updatedBook, _) => console.log(updatedBook)}
+      onRowEdit={(updatedBook, _) => console.log("updated", updatedBook)}
     />
   );
 };
