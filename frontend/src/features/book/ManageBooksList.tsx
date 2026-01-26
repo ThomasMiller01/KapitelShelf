@@ -36,7 +36,8 @@ export const columns: GridColDef<BookDTO>[] = [
     minWidth: 260,
     sortable: true,
     editable: true,
-    valueGetter: (_, row) => row.title ?? "-",
+    valueGetter: (_, row) => row.title ?? null,
+    valueFormatter: (value) => value ?? "-",
   },
   {
     field: "author",
@@ -50,9 +51,10 @@ export const columns: GridColDef<BookDTO>[] = [
         const last = row.author?.lastName?.trim() ?? "";
         const full = `${first} ${last}`.trim();
 
-        return full.length > 0 ? full : "-";
+        return full.length > 0 ? full : null;
       }
     },
+    valueFormatter: (value) => value ?? "-",
   },
   {
     field: "series",
@@ -60,15 +62,18 @@ export const columns: GridColDef<BookDTO>[] = [
     width: 200,
     sortable: true,
     editable: true,
-    valueGetter: (_, row) => row.series?.name ?? "-",
+    valueGetter: (_, row) => row.series?.name ?? null,
+    valueFormatter: (value) => value ?? "-",
   },
   {
     field: "seriesNumber",
     headerName: "Volume",
+    type: "number",
     width: 80,
     sortable: true,
     editable: true,
     align: "center",
+    valueFormatter: (value) => (value === 0 ? "-" : value ?? "-"),
   },
   {
     field: "pageNumber",
@@ -79,16 +84,26 @@ export const columns: GridColDef<BookDTO>[] = [
     editable: true,
     align: "right",
     headerAlign: "right",
-    valueGetter: (_, row) => row.pageNumber ?? "-",
+    valueGetter: (_, row) => row.pageNumber ?? null,
+    valueFormatter: (value) => value ?? "-",
   },
   {
     field: "releaseDate",
     headerName: "Release",
     align: "center",
-    width: 100,
+    width: 110,
+    type: "date",
     sortable: true,
     editable: true,
-    valueGetter: (_, row) => FormatTime(row.releaseDate, "date"),
+    valueGetter: (_, row) => {
+      if (!row.releaseDate) {
+        return null;
+      }
+
+      const d = new Date(row.releaseDate);
+      return Number.isNaN(d.getTime()) ? null : d;
+    },
+    valueFormatter: (value) => FormatTime(value, "date"),
   },
   {
     field: "categories",
@@ -96,7 +111,8 @@ export const columns: GridColDef<BookDTO>[] = [
     width: 220,
     sortable: false,
     editable: true,
-    valueGetter: (_, row) => formatList(row.categories ?? null, 3),
+    valueGetter: (_, row) => row.categories ?? null,
+    valueFormatter: (value) => formatList(value, 3),
   },
   {
     field: "tags",
@@ -104,13 +120,15 @@ export const columns: GridColDef<BookDTO>[] = [
     width: 220,
     sortable: false,
     editable: true,
-    valueGetter: (_, row) => formatList(row.tags ?? null, 3),
+    valueGetter: (_, row) => row.tags ?? null,
+    valueFormatter: (value) => formatList(value, 3),
   },
   {
     field: "location",
     headerName: "Location",
     width: 150,
     sortable: false,
+    editable: false,
     valueGetter: (_, row) =>
       row.location?.type === undefined
         ? "-"
@@ -160,6 +178,9 @@ export const ManageBooksList = () => {
       setItemsTableParams={setItemsTableParams}
       // actions
       deleteAction={deleteBooks}
+      // editing
+      // editing
+      onRowEdit={(updatedBook, _) => console.log(updatedBook)}
     />
   );
 };

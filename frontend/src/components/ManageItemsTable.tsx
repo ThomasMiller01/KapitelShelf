@@ -1,15 +1,29 @@
+import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LaunchIcon from "@mui/icons-material/Launch";
-import { Box, Button, IconButton, Stack } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import {
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  styled,
+  TextField,
+} from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
+import {
+  ColumnsPanelTrigger,
   DataGrid,
   GRID_CHECKBOX_SELECTION_COL_DEF,
   GridColDef,
   GridRenderCellParams,
-  GridToolbarColumnsButton,
-  GridToolbarContainer,
   GridToolbarProps,
-  GridToolbarQuickFilter,
+  QuickFilter,
+  QuickFilterClear,
+  QuickFilterControl,
+  Toolbar,
+  ToolbarButton,
 } from "@mui/x-data-grid";
 import { ReactNode, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -21,6 +35,10 @@ import { useSetting } from "../hooks/useSetting";
 import { toTitleCase } from "../utils/TextUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
 import ConfirmDialog from "./base/feedback/ConfirmDialog";
+
+const StyledQuickFilter = styled(QuickFilter)({
+  marginLeft: "auto",
+});
 
 interface AdditionalAction {
   label: string;
@@ -128,6 +146,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
             visibleColumns.includes(column.field),
           ]),
         )}
+        disableRowSelectionExcludeModel
         onColumnVisibilityModelChange={(visibilityModel) => {
           const allFields = columns.map((c) => c.field);
 
@@ -141,7 +160,9 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         // selection
         checkboxSelection
         onRowSelectionModelChange={(newRowSelectionModel) =>
-          setSelected(newRowSelectionModel.map((x) => String(x)))
+          setSelected(
+            Array.from(newRowSelectionModel.ids).map((x) => String(x)),
+          )
         }
         disableRowSelectionOnClick
         // pagination
@@ -222,12 +243,11 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
           }s`,
           checkboxSelectionSelectRow: `Select ${itemName ?? "row"}`,
           checkboxSelectionUnselectRow: `Unselect ${itemName ?? "row"}`,
-          MuiTablePagination: {
-            labelRowsPerPage: `${toTitleCase(itemName) ?? "Row"}s per page`,
-          },
+          paginationRowsPerPage: `${toTitleCase(itemName) ?? "Row"}s per page`,
         }}
         // Toolbar
         slots={{ toolbar: CustomToolbar }}
+        showToolbar
         slotProps={{
           toolbar: {
             showQuickFilter: filter !== undefined,
@@ -253,29 +273,67 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   return (
-    <GridToolbarContainer sx={{ px: 1 }}>
+    <Toolbar style={{ minHeight: "auto" }}>
       <Stack
-        direction="row"
-        spacing={1}
+        direction={{ xs: "column", md: "row" }}
+        spacing={{ xs: 1.5, md: 1 }}
         justifyContent="space-between"
-        alignItems="end"
+        alignItems="start"
         sx={{ width: "100%" }}
       >
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={2}
-          alignItems="start"
-        >
+        <Stack direction="row" spacing={{ xs: 1, md: 2 }} alignItems="center">
           {/* Columns */}
-          <GridToolbarColumnsButton
-            slotProps={{ tooltip: { title: undefined } }}
-          />
+          <ColumnsPanelTrigger render={<ToolbarButton />}>
+            <ViewColumnIcon fontSize="small" />
+          </ColumnsPanelTrigger>
 
           {/* Filter */}
-          {showQuickFilter && <GridToolbarQuickFilter debounceMs={400} />}
+          {showQuickFilter && (
+            <StyledQuickFilter expanded>
+              <QuickFilterControl
+                render={({ ref, ...other }) => (
+                  <TextField
+                    {...other}
+                    sx={{ width: 240 }}
+                    inputRef={ref}
+                    placeholder="Search..."
+                    variant="standard"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: other.value ? (
+                          <InputAdornment position="end">
+                            <QuickFilterClear
+                              edge="end"
+                              size="small"
+                              material={{ sx: { marginRight: -0.75 } }}
+                            >
+                              <CancelIcon fontSize="small" />
+                            </QuickFilterClear>
+                          </InputAdornment>
+                        ) : null,
+                        ...other.slotProps?.input,
+                      },
+                      ...other.slotProps,
+                    }}
+                  />
+                )}
+              />
+            </StyledQuickFilter>
+          )}
         </Stack>
 
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          justifyContent="end"
+          sx={{ width: "100%" }}
+        >
           {additionalActions?.map(({ label, action, icon, disabled }) => {
             const isDisabled = disabled?.(selected);
             return (
@@ -318,7 +376,7 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
           )}
         </Stack>
       </Stack>
-    </GridToolbarContainer>
+    </Toolbar>
   );
 };
 
