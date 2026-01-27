@@ -17,6 +17,23 @@ namespace KapitelShelf.Api.Mappings;
 public sealed partial class Mapper
 {
     /// <summary>
+    /// Map an author model to an author dto, applying additional manual field logic.
+    /// </summary>
+    /// <param name="model">The author model.</param>
+    /// <returns>The mapped author dto.</returns>
+    [UserMapping(Default = true)]
+    public AuthorDTO AuthorModelToAuthorDto(AuthorModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        var dto = this.AuthorModelToAuthorDtoCore(model);
+
+        dto.TotalBooks = model.Books.Count;
+
+        return dto;
+    }
+
+    /// <summary>
     /// Map a author model to a author dto.
     /// </summary>
     /// <param name="model">The author model.</param>
@@ -24,7 +41,8 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(AuthorModel.Books))]
     [MapperIgnoreSource(nameof(AuthorModel.CreatedAt))]
     [MapperIgnoreSource(nameof(AuthorModel.UpdatedAt))]
-    public partial AuthorDTO AuthorModelToAuthorDto(AuthorModel model);
+    [MapperIgnoreTarget(nameof(AuthorDTO.TotalBooks))]
+    public partial AuthorDTO AuthorModelToAuthorDtoCore(AuthorModel model);
 
     /// <summary>
     /// Map a create author dto to a author model.
@@ -43,6 +61,7 @@ public sealed partial class Mapper
     /// <param name="dto">The author dto.</param>
     /// <returns>The create author dto.</returns>
     [MapperIgnoreSource(nameof(AuthorDTO.Id))]
+    [MapperIgnoreSource(nameof(AuthorDTO.TotalBooks))]
     public partial CreateAuthorDTO AuthorDtoToCreateAuthorDto(AuthorDTO dto);
 
     internal static (string FirstName, string LastName) SplitName(string value)

@@ -41,6 +41,13 @@ public interface ISeriesLogic
     Task<PagedResult<SeriesDTO>> Search(string name, int page, int pageSize);
 
     /// <summary>
+    /// Get the autocomplete result for the series.
+    /// </summary>
+    /// <param name="partialSeriesName">The partial series name.</param>
+    /// <returns>The autocomplete result.</returns>
+    Task<List<string>> AutocompleteAsync(string? partialSeriesName);
+
+    /// <summary>
     /// Get a series by id.
     /// </summary>
     /// <param name="seriesId">The id of the series to fetch.</param>

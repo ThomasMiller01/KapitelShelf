@@ -73,9 +73,7 @@ const columns = (clients: ApiClients): GridColDef<BookDTO>[] => [
           api.setEditCellValue({ id, field, value: newValue })
         }
         fetchSuggestions={async (value) => {
-          const { data } = await clients.books.booksAutocompleteAuthorGet(
-            value,
-          );
+          const { data } = await clients.authors.authorsAutocompleteGet(value);
           return data;
         }}
         sx={EditAutoCompleteSX}
@@ -109,9 +107,7 @@ const columns = (clients: ApiClients): GridColDef<BookDTO>[] => [
           api.setEditCellValue({ id, field, value: newValue })
         }
         fetchSuggestions={async (value) => {
-          const { data } = await clients.books.booksAutocompleteSeriesGet(
-            value,
-          );
+          const { data } = await clients.series.seriesAutocompleteGet(value);
           return data;
         }}
         sx={EditAutoCompleteSX}

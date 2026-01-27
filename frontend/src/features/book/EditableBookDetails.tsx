@@ -87,7 +87,7 @@ const EditableBookDetails = ({
       UrlToFile(bookFileUrl).then((file) => {
         const renamedFile = RenameFile(
           file,
-          initial?.location?.fileInfo?.fileName ?? "book"
+          initial?.location?.fileInfo?.fileName ?? "book",
         );
         setBookFile(renamedFile);
       });
@@ -313,7 +313,7 @@ const EditableBookDetails = ({
                       variant="filled"
                       fetchSuggestions={async (value) => {
                         const { data } =
-                          await clients.books.booksAutocompleteAuthorGet(value);
+                          await clients.authors.authorsAutocompleteGet(value);
                         return data;
                       }}
                     />
@@ -335,9 +335,7 @@ const EditableBookDetails = ({
                         helperText={errors.series?.message}
                         fetchSuggestions={async (value) => {
                           const { data } =
-                            await clients.books.booksAutocompleteSeriesGet(
-                              value
-                            );
+                            await clients.series.seriesAutocompleteGet(value);
                           return data;
                         }}
                       />

@@ -119,6 +119,26 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     }
 
     /// <summary>
+    /// Autocomplete the book series.
+    /// </summary>
+    /// <param name="partialSeriesName">The partial series name.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("autocomplete")]
+    public async Task<ActionResult<List<string>>> AutocompleteSeries(string? partialSeriesName)
+    {
+        try
+        {
+            var autocompleteResult = await this.logic.AutocompleteAsync(partialSeriesName);
+            return Ok(autocompleteResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting series for autocomplete");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Get series by its id.
     /// </summary>
     /// <param name="seriesId">The id of the series to get.</param>

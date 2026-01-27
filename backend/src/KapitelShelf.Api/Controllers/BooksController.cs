@@ -19,9 +19,16 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="logger">The logger.</param>
 /// <param name="logic">The books logic.</param>
 /// <param name="bookStorage">The book storage.</param>
+/// <param name="seriesLogic">The series logic.</param>
+/// <param name="authorsLogic">The authors logic.</param>
 [ApiController]
 [Route("books")]
-public class BooksController(ILogger<BooksController> logger, IBooksLogic logic, IBookStorage bookStorage) : ControllerBase
+public class BooksController(
+    ILogger<BooksController> logger,
+    IBooksLogic logic,
+    IBookStorage bookStorage,
+    ISeriesLogic seriesLogic,
+    IAuthorsLogic authorsLogic) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
@@ -29,12 +36,16 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
 
     private readonly IBookStorage bookStorage = bookStorage;
 
+    private readonly ISeriesLogic seriesLogic = seriesLogic;
+
+    private readonly IAuthorsLogic authorsLogic = authorsLogic;
+
     /// <summary>
     /// Fetch all books.
     /// </summary>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
-    [Obsolete("Use GetBooksAsync() instead", false)]
+    [Obsolete("Use /books/paginated instead", false)]
     public async Task<ActionResult<IList<BookDTO>>> GetBooksDeprecated()
     {
         try
@@ -221,11 +232,12 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialSeriesName">The partial series name.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/series")]
+    [Obsolete("Use /series/autocomplete instead", false)]
     public async Task<ActionResult<List<string>>> AutocompleteSeries(string? partialSeriesName)
     {
         try
         {
-            var autocompleteResult = await this.logic.AutocompleteSeriesAsync(partialSeriesName);
+            var autocompleteResult = await this.seriesLogic.AutocompleteAsync(partialSeriesName);
             return Ok(autocompleteResult);
         }
         catch (Exception ex)
@@ -241,11 +253,12 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialAuthor">The partial author.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/author")]
+    [Obsolete("Use /authors/autocomplete instead", false)]
     public async Task<ActionResult<List<string>>> AutocompleteAuthor(string? partialAuthor)
     {
         try
         {
-            var autocompleteResult = await this.logic.AutocompleteAuthorAsync(partialAuthor);
+            var autocompleteResult = await this.authorsLogic.AutocompleteAsync(partialAuthor);
             return Ok(autocompleteResult);
         }
         catch (Exception ex)

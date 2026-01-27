@@ -5,6 +5,131 @@
     "version": "1.0"
   },
   "paths": {
+    "/authors": {
+      "get": {
+        "tags": [
+          "Authors"
+        ],
+        "summary": "Fetch all authors.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort the authors by this field.",
+            "schema": {
+              "$ref": "#/components/schemas/AuthorSortByDTO"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Sort the authors in this direction.",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirectionDTO"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Filter the authors.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorDTOPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/authors/autocomplete": {
+      "get": {
+        "tags": [
+          "Authors"
+        ],
+        "summary": "Autocomplete the book author.",
+        "parameters": [
+          {
+            "name": "partialAuthor",
+            "in": "query",
+            "description": "The partial author.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/books": {
       "get": {
         "tags": [
@@ -469,7 +594,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/books/autocomplete/author": {
@@ -518,7 +644,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/books/autocomplete/category": {
@@ -1949,6 +2076,55 @@
         }
       }
     },
+    "/series/autocomplete": {
+      "get": {
+        "tags": [
+          "Series"
+        ],
+        "summary": "Autocomplete the book series.",
+        "parameters": [
+          {
+            "name": "partialSeriesName",
+            "in": "query",
+            "description": "The partial series name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/series/{seriesId}": {
       "get": {
         "tags": [
@@ -2964,10 +3140,46 @@
             "type": "string",
             "description": "Gets or sets the last name.",
             "nullable": true
+          },
+          "totalBooks": {
+            "type": "integer",
+            "description": "Gets or sets the total number of books.",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false,
         "description": "The Author DTO."
+      },
+      "AuthorDTOPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthorDTO"
+            },
+            "description": "Gets or sets the items.",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Gets or sets the total number of items.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The paginated result."
+      },
+      "AuthorSortByDTO": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "The sort by enum for series.",
+        "format": "int32"
       },
       "BookDTO": {
         "type": "object",

@@ -9,7 +9,7 @@ using KapitelShelf.Data.Models;
 namespace KapitelShelf.Api.Extensions;
 
 /// <summary>
-/// Extension methods for books queries.
+/// Extension methods for series queries.
 /// </summary>
 public static class SeriesQueryExtensions
 {

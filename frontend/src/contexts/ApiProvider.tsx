@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
 import {
+  AuthorsApi,
   BooksApi,
   CloudStorageApi,
   HooksApi,
@@ -30,6 +31,7 @@ export interface ApiClients {
   watchlist: WatchlistApi;
   notifications: NotificationsApi;
   hooks: HooksApi;
+  authors: AuthorsApi;
 }
 
 interface ApiContextData {
@@ -74,6 +76,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
       watchlist: new WatchlistApi(config),
       notifications: new NotificationsApi(config),
       hooks: new HooksApi(config),
+      authors: new AuthorsApi(config),
     };
   }, [basePath]);
 

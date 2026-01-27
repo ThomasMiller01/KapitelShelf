@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using DocumentFormat.OpenXml.Wordprocessing;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Data.Extensions;
@@ -206,8 +207,13 @@ public static class SearchQueryExtensions
     /// <param name="query">The query.</param>
     /// <param name="author">The author.</param>
     /// <returns>The filtered query.</returns>
-    public static IQueryable<AuthorModel> FilterByAuthorQuery(this IQueryable<AuthorModel> query, string author)
+    public static IQueryable<AuthorModel> FilterByAuthorQuery(this IQueryable<AuthorModel> query, string? author)
     {
+        if (author is null)
+        {
+            return query;
+        }
+
         return query.Where(x =>
 
                 // full-text search
@@ -226,8 +232,13 @@ public static class SearchQueryExtensions
     /// <param name="query">The query.</param>
     /// <param name="author">The author.</param>
     /// <returns>The sorted query.</returns>
-    public static IQueryable<AuthorModel> SortByAuthorQuery(this IQueryable<AuthorModel> query, string author)
+    public static IQueryable<AuthorModel> SortByAuthorQuery(this IQueryable<AuthorModel> query, string? author)
     {
+        if (author is null)
+        {
+            return query;
+        }
+
         return query.OrderByDescending(x =>
 
                 // full-text search

@@ -148,6 +148,25 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     }
 
     /// <inheritdoc/>
+    public async Task<List<string>> AutocompleteAsync(string? partialSeriesName)
+    {
+        if (string.IsNullOrWhiteSpace(partialSeriesName))
+        {
+            return [];
+        }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.Series
+            .AsNoTracking()
+            .FilterBySeriesNameQuery(partialSeriesName)
+            .SortBySeriesNameQuery(partialSeriesName)
+            .Take(5)
+            .Select(x => x.Name)
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
     public async Task<PagedResult<BookDTO>> GetBooksBySeriesIdAsync(Guid seriesId, int page, int pageSize)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

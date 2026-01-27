@@ -105,20 +105,6 @@ public interface IBooksLogic
     Task<bool> BookFileExists(IFormFile file);
 
     /// <summary>
-    /// Get the autocomplete result for the series.
-    /// </summary>
-    /// <param name="partialSeriesName">The partial series name.</param>
-    /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteSeriesAsync(string? partialSeriesName);
-
-    /// <summary>
-    /// Get the autocomplete result for the author.
-    /// </summary>
-    /// <param name="partialAuthor">The partial author.</param>
-    /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteAuthorAsync(string? partialAuthor);
-
-    /// <summary>
     /// Get the autocomplete result for the category.
     /// </summary>
     /// <param name="partialCategoryName">The partial category name.</param>

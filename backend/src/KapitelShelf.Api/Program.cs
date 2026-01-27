@@ -99,6 +99,7 @@ builder.Services.AddSingleton<IWatchlistLogic, WatchlistLogic>();
 builder.Services.AddSingleton<IWatchlistScraperManager, WatchlistScraperManager>();
 builder.Services.AddSingleton<INotificationsLogic, NotificationsLogic>();
 builder.Services.AddSingleton<IHooksLogic, HooksLogic>();
+builder.Services.AddSingleton<IAuthorsLogic, AuthorsLogic>();
 
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<ICloudStorage, CloudStorage>();
