@@ -55,6 +55,16 @@ const columns = (clients: ApiClients): GridColDef<BookDTO>[] => [
       }
 
       const parts = value?.split(" ").filter(Boolean);
+      if (parts.length === 1) {
+        return {
+          ...row,
+          author: {
+            firstName: parts[0],
+            lastName: "",
+          },
+        };
+      }
+
       return {
         ...row,
         author: {

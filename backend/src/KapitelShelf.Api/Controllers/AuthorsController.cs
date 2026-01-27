@@ -121,4 +121,30 @@ public class AuthorsController(ILogger<AuthorsController> logger, IAuthorsLogic 
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
+
+    /// <summary>
+    /// Merge all source authors into the target author.
+    /// </summary>
+    /// <param name="authorId">The target author id.</param>
+    /// <param name="sourceAuthorIds">The source author ids.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{authorId}/merge")]
+    public async Task<IActionResult> MergeSeriesBulk(Guid authorId, List<Guid> sourceAuthorIds)
+    {
+        try
+        {
+            await this.logic.MergeAuthors(authorId, sourceAuthorIds);
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error merging multiple authors into author with Id: {AuthorId}", authorId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
 }

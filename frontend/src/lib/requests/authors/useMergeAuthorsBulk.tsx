@@ -2,33 +2,33 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "../../../contexts/ApiProvider";
 
 interface mutationFnProps {
-  targetSeriesId: string;
-  sourceSeriesIds: string[];
+  targetAuthorId: string;
+  sourceAuthorsIds: string[];
 }
 
-export const useMergeSeriesBulk = () => {
+export const useMergeAuthorsBulk = () => {
   const { clients } = useApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
-      targetSeriesId,
-      sourceSeriesIds,
+      targetAuthorId,
+      sourceAuthorsIds,
     }: mutationFnProps) => {
-      await clients.series.seriesSeriesIdMergePut(
-        targetSeriesId,
-        sourceSeriesIds,
+      await clients.authors.authorsAuthorIdMergePut(
+        targetAuthorId,
+        sourceAuthorsIds,
       );
     },
     meta: {
       notify: {
         enabled: true,
-        operation: "Merging series",
+        operation: "Merging authors",
         showLoading: true,
         showSuccess: true,
       },
     },
     onSuccess: async () =>
-      await queryClient.invalidateQueries({ queryKey: ["series"] }),
+      await queryClient.invalidateQueries({ queryKey: ["authors"] }),
   });
 };

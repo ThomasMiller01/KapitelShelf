@@ -218,6 +218,63 @@
         }
       }
     },
+    "/authors/{authorId}/merge": {
+      "put": {
+        "tags": [
+          "Authors"
+        ],
+        "summary": "Merge all source authors into the target author.",
+        "parameters": [
+          {
+            "name": "authorId",
+            "in": "path",
+            "description": "The target author id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The source author ids.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/books": {
       "get": {
         "tags": [
@@ -2321,7 +2378,7 @@
         }
       }
     },
-    "/series/{seriesId}/merge/bulk": {
+    "/series/{seriesId}/merge": {
       "put": {
         "tags": [
           "Series"

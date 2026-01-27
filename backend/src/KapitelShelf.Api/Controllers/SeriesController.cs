@@ -224,7 +224,7 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     /// <param name="seriesId">The target series id.</param>
     /// <param name="sourceSeriesIds">The source series ids.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
-    [HttpPut("{seriesId}/merge/bulk")]
+    [HttpPut("{seriesId}/merge")]
     public async Task<IActionResult> MergeSeriesBulk(Guid seriesId, List<Guid> sourceSeriesIds)
     {
         try

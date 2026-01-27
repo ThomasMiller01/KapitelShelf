@@ -45,4 +45,12 @@ public interface IAuthorsLogic
     /// <param name="authorDto">The updated author dto.</param>
     /// <returns>A <see cref="Task{AuthorDTO}"/> representing the result of the asynchronous operation.</returns>
     Task<AuthorDTO?> UpdateAuthorAsync(Guid authorId, AuthorDTO authorDto);
+
+    /// <summary>
+    /// Merge the source authors into the target authors.
+    /// </summary>
+    /// <param name="targetAuthorId">The target author id.</param>
+    /// <param name="sourceAuthorsIds">The source authors ids.</param>
+    /// <returns>A task.</returns>
+    Task MergeAuthors(Guid targetAuthorId, List<Guid> sourceAuthorsIds);
 }

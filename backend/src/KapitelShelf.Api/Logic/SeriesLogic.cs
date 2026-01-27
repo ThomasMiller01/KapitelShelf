@@ -319,7 +319,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
             .Where(x => sourceSeriesIds.Contains(x.Id))
             .ToListAsync();
 
-        if (sourceSeries is null)
+        if (sourceSeries.Count == 0)
         {
             throw new ArgumentException("Unknown source series ids.");
         }

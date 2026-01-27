@@ -131,6 +131,43 @@ public class AuthorsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFact
         return this.mapper.AuthorModelToAuthorDto(author);
     }
 
+    /// <inheritdoc/>
+    public async Task MergeAuthors(Guid targetAuthorId, List<Guid> sourceAuthorsIds)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var targetAuthor = await context.Authors.FirstOrDefaultAsync(x => x.Id == targetAuthorId);
+        if (targetAuthor is null)
+        {
+            throw new ArgumentException("Unknown target author id.");
+        }
+
+        var sourceAuthors = await context.Authors
+            .Include(x => x.Books)
+            .Where(x => sourceAuthorsIds.Contains(x.Id))
+            .ToListAsync();
+
+        if (sourceAuthors.Count == 0)
+        {
+            throw new ArgumentException("Unknown source author ids.");
+        }
+
+        // update the author of all books
+        var sourceBooks = sourceAuthors.SelectMany(x => x.Books);
+        foreach (var book in sourceBooks)
+        {
+            book.AuthorId = targetAuthorId;
+            book.UpdatedAt = DateTime.UtcNow;
+        }
+
+        targetAuthor.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+
+        // delete source authors
+        await this.DeleteAuthorsAsync(sourceAuthors.Select(x => x.Id).ToList());
+    }
+
     internal async Task<IList<AuthorModel>> GetDuplicatesAsync(string firstName, string lastName)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

@@ -1258,6 +1258,44 @@ export const AuthorsApiAxiosParamCreator = function (configuration?: Configurati
     return {
         /**
          * 
+         * @summary Merge all source authors into the target author.
+         * @param {string} authorId The target author id.
+         * @param {Array<string>} [requestBody] The source author ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authorsAuthorIdMergePut: async (authorId: string, requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorId' is not null or undefined
+            assertParamExists('authorsAuthorIdMergePut', 'authorId', authorId)
+            const localVarPath = `/authors/{authorId}/merge`
+                .replace(`{${"authorId"}}`, encodeURIComponent(String(authorId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Update a series.
          * @param {string} authorId The id of the author to update.
          * @param {AuthorDTO} [authorDTO] The updated author.
@@ -1430,6 +1468,20 @@ export const AuthorsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Merge all source authors into the target author.
+         * @param {string} authorId The target author id.
+         * @param {Array<string>} [requestBody] The source author ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authorsAuthorIdMergePut(authorId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authorsAuthorIdMergePut(authorId, requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthorsApi.authorsAuthorIdMergePut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Update a series.
          * @param {string} authorId The id of the author to update.
          * @param {AuthorDTO} [authorDTO] The updated author.
@@ -1497,6 +1549,17 @@ export const AuthorsApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
+         * @summary Merge all source authors into the target author.
+         * @param {string} authorId The target author id.
+         * @param {Array<string>} [requestBody] The source author ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authorsAuthorIdMergePut(authorId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.authorsAuthorIdMergePut(authorId, requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Update a series.
          * @param {string} authorId The id of the author to update.
          * @param {AuthorDTO} [authorDTO] The updated author.
@@ -1550,6 +1613,19 @@ export const AuthorsApiFactory = function (configuration?: Configuration, basePa
  * @extends {BaseAPI}
  */
 export class AuthorsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Merge all source authors into the target author.
+     * @param {string} authorId The target author id.
+     * @param {Array<string>} [requestBody] The source author ids.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthorsApi
+     */
+    public authorsAuthorIdMergePut(authorId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return AuthorsApiFp(this.configuration).authorsAuthorIdMergePut(authorId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Update a series.
@@ -5173,10 +5249,10 @@ export const SeriesApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesSeriesIdMergeBulkPut: async (seriesId: string, requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        seriesSeriesIdMergePut: async (seriesId: string, requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'seriesId' is not null or undefined
-            assertParamExists('seriesSeriesIdMergeBulkPut', 'seriesId', seriesId)
-            const localVarPath = `/series/{seriesId}/merge/bulk`
+            assertParamExists('seriesSeriesIdMergePut', 'seriesId', seriesId)
+            const localVarPath = `/series/{seriesId}/merge`
                 .replace(`{${"seriesId"}}`, encodeURIComponent(String(seriesId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5409,10 +5485,10 @@ export const SeriesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async seriesSeriesIdMergeBulkPut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdMergeBulkPut(seriesId, requestBody, options);
+        async seriesSeriesIdMergePut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.seriesSeriesIdMergePut(seriesId, requestBody, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdMergeBulkPut']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SeriesApi.seriesSeriesIdMergePut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -5549,8 +5625,8 @@ export const SeriesApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        seriesSeriesIdMergeBulkPut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.seriesSeriesIdMergeBulkPut(seriesId, requestBody, options).then((request) => request(axios, basePath));
+        seriesSeriesIdMergePut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.seriesSeriesIdMergePut(seriesId, requestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5697,8 +5773,8 @@ export class SeriesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SeriesApi
      */
-    public seriesSeriesIdMergeBulkPut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
-        return SeriesApiFp(this.configuration).seriesSeriesIdMergeBulkPut(seriesId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    public seriesSeriesIdMergePut(seriesId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return SeriesApiFp(this.configuration).seriesSeriesIdMergePut(seriesId, requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
