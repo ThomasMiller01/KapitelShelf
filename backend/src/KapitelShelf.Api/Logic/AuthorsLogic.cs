@@ -32,6 +32,7 @@ public class AuthorsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFact
 
         var query = context.Authors
             .AsNoTracking()
+            .Include(x => x.Books)
 
             // apply filter if it is set
             .FilterByAuthorQuery(filter)

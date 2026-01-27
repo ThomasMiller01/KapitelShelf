@@ -4,6 +4,7 @@
 
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Author;
+using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Data.Models;
 
 namespace KapitelShelf.Api.Extensions;
@@ -41,6 +42,14 @@ public static class AuthorsQueryExtensions
             (AuthorSortByDTO.LastName, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.LastName)
                     .ThenByDescending(x => x.UpdatedAt),
+
+            (AuthorSortByDTO.TotalBooks, SortDirectionDTO.Asc) =>
+                query.OrderBy(x => x.Books.Count())
+                     .ThenBy(x => x.UpdatedAt),
+
+            (AuthorSortByDTO.TotalBooks, SortDirectionDTO.Desc) =>
+                query.OrderByDescending(x => x.Books.Count())
+                     .ThenByDescending(x => x.UpdatedAt),
 
             // Default
             (AuthorSortByDTO.Default, SortDirectionDTO.Asc) =>

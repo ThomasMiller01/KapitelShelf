@@ -23,4 +23,9 @@ public enum AuthorSortByDTO
     /// Sort by the author last name.
     /// </summary>
     LastName,
+
+    /// <summary>
+    /// Sort by the author total books.
+    /// </summary>
+    TotalBooks,
 }

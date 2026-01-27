@@ -2,6 +2,7 @@ import { Alert, Box, Tab, Tabs, Typography } from "@mui/material";
 import { useMemo, type ReactElement } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { TabPanel } from "../../components/base/TabPanel";
+import { ManageAuthorsList } from "../../features/authors/ManageAuthorsList";
 import { ManageBooksList } from "../../features/book/ManageBooksList";
 import { ManageSeriesList } from "../../features/series/ManageSeriesList";
 
@@ -53,7 +54,7 @@ export const ManageLibraryPage = (): ReactElement => {
           <ManageBooksList />
         </TabPanel>
         <TabPanel value={activeTab} index={2}>
-          <Alert severity="info">This section is not yet implemented.</Alert>
+          <ManageAuthorsList />
         </TabPanel>
         <TabPanel value={activeTab} index={3}>
           <Alert severity="info">This section is not yet implemented.</Alert>

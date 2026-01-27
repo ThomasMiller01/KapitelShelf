@@ -1,5 +1,6 @@
 import { SortDirection } from "@mui/material";
 import {
+  AuthorSortByDTO,
   BookSortByDTO,
   SeriesSortByDTO,
   SortDirectionDTO,
@@ -44,6 +45,24 @@ export const ToSeriesSortByDTO = (value: string | null | undefined) => {
 
     case "createdAt":
       return SeriesSortByDTO.NUMBER_4;
+
+    case "default":
+    default:
+      return SeriesSortByDTO.NUMBER_0;
+  }
+};
+
+export const ToAuthorsSortByDTO = (value: string | null | undefined) => {
+  console.log(value);
+  switch (value) {
+    case "firstName":
+      return AuthorSortByDTO.NUMBER_1;
+
+    case "lastName":
+      return AuthorSortByDTO.NUMBER_2;
+
+    case "totalBooks":
+      return AuthorSortByDTO.NUMBER_3;
 
     case "default":
     default:
