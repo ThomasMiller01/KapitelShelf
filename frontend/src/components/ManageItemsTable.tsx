@@ -460,16 +460,16 @@ export const EditDatePickerCell = ({
           fullWidth: true,
           sx: {
             "& .MuiPickersInputBase-root::before": {
-              borderBottom: "none",
+              borderBottom: "none !important",
             },
             "& .MuiPickersInputBase-root:hover::before": {
-              borderBottom: "none",
+              borderBottom: "none !important",
             },
             "& .MuiPickersInputBase-root::after": {
-              borderBottom: "none",
+              borderBottom: "none !important",
             },
             "& .MuiPickersInputBase-root:hover::after": {
-              borderBottom: "none",
+              borderBottom: "none !important",
             },
             "& .MuiPickersSectionList-root": {
               font: "var(--DataGrid-t-typography-font-body) !important",
@@ -497,16 +497,16 @@ export const EditAutoCompleteSX = {
   width: "95%",
   margin: "0 auto",
   "& .MuiInputBase-root::before": {
-    borderBottom: "none",
+    borderBottom: "none !important",
   },
   "& .MuiInputBase-root:hover::before": {
-    borderBottom: "none",
+    borderBottom: "none !important",
   },
   "& .MuiInputBase-root::after": {
-    borderBottom: "none",
+    borderBottom: "none !important",
   },
   "& .MuiInputBase-root:hover::after": {
-    borderBottom: "none",
+    borderBottom: "none !important",
   },
   "& .MuiInputBase-input": {
     font: "var(--DataGrid-t-typography-font-body) !important",
