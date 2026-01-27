@@ -1,17 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "../../../contexts/ApiProvider";
 import { BookDTO } from "../../api/KapitelShelf.Api";
 
-export const useUpdateBook = (bookId: string | undefined) => {
+export const useUpdateBook = () => {
   const { clients } = useApi();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (book: BookDTO) => {
-      if (bookId === undefined) {
+      if (book.id === undefined) {
         return null;
       }
 
-      await clients.books.booksBookIdPut(bookId, book);
+      await clients.books.booksBookIdPut(book.id, book);
     },
     meta: {
       notify: {
@@ -21,5 +22,7 @@ export const useUpdateBook = (bookId: string | undefined) => {
         showSuccess: true,
       },
     },
+    onSuccess: async () =>
+      queryClient.invalidateQueries({ queryKey: ["books"] }),
   });
 };

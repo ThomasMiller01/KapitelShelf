@@ -19,12 +19,15 @@ import {
   GridColDef,
   GridRenderCellParams,
   GridToolbarProps,
+  GridTreeNodeWithRender,
   QuickFilter,
   QuickFilterClear,
   QuickFilterControl,
   Toolbar,
   ToolbarButton,
 } from "@mui/x-data-grid";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 import { ReactNode, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -425,4 +428,88 @@ export const LinkColumn = (
       );
     },
   };
+};
+
+export const EditDatePickerCell = ({
+  id,
+  field,
+  value,
+  api,
+}: GridRenderCellParams<any, any, any, GridTreeNodeWithRender>) => {
+  const current: Dayjs | null = value instanceof Date ? dayjs(value) : null;
+
+  return (
+    <DatePicker
+      value={current}
+      onChange={(next: Dayjs | null) => {
+        api.setEditCellValue(
+          {
+            id,
+            field,
+            value: next
+              ? new Date(Date.UTC(next.year(), next.month(), next.date()))
+              : null,
+          },
+          { debounceMs: 0 },
+        );
+      }}
+      slotProps={{
+        textField: {
+          variant: "standard",
+          size: "small",
+          fullWidth: true,
+          sx: {
+            "& .MuiPickersInputBase-root::before": {
+              borderBottom: "none",
+            },
+            "& .MuiPickersInputBase-root:hover::before": {
+              borderBottom: "none",
+            },
+            "& .MuiPickersInputBase-root::after": {
+              borderBottom: "none",
+            },
+            "& .MuiPickersInputBase-root:hover::after": {
+              borderBottom: "none",
+            },
+            "& .MuiPickersSectionList-root": {
+              font: "var(--DataGrid-t-typography-font-body) !important",
+              pb: 0,
+            },
+            "& .MuiIconButton-root": {
+              padding: "5px",
+            },
+            "& .MuiSvgIcon-root": {
+              fontSize: "1.2rem",
+            },
+            "& .MuiInputAdornment-root": {
+              margin: 0,
+            },
+          },
+        },
+      }}
+    />
+  );
+};
+
+export const EditAutoCompleteSX = {
+  display: "flex",
+  alignItems: "center",
+  width: "95%",
+  margin: "0 auto",
+  "& .MuiInputBase-root::before": {
+    borderBottom: "none",
+  },
+  "& .MuiInputBase-root:hover::before": {
+    borderBottom: "none",
+  },
+  "& .MuiInputBase-root::after": {
+    borderBottom: "none",
+  },
+  "& .MuiInputBase-root:hover::after": {
+    borderBottom: "none",
+  },
+  "& .MuiInputBase-input": {
+    font: "var(--DataGrid-t-typography-font-body) !important",
+    pb: "0 !important",
+  },
 };

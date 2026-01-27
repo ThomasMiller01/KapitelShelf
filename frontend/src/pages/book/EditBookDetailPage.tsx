@@ -29,7 +29,7 @@ const EditBookDetailPage = (): ReactElement => {
   const navigate = useNavigate();
 
   const { data: book, isLoading, isError, refetch } = useBookById(bookId);
-  const { mutateAsync: updateBook } = useUpdateBook(bookId);
+  const { mutateAsync: updateBook } = useUpdateBook();
   const { mutateAsync: uploadCover } = useUploadCover();
   const { mutateAsync: uploadFile } = useUploadFile();
 
@@ -46,9 +46,9 @@ const EditBookDetailPage = (): ReactElement => {
   const onUpdate = async (
     book: BookDTO,
     cover: File,
-    bookFile?: File
+    bookFile?: File,
   ): Promise<void> => {
-    await updateBook(book);
+    await updateBook({ id: bookId, ...book });
 
     if (cover !== undefined && bookId !== undefined) {
       try {

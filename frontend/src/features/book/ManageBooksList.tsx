@@ -4,6 +4,8 @@ import { AutoComplete } from "../../components/base/AutoComplete";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import {
+  EditAutoCompleteSX,
+  EditDatePickerCell,
   LinkColumn,
   ManageItemsTable,
 } from "../../components/ManageItemsTable";
@@ -12,6 +14,7 @@ import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
 import { BookDTO, CategoryDTO, TagDTO } from "../../lib/api/KapitelShelf.Api";
 import { useBooksList } from "../../lib/requests/books/useBooksList";
 import { useDeleteBooks } from "../../lib/requests/books/useDeleteBooks";
+import { useUpdateBook } from "../../lib/requests/books/useUpdateBook";
 import { normalizeBook } from "../../utils/BookUtils";
 import { LocationTypeToString } from "../../utils/LocationUtils";
 import { FormatTime } from "../../utils/TimeUtils";
@@ -75,6 +78,7 @@ const columns = (clients: ApiClients): GridColDef<BookDTO>[] => [
           );
           return data;
         }}
+        sx={EditAutoCompleteSX}
       />
     ),
   },
@@ -110,6 +114,7 @@ const columns = (clients: ApiClients): GridColDef<BookDTO>[] => [
           );
           return data;
         }}
+        sx={EditAutoCompleteSX}
       />
     ),
   },
@@ -149,9 +154,12 @@ const columns = (clients: ApiClients): GridColDef<BookDTO>[] => [
       }
 
       const d = new Date(row.releaseDate);
-      return Number.isNaN(d.getTime()) ? null : d;
+      return new Date(
+        Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+      );
     },
     valueFormatter: (value) => FormatTime(value, "date"),
+    renderEditCell: (params) => <EditDatePickerCell {...params} />,
   },
   {
     field: "categories",
@@ -263,6 +271,7 @@ export const ManageBooksList = () => {
   });
 
   const { mutate: deleteBooks } = useDeleteBooks();
+  const { mutate: updateBook } = useUpdateBook();
 
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Books" showRandomFacts />;
@@ -300,7 +309,7 @@ export const ManageBooksList = () => {
           return;
         }
 
-        console.log("updated", updatedBook);
+        updateBook(updatedBook);
       }}
     />
   );

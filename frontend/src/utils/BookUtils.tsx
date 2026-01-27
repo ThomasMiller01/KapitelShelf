@@ -20,7 +20,13 @@ export const normalizeBook = (b: BookDTO) => {
   const releaseDateIso =
     b.releaseDate === undefined || b.releaseDate === null
       ? null
-      : new Date(b.releaseDate).toISOString();
+      : (() => {
+          const d = new Date(b.releaseDate);
+          return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(
+            2,
+            "0",
+          )}-${String(d.getUTCDate()).padStart(2, "0")}`;
+        })();
 
   return {
     title: (b.title ?? "").trim(),
