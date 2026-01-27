@@ -25,9 +25,24 @@ public interface IAuthorsLogic
     Task<PagedResult<AuthorDTO>> GetAuthorsAsync(int page, int pageSize, AuthorSortByDTO sortBy, SortDirectionDTO sortDir, string? filter);
 
     /// <summary>
+    /// Delete authors in bulk.
+    /// </summary>
+    /// <param name="authorIdsToDelete">The author ids to delete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteAuthorsAsync(List<Guid> authorIdsToDelete);
+
+    /// <summary>
     /// Get the autocomplete result for the author.
     /// </summary>
     /// <param name="partialAuthor">The partial author.</param>
     /// <returns>The autocomplete result.</returns>
     Task<List<string>> AutocompleteAsync(string? partialAuthor);
+
+    /// <summary>
+    /// Update an author.
+    /// </summary>
+    /// <param name="authorId">The id of the author to update.</param>
+    /// <param name="authorDto">The updated author dto.</param>
+    /// <returns>A <see cref="Task{AuthorDTO}"/> representing the result of the asynchronous operation.</returns>
+    Task<AuthorDTO?> UpdateAuthorAsync(Guid authorId, AuthorDTO authorDto);
 }

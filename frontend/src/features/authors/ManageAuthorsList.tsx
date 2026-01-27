@@ -5,7 +5,9 @@ import { ManageItemsTable } from "../../components/ManageItemsTable";
 import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
 import { AuthorDTO } from "../../lib/api/KapitelShelf.Api";
 import { useAuthorsListQuery } from "../../lib/requests/authors/useAuthorsListQuery";
-import { normalizeSeries } from "../../utils/SeriesUtils";
+import { useDeleteAuthorsBulk } from "../../lib/requests/authors/useDeleteAuthorsBulk";
+import { useUpdateAuthor } from "../../lib/requests/authors/useUpdateAuthor";
+import { normalizeAuthor } from "../../utils/AuthorUtils";
 
 export const columns: GridColDef<AuthorDTO>[] = [
   {
@@ -49,8 +51,8 @@ export const ManageAuthorsList = () => {
     filter,
   });
 
-  // const { mutate: deleteSeries } = useDeleteSeriesBulk();
-  // const { mutate: updateSeries } = useUpdateSeries();
+  const { mutate: deleteAuthors } = useDeleteAuthorsBulk();
+  const { mutate: updateAuthor } = useUpdateAuthor();
 
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Authors" showRandomFacts />;
@@ -78,21 +80,17 @@ export const ManageAuthorsList = () => {
         filter={filter}
         setItemsTableParams={setItemsTableParams}
         // actions
-        // deleteAction={deleteSeries}
+        deleteAction={deleteAuthors}
         // editing
-        onRowEdit={(updatedSeries, originalSeries) => {
-          const updatedJson = JSON.stringify(normalizeSeries(updatedSeries));
-          const originalJson = JSON.stringify(normalizeSeries(originalSeries));
+        onRowEdit={(updatedAuthor, originalAuthor) => {
+          const updatedJson = JSON.stringify(normalizeAuthor(updatedAuthor));
+          const originalJson = JSON.stringify(normalizeAuthor(originalAuthor));
           if (updatedJson === originalJson) {
             // if no changes, return
             return;
           }
 
-          // updateSeries({
-          //   ...updatedSeries,
-          //   lastVolume: null,
-          //   totalBooks: null,
-          // });
+          updateAuthor({ ...updatedAuthor, totalBooks: null });
         }}
       />
     </>

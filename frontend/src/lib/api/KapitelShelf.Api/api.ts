@@ -1258,6 +1258,44 @@ export const AuthorsApiAxiosParamCreator = function (configuration?: Configurati
     return {
         /**
          * 
+         * @summary Update a series.
+         * @param {string} authorId The id of the author to update.
+         * @param {AuthorDTO} [authorDTO] The updated author.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authorsAuthorIdPut: async (authorId: string, authorDTO?: AuthorDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'authorId' is not null or undefined
+            assertParamExists('authorsAuthorIdPut', 'authorId', authorId)
+            const localVarPath = `/authors/{authorId}`
+                .replace(`{${"authorId"}}`, encodeURIComponent(String(authorId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(authorDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Autocomplete the book author.
          * @param {string} [partialAuthor] The partial author.
          * @param {*} [options] Override http request option.
@@ -1285,6 +1323,40 @@ export const AuthorsApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete authors in bulk.
+         * @param {Array<string>} [requestBody] The author ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authorsDelete: async (requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/authors`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1358,6 +1430,20 @@ export const AuthorsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Update a series.
+         * @param {string} authorId The id of the author to update.
+         * @param {AuthorDTO} [authorDTO] The updated author.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authorsAuthorIdPut(authorId: string, authorDTO?: AuthorDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authorsAuthorIdPut(authorId, authorDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthorsApi.authorsAuthorIdPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Autocomplete the book author.
          * @param {string} [partialAuthor] The partial author.
          * @param {*} [options] Override http request option.
@@ -1367,6 +1453,19 @@ export const AuthorsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.authorsAutocompleteGet(partialAuthor, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthorsApi.authorsAutocompleteGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete authors in bulk.
+         * @param {Array<string>} [requestBody] The author ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authorsDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authorsDelete(requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthorsApi.authorsDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1398,6 +1497,17 @@ export const AuthorsApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
+         * @summary Update a series.
+         * @param {string} authorId The id of the author to update.
+         * @param {AuthorDTO} [authorDTO] The updated author.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authorsAuthorIdPut(authorId: string, authorDTO?: AuthorDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.authorsAuthorIdPut(authorId, authorDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Autocomplete the book author.
          * @param {string} [partialAuthor] The partial author.
          * @param {*} [options] Override http request option.
@@ -1405,6 +1515,16 @@ export const AuthorsApiFactory = function (configuration?: Configuration, basePa
          */
         authorsAutocompleteGet(partialAuthor?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
             return localVarFp.authorsAutocompleteGet(partialAuthor, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete authors in bulk.
+         * @param {Array<string>} [requestBody] The author ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authorsDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.authorsDelete(requestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1432,6 +1552,19 @@ export const AuthorsApiFactory = function (configuration?: Configuration, basePa
 export class AuthorsApi extends BaseAPI {
     /**
      * 
+     * @summary Update a series.
+     * @param {string} authorId The id of the author to update.
+     * @param {AuthorDTO} [authorDTO] The updated author.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthorsApi
+     */
+    public authorsAuthorIdPut(authorId: string, authorDTO?: AuthorDTO, options?: RawAxiosRequestConfig) {
+        return AuthorsApiFp(this.configuration).authorsAuthorIdPut(authorId, authorDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Autocomplete the book author.
      * @param {string} [partialAuthor] The partial author.
      * @param {*} [options] Override http request option.
@@ -1440,6 +1573,18 @@ export class AuthorsApi extends BaseAPI {
      */
     public authorsAutocompleteGet(partialAuthor?: string, options?: RawAxiosRequestConfig) {
         return AuthorsApiFp(this.configuration).authorsAutocompleteGet(partialAuthor, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete authors in bulk.
+     * @param {Array<string>} [requestBody] The author ids to delete.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthorsApi
+     */
+    public authorsDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return AuthorsApiFp(this.configuration).authorsDelete(requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

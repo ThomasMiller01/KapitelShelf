@@ -53,7 +53,6 @@ export const ToSeriesSortByDTO = (value: string | null | undefined) => {
 };
 
 export const ToAuthorsSortByDTO = (value: string | null | undefined) => {
-  console.log(value);
   switch (value) {
     case "firstName":
       return AuthorSortByDTO.NUMBER_1;

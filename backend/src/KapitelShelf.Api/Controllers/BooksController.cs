@@ -129,7 +129,7 @@ public class BooksController(
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error deleting boops with ids: {Ids}", bookIdsToDelete);
+            this.logger.LogError(ex, "Error deleting books with ids: {Ids}", bookIdsToDelete);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
