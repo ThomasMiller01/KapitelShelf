@@ -94,6 +94,12 @@ public class BooksLogic(
                 .ThenInclude(x => x.Cover)
             .Include(x => x.BookModel)
                 .ThenInclude(x => x.Location)
+             .Include(x => x.BookModel)
+                .ThenInclude(x => x.Categories)
+                    .ThenInclude(x => x.Category)
+             .Include(x => x.BookModel)
+                .ThenInclude(x => x.Tags)
+                    .ThenInclude(x => x.Tag)
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             .AsSingleQuery()
 

@@ -90,7 +90,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
 
   // pagination & sorting
   page = 1,
-  pageSize = items.length,
+  pageSize = 15,
   sorting,
   filter,
   setItemsTableParams,
@@ -120,6 +120,30 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
 
   const [selected, setSelected] = useState<string[]>([]);
 
+  const paginationModel = useMemo(
+    () => ({
+      page: page - 1,
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const sortModel = useMemo(
+    () =>
+      sorting && sorting.field && sorting.sort
+        ? [{ field: sorting.field, sort: sorting.sort }]
+        : [],
+    [sorting?.field, sorting?.sort],
+  );
+
+  const filterModel = useMemo(
+    () => ({
+      items: [],
+      quickFilterValues: filter ? filter.split(" ") : [],
+    }),
+    [filter],
+  );
+
   const CustomToolbar = ({ ...props }) => (
     <ManageItemsToolbar
       selected={selected}
@@ -136,7 +160,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         // data
         rows={items}
         columns={columns}
-        rowCount={totalItems}
+        rowCount={totalItems ?? 0}
         loading={isLoading}
         // styling
         density="compact"
@@ -167,10 +191,9 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         }
         disableRowSelectionOnClick
         // pagination
-        pagination
         paginationMode="server"
         pageSizeOptions={[15, 25, 50]}
-        paginationModel={{ page: page - 1, pageSize }}
+        paginationModel={paginationModel}
         onPaginationModelChange={(model) =>
           setItemsTableParams?.({
             nextPage: model.page + 1,
@@ -180,11 +203,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         // sorting
         disableColumnSorting={!sorting}
         sortingMode="server"
-        sortModel={
-          sorting && sorting.field && sorting.sort
-            ? [{ field: sorting.field, sort: sorting.sort }]
-            : []
-        }
+        sortModel={sortModel}
         onSortModelChange={(sortingModel) => {
           const first = sortingModel[0];
 
@@ -204,10 +223,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         // filter
         disableColumnFilter
         filterMode="server"
-        filterModel={{
-          items: [],
-          quickFilterValues: filter?.split(" "),
-        }}
+        filterModel={filterModel}
         onFilterModelChange={(model, _) =>
           setItemsTableParams?.({
             nextFilter: model.quickFilterValues?.join(" "),

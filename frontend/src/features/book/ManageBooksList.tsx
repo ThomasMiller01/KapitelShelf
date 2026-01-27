@@ -1,3 +1,4 @@
+import { Chip, Stack } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { AutoComplete } from "../../components/base/AutoComplete";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
@@ -8,30 +9,28 @@ import {
 } from "../../components/ManageItemsTable";
 import { useApi } from "../../contexts/ApiProvider";
 import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
-import { BookDTO } from "../../lib/api/KapitelShelf.Api";
+import { BookDTO, CategoryDTO, TagDTO } from "../../lib/api/KapitelShelf.Api";
 import { useBooksList } from "../../lib/requests/books/useBooksList";
 import { useDeleteBooks } from "../../lib/requests/books/useDeleteBooks";
 import { LocationTypeToString } from "../../utils/LocationUtils";
 import { FormatTime } from "../../utils/TimeUtils";
 
-const formatList = (
-  values: Array<{ name?: string | null }> | null | undefined,
-  max: number,
-): string => {
-  const items = (values ?? [])
-    .map((x) => x.name?.trim())
-    .filter((x): x is string => Boolean(x));
-
-  if (items.length === 0) {
-    return "-";
-  }
-
-  const head = items.slice(0, max).join(", ");
-  return items.length > max ? `${head} +${items.length - max}` : head;
-};
-
 export const ManageBooksList = () => {
   const { clients } = useApi();
+
+  const { page, pageSize, sorting, filter, setItemsTableParams } =
+    useItemsTableParams({
+      defaultPageSize: 15,
+    });
+
+  const { data, isLoading, isError, refetch } = useBooksList({
+    page,
+    pageSize,
+    sorting,
+    filter,
+  });
+
+  const { mutate: deleteBooks } = useDeleteBooks();
 
   const columns: GridColDef<BookDTO>[] = [
     {
@@ -177,7 +176,40 @@ export const ManageBooksList = () => {
       sortable: false,
       editable: true,
       valueGetter: (_, row) => row.categories ?? null,
-      valueFormatter: (value) => formatList(value, 3),
+      renderCell: (params) => {
+        const categories = params.value ?? [];
+        if (categories.length === 0) {
+          return <span>-</span>;
+        }
+
+        return (
+          <Stack
+            direction="row"
+            spacing={1}
+            mb={1.5}
+            flexWrap="wrap"
+            alignItems="center"
+          >
+            {categories.slice(0, 1).map((category: CategoryDTO) => (
+              <Chip
+                key={category.id}
+                label={category.name}
+                color="primary"
+                size="small"
+                sx={{ my: "4px !important" }}
+              />
+            ))}
+            {categories.length > 1 && (
+              <Chip
+                label={`+${categories.length - 1}`}
+                size="small"
+                variant="outlined"
+                sx={{ my: "4px !important" }}
+              />
+            )}
+          </Stack>
+        );
+      },
       // TODO edit category
     },
     {
@@ -187,7 +219,36 @@ export const ManageBooksList = () => {
       sortable: false,
       editable: true,
       valueGetter: (_, row) => row.tags ?? null,
-      valueFormatter: (value) => formatList(value, 3),
+      renderCell: (params) => {
+        const tags = params.value ?? [];
+        if (tags.length === 0) {
+          return <span>-</span>;
+        }
+
+        return (
+          <Stack
+            direction="row"
+            spacing={1}
+            flexWrap="wrap"
+            alignItems="center"
+            sx={{ py: "2px" }}
+          >
+            {tags
+              .filter((t: TagDTO) => Boolean(t && (t.name ?? "").trim()))
+              .map((tag: TagDTO) => {
+                return (
+                  <Chip
+                    key={tag.id}
+                    label={tag.name}
+                    variant="outlined"
+                    size="small"
+                    sx={{ my: "4px !important" }}
+                  />
+                );
+              })}
+          </Stack>
+        );
+      },
       // TODO edit tags
     },
     {
@@ -203,20 +264,6 @@ export const ManageBooksList = () => {
     },
     LinkColumn((params) => `/library/books/${params.row.id}`),
   ];
-
-  const { page, pageSize, sorting, filter, setItemsTableParams } =
-    useItemsTableParams({
-      defaultPageSize: 15,
-    });
-
-  const { data, isLoading, isError, refetch } = useBooksList({
-    page,
-    pageSize,
-    sorting,
-    filter,
-  });
-
-  const { mutate: deleteBooks } = useDeleteBooks();
 
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Books" showRandomFacts />;

@@ -67,15 +67,15 @@ export const useItemsTableParams = ({
       const next = new URLSearchParams(prev);
 
       // pagination
-      if (nextPage) {
+      if (nextPage !== undefined) {
         next.set("page", String(nextPage));
       }
-      if (nextPageSize) {
+      if (nextPageSize !== undefined) {
         next.set("pageSize", String(nextPageSize));
       }
 
       // sorting
-      if (nextSorting) {
+      if (nextSorting !== undefined) {
         const trimmedField = nextSorting.field?.trim() ?? "";
         if (!trimmedField || !nextSorting.sort) {
           next.delete("sort");

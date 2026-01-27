@@ -155,6 +155,9 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .HasForeignKey(x => x.Id)
             .HasPrincipalKey(x => x.Id);
 
+        modelBuilder.Entity<BookSearchView>()
+            .HasKey(x => x.Id);
+
         // Categories
         modelBuilder.Entity<BookCategoryModel>()
             .HasKey(x => new { x.BookId, x.CategoryId });
