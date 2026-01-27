@@ -32,7 +32,6 @@ import {
   SortingModel,
 } from "../hooks/url/useItemsTableParams";
 import { useSetting } from "../hooks/useSetting";
-import { normalizeBook } from "../utils/BookUtils";
 import { toTitleCase } from "../utils/TextUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
 import ConfirmDialog from "./base/feedback/ConfirmDialog";
@@ -235,13 +234,7 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         // editing
         editMode="row"
         processRowUpdate={(updatedRow, originalRow) => {
-          // only call onRowEdit, if updated and original differ
-          const updatedJson = JSON.stringify(normalizeBook(updatedRow));
-          const originalJson = JSON.stringify(normalizeBook(originalRow));
-          if (updatedJson !== originalJson) {
-            onRowEdit?.(updatedRow, originalRow);
-          }
-
+          onRowEdit?.(updatedRow, originalRow);
           return updatedRow;
         }}
         // language
@@ -267,6 +260,17 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
         slotProps={{
           toolbar: {
             showQuickFilter: filter !== undefined,
+          },
+        }}
+        // Styling
+        sx={{
+          "& .MuiDataGrid-cell--editing": {
+            border: "1px solid",
+            borderColor: (theme) =>
+              `${theme.palette.secondary.main} !important`,
+          },
+          "& .MuiDataGrid-cell:focus-within": {
+            outline: "none !important",
           },
         }}
       />

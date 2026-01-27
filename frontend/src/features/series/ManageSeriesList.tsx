@@ -14,6 +14,7 @@ import { useDeleteSeriesBulk } from "../../lib/requests/series/useDeleteSeriesBu
 import { useMergeSeriesBulk } from "../../lib/requests/series/useMergeSeriesBulk";
 import { useSeriesListSimpleQuery } from "../../lib/requests/series/useSeriesListSimpleQuery";
 import { useUpdateSeries } from "../../lib/requests/series/useUpdateSeries";
+import { normalizeSeries } from "../../utils/SeriesUtils";
 import { FormatTime } from "../../utils/TimeUtils";
 
 export const columns: GridColDef<SeriesDTO>[] = [
@@ -123,9 +124,20 @@ export const ManageSeriesList = () => {
           },
         ]}
         // editing
-        onRowEdit={(updatedSeries, _) =>
-          updateSeries({ ...updatedSeries, lastVolume: null, totalBooks: null })
-        }
+        onRowEdit={(updatedSeries, originalSeries) => {
+          const updatedJson = JSON.stringify(normalizeSeries(updatedSeries));
+          const originalJson = JSON.stringify(normalizeSeries(originalSeries));
+          if (updatedJson === originalJson) {
+            // if no changes, return
+            return;
+          }
+
+          updateSeries({
+            ...updatedSeries,
+            lastVolume: null,
+            totalBooks: null,
+          });
+        }}
       />
       <ConfirmDialog
         open={mergeSeriesDialogOpen}

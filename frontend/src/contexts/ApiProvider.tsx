@@ -17,7 +17,7 @@ import {
 import { Configuration } from "../lib/api/KapitelShelf.Api/configuration";
 import { GetMobileApiBaseUrl, IsMobileApp } from "../utils/MobileUtils";
 
-interface ApiClients {
+export interface ApiClients {
   books: BooksApi;
   series: SeriesApi;
   version: VersionApi;
