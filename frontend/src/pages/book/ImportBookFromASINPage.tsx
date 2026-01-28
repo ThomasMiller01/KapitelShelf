@@ -1,33 +1,19 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Box, Button, Link, Stack, TextField } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import FancyText from "../../components/FancyText";
-import { useApi } from "../../contexts/ApiProvider";
 import { useNotification } from "../../hooks/useNotification";
+import { useImportBookFromAsin } from "../../lib/requests/books/useImportBookFromAsin";
 import type { ASINFormValues } from "../../lib/schemas/ASINSchema";
 import { ASINSchema } from "../../lib/schemas/ASINSchema";
 
 const ImportBookFromASINPage = (): ReactElement => {
-  const { clients } = useApi();
   const { triggerNavigate, triggerError } = useNotification();
 
-  const { mutateAsync: mutateImportBookFromAsin } = useMutation({
-    mutationKey: ["import-book-from-asin"],
-    mutationFn: async (asin: string) => {
-      const { data } = await clients.books.booksImportAsinPost(asin);
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Importing book",
-      },
-    },
-  });
+  const { mutateAsync: importBookFromAsin } = useImportBookFromAsin();
 
   const methods = useForm({
     resolver: yupResolver(ASINSchema),
@@ -45,7 +31,7 @@ const ImportBookFromASINPage = (): ReactElement => {
   } = methods;
 
   const onSubmit = async (data: ASINFormValues): Promise<void> => {
-    const importResult = await mutateImportBookFromAsin(data.asin);
+    const importResult = await importBookFromAsin(data.asin);
 
     // check if the import was sucessful
     if (importResult.errors && importResult.errors.length > 0) {

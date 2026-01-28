@@ -1,32 +1,17 @@
 import { Box, Stack, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { HiddenFilter } from "../../components/base/HiddenFilter";
 import { TaskStateIcon } from "../../components/tasks/TaskStateIcon";
-import { useApi } from "../../contexts/ApiProvider";
 import TasksList from "../../features/tasks/TaskList";
 import type { TaskDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
-import { SECOND_MS } from "../../utils/TimeUtils";
+import { useTasksList } from "../../lib/requests/tasks/useTasksList";
 
 export const TasksPage = (): ReactElement => {
-  const { clients } = useApi();
-  const {
-    data: tasks,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["tasks-list"],
-    queryFn: async () => {
-      const { data } = await clients.tasks.tasksGet();
-      return data;
-    },
-    refetchInterval: 5 * SECOND_MS,
-  });
+  const { data: tasks, isLoading, isError, refetch } = useTasksList();
 
   const [filteredTasks, setFilteredTasks] = useState<TaskDTO[]>(tasks ?? []);
 

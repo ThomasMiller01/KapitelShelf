@@ -33,22 +33,32 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     private readonly IBooksLogic booksLogic = booksLogic;
 
     /// <inheritdoc/>
-    public async Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize)
+    public async Task<PagedResult<SeriesDTO>> GetSeriesAsync(int page, int pageSize, SeriesSortByDTO sortBy, SortDirectionDTO sortDir, string? filter)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
         var query = context.Series
-            .AsNoTracking();
+            .AsNoTracking()
 
-        var items = await query
             .Include(x => x.Books)
                 .ThenInclude(x => x.Author)
             .Include(x => x.Books)
                 .ThenInclude(b => b.Cover)
             .AsSingleQuery()
 
-            .OrderByDescending(x => x.UpdatedAt)
+            // apply filter if it is set
+            .FilterBySeriesNameQuery(filter)
+            .SortBySeriesNameQuery(filter);
+
+        // apply sorting, if no filter is specified
+        // or if a specific sorting is requested
+        if (filter is null || sortBy != SeriesSortByDTO.Default)
+        {
+            query = query.ApplySorting(sortBy, sortDir);
+        }
+
+        var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
 
@@ -138,6 +148,25 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     }
 
     /// <inheritdoc/>
+    public async Task<List<string>> AutocompleteAsync(string? partialSeriesName)
+    {
+        if (string.IsNullOrWhiteSpace(partialSeriesName))
+        {
+            return [];
+        }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        return await context.Series
+            .AsNoTracking()
+            .FilterBySeriesNameQuery(partialSeriesName)
+            .SortBySeriesNameQuery(partialSeriesName)
+            .Take(5)
+            .Select(x => x.Name)
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
     public async Task<PagedResult<BookDTO>> GetBooksBySeriesIdAsync(Guid seriesId, int page, int pageSize)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -197,6 +226,27 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     }
 
     /// <inheritdoc/>
+    public async Task DeleteSeriesAsync(List<Guid> seriesIdsToDelete)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var series = await context.Series
+            .Where(x => seriesIdsToDelete.Contains(x.Id))
+            .ToListAsync();
+
+        foreach (var serie in series)
+        {
+            await this.DeleteFilesAsync(serie.Id);
+
+            context.Series.Remove(serie);
+        }
+
+        await context.SaveChangesAsync();
+
+        await this.booksLogic.CleanupDatabase();
+    }
+
+    /// <inheritdoc/>
     public async Task<SeriesDTO?> UpdateSeriesAsync(Guid seriesId, SeriesDTO seriesDto)
     {
         if (seriesDto is null)
@@ -225,7 +275,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         context.Entry(series).CurrentValues.SetValues(new
         {
             seriesDto.Name,
-            updatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         });
 
         // commit
@@ -254,36 +304,40 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
     }
 
     /// <inheritdoc/>
-    public async Task MergeSeries(Guid sourceSeriesId, Guid targetSeriesId)
+    public async Task MergeSeries(Guid targetSeriesId, List<Guid> sourceSeriesIds)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
-        var sourceSeries = await context.Series
-            .Include(x => x.Books)
-            .Where(x => x.Id == sourceSeriesId)
-            .FirstOrDefaultAsync();
-
-        if (sourceSeries is null)
-        {
-            throw new ArgumentException("Unknown source series id.");
-        }
-
-        var targetSeriesExists = await context.Series.AnyAsync(x => x.Id == targetSeriesId);
-        if (!targetSeriesExists)
+        var targetSeries = await context.Series.FirstOrDefaultAsync(x => x.Id == targetSeriesId);
+        if (targetSeries is null)
         {
             throw new ArgumentException("Unknown target series id.");
         }
 
+        var sourceSeries = await context.Series
+            .Include(x => x.Books)
+            .Where(x => sourceSeriesIds.Contains(x.Id))
+            .ToListAsync();
+
+        if (sourceSeries.Count == 0)
+        {
+            throw new ArgumentException("Unknown source series ids.");
+        }
+
         // move all books to the target series
-        foreach (var book in sourceSeries.Books)
+        var sourceBooks = sourceSeries.SelectMany(x => x.Books);
+        foreach (var book in sourceBooks)
         {
             book.SeriesId = targetSeriesId;
+            book.UpdatedAt = DateTime.UtcNow;
         }
+
+        targetSeries.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
 
         // delete source series
-        await this.DeleteSeriesAsync(sourceSeriesId);
+        await this.DeleteSeriesAsync(sourceSeries.Select(x => x.Id).ToList());
     }
 
     internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)

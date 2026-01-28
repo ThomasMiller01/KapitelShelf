@@ -16,7 +16,19 @@ public interface IBooksLogic
     /// Retrieves all books.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="BookDTO"/>.</returns>
-    Task<IList<BookDTO>> GetBooksAsync();
+    [Obsolete("Use GetBooksAsync() instead", false)]
+    Task<IList<BookDTO>> GetBooksAsyncDeprecated();
+
+    /// <summary>
+    /// Retrieves all books.
+    /// </summary>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <param name="sortBy">Sort the books by this field.</param>
+    /// <param name="sortDir">Sort the books in this direction.</param>
+    /// <param name="filter">Filter the books.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="BookDTO"/>.</returns>
+    Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir, string? filter);
 
     /// <summary>
     /// Retrieves a book by its id.
@@ -41,6 +53,13 @@ public interface IBooksLogic
     /// <param name="createBookDTO">The dto containing information for the new book.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the created <see cref="BookDTO"/>; otherwise, <c>null</c> if creation failed.</returns>
     Task<BookDTO?> CreateBookAsync(CreateBookDTO createBookDTO);
+
+    /// <summary>
+    /// Delete books in bulk.
+    /// </summary>
+    /// <param name="bookIdsToDelete">The book ids to delete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteBooksAsync(List<Guid> bookIdsToDelete);
 
     /// <summary>
     /// Updates an existing book.
@@ -84,34 +103,6 @@ public interface IBooksLogic
     /// <param name="file">The file to check.</param>
     /// <returns>True if the file is already imported, otherwise false.</returns>
     Task<bool> BookFileExists(IFormFile file);
-
-    /// <summary>
-    /// Get the autocomplete result for the series.
-    /// </summary>
-    /// <param name="partialSeriesName">The partial series name.</param>
-    /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteSeriesAsync(string? partialSeriesName);
-
-    /// <summary>
-    /// Get the autocomplete result for the author.
-    /// </summary>
-    /// <param name="partialAuthor">The partial author.</param>
-    /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteAuthorAsync(string? partialAuthor);
-
-    /// <summary>
-    /// Get the autocomplete result for the category.
-    /// </summary>
-    /// <param name="partialCategoryName">The partial category name.</param>
-    /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteCategoryAsync(string? partialCategoryName);
-
-    /// <summary>
-    /// Get the autocomplete result for the tag.
-    /// </summary>
-    /// <param name="partialTagName">The partial tag name.</param>
-    /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteTagAsync(string? partialTagName);
 
     /// <summary>
     /// Cleans up the database by removing orphaned entities such as authors, series, categories, tags, locations, and files.

@@ -1,27 +1,19 @@
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { Box, Button, Chip, styled } from "@mui/material";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import { useApi } from "../../contexts/ApiProvider";
 import EditableBookDetails from "../../features/book/EditableBookDetails";
 import { useMobile } from "../../hooks/useMobile";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
-
-interface UploadCoverMutationProps {
-  bookId: string;
-  coverFile: File;
-}
-
-interface UploadFileMutationProps {
-  bookId: string;
-  bookFile: File;
-}
+import { useBookById } from "../../lib/requests/books/useBookById";
+import { useUpdateBook } from "../../lib/requests/books/useUpdateBook";
+import { useUploadCover } from "../../lib/requests/books/useUploadCover";
+import { useUploadFile } from "../../lib/requests/books/useUploadFile";
 
 const EditingBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",
@@ -33,80 +25,13 @@ const EditBookDetailPage = (): ReactElement => {
   const { bookId } = useParams<{
     bookId: string;
   }>();
-  const navigate = useNavigate();
-  const { clients } = useApi();
   const { isMobile } = useMobile();
+  const navigate = useNavigate();
 
-  const {
-    data: book,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["book-by-id", bookId],
-    queryFn: async () => {
-      if (bookId === undefined) {
-        return null;
-      }
-
-      const { data } = await clients.books.booksBookIdGet(bookId);
-      return data;
-    },
-  });
-
-  const { mutateAsync: mutateUpdateBook } = useMutation({
-    mutationKey: ["update-book-by-id"],
-    mutationFn: async (book: BookDTO) => {
-      if (bookId === undefined) {
-        return null;
-      }
-
-      await clients.books.booksBookIdPut(bookId, book);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Updating book",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
-
-  const { mutateAsync: mutateUploadCover } = useMutation({
-    mutationKey: ["upload-cover"],
-    mutationFn: async ({ bookId, coverFile }: UploadCoverMutationProps) => {
-      const { data } = await clients.books.booksBookIdCoverPost(
-        bookId,
-        coverFile
-      );
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Uploading Cover",
-      },
-    },
-  });
-
-  const { mutateAsync: mutateUploadFile } = useMutation({
-    mutationKey: ["upload-file"],
-    mutationFn: async ({ bookId, bookFile }: UploadFileMutationProps) => {
-      const { data } = await clients.books.booksBookIdFilePost(
-        bookId,
-        bookFile
-      );
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Uploading file",
-        showLoading: true,
-      },
-    },
-  });
+  const { data: book, isLoading, isError, refetch } = useBookById(bookId);
+  const { mutateAsync: updateBook } = useUpdateBook();
+  const { mutateAsync: uploadCover } = useUploadCover();
+  const { mutateAsync: uploadFile } = useUploadFile();
 
   if (isLoading) {
     return (
@@ -121,13 +46,13 @@ const EditBookDetailPage = (): ReactElement => {
   const onUpdate = async (
     book: BookDTO,
     cover: File,
-    bookFile?: File
+    bookFile?: File,
   ): Promise<void> => {
-    await mutateUpdateBook(book);
+    await updateBook({ id: bookId, ...book });
 
     if (cover !== undefined && bookId !== undefined) {
       try {
-        await mutateUploadCover({ bookId, coverFile: cover });
+        await uploadCover({ bookId, coverFile: cover });
       } catch {
         /* empty */
       }
@@ -135,7 +60,7 @@ const EditBookDetailPage = (): ReactElement => {
 
     if (bookFile !== undefined && bookId !== undefined) {
       try {
-        await mutateUploadFile({ bookId, bookFile });
+        await uploadFile({ bookId, bookFile });
       } catch {
         /* empty */
       }

@@ -29,20 +29,46 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     /// </summary>
     /// <param name="page">The page number.</param>
     /// <param name="pageSize">The page size.</param>
+    /// <param name="sortBy">Sort the series by this field.</param>
+    /// <param name="sortDir">Sort the series in this direction.</param>
+    /// <param name="filter">Filter the series.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
     public async Task<ActionResult<PagedResult<SeriesDTO>>> GetSeries(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 24)
+        [FromQuery] int pageSize = 24,
+        [FromQuery] SeriesSortByDTO sortBy = SeriesSortByDTO.Default,
+        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Desc,
+        [FromQuery] string? filter = null)
     {
         try
         {
-            var series = await this.logic.GetSeriesAsync(page, pageSize);
+            var series = await this.logic.GetSeriesAsync(page, pageSize, sortBy, sortDir, filter);
             return Ok(series);
         }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error fetching series");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Delete series in bulk.
+    /// </summary>
+    /// <param name="seriesIdsToDelete">The series ids to delete.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete]
+    public async Task<IActionResult> DeleteBulk(List<Guid> seriesIdsToDelete)
+    {
+        try
+        {
+            await this.logic.DeleteSeriesAsync(seriesIdsToDelete);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting series with Ids: {Ids}", seriesIdsToDelete);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
@@ -88,6 +114,26 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error fetching suggestions by series name: {Name}", name);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Autocomplete the book series.
+    /// </summary>
+    /// <param name="partialSeriesName">The partial series name.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("autocomplete")]
+    public async Task<ActionResult<List<string>>> AutocompleteSeries(string? partialSeriesName)
+    {
+        try
+        {
+            var autocompleteResult = await this.logic.AutocompleteAsync(partialSeriesName);
+            return Ok(autocompleteResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error getting series for autocomplete");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
@@ -173,6 +219,32 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     }
 
     /// <summary>
+    /// Merge all source series into the target series.
+    /// </summary>
+    /// <param name="seriesId">The target series id.</param>
+    /// <param name="sourceSeriesIds">The source series ids.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{seriesId}/merge")]
+    public async Task<IActionResult> MergeSeriesBulk(Guid seriesId, List<Guid> sourceSeriesIds)
+    {
+        try
+        {
+            await this.logic.MergeSeries(seriesId, sourceSeriesIds);
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error merging multiple series into series with Id: {SeriesId}", seriesId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Merge the series into the target series.
     /// </summary>
     /// <param name="seriesId">The source series id.</param>
@@ -183,7 +255,7 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
     {
         try
         {
-            await this.logic.MergeSeries(seriesId, targetSeriesId);
+            await this.logic.MergeSeries(targetSeriesId, [seriesId]);
 
             return NoContent();
         }
@@ -193,7 +265,7 @@ public class SeriesController(ILogger<SeriesController> logger, ISeriesLogic log
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error updating series with Id: {SeriesId}", seriesId);
+            this.logger.LogError(ex, "Error mergin series with Id: {SourceSeriesId} into series with Id {TargetSeriesId}", seriesId, targetSeriesId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

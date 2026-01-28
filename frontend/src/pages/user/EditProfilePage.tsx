@@ -1,16 +1,16 @@
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, Button, Chip, Container, styled } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import DeleteDialog from "../../components/base/feedback/DeleteDialog";
+import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
 import ItemAppBar from "../../components/base/ItemAppBar";
-import { useApi } from "../../contexts/ApiProvider";
 import EditableProfileDetails from "../../features/user/EditableProfileDetails";
 import { useMobile } from "../../hooks/useMobile";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useDeleteUser } from "../../lib/requests/users/useDeleteUser";
+import { useEditUser } from "../../lib/requests/users/useEditUser";
 
 const EditingBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",
@@ -19,54 +19,19 @@ const EditingBadge = styled(Chip, {
 }));
 
 export const EditProfilePage = (): ReactElement => {
-  const navigate = useNavigate();
-  const { clients } = useApi();
   const { isMobile } = useMobile();
+  const navigate = useNavigate();
+
   const { profile, clearProfile, syncProfile } = useUserProfile();
 
-  const { mutateAsync: mutateDeleteProfile } = useMutation({
-    mutationKey: ["delete-profile", profile?.id],
-    mutationFn: async () => {
-      if (profile?.id === undefined) {
-        return null;
-      }
-
-      await clients.users.usersUserIdDelete(profile.id);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Deleting profile",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
-
-  const { mutateAsync: mutateEditProfile } = useMutation({
-    mutationKey: ["edit-profile", profile?.id],
-    mutationFn: async (user: UserDTO) => {
-      if (profile?.id === undefined) {
-        return null;
-      }
-
-      await clients.users.usersUserIdPut(profile.id, user);
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Updating profile",
-        showLoading: true,
-        showSuccess: true,
-      },
-    },
-  });
+  const { mutateAsync: deleteProfile } = useDeleteUser();
+  const { mutateAsync: editProfile } = useEditUser();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const onDelete = async (): Promise<void> => {
     setDeleteOpen(false);
 
-    await mutateDeleteProfile();
+    await deleteProfile();
     clearProfile();
   };
 
@@ -75,7 +40,7 @@ export const EditProfilePage = (): ReactElement => {
       return;
     }
 
-    mutateEditProfile(user).then(() => {
+    editProfile(user).then(() => {
       syncProfile();
       navigate(-1);
     });
@@ -110,7 +75,7 @@ export const EditProfilePage = (): ReactElement => {
           }}
         />
       </Container>
-      <DeleteDialog
+      <ConfirmDialog
         open={deleteOpen}
         onCancel={() => setDeleteOpen(false)}
         onConfirm={onDelete}

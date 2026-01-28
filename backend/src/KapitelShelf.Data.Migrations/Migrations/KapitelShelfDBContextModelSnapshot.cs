@@ -473,6 +473,9 @@ namespace KapitelShelf.Data.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -480,6 +483,9 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -516,6 +522,9 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Property<Guid?>("CoverId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -539,6 +548,9 @@ namespace KapitelShelf.Data.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -554,6 +566,9 @@ namespace KapitelShelf.Data.Migrations.Migrations
 
             modelBuilder.Entity("KapitelShelf.Data.Models.BookSearchView", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("AuthorNames")
                         .IsRequired()
                         .HasColumnType("text");
@@ -565,9 +580,6 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("SearchText")
                         .IsRequired()
@@ -589,7 +601,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasIndex("Id");
+                    b.HasKey("Id");
 
                     b.ToTable((string)null);
 
@@ -617,9 +629,15 @@ namespace KapitelShelf.Data.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -864,9 +882,15 @@ namespace KapitelShelf.Data.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -1139,7 +1163,7 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.HasOne("KapitelShelf.Data.Models.AuthorModel", "Author")
                         .WithMany("Books")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("KapitelShelf.Data.Models.FileInfoModel", "Cover")
                         .WithMany()

@@ -14,15 +14,19 @@ Use this hub as the in-depth companion to the [Quickstart Guide](./quickstart.md
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | [User Profiles](./references/user-profiles.md)           | Create, switch and configure user accounts while understanding how settings sync per profile. |
 | [Library and Search](./references/library-and-search.md) | Browse your catalogue by series and locate items instantly with full-text search.             |
+| [Watchlist](./references/watchlist.md)                   | Track upcoming releases for monitored series and manage watchlist entries.                    |
+|                                                          |                                                                                               |
 | [Book Management](./references/book-management.md)       | Add books manually, import files or CSV batches, enrich metadata and remove entries safely.   |
 | [Series Management](./references/series-management.md)   | Merge duplicate series names to keep collections tidy.                                        |
-| [Watchlist](./references/watchlist.md)                   | Track upcoming releases for monitored series and manage watchlist entries.                    |
-| [Notifications](./references/notifications.md)           | Notifications about events happening in KapitelShelf.                                         |
+| [Library Management](./references/library-management.md) | Manage a potentially large number of books in your library.                                   |
+|                                                          |                                                                                               |
 | [Metadata](./references/metadata.md)                     | Import and filter metadata sources from within the app.                                       |
-| [File Handling](./references/file-handling.md)           | Download stored files from book detail pages.                                                 |
-| [Tasks](./references/tasks.md)                           | Monitor background jobs and understand task-specific attributes.                              |
 | [Cloud Storage](./references/cloud-storage.md)           | Configure providers, connect storage directories, and control sync behaviour.                 |
 | [Global Settings](./references/global-settings.md)       | Adjust instance-wide options that affect every user.                                          |
+|                                                          |                                                                                               |
+| [File Handling](./references/file-handling.md)           | Download stored files from book detail pages.                                                 |
+| [Notifications](./references/notifications.md)           | Notifications about events happening in KapitelShelf.                                         |
+| [Tasks](./references/tasks.md)                           | Monitor background jobs and understand task-specific attributes.                              |
 
 ## Additional Resources
 

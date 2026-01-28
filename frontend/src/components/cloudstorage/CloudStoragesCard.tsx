@@ -24,12 +24,15 @@ import { useMutation } from "@tanstack/react-query";
 import type { AxiosResponse, RawAxiosRequestConfig } from "axios";
 import { type ReactElement, useState } from "react";
 
-import { useApi } from "../../contexts/ApiProvider";
 import { useMobile } from "../../hooks/useMobile";
 import { useNotification } from "../../hooks/useNotification";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useConfigureCloudDirectory } from "../../lib/requests/cloudstorages/useConfigureCloudDirectory";
+import { useDeleteStorage } from "../../lib/requests/cloudstorages/useDeleteStorage";
+import { useScanStorage } from "../../lib/requests/cloudstorages/useScanStorage";
+import { useSyncStorage } from "../../lib/requests/cloudstorages/useSyncStorage";
 import { CloudTypeToString } from "../../utils/CloudStorageUtils";
-import DeleteDialog from "../base/feedback/DeleteDialog";
+import ConfirmDialog from "../base/feedback/ConfirmDialog";
 import { IconButtonWithTooltip } from "../base/IconButtonWithTooltip";
 import { Property } from "../base/Property";
 import { CloudStorageDownloadStatus } from "./CloudStorageDownloadStatus";
@@ -54,7 +57,7 @@ interface CloudStorageCardProps {
   cloudstorage: CloudStorageDTO;
   getOAuthUrl: (
     redirectUrl?: string,
-    options?: RawAxiosRequestConfig
+    options?: RawAxiosRequestConfig,
   ) => Promise<AxiosResponse<string, any>>;
   update: () => void;
 }
@@ -65,101 +68,49 @@ export const CloudStorageCard = ({
   update,
 }: CloudStorageCardProps): ReactElement => {
   const { isMobile } = useMobile();
-  const { clients } = useApi();
   const { triggerNavigate } = useNotification();
 
   const [openDirectoryDialog, setOpenDirectoryDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const { mutate: startOAuthFlow } = useMutation({
-    mutationKey: ["cloudstorage-re-oauth-flow", cloudstorage.id],
     mutationFn: async () => {
       const { data } = await getOAuthUrl(window.location.href);
       window.location.href = data;
     },
   });
 
-  const { mutate: configureDirectory } = useMutation({
-    mutationKey: ["cloudstorage-configure-directory", cloudstorage.id],
-    mutationFn: async (directory: string) => {
-      if (cloudstorage.id === undefined) {
-        return;
-      }
+  const { mutate: configureDirectory } =
+    useConfigureCloudDirectory(cloudstorage);
 
-      await clients.cloudstorages.cloudstorageStoragesStorageIdConfigureDirectoryPut(
-        cloudstorage.id,
-        directory
-      );
+  const { mutate: deleteStorage } = useDeleteStorage(update);
 
-      update();
-
-      triggerNavigate({
-        operation: `Downloading from ${CloudTypeToString(cloudstorage.type)}`,
-        itemName: directory,
-        url: "/settings/tasks",
-      });
-    },
+  const { mutate: syncStorage } = useSyncStorage(() => {
+    update();
+    triggerNavigate({
+      operation: `Started Storage Sync`,
+      itemName: CloudTypeToString(cloudstorage.type),
+      url: "/settings/tasks",
+    });
   });
 
-  const { mutate: deleteStorage } = useMutation({
-    mutationKey: ["cloudstorage-delete", cloudstorage.id],
-    mutationFn: async () => {
-      if (cloudstorage.id === undefined) {
-        return;
-      }
-
-      await clients.cloudstorages.cloudstorageStoragesStorageIdDelete(
-        cloudstorage.id
-      );
-
-      update();
-    },
-  });
-
-  const { mutate: syncStorage } = useMutation({
-    mutationKey: ["cloudstorage-sync", cloudstorage.id],
-    mutationFn: async () => {
-      if (cloudstorage.id === undefined) {
-        return;
-      }
-
-      await clients.cloudstorages.cloudstorageStoragesStorageIdSyncPut(
-        cloudstorage.id
-      );
-
-      update();
-
-      triggerNavigate({
-        operation: `Started Storage Sync`,
-        itemName: CloudTypeToString(cloudstorage.type),
-        url: "/settings/tasks",
-      });
-    },
-  });
-
-  const { mutate: scanStorage } = useMutation({
-    mutationKey: ["cloudstorage-scan", cloudstorage.id],
-    mutationFn: async () => {
-      if (cloudstorage.id === undefined) {
-        return;
-      }
-
-      await clients.cloudstorages.cloudstorageStoragesStorageIdScanPut(
-        cloudstorage.id
-      );
-
-      update();
-
-      triggerNavigate({
-        operation: `Started Storage Scan`,
-        itemName: CloudTypeToString(cloudstorage.type),
-        url: "/settings/tasks",
-      });
-    },
+  const { mutate: scanStorage } = useScanStorage(() => {
+    update();
+    triggerNavigate({
+      operation: `Started Storage Scan`,
+      itemName: CloudTypeToString(cloudstorage.type),
+      url: "/settings/tasks",
+    });
   });
 
   const onConfigureDirectory = (directory: string): void => {
     configureDirectory(directory);
+    update();
+    triggerNavigate({
+      operation: `Downloading from ${CloudTypeToString(cloudstorage.type)}`,
+      itemName: directory,
+      url: "/settings/tasks",
+    });
     setOpenDirectoryDialog(false);
   };
 
@@ -250,7 +201,10 @@ export const CloudStorageCard = ({
           >
             <DeleteIcon />
           </IconButtonWithTooltip>
-          <OptionsMenu onSyncClick={syncStorage} onScanClick={scanStorage} />
+          <OptionsMenu
+            onSyncClick={() => syncStorage(cloudstorage.id)}
+            onScanClick={() => scanStorage(cloudstorage.id)}
+          />
         </Stack>
       </Grid>
 
@@ -261,10 +215,10 @@ export const CloudStorageCard = ({
         onConfirm={onConfigureDirectory}
         cloudType={cloudstorage.type}
       />
-      <DeleteDialog
+      <ConfirmDialog
         open={openDeleteDialog}
         onCancel={() => setOpenDeleteDialog(false)}
-        onConfirm={deleteStorage}
+        onConfirm={() => deleteStorage(cloudstorage.id)}
         title="Confirm to delete this cloud storage"
         description="Are you sure you want to delete this cloud storage? This action cannot be undone."
       />

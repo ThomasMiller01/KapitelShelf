@@ -19,9 +19,20 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="logger">The logger.</param>
 /// <param name="logic">The books logic.</param>
 /// <param name="bookStorage">The book storage.</param>
+/// <param name="seriesLogic">The series logic.</param>
+/// <param name="authorsLogic">The authors logic.</param>
+/// <param name="categoriesLogic">The categories logic.</param>
+/// <param name="tagsLogic">The tagslogic.</param>
 [ApiController]
 [Route("books")]
-public class BooksController(ILogger<BooksController> logger, IBooksLogic logic, IBookStorage bookStorage) : ControllerBase
+public class BooksController(
+    ILogger<BooksController> logger,
+    IBooksLogic logic,
+    IBookStorage bookStorage,
+    ISeriesLogic seriesLogic,
+    IAuthorsLogic authorsLogic,
+    ICategoriesLogic categoriesLogic,
+    ITagsLogic tagsLogic) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
@@ -29,16 +40,54 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
 
     private readonly IBookStorage bookStorage = bookStorage;
 
+    private readonly ISeriesLogic seriesLogic = seriesLogic;
+
+    private readonly IAuthorsLogic authorsLogic = authorsLogic;
+
+    private readonly ICategoriesLogic categoriesLogic = categoriesLogic;
+
+    private readonly ITagsLogic tagsLogic = tagsLogic;
+
     /// <summary>
     /// Fetch all books.
     /// </summary>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet]
-    public async Task<ActionResult<IList<BookDTO>>> GetBooks()
+    [Obsolete("Use /books/paginated instead", false)]
+    public async Task<ActionResult<IList<BookDTO>>> GetBooksDeprecated()
     {
         try
         {
-            var books = await this.logic.GetBooksAsync();
+            var books = await this.logic.GetBooksAsyncDeprecated();
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching books");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Fetch all books.
+    /// </summary>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <param name="sortBy">Sort the books by this field.</param>
+    /// <param name="sortDir">Sort the books in this direction.</param>
+    /// <param name="filter">Filter the books.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("paginated")]
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetBooks(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 24,
+        [FromQuery] BookSortByDTO sortBy = BookSortByDTO.Default,
+        [FromQuery] SortDirectionDTO sortDir = SortDirectionDTO.Desc,
+        [FromQuery] string? filter = null)
+    {
+        try
+        {
+            var books = await this.logic.GetBooksAsync(page, pageSize, sortBy, sortDir, filter);
             return Ok(books);
         }
         catch (Exception ex)
@@ -69,6 +118,26 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error creating book with title: {Title}", createBookDto?.Title);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Delete books in bulk.
+    /// </summary>
+    /// <param name="bookIdsToDelete">The book ids to delete.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete]
+    public async Task<IActionResult> DeleteBulk(List<Guid> bookIdsToDelete)
+    {
+        try
+        {
+            await this.logic.DeleteBooksAsync(bookIdsToDelete);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting books with ids: {Ids}", bookIdsToDelete);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }
@@ -171,11 +240,12 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialSeriesName">The partial series name.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/series")]
+    [Obsolete("Use /series/autocomplete instead", false)]
     public async Task<ActionResult<List<string>>> AutocompleteSeries(string? partialSeriesName)
     {
         try
         {
-            var autocompleteResult = await this.logic.AutocompleteSeriesAsync(partialSeriesName);
+            var autocompleteResult = await this.seriesLogic.AutocompleteAsync(partialSeriesName);
             return Ok(autocompleteResult);
         }
         catch (Exception ex)
@@ -191,11 +261,12 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialAuthor">The partial author.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/author")]
+    [Obsolete("Use /authors/autocomplete instead", false)]
     public async Task<ActionResult<List<string>>> AutocompleteAuthor(string? partialAuthor)
     {
         try
         {
-            var autocompleteResult = await this.logic.AutocompleteAuthorAsync(partialAuthor);
+            var autocompleteResult = await this.authorsLogic.AutocompleteAsync(partialAuthor);
             return Ok(autocompleteResult);
         }
         catch (Exception ex)
@@ -211,11 +282,12 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialCategoryName">The partial category name.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/category")]
+    [Obsolete("Use /categories/autocomplete instead", false)]
     public async Task<ActionResult<List<string>>> AutocompleteCategory(string? partialCategoryName)
     {
         try
         {
-            var autocompleteResult = await this.logic.AutocompleteCategoryAsync(partialCategoryName);
+            var autocompleteResult = await this.categoriesLogic.AutocompleteAsync(partialCategoryName);
             return Ok(autocompleteResult);
         }
         catch (Exception ex)
@@ -231,11 +303,12 @@ public class BooksController(ILogger<BooksController> logger, IBooksLogic logic,
     /// <param name="partialTagName">The partial tag name.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/tag")]
+    [Obsolete("Use /tags/autocomplete instead", false)]
     public async Task<ActionResult<List<string>>> AutocompleteTag(string? partialTagName)
     {
         try
         {
-            var autocompleteResult = await this.logic.AutocompleteTagAsync(partialTagName);
+            var autocompleteResult = await this.tagsLogic.AutocompleteAsync(partialTagName);
             return Ok(autocompleteResult);
         }
         catch (Exception ex)

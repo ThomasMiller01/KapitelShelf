@@ -1,83 +1,28 @@
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { Box } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FancyText from "../../components/FancyText";
-import { useApi } from "../../contexts/ApiProvider";
 import EditableBookDetails from "../../features/book/EditableBookDetails";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
-
-interface UploadCoverMutationProps {
-  bookId: string;
-  coverFile: File;
-}
-
-interface UploadFileMutationProps {
-  bookId: string;
-  bookFile: File;
-}
+import { useCreateBook } from "../../lib/requests/books/useCreateBook";
+import { useUploadCover } from "../../lib/requests/books/useUploadCover";
+import { useUploadFile } from "../../lib/requests/books/useUploadFile";
 
 const CreateBookPage = (): ReactElement => {
   const navigate = useNavigate();
-  const { clients } = useApi();
 
-  const { mutateAsync: mutateCreateBook } = useMutation({
-    mutationKey: ["create-book"],
-    mutationFn: async (book: BookDTO) => {
-      const { data } = await clients.books.booksPost(book);
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Creating Book",
-      },
-    },
-  });
-
-  const { mutateAsync: mutateUploadCover } = useMutation({
-    mutationKey: ["upload-cover"],
-    mutationFn: async ({ bookId, coverFile }: UploadCoverMutationProps) => {
-      const { data } = await clients.books.booksBookIdCoverPost(
-        bookId,
-        coverFile
-      );
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Uploading Cover",
-      },
-    },
-  });
-
-  const { mutateAsync: mutateUploadFile } = useMutation({
-    mutationKey: ["upload-file"],
-    mutationFn: async ({ bookId, bookFile }: UploadFileMutationProps) => {
-      const { data } = await clients.books.booksBookIdFilePost(
-        bookId,
-        bookFile
-      );
-      return data;
-    },
-    meta: {
-      notify: {
-        enabled: true,
-        operation: "Uploading file",
-        showLoading: true,
-      },
-    },
-  });
+  const { mutateAsync: createBook } = useCreateBook();
+  const { mutateAsync: uploadCover } = useUploadCover();
+  const { mutateAsync: uploadFile } = useUploadFile();
 
   const onCreate = async (
     book: BookDTO,
     cover: File,
     bookFile?: File
   ): Promise<void> => {
-    const createdBook = await mutateCreateBook(book);
+    const createdBook = await createBook(book);
     if (
       createdBook?.id === undefined ||
       createdBook.title === undefined ||
@@ -89,11 +34,11 @@ const CreateBookPage = (): ReactElement => {
 
     // dont upload the nocover image
     if (cover.name !== "nocover.png") {
-      await mutateUploadCover({ bookId: createdBook.id, coverFile: cover });
+      await uploadCover({ bookId: createdBook.id, coverFile: cover });
     }
 
     if (bookFile !== undefined) {
-      await mutateUploadFile({ bookId: createdBook.id, bookFile });
+      await uploadFile({ bookId: createdBook.id, bookFile });
     }
 
     navigate(`/library/books/${createdBook.id}`);

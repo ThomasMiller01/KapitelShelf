@@ -29,10 +29,10 @@ public class MapperCategoriesTests
     }
 
     /// <summary>
-    /// Tests that CategoryModelToCategoryDto correctly maps all properties and ignores Books.
+    /// Tests that CategoryModelToCategoryDto maps scalar properties and sets TotalBooks.
     /// </summary>
     [Test]
-    public void CategoryModelToCategoryDto_MapsAllPropertiesCorrectly()
+    public void CategoryModelToCategoryDto_MapsAllPropertiesCorrectly_AndSetsTotalBooks()
     {
         // setup
         var model = new CategoryModel
@@ -46,8 +46,17 @@ public class MapperCategoriesTests
                     Book = new BookModel
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Book Title",
-                        Description = "Desc",
+                        Title = "Book 1",
+                        Description = "Desc 1",
+                    },
+                },
+                new BookCategoryModel
+                {
+                    Book = new BookModel
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Book 2",
+                        Description = "Desc 2",
                     },
                 },
             ],
@@ -62,6 +71,69 @@ public class MapperCategoriesTests
         {
             Assert.That(dto.Id, Is.EqualTo(model.Id));
             Assert.That(dto.Name, Is.EqualTo(model.Name));
+            Assert.That(dto.TotalBooks, Is.EqualTo(model.Books.Count));
+        });
+    }
+
+    /// <summary>
+    /// Tests that CategoryModelToCategoryDto sets TotalBooks to 0 when category has no books.
+    /// </summary>
+    [Test]
+    public void CategoryModelToCategoryDto_SetsTotalBooksToZero_WhenNoBooks()
+    {
+        // setup
+        var model = new CategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "EmptyCategory",
+            Books = [],
+        };
+
+        // execute
+        var dto = this.testee.CategoryModelToCategoryDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.TotalBooks, Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Tests that CategoryModelToCategoryDtoCore maps scalar properties and leaves TotalBooks at default.
+    /// </summary>
+    [Test]
+    public void CategoryModelToCategoryDtoCore_MapsScalars_AndDoesNotSetTotalBooks()
+    {
+        // setup
+        var model = new CategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "CoreCategory",
+            Books =
+            [
+                new BookCategoryModel
+                {
+                    Book = new BookModel
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Should be ignored",
+                        Description = "Books should not be mapped.",
+                    },
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.CategoryModelToCategoryDtoCore(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.Id, Is.EqualTo(model.Id));
+            Assert.That(dto.Name, Is.EqualTo(model.Name));
+
+            // TotalBooks is ignored on core mapping and should remain default value.
+            Assert.That(dto.TotalBooks, Is.Null);
         });
     }
 

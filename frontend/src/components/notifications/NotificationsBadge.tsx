@@ -2,7 +2,7 @@ import type { BadgeProps } from "@mui/material";
 import { Badge, styled } from "@mui/material";
 import type { ReactNode } from "react";
 
-import { useNotificationStats } from "../../hooks/useNotificationStats";
+import { useNotificationStats } from "../../lib/requests/notifications/useNotificationStats";
 
 const StyledBadge = styled(Badge)(() => ({
   "& .MuiBadge-badge": {

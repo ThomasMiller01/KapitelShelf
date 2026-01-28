@@ -1,10 +1,11 @@
 import type { ReactElement } from "react";
-import { useRoutes } from "react-router-dom";
+import { Navigate, useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../components/layout/MainLayout";
 import { SettingsLayout } from "../components/layout/SettingsLayout";
-import { useSessionStart } from "../hooks/apihooks/useSessionStart";
 import { useUserProfile } from "../hooks/useUserProfile";
+import { useSessionStart } from "../lib/requests/hooks/useSessionStart";
+import { useGlobalApiPoller } from "../lib/requests/useGlobalApiPoller";
 import BookDetailPage from "../pages/book/BookDetailPage";
 import CreateBookPage from "../pages/book/CreateBookPage";
 import EditBookDetailPage from "../pages/book/EditBookDetailPage";
@@ -12,13 +13,14 @@ import ImportBookFromASINPage from "../pages/book/ImportBookFromASINPage";
 import ImportBookPage from "../pages/book/ImportBookPage";
 import { ConfigureMobileBackendUrlPage } from "../pages/ConfigureMoibleBackendUrlPage";
 import HomePage from "../pages/HomePage";
-import BooksPage from "../pages/LibraryPage";
+import LibraryPage from "../pages/LibraryPage";
 import NotificationDetailPage from "../pages/notifications/NotificationDetailPage";
 import { NotificationsPage } from "../pages/notifications/NotificationsPage";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import EditSeriesDetailPage from "../pages/series/EditSeriesDetailPage";
 import SeriesDetailPage from "../pages/series/SeriesDetailPage";
 import { CloudStoragesPage } from "../pages/settings/CloudStoragesPage";
+import { ManageLibraryPage } from "../pages/settings/ManageLibrary";
 import { SettingsPage } from "../pages/settings/SettingsPage";
 import { TasksPage } from "../pages/settings/TasksPage";
 import { CreateProfilePage } from "../pages/user/CreateProfilePage";
@@ -33,6 +35,9 @@ import {
 
 const AppRoutes = (): ReactElement | null => {
   const { profile } = useUserProfile();
+
+  // singletons
+  useGlobalApiPoller();
   useSessionStart();
 
   return useRoutes(
@@ -48,7 +53,7 @@ const AppRoutes = (): ReactElement | null => {
               { index: true, element: <HomePage /> },
               { path: "profile", element: <ViewProfilePage /> },
               { path: "profile/edit", element: <EditProfilePage /> },
-              { path: "library", element: <BooksPage /> },
+              { path: "library", element: <LibraryPage /> },
               {
                 path: "library/series/:seriesId",
                 element: <SeriesDetailPage />,
@@ -91,6 +96,19 @@ const AppRoutes = (): ReactElement | null => {
                     path: "cloudstorages",
                     element: <CloudStoragesPage />,
                   },
+                  {
+                    path: "manage-library",
+                    children: [
+                      {
+                        index: true,
+                        element: <Navigate to="series" />,
+                      },
+                      {
+                        path: ":section",
+                        element: <ManageLibraryPage />,
+                      },
+                    ],
+                  },
                 ],
               },
             ],
@@ -99,7 +117,7 @@ const AppRoutes = (): ReactElement | null => {
             path: "/create-user-profile",
             element: <CreateProfilePage />,
           },
-        ]
+        ],
   );
 };
 

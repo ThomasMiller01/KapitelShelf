@@ -52,7 +52,8 @@ public class BooksLogic(
     private readonly INotificationsLogic notifications = notifications;
 
     /// <inheritdoc/>
-    public async Task<IList<BookDTO>> GetBooksAsync()
+    [Obsolete("Use GetBooksAsync() instead", false)]
+    public async Task<IList<BookDTO>> GetBooksAsyncDeprecated()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -74,6 +75,61 @@ public class BooksLogic(
 
             .Select(x => this.mapper.BookModelToBookDto(x))
             .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<PagedResult<BookDTO>> GetBooksAsync(int page, int pageSize, BookSortByDTO sortBy, SortDirectionDTO sortDir, string? filter)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var query = context.BookSearchView
+            .AsNoTracking()
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Series)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Cover)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.Location)
+             .Include(x => x.BookModel)
+                .ThenInclude(x => x.Categories)
+                    .ThenInclude(x => x.Category)
+             .Include(x => x.BookModel)
+                .ThenInclude(x => x.Tags)
+                    .ThenInclude(x => x.Tag)
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            .AsSingleQuery()
+
+            .FilterBySearchtermQuery(filter)
+            .SortBySearchtermQuery(filter);
+
+        // apply sorting, if no filter is specified
+        // or if a specific sorting is requested
+        if (filter is null || sortBy != BookSortByDTO.Default)
+        {
+            query = query.ApplySorting(sortBy, sortDir);
+        }
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.BookModelToBookDtoNullable(x.BookModel))
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
+
+        return new PagedResult<BookDTO>
+        {
+            Items = items
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .ToList(),
+            TotalCount = totalCount,
+        };
     }
 
     /// <inheritdoc/>
@@ -324,6 +380,7 @@ public class BooksLogic(
             bookDto.PageNumber,
             bookDto.ReleaseDate,
             bookDto.SeriesNumber,
+            UpdatedAt = DateTime.UtcNow,
         });
 
         // upsert Author (N:1)
@@ -334,14 +391,14 @@ public class BooksLogic(
         else
         {
             var author = await context.Authors
-                   .SingleOrDefaultAsync(x =>
-                        x.FirstName == bookDto.Author.FirstName
-                        && x.LastName == bookDto.Author.LastName)
-                    ?? new AuthorModel
-                    {
-                        FirstName = bookDto.Author.FirstName,
-                        LastName = bookDto.Author.LastName,
-                    };
+                .SingleOrDefaultAsync(x =>
+                    x.FirstName == bookDto.Author.FirstName
+                    && x.LastName == bookDto.Author.LastName)
+                ?? new AuthorModel
+                {
+                    FirstName = bookDto.Author.FirstName,
+                    LastName = bookDto.Author.LastName,
+                };
 
             book.Author = author;
         }
@@ -459,6 +516,27 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
+    public async Task DeleteBooksAsync(List<Guid> bookIdsToDelete)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var books = await context.Books
+            .Where(x => bookIdsToDelete.Contains(x.Id))
+            .ToListAsync();
+
+        foreach (var book in books)
+        {
+            this.DeleteFiles(book.Id);
+
+            context.Books.Remove(book);
+        }
+
+        await context.SaveChangesAsync();
+
+        await this.CleanupDatabase();
+    }
+
+    /// <inheritdoc/>
     public async Task<ImportResultDTO> ImportBookAsync(IFormFile file, Guid? userId = null)
     {
         if (this.bookParserManager.IsBulkFile(file))
@@ -527,82 +605,6 @@ public class BooksLogic(
             .Include(x => x.Location)
                 .ThenInclude(x => x!.FileInfo)
             .AnyAsync(x => x.Location!.FileInfo!.Sha256 == checksum);
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<string>> AutocompleteSeriesAsync(string? partialSeriesName)
-    {
-        if (string.IsNullOrWhiteSpace(partialSeriesName))
-        {
-            return [];
-        }
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.Series
-            .AsNoTracking()
-            .FilterBySeriesNameQuery(partialSeriesName)
-            .SortBySeriesNameQuery(partialSeriesName)
-            .Take(5)
-            .Select(x => x.Name)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<string>> AutocompleteAuthorAsync(string? partialAuthor)
-    {
-        if (string.IsNullOrWhiteSpace(partialAuthor))
-        {
-            return [];
-        }
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.Authors
-            .AsNoTracking()
-            .FilterByAuthorQuery(partialAuthor)
-            .SortByAuthorQuery(partialAuthor)
-            .Take(5)
-            .Select(x => x.FirstName + " " + x.LastName)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<string>> AutocompleteCategoryAsync(string? partialCategoryName)
-    {
-        if (string.IsNullOrWhiteSpace(partialCategoryName))
-        {
-            return [];
-        }
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.Categories
-            .AsNoTracking()
-            .FilterByCategoryQuery(partialCategoryName)
-            .SortByCategoryQuery(partialCategoryName)
-            .Take(5)
-            .Select(x => x.Name)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<string>> AutocompleteTagAsync(string? partialTagName)
-    {
-        if (string.IsNullOrWhiteSpace(partialTagName))
-        {
-            return [];
-        }
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.Tags
-            .AsNoTracking()
-            .FilterByTagQuery(partialTagName)
-            .SortByTagQuery(partialTagName)
-            .Take(5)
-            .Select(x => x.Name)
-            .ToListAsync();
     }
 
     /// <inheritdoc/>

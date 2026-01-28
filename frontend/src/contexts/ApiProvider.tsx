@@ -1,7 +1,9 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
 import {
+  AuthorsApi,
   BooksApi,
+  CategoriesApi,
   CloudStorageApi,
   HooksApi,
   MetadataApi,
@@ -9,6 +11,7 @@ import {
   OneDriveApi,
   SeriesApi,
   SettingsApi,
+  TagsApi,
   TasksApi,
   UsersApi,
   VersionApi,
@@ -17,7 +20,7 @@ import {
 import { Configuration } from "../lib/api/KapitelShelf.Api/configuration";
 import { GetMobileApiBaseUrl, IsMobileApp } from "../utils/MobileUtils";
 
-interface ApiClients {
+export interface ApiClients {
   books: BooksApi;
   series: SeriesApi;
   version: VersionApi;
@@ -30,6 +33,9 @@ interface ApiClients {
   watchlist: WatchlistApi;
   notifications: NotificationsApi;
   hooks: HooksApi;
+  authors: AuthorsApi;
+  categories: CategoriesApi;
+  tags: TagsApi;
 }
 
 interface ApiContextData {
@@ -74,6 +80,9 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
       watchlist: new WatchlistApi(config),
       notifications: new NotificationsApi(config),
       hooks: new HooksApi(config),
+      authors: new AuthorsApi(config),
+      categories: new CategoriesApi(config),
+      tags: new TagsApi(config),
     };
   }, [basePath]);
 

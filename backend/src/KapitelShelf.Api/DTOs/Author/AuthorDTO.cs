@@ -23,4 +23,9 @@ public class AuthorDTO
     /// Gets or sets the last name.
     /// </summary>
     public string LastName { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the total number of books.
+    /// </summary>
+    public int? TotalBooks { get; set; }
 }

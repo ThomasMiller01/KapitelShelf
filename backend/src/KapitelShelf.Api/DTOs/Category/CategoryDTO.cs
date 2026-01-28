@@ -18,4 +18,9 @@ public class CategoryDTO
     /// Gets or sets the name.
     /// </summary>
     public string Name { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the total number of books.
+    /// </summary>
+    public int? TotalBooks { get; set; }
 }

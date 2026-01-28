@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
@@ -101,39 +102,113 @@ public class BooksLogicTests
     }
 
     /// <summary>
-    /// Tests GetBooksAsync returns books.
+    /// Tests GetBooksAsync returns paged results and correct total count.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task GetBooksAsync_ReturnsBooks()
+    public async Task GetBooksAsync_ReturnsPagedResult()
     {
         // Setup
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1".Unique(),
-        };
-        var book = new BookModel
-        {
-            Id = Guid.NewGuid(),
-            Title = "Book1".Unique(),
-            Description = "Description",
-            PageNumber = 7,
-            SeriesId = series.Id,
+            Name = "Series_GetBooks".Unique(),
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
             context.Series.Add(series);
-            context.Books.Add(book);
-            context.SaveChanges();
+
+            var token = Guid.NewGuid().ToString("N");
+
+            for (var i = 1; i <= 15; i++)
+            {
+                context.Books.Add(new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = $"Book_{i:000}_{token}",
+                    Description = "Description",
+                    Series = series,
+                    PageNumber = i,
+                    UpdatedAt = DateTime.UtcNow,
+                });
+            }
+
+            await context.SaveChangesAsync();
         }
 
         // Execute
-        var result = await this.testee.GetBooksAsync();
+        var result = await this.testee.GetBooksAsync(
+            page: 2,
+            pageSize: 10,
+            sortBy: BookSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: null);
 
         // Assert
-        Assert.That(result, Has.Count.GreaterThanOrEqualTo(1));
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items, Has.Count.EqualTo(10));
+        });
+    }
+
+    /// <summary>
+    /// Tests GetBooksAsync applies filter and returns only matching results.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetBooksAsync_AppliesFilter()
+    {
+        // Setup
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_Filter".Unique(),
+        };
+
+        var matchToken = $"Match_{Guid.NewGuid():N}";
+        var otherToken = $"Other_{Guid.NewGuid():N}";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+
+            context.Books.Add(new BookModel
+            {
+                Id = Guid.NewGuid(),
+                Title = $"My {matchToken} Book",
+                Description = "Description",
+                Series = series,
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            context.Books.Add(new BookModel
+            {
+                Id = Guid.NewGuid(),
+                Title = $"My {otherToken} Book",
+                Description = "Description",
+                Series = series,
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetBooksAsync(
+            page: 1,
+            pageSize: 10,
+            sortBy: BookSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: matchToken);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items, Has.Count.GreaterThanOrEqualTo(1));
+        });
     }
 
     /// <summary>
@@ -1329,6 +1404,334 @@ public class BooksLogicTests
     }
 
     /// <summary>
+    /// Tests DeleteBooksAsync deletes all requested books and their files.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_DeletesAllRequestedBooks_AndDeletesFiles()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries".Unique(),
+        };
+
+        var book1Id = Guid.NewGuid();
+        var book2Id = Guid.NewGuid();
+
+        var book1 = new BookModel
+        {
+            Id = book1Id,
+            Title = "DeleteBooks_Book1".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var book2 = new BookModel
+        {
+            Id = book2Id,
+            Title = "DeleteBooks_Book2".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.AddRange(book1, book2);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([book1Id, book2Id]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(book1Id);
+        this.bookStorage.Received(1).DeleteDirectory(book2Id);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == book1Id), Is.False);
+                Assert.That(context.Books.Any(x => x.Id == book2Id), Is.False);
+            });
+
+            // our series should be removed by CleanupDatabase because it became orphaned
+            Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync ignores unknown ids and still deletes existing books.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_IgnoresUnknownIds_AndDeletesExisting()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_UnknownIds".Unique(),
+        };
+
+        var existingBookId = Guid.NewGuid();
+        var unknownId = Guid.NewGuid();
+
+        var existingBook = new BookModel
+        {
+            Id = existingBookId,
+            Title = "DeleteBooks_Existing".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(existingBook);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([existingBookId, unknownId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(existingBookId);
+        this.bookStorage.DidNotReceive().DeleteDirectory(unknownId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == existingBookId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync with an empty list does not delete any of the books created in this test.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_DoesNotDelete_WhenListIsEmpty()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_Empty".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "DeleteBooks_Keep".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([]);
+
+        // Assert
+        this.bookStorage.DidNotReceiveWithAnyArgs().DeleteDirectory(default);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == bookId), Is.True);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.True);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync is idempotent: calling it twice does not throw and the book remains deleted.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_IsIdempotent()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_Idempotent".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "DeleteBooks_Idempotent".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([bookId]);
+        await this.testee.DeleteBooksAsync([bookId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(bookId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == bookId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync only deletes the requested books and keeps others.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_DoesNotDeleteOtherBooks()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_Preserve".Unique(),
+        };
+
+        var toDeleteId = Guid.NewGuid();
+        var toKeepId = Guid.NewGuid();
+
+        var toDelete = new BookModel
+        {
+            Id = toDeleteId,
+            Title = "DeleteBooks_Delete".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var toKeep = new BookModel
+        {
+            Id = toKeepId,
+            Title = "DeleteBooks_Keep".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.AddRange(toDelete, toKeep);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([toDeleteId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(toDeleteId);
+        this.bookStorage.DidNotReceive().DeleteDirectory(toKeepId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == toDeleteId), Is.False);
+                Assert.That(context.Books.Any(x => x.Id == toKeepId), Is.True);
+            });
+
+            // series must still exist because one book remains
+            Assert.That(context.Series.Any(x => x.Id == seriesId), Is.True);
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync handles duplicate ids in input gracefully (file delete called once).
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_HandlesDuplicateIdsInInput()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_DuplicateIds".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "DeleteBooks_DuplicateIds".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([bookId, bookId, bookId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(bookId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == bookId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
     /// Tests single book import works and returns correct DTO.
     /// </summary>
     /// <returns>A task.</returns>
@@ -1656,365 +2059,6 @@ public class BooksLogicTests
 
         // Assert
         this.bookStorage.Received(1).DeleteDirectory(id);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteSeriesAsync returns empty when input is null/whitespace.
-    /// </summary>
-    /// <param name="input">The input.</param>
-    /// <returns>A task.</returns>
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase("   ")]
-    public async Task AutocompleteSeriesAsync_ReturnsEmpty_WhenInputIsNullOrWhitespace(string? input)
-    {
-        // execute
-        var result = await this.testee.AutocompleteSeriesAsync(input);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteSeriesAsync returns matching series and respects the 10 item limit.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteSeriesAsync_ReturnsMatches_AndLimitsTo10()
-    {
-        // setup
-        var prefix = "AutoSeries".Unique();
-
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            // 12 matching
-            for (int i = 0; i < 12; i++)
-            {
-                context.Series.Add(new SeriesModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"{prefix} {i}".Unique(),
-                });
-            }
-
-            // 3 non-matching
-            for (int i = 0; i < 3; i++)
-            {
-                context.Series.Add(new SeriesModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"OtherSeries {i}".Unique(),
-                });
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteSeriesAsync(prefix);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(5));
-        Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteSeriesAsync returns empty when nothing matches.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteSeriesAsync_ReturnsEmpty_WhenNoMatches()
-    {
-        // setup
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            context.Series.Add(new SeriesModel
-            {
-                Id = Guid.NewGuid(),
-                Name = "NoMatchSeries".Unique(),
-            });
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteSeriesAsync("definitely-does-not-match".Unique());
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteAuthorAsync returns empty when input is null/whitespace.
-    /// </summary>
-    /// <param name="input">The input.</param>
-    /// <returns>A task.</returns>
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase("   ")]
-    public async Task AutocompleteAuthorAsync_ReturnsEmpty_WhenInputIsNullOrWhitespace(string? input)
-    {
-        // execute
-        var result = await this.testee.AutocompleteAuthorAsync(input);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteAuthorAsync returns matching authors and respects the 10 item limit.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteAuthorAsync_ReturnsMatches_AndLimitsTo10()
-    {
-        // setup
-        var token = "AutoAuthor".Unique();
-
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            // 12 matching authors
-            for (int i = 0; i < 12; i++)
-            {
-                context.Authors.Add(new AuthorModel
-                {
-                    Id = Guid.NewGuid(),
-                    FirstName = token,
-                    LastName = $"Last{i}".Unique(),
-                });
-            }
-
-            // some non-matching
-            for (int i = 0; i < 3; i++)
-            {
-                context.Authors.Add(new AuthorModel
-                {
-                    Id = Guid.NewGuid(),
-                    FirstName = "Other".Unique(),
-                    LastName = "Person".Unique(),
-                });
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteAuthorAsync(token);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(5));
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.All(x => x.Contains(token, StringComparison.OrdinalIgnoreCase)), Is.True);
-            Assert.That(result.All(x => x.Contains(' ')), Is.True);
-        });
-    }
-
-    /// <summary>
-    /// Tests AutocompleteAuthorAsync returns empty when nothing matches.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteAuthorAsync_ReturnsEmpty_WhenNoMatches()
-    {
-        // setup
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            context.Authors.Add(new AuthorModel
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "NoMatch".Unique(),
-                LastName = "Author".Unique(),
-            });
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteAuthorAsync("definitely-does-not-match".Unique());
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteCategoryAsync returns empty when input is null/whitespace.
-    /// </summary>
-    /// <param name="input">The input.</param>
-    /// <returns>A task.</returns>
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase("   ")]
-    public async Task AutocompleteCategoryAsync_ReturnsEmpty_WhenInputIsNullOrWhitespace(string? input)
-    {
-        // execute
-        var result = await this.testee.AutocompleteCategoryAsync(input);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteCategoryAsync returns matching categories and respects the 10 item limit.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteCategoryAsync_ReturnsMatches_AndLimitsTo10()
-    {
-        // setup
-        var prefix = "AutoCategory".Unique();
-
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            // 12 matching
-            for (int i = 0; i < 12; i++)
-            {
-                context.Categories.Add(new CategoryModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"{prefix} {i}".Unique(),
-                });
-            }
-
-            // 3 non-matching
-            for (int i = 0; i < 3; i++)
-            {
-                context.Categories.Add(new CategoryModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"OtherCategory {i}".Unique(),
-                });
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteCategoryAsync(prefix);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(5));
-        Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteCategoryAsync returns empty when nothing matches.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteCategoryAsync_ReturnsEmpty_WhenNoMatches()
-    {
-        // setup
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            context.Categories.Add(new CategoryModel
-            {
-                Id = Guid.NewGuid(),
-                Name = "NoMatchCategory".Unique(),
-            });
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteCategoryAsync("definitely-does-not-match".Unique());
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteTagAsync returns empty when input is null/whitespace.
-    /// </summary>
-    /// <param name="input">The input.</param>
-    /// <returns>A task.</returns>
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase("   ")]
-    public async Task AutocompleteTagAsync_ReturnsEmpty_WhenInputIsNullOrWhitespace(string? input)
-    {
-        // execute
-        var result = await this.testee.AutocompleteTagAsync(input);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteTagAsync returns matching tags and respects the 10 item limit.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteTagAsync_ReturnsMatches_AndLimitsTo10()
-    {
-        // setup
-        var prefix = "AutoTag".Unique();
-
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            // 12 matching
-            for (int i = 0; i < 12; i++)
-            {
-                context.Tags.Add(new TagModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"{prefix} {i}".Unique(),
-                });
-            }
-
-            // 3 non-matching
-            for (int i = 0; i < 3; i++)
-            {
-                context.Tags.Add(new TagModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"OtherTag {i}".Unique(),
-                });
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteTagAsync(prefix);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(5));
-        Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteTagAsync returns empty when nothing matches.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteTagAsync_ReturnsEmpty_WhenNoMatches()
-    {
-        // setup
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            context.Tags.Add(new TagModel
-            {
-                Id = Guid.NewGuid(),
-                Name = "NoMatchTag".Unique(),
-            });
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteTagAsync("definitely-does-not-match".Unique());
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
     }
 
     /// <summary>

@@ -137,7 +137,7 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .HasOne(x => x.Author)
             .WithMany(x => x.Books)
             .HasForeignKey(x => x.AuthorId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<BookModel>()
             .HasOne(x => x.Series)
@@ -154,6 +154,9 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
             .WithMany()
             .HasForeignKey(x => x.Id)
             .HasPrincipalKey(x => x.Id);
+
+        modelBuilder.Entity<BookSearchView>()
+            .HasKey(x => x.Id);
 
         // Categories
         modelBuilder.Entity<BookCategoryModel>()

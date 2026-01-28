@@ -1,5 +1,4 @@
 import { Grid } from "@mui/material";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useNavigate } from "react-router-dom";
@@ -8,10 +7,8 @@ import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import BookCard from "../../components/BookCard";
-import { useApi } from "../../contexts/ApiProvider";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
-
-const PAGE_SIZE = 24;
+import { useSeriesBookList } from "../../lib/requests/series/useSeriesBookList";
 
 interface SeriesBooksListProps {
   seriesId: string;
@@ -19,26 +16,9 @@ interface SeriesBooksListProps {
 
 const SeriesBooksList = ({ seriesId }: SeriesBooksListProps): ReactElement => {
   const navigate = useNavigate();
-  const { clients } = useApi();
 
   const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
-    useInfiniteQuery({
-      queryKey: ["series-books-list", seriesId],
-      queryFn: async ({ pageParam = 1 }) => {
-        const { data } = await clients.series.seriesSeriesIdBooksGet(
-          seriesId,
-          pageParam,
-          PAGE_SIZE
-        );
-        return data;
-      },
-      initialPageParam: 1,
-      getNextPageParam: (lastPage, pages) => {
-        const total = lastPage.totalCount ?? 0;
-        const loaded = pages.flatMap((p) => p.items).length;
-        return loaded < total ? pages.length + 1 : undefined;
-      },
-    });
+    useSeriesBookList(seriesId);
 
   if (isLoading) {
     return <LoadingCard useLogo delayed itemName="Books" showRandomFacts />;

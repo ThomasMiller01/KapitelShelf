@@ -2,11 +2,10 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DownloadingIcon from "@mui/icons-material/Downloading";
 import type { SvgIconOwnProps } from "@mui/material";
 import { Tooltip } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 
-import { useApi } from "../../contexts/ApiProvider";
+import { useEffect, useState } from "react";
 import type { CloudStorageDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useStorageDownloadStatus } from "../../lib/requests/cloudstorages/useStorageDownloadStatus";
 
 interface CloudStorageDownloadStatusProps extends SvgIconOwnProps {
   cloudstorage: CloudStorageDTO;
@@ -15,7 +14,6 @@ interface CloudStorageDownloadStatusProps extends SvgIconOwnProps {
 export const CloudStorageDownloadStatus: React.FC<
   CloudStorageDownloadStatusProps
 > = ({ cloudstorage }) => {
-  const { clients } = useApi();
   const [downloadStatus, setDownloadStatus] = useState(
     cloudstorage.isDownloaded
   );
@@ -25,24 +23,19 @@ export const CloudStorageDownloadStatus: React.FC<
     setDownloadStatus(cloudstorage.isDownloaded);
   }, [cloudstorage.isDownloaded]);
 
-  useQuery({
-    queryKey: ["cloudstorage-update-download-status", cloudstorage.id],
-    queryFn: async () => {
-      if (cloudstorage.id === undefined) {
-        return null;
-      }
-      const { data } =
-        await clients.cloudstorages.cloudstorageStoragesStorageIdGet(
-          cloudstorage.id
-        );
+  const { data: isDownloaded } = useStorageDownloadStatus(
+    cloudstorage.id,
+    cloudstorage.cloudDirectory !== null && !downloadStatus
+  );
 
-      setDownloadStatus(data.isDownloaded);
+  // sync isDownloaded with parent, when the change directory button is clicked e.g.
+  useEffect(() => {
+    if (isDownloaded === undefined || isDownloaded === null) {
+      return;
+    }
 
-      return null;
-    },
-    enabled: cloudstorage.cloudDirectory !== null && !downloadStatus, // start/stop polling
-    refetchInterval: 5000,
-  });
+    setDownloadStatus(isDownloaded);
+  }, [isDownloaded]);
 
   // download could not be started yet, first the cloud directory has to be set
   if (cloudstorage.cloudDirectory === null) {

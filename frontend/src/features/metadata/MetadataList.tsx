@@ -5,9 +5,9 @@ import { v4 as uuidv4 } from "uuid";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
 import MetadataCard from "../../components/MetadataCard";
-import { useMetadataSource } from "../../hooks/useMetadataSource";
 import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { MetadataSources } from "../../lib/api/KapitelShelf.Api/api";
+import { useMetadataSource } from "../../lib/requests/metadata/useMetadataSource";
 
 interface MetadataListItem extends MetadataDTO {
   source: MetadataSources;

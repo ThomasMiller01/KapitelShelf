@@ -6,25 +6,15 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { NavLink } from "react-router-dom";
 
-import { useApi } from "../../contexts/ApiProvider";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
-import { SECOND_MS } from "../../utils/TimeUtils";
+import { useActiveTasks } from "../../lib/requests/tasks/useActiveTasks";
 import { TaskStateIcon } from "./TaskStateIcon";
 
 export const TasksMenuItem = (): ReactElement => {
-  const { clients } = useApi();
-  const { data: activeTasks } = useQuery({
-    queryKey: ["tasks-list-active"],
-    queryFn: async () => {
-      const { data } = await clients.tasks.tasksGet();
-      return data.filter((x) => x.state === TaskState.NUMBER_1);
-    },
-    refetchInterval: 5 * SECOND_MS,
-  });
+  const { data: activeTasks } = useActiveTasks();
 
   return (
     <MenuItem component={NavLink} to="/settings/tasks" sx={{ my: "6px" }}>

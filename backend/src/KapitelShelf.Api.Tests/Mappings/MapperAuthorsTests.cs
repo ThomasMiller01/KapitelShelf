@@ -29,10 +29,10 @@ public class MapperAuthorsTests
     }
 
     /// <summary>
-    /// Tests that AuthorModelToAuthorDto correctly maps all properties.
+    /// Tests that AuthorModelToAuthorDto maps scalar properties and sets TotalBooks.
     /// </summary>
     [Test]
-    public void AuthorModelToAuthorDto_MapsAllPropertiesCorrectly()
+    public void AuthorModelToAuthorDto_MapsAllPropertiesCorrectly_AndSetsTotalBooks()
     {
         // setup
         var model = new AuthorModel
@@ -45,8 +45,14 @@ public class MapperAuthorsTests
                 new()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Test Book",
+                    Title = "Test Book 1",
                     Description = "A book to test mapping.",
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Test Book 2",
+                    Description = "Another book to test mapping.",
                 },
             ],
         };
@@ -61,6 +67,69 @@ public class MapperAuthorsTests
             Assert.That(dto.Id, Is.EqualTo(model.Id));
             Assert.That(dto.FirstName, Is.EqualTo(model.FirstName));
             Assert.That(dto.LastName, Is.EqualTo(model.LastName));
+            Assert.That(dto.TotalBooks, Is.EqualTo(model.Books.Count));
+        });
+    }
+
+    /// <summary>
+    /// Tests that AuthorModelToAuthorDto sets TotalBooks to 0 when author has no books.
+    /// </summary>
+    [Test]
+    public void AuthorModelToAuthorDto_SetsTotalBooksToZero_WhenNoBooks()
+    {
+        // setup
+        var model = new AuthorModel
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "No",
+            LastName = "Books",
+            Books = [],
+        };
+
+        // execute
+        var dto = this.testee.AuthorModelToAuthorDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.TotalBooks, Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Tests that AuthorModelToAuthorDtoCore maps scalar properties and leaves TotalBooks at default.
+    /// </summary>
+    [Test]
+    public void AuthorModelToAuthorDtoCore_MapsScalars_AndDoesNotSetTotalBooks()
+    {
+        // setup
+        var model = new AuthorModel
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Core",
+            LastName = "Mapping",
+            Books =
+            [
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Should be ignored",
+                    Description = "Books should not be mapped.",
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.AuthorModelToAuthorDtoCore(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.Id, Is.EqualTo(model.Id));
+            Assert.That(dto.FirstName, Is.EqualTo(model.FirstName));
+            Assert.That(dto.LastName, Is.EqualTo(model.LastName));
+
+            // TotalBooks is ignored on core mapping and should remain default value.
+            Assert.That(dto.TotalBooks, Is.Null);
         });
     }
 

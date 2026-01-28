@@ -4,7 +4,6 @@ import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { Box, Button, Divider, Grid, Stack, TextField } from "@mui/material";
 import { DateField } from "@mui/x-date-pickers/DateField";
-import { useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
@@ -24,6 +23,7 @@ import {
   type SeriesDTO,
   type TagDTO,
 } from "../../lib/api/KapitelShelf.Api/api";
+import { useProxyCover } from "../../lib/requests/books/useProxyCover";
 import type { BookFormValues } from "../../lib/schemas/BookSchema";
 import { BookSchema } from "../../lib/schemas/BookSchema";
 import { ImageTypes } from "../../utils/FileTypesUtils";
@@ -87,7 +87,7 @@ const EditableBookDetails = ({
       UrlToFile(bookFileUrl).then((file) => {
         const renamedFile = RenameFile(
           file,
-          initial?.location?.fileInfo?.fileName ?? "book"
+          initial?.location?.fileInfo?.fileName ?? "book",
         );
         setBookFile(renamedFile);
       });
@@ -151,13 +151,7 @@ const EditableBookDetails = ({
     action.onClick(book, coverFile, bookFile);
   };
 
-  const { mutateAsync: mutateProxyCover } = useMutation({
-    mutationKey: ["proxy-cover"],
-    mutationFn: async (coverUrl: string) =>
-      clients.metadata.metadataProxyCoverGet(coverUrl, {
-        responseType: "blob",
-      }),
-  });
+  const { mutateAsync: getProxyCover } = useProxyCover();
 
   // import metadata
   const [importMetadataDialogOpen, setImportMetadataDialogOpen] =
@@ -202,7 +196,7 @@ const EditableBookDetails = ({
     // cover
     if (metadata.coverUrl) {
       // use proxy-cover endpoint to prevent CORS issues from google
-      mutateProxyCover(metadata.coverUrl).then((response) => {
+      getProxyCover(metadata.coverUrl).then((response) => {
         updateCoverFromFile(response.data);
       });
     } else {
@@ -319,7 +313,7 @@ const EditableBookDetails = ({
                       variant="filled"
                       fetchSuggestions={async (value) => {
                         const { data } =
-                          await clients.books.booksAutocompleteAuthorGet(value);
+                          await clients.authors.authorsAutocompleteGet(value);
                         return data;
                       }}
                     />
@@ -341,9 +335,7 @@ const EditableBookDetails = ({
                         helperText={errors.series?.message}
                         fetchSuggestions={async (value) => {
                           const { data } =
-                            await clients.books.booksAutocompleteSeriesGet(
-                              value
-                            );
+                            await clients.series.seriesAutocompleteGet(value);
                           return data;
                         }}
                       />

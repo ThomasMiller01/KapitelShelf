@@ -1,9 +1,8 @@
 import { Box } from "@mui/material";
 import { RichTreeView } from "@mui/x-tree-view";
-import { useMutation } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useState } from "react";
 
-import { useApi } from "../../../contexts/ApiProvider";
+import { useListCloudDirectory } from "../../../lib/requests/cloudstorages/useListCloudDirectory";
 import LoadingCard from "../../base/feedback/LoadingCard";
 
 interface Directory {
@@ -22,7 +21,6 @@ export const ConfigureOneDrive: React.FC<ConfigureOneDriveProps> = ({
   storageId,
   onDirectorySelect,
 }) => {
-  const { clients } = useApi();
   const [items, setItems] = useState<Directory[]>([]);
 
   const getItemId = useCallback((item: Directory) => item.id, []);
@@ -40,21 +38,7 @@ export const ConfigureOneDrive: React.FC<ConfigureOneDriveProps> = ({
     []
   );
 
-  const { mutateAsync: getDirectories } = useMutation({
-    mutationKey: ["cloudstorage-onedrive-list-directories", storageId],
-    mutationFn: async (path: string) => {
-      if (storageId === undefined) {
-        return;
-      }
-
-      const { data } =
-        await clients.cloudstorages.cloudstorageStoragesStorageIdListDirectoriesGet(
-          storageId,
-          path
-        );
-      return data;
-    },
-  });
+  const { mutateAsync: getDirectories } = useListCloudDirectory(storageId);
 
   const updateNodeChildrenById = useCallback(
     (

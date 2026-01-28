@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
@@ -6,30 +5,10 @@ import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCar
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { ScrollableList } from "../../components/base/ScrollableList";
 import BookCard from "../../components/BookCard";
-import { useApi } from "../../contexts/ApiProvider";
-import { useUserProfile } from "../../hooks/useUserProfile";
-
-const PAGE_SIZE = 24;
+import { useLastVisitedBooks } from "../../lib/requests/books/useLastVisitedBooks";
 
 const LastVisitedBooksList = (): ReactElement => {
-  const { clients } = useApi();
-  const { profile } = useUserProfile();
-
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["last-visited-books", profile?.id],
-    queryFn: async () => {
-      if (profile?.id === undefined) {
-        return null;
-      }
-
-      const { data } = await clients.users.usersUserIdLastvisitedbooksGet(
-        profile?.id,
-        1,
-        PAGE_SIZE
-      );
-      return data;
-    },
-  });
+  const { data, isLoading, isError, refetch } = useLastVisitedBooks();
 
   if (isLoading) {
     return <LoadingCard delayed itemName="Last Visited Books" small />;
