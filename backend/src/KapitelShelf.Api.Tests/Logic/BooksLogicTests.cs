@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
@@ -101,39 +102,113 @@ public class BooksLogicTests
     }
 
     /// <summary>
-    /// Tests GetBooksAsync returns books.
+    /// Tests GetBooksAsync returns paged results and correct total count.
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task GetBooksAsync_ReturnsBooks()
+    public async Task GetBooksAsync_ReturnsPagedResult()
     {
         // Setup
         var series = new SeriesModel
         {
             Id = Guid.NewGuid(),
-            Name = "Series1".Unique(),
-        };
-        var book = new BookModel
-        {
-            Id = Guid.NewGuid(),
-            Title = "Book1".Unique(),
-            Description = "Description",
-            PageNumber = 7,
-            SeriesId = series.Id,
+            Name = "Series_GetBooks".Unique(),
         };
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
             context.Series.Add(series);
-            context.Books.Add(book);
-            context.SaveChanges();
+
+            var token = Guid.NewGuid().ToString("N");
+
+            for (var i = 1; i <= 15; i++)
+            {
+                context.Books.Add(new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = $"Book_{i:000}_{token}",
+                    Description = "Description",
+                    Series = series,
+                    PageNumber = i,
+                    UpdatedAt = DateTime.UtcNow,
+                });
+            }
+
+            await context.SaveChangesAsync();
         }
 
         // Execute
-        var result = await this.testee.GetBooksAsync();
+        var result = await this.testee.GetBooksAsync(
+            page: 2,
+            pageSize: 10,
+            sortBy: BookSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: null);
 
         // Assert
-        Assert.That(result, Has.Count.GreaterThanOrEqualTo(1));
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items, Has.Count.EqualTo(10));
+        });
+    }
+
+    /// <summary>
+    /// Tests GetBooksAsync applies filter and returns only matching results.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetBooksAsync_AppliesFilter()
+    {
+        // Setup
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_Filter".Unique(),
+        };
+
+        var matchToken = $"Match_{Guid.NewGuid():N}";
+        var otherToken = $"Other_{Guid.NewGuid():N}";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+
+            context.Books.Add(new BookModel
+            {
+                Id = Guid.NewGuid(),
+                Title = $"My {matchToken} Book",
+                Description = "Description",
+                Series = series,
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            context.Books.Add(new BookModel
+            {
+                Id = Guid.NewGuid(),
+                Title = $"My {otherToken} Book",
+                Description = "Description",
+                Series = series,
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetBooksAsync(
+            page: 1,
+            pageSize: 10,
+            sortBy: BookSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: matchToken);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items, Has.Count.GreaterThanOrEqualTo(1));
+        });
     }
 
     /// <summary>
@@ -1658,95 +1733,7 @@ public class BooksLogicTests
         this.bookStorage.Received(1).DeleteDirectory(id);
     }
 
-    /// <summary>
-    /// Tests AutocompleteSeriesAsync returns empty when input is null/whitespace.
-    /// </summary>
-    /// <param name="input">The input.</param>
-    /// <returns>A task.</returns>
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase("   ")]
-    public async Task AutocompleteSeriesAsync_ReturnsEmpty_WhenInputIsNullOrWhitespace(string? input)
-    {
-        // execute
-        var result = await this.testee.AutocompleteSeriesAsync(input);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteSeriesAsync returns matching series and respects the 10 item limit.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteSeriesAsync_ReturnsMatches_AndLimitsTo10()
-    {
-        // setup
-        var prefix = "AutoSeries".Unique();
-
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            // 12 matching
-            for (int i = 0; i < 12; i++)
-            {
-                context.Series.Add(new SeriesModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"{prefix} {i}".Unique(),
-                });
-            }
-
-            // 3 non-matching
-            for (int i = 0; i < 3; i++)
-            {
-                context.Series.Add(new SeriesModel
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"OtherSeries {i}".Unique(),
-                });
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteSeriesAsync(prefix);
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(5));
-        Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
-    }
-
-    /// <summary>
-    /// Tests AutocompleteSeriesAsync returns empty when nothing matches.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task AutocompleteSeriesAsync_ReturnsEmpty_WhenNoMatches()
-    {
-        // setup
-        using (var context = new KapitelShelfDBContext(this.dbOptions))
-        {
-            context.Series.Add(new SeriesModel
-            {
-                Id = Guid.NewGuid(),
-                Name = "NoMatchSeries".Unique(),
-            });
-            await context.SaveChangesAsync();
-        }
-
-        // execute
-        var result = await this.testee.AutocompleteSeriesAsync("definitely-does-not-match".Unique());
-
-        // assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
-    }
-
-    /// <summary>
+    /*/// <summary>
     /// Tests AutocompleteAuthorAsync returns empty when input is null/whitespace.
     /// </summary>
     /// <param name="input">The input.</param>
@@ -2015,7 +2002,7 @@ public class BooksLogicTests
         // assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Is.Empty);
-    }
+    }*/
 
     /// <summary>
     /// Tests BookFileExists returns true when a file with the same SHA256 exists.

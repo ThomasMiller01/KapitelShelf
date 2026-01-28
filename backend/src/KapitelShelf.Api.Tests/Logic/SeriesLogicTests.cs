@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
@@ -87,25 +88,89 @@ public class SeriesLogicTests
     public async Task GetSeriesAsync_ReturnsPagedResult()
     {
         // Setup
-        var series = new SeriesModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Series1".Unique(),
-            UpdatedAt = DateTime.UtcNow,
-            Books = [],
-        };
+        var suffix = Guid.NewGuid().ToString("N");
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
-            context.Series.Add(series);
+            for (var i = 1; i <= 15; i++)
+            {
+                context.Series.Add(new SeriesModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"Series_{i:000}_{suffix}",
+                    UpdatedAt = DateTime.UtcNow,
+                    Books = [],
+                });
+            }
+
             await context.SaveChangesAsync();
         }
 
         // Execute
-        var result = await this.testee.GetSeriesAsync(1, 10);
+        var result = await this.testee.GetSeriesAsync(
+            page: 1,
+            pageSize: 10,
+            sortBy: SeriesSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.TotalCount, Is.Not.Zero);
+            Assert.That(result.Items, Has.Count.EqualTo(10));
+        });
+    }
+
+    /// <summary>
+    /// Tests GetSeriesAsync applies filter and returns only matching results.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task GetSeriesAsync_AppliesFilter()
+    {
+        // Setup
+        var matchName = $"Match_{Guid.NewGuid():N}";
+        var otherName = $"Other_{Guid.NewGuid():N}";
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = Guid.NewGuid(),
+                Name = matchName,
+                UpdatedAt = DateTime.UtcNow,
+                Books = [],
+            });
+
+            context.Series.Add(new SeriesModel
+            {
+                Id = Guid.NewGuid(),
+                Name = otherName,
+                UpdatedAt = DateTime.UtcNow,
+                Books = [],
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetSeriesAsync(
+            page: 1,
+            pageSize: 10,
+            sortBy: SeriesSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: matchName);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.TotalCount, Is.EqualTo(1));
+            Assert.That(result.Items, Has.Count.EqualTo(1));
+            Assert.That(result.Items[0].Name, Is.EqualTo(matchName));
+        });
     }
 
     /// <summary>
@@ -417,6 +482,94 @@ public class SeriesLogicTests
     }
 
     /// <summary>
+    /// Tests AutocompleteSeriesAsync returns empty when input is null/whitespace.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <returns>A task.</returns>
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public async Task AutocompleteSeriesAsync_ReturnsEmpty_WhenInputIsNullOrWhitespace(string? input)
+    {
+        // execute
+        var result = await this.testee.AutocompleteAsync(input);
+
+        // assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests AutocompleteSeriesAsync returns matching series and respects the 10 item limit.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AutocompleteSeriesAsync_ReturnsMatches_AndLimitsTo10()
+    {
+        // setup
+        var prefix = "AutoSeries".Unique();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            // 12 matching
+            for (int i = 0; i < 12; i++)
+            {
+                context.Series.Add(new SeriesModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"{prefix} {i}".Unique(),
+                });
+            }
+
+            // 3 non-matching
+            for (int i = 0; i < 3; i++)
+            {
+                context.Series.Add(new SeriesModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"OtherSeries {i}".Unique(),
+                });
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        // execute
+        var result = await this.testee.AutocompleteAsync(prefix);
+
+        // assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Has.Count.EqualTo(5));
+        Assert.That(result.All(x => x.Contains(prefix, StringComparison.OrdinalIgnoreCase)), Is.True);
+    }
+
+    /// <summary>
+    /// Tests AutocompleteSeriesAsync returns empty when nothing matches.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AutocompleteSeriesAsync_ReturnsEmpty_WhenNoMatches()
+    {
+        // setup
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = Guid.NewGuid(),
+                Name = "NoMatchSeries".Unique(),
+            });
+            await context.SaveChangesAsync();
+        }
+
+        // execute
+        var result = await this.testee.AutocompleteAsync("definitely-does-not-match".Unique());
+
+        // assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Is.Empty);
+    }
+
+    /// <summary>
     /// Tests MergeSeries moves all books from source to target and deletes source.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
@@ -452,7 +605,7 @@ public class SeriesLogicTests
         }
 
         // Execute
-        await this.testee.MergeSeries(sourceId, targetId);
+        await this.testee.MergeSeries(targetId, [sourceId]);
 
         // Assert
         using (var context = new KapitelShelfDBContext(this.dbOptions))
@@ -491,7 +644,7 @@ public class SeriesLogicTests
             context.SaveChanges();
         }
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.MergeSeries(unknownSource, targetId));
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.MergeSeries(targetId, [unknownSource]));
         Assert.That(ex!.Message, Does.Contain("Unknown source series id"));
     }
 
@@ -514,7 +667,7 @@ public class SeriesLogicTests
             context.SaveChanges();
         }
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.MergeSeries(sourceId, unknownTarget));
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.MergeSeries(unknownTarget, [sourceId]));
         Assert.That(ex!.Message, Does.Contain("Unknown target series id"));
     }
 
