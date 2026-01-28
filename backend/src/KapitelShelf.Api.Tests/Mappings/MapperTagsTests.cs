@@ -29,17 +29,37 @@ public class MapperTagsTests
     }
 
     /// <summary>
-    /// Tests that TagModelToTagDto maps all fields correctly and ignores Books.
+    /// Tests that TagModelToTagDto maps scalar properties and sets TotalBooks.
     /// </summary>
     [Test]
-    public void TagModelToTagDto_MapsAllPropertiesCorrectly()
+    public void TagModelToTagDto_MapsAllPropertiesCorrectly_AndSetsTotalBooks()
     {
         // setup
         var model = new TagModel
         {
             Id = Guid.NewGuid(),
             Name = "Fantasy",
-            Books = [],
+            Books =
+            [
+                new BookTagModel
+                {
+                    Book = new BookModel
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Book 1",
+                        Description = "Desc 1",
+                    },
+                },
+                new BookTagModel
+                {
+                    Book = new BookModel
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Book 2",
+                        Description = "Desc 2",
+                    },
+                },
+            ],
         };
 
         // execute
@@ -51,6 +71,69 @@ public class MapperTagsTests
         {
             Assert.That(dto.Id, Is.EqualTo(model.Id));
             Assert.That(dto.Name, Is.EqualTo(model.Name));
+            Assert.That(dto.TotalBooks, Is.EqualTo(model.Books.Count));
+        });
+    }
+
+    /// <summary>
+    /// Tests that TagModelToTagDto sets TotalBooks to 0 when tag has no books.
+    /// </summary>
+    [Test]
+    public void TagModelToTagDto_SetsTotalBooksToZero_WhenNoBooks()
+    {
+        // setup
+        var model = new TagModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "EmptyTag",
+            Books = [],
+        };
+
+        // execute
+        var dto = this.testee.TagModelToTagDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.TotalBooks, Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Tests that TagModelToTagDtoCore maps scalar properties and leaves TotalBooks at default.
+    /// </summary>
+    [Test]
+    public void TagModelToTagDtoCore_MapsScalars_AndDoesNotSetTotalBooks()
+    {
+        // setup
+        var model = new TagModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "CoreTag",
+            Books =
+            [
+                new BookTagModel
+                {
+                    Book = new BookModel
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Should be ignored",
+                        Description = "Books should not be mapped.",
+                    },
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.TagModelToTagDtoCore(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.Id, Is.EqualTo(model.Id));
+            Assert.That(dto.Name, Is.EqualTo(model.Name));
+
+            // TotalBooks is ignored on core mapping and should remain default value.
+            Assert.That(dto.TotalBooks, Is.Null);
         });
     }
 

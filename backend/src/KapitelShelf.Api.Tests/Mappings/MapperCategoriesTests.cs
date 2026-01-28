@@ -111,15 +111,15 @@ public class MapperCategoriesTests
             Books =
             [
                 new BookCategoryModel
-            {
-                Book = new BookModel
                 {
-                    Id = Guid.NewGuid(),
-                    Title = "Should be ignored",
-                    Description = "Books should not be mapped.",
+                    Book = new BookModel
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Should be ignored",
+                        Description = "Books should not be mapped.",
+                    },
                 },
-            },
-        ],
+            ],
         };
 
         // execute
