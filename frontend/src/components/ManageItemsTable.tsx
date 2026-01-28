@@ -39,6 +39,15 @@ import { toTitleCase } from "../utils/TextUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";
 import ConfirmDialog from "./base/feedback/ConfirmDialog";
 
+declare module "@mui/x-data-grid" {
+  interface ToolbarPropsOverrides {
+    selected: string[];
+    itemName?: string;
+    deleteAction?: (selectedItemIds: string[]) => void;
+    additionalActions?: AdditionalAction[];
+  }
+}
+
 const StyledQuickFilter = styled(QuickFilter)({
   marginLeft: "auto",
 });
@@ -146,16 +155,6 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
     [filter],
   );
 
-  const CustomToolbar = ({ ...props }) => (
-    <ManageItemsToolbar
-      selected={selected}
-      itemName={itemName}
-      deleteAction={deleteAction}
-      additionalActions={additionalActions}
-      {...props}
-    />
-  );
-
   return (
     <Box>
       <DataGrid
@@ -258,10 +257,14 @@ export const ManageItemsTable: React.FC<ManageItemsTableProps> = ({
           paginationRowsPerPage: `${toTitleCase(itemName) ?? "Row"}s per page`,
         }}
         // Toolbar
-        slots={{ toolbar: CustomToolbar }}
+        slots={{ toolbar: ManageItemsToolbar }}
         showToolbar
         slotProps={{
           toolbar: {
+            selected,
+            itemName,
+            deleteAction,
+            additionalActions,
             showQuickFilter: filter !== undefined,
           },
         }}
@@ -312,7 +315,7 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
 
           {/* Filter */}
           {showQuickFilter && (
-            <StyledQuickFilter expanded>
+            <StyledQuickFilter expanded debounceMs={600}>
               <QuickFilterControl
                 render={({ ref, ...other }) => (
                   <TextField
