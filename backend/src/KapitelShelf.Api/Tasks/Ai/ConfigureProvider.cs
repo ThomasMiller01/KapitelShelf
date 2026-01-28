@@ -1,4 +1,4 @@
-﻿// <copyright file="CleanupDatabase.cs" company="KapitelShelf">
+﻿// <copyright file="ConfigureProvider.cs" company="KapitelShelf">
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
@@ -6,21 +6,29 @@ using KapitelShelf.Api.DTOs.Tasks;
 using KapitelShelf.Api.Logic.Interfaces;
 using Quartz;
 
-namespace KapitelShelf.Api.Tasks.Maintenance;
+namespace KapitelShelf.Api.Tasks.Ai;
 
 /// <summary>
-/// Removes all orphanes database entires as well as associated files.
+/// Configures the currently selected ai provider.
 /// </summary>
-public class CleanupDatabase(
+public class ConfigureProvider(
     ITaskRuntimeDataStore dataStore,
     ILogger<TaskBase> logger,
     INotificationsLogic notifications,
-    IBooksLogic logic) : TaskBase(dataStore, logger, notifications)
+    IAiManager aiManager) : TaskBase(dataStore, logger, notifications)
 {
-    private readonly IBooksLogic logic = logic;
+    private readonly IAiManager aiManager = aiManager;
 
     /// <inheritdoc/>
-    public override async Task ExecuteTask(IJobExecutionContext context) => await this.logic.CleanupDatabase();
+    public override async Task ExecuteTask(IJobExecutionContext context)
+    {
+        var progress = new Progress<int>(p =>
+        {
+            this.DataStore.SetProgress(JobKey(context), p);
+        });
+
+        await this.aiManager.ConfigureCurrentProvider(progress);
+    }
 
     /// <inheritdoc/>
     public override async Task Kill() => await Task.CompletedTask;
@@ -35,13 +43,12 @@ public class CleanupDatabase(
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
-        var internalTask = new InternalTask<CleanupDatabase>
+        var internalTask = new InternalTask<ConfigureProvider>
         {
-            Title = "Cleanup Database",
-            Category = "Maintenance",
-            Description = "Removes all orphanes database entries as well as associated files.",
-            ShouldRecover = true,
-            Cronjob = "0 */10 * ? * *", // every 10 minutes
+            Title = "Configure Provider",
+            Category = "Ai",
+            Description = "Configures the currently selected Ai provider",
+            StartNow = true,
         };
 
         var job = internalTask.JobDetail

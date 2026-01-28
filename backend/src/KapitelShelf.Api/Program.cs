@@ -45,6 +45,8 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 // Add services to the container.
 builder.Services.AddControllers();
 
+builder.Services.AddHttpClient();
+
 // swagger
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
@@ -102,6 +104,7 @@ builder.Services.AddSingleton<IHooksLogic, HooksLogic>();
 builder.Services.AddSingleton<IAuthorsLogic, AuthorsLogic>();
 builder.Services.AddSingleton<ICategoriesLogic, CategoriesLogic>();
 builder.Services.AddSingleton<ITagsLogic, TagsLogic>();
+builder.Services.AddSingleton<IAiManager, AiManager>();
 
 builder.Services.AddSingleton<IBookStorage, BookStorage>();
 builder.Services.AddSingleton<ICloudStorage, CloudStorage>();

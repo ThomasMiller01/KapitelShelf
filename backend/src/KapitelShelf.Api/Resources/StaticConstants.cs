@@ -80,6 +80,26 @@ namespace KapitelShelf.Api.Resources
         public static readonly string DynamicSettingCloudStorageExperimentalBisync = "cloudstorage.rclone.experimental-bisync";
 
         /// <summary>
+        /// Dynamic setting ai provider.
+        /// </summary>
+        public static readonly string DynamicSettingAiProvider = "ai.provider";
+
+        /// <summary>
+        /// Dynamic setting ai provider configured.
+        /// </summary>
+        public static readonly string DynamicSettingAiProviderConfigured = "ai.provider.configured";
+
+        /// <summary>
+        /// Dynamic setting ai ollama url.
+        /// </summary>
+        public static readonly string DynamicSettingAiOllamaUrl = "ai.ollama.url";
+
+        /// <summary>
+        /// Dynamic setting ai ollama model.
+        /// </summary>
+        public static readonly string DynamicSettingAiOllamaModel = "ai.ollama.model";
+
+        /// <summary>
         /// List of locations that support series watchlist.
         /// </summary>
         public static readonly List<LocationTypeDTO> LocationsSupportSeriesWatchlist = [

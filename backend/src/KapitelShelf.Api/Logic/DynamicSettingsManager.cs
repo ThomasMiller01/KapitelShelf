@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
+using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
@@ -28,7 +29,14 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     public async Task InitializeOnStartup()
     {
 #pragma warning disable IDE0022 // Use expression body for method
+        // cloudstorage
         await this.AddIfNotExists(StaticConstants.DynamicSettingCloudStorageExperimentalBisync, false);
+
+        // ai
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiProvider, AiProvider.None.ToString());
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiProviderConfigured, false);
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaUrl, "http://host.docker.internal:11434");
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaModel, "llama3.1:8b");
 #pragma warning restore IDE0022 // Use expression body for method
     }
 
@@ -49,6 +57,31 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         return this.mapper.SettingsModelToSettingsDto<T>(setting);
     }
 
+    /// <inheritdoc/>
+    public async Task<SettingsDTO<T>> SetAsync<T>(string key, T value)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var setting = await context.Settings
+            .FirstOrDefaultAsync(x => x.Key == key);
+
+        if (setting == null)
+        {
+            throw new KeyNotFoundException($"Setting with key '{key}' not found");
+        }
+
+        if (!ValidateValue(setting, value?.ToString()))
+        {
+            throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
+        }
+
+        setting.Value = value?.ToString() ?? throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
+
+        await context.SaveChangesAsync();
+
+        return this.mapper.SettingsModelToSettingsDto<T>(setting);
+    }
+
     /// <summary>
     /// Map a C# type to a database setting value type.
     /// </summary>
@@ -63,6 +96,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         return value switch
         {
             bool => SettingsValueType.TBoolean,
+            string => SettingsValueType.TString,
             _ => throw new InvalidOperationException("Invalid value type."),
         };
     }
@@ -83,6 +117,8 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
             case SettingsValueType.TBoolean:
                 var result = bool.Parse(setting.Value);
                 return (T)(object)result;
+            case SettingsValueType.TString:
+                return (T)(object)setting.Value;
             default:
                 throw new InvalidOperationException("Invalid value type.");
         }
@@ -106,6 +142,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         return setting.Type switch
         {
             SettingsValueType.TBoolean => bool.TryParse(value, out _),
+            SettingsValueType.TString => value is not null,
             _ => false,
         };
     }

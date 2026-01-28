@@ -24,4 +24,13 @@ public interface IDynamicSettingsManager
     /// <param name="key">The setting key.</param>
     /// <returns>The setting value.</returns>
     Task<SettingsDTO<T>> GetAsync<T>(string key);
+
+    /// <summary>
+    /// Get the value for a setting by its key.
+    /// </summary>
+    /// <typeparam name="T">The setting value type.</typeparam>
+    /// <param name="key">The setting key.</param>
+    /// <param name="value">The setting value.</param>
+    /// <returns>The new setting value.</returns>
+    Task<SettingsDTO<T>> SetAsync<T>(string key, T value);
 }
