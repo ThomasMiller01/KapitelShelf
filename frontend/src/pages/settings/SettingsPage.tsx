@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { type ReactElement } from "react";
 
+import { AiSettings } from "../../features/settings/AiSettingsFeature";
 import { CloudStorageSettings } from "../../features/settings/CloudStorageSettingsFeature";
 import { MobileSettings } from "../../features/settings/MobileSettingsFeature";
 import { useSettingsList } from "../../lib/requests/settings/useSettingsList";
@@ -14,6 +15,7 @@ export const SettingsPage = (): ReactElement => {
       <Typography variant="h5">Settings</Typography>
       {IsMobileApp() && <MobileSettings />}
       <CloudStorageSettings settings={settings ?? []} />
+      <AiSettings settings={settings ?? []} />
     </Box>
   );
 };

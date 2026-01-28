@@ -95,15 +95,11 @@ public class SettingsLogic(
 
     private async Task SettingUpdateSideEffectsAsync(SettingsDTO<object> setting)
     {
-        // reset ai provider configuration
-        if (setting.Key == StaticConstants.DynamicSettingAiProvider)
-        {
-            await this.settingsManager.SetAsync(StaticConstants.DynamicSettingAiProviderConfigured, false);
-        }
-
         // trigger ai provider configuration
         if (this.aiConfigureProviderSideEffects.Contains(setting.Key))
         {
+            await this.settingsManager.SetAsync(StaticConstants.DynamicSettingAiProviderConfigured, false);
+
             var scheduler = await this.scheduleFactory.GetScheduler();
             await ConfigureProvider.Schedule(scheduler);
         }

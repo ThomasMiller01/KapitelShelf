@@ -6,8 +6,10 @@ import React from "react";
 import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
 import { useUpdateSetting } from "../../lib/requests/settings/useUpdateSetting";
 import { BooleanSetting } from "./BooleanSetting";
+import { EnumSetting } from "./EnumSetting";
+import { StringSetting } from "./StringSetting";
 
-type SettingType = "boolean";
+type SettingType = "boolean" | "enum" | "string";
 
 interface SettingItemProps {
   setting: ObjectSettingsDTO | undefined;
@@ -15,6 +17,12 @@ interface SettingItemProps {
   label: ReactNode;
   description?: string;
   details?: ReactNode;
+
+  // enum-only props
+  options?: Array<{ value: string; label: ReactNode }>;
+
+  // string-only props
+  placeholder?: string;
 }
 
 export const SettingItem: React.FC<SettingItemProps> = ({
@@ -34,7 +42,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
       direction={{ xs: "column", md: "row" }}
       alignItems={{ xs: "start", md: "center" }}
       spacing={{ xs: 1, md: 1.5 }}
-      sx={{ my: "5px" }}
+      sx={{ my: "10px" }}
     >
       <SpecificSettingItem
         setting={setting}
@@ -63,6 +71,12 @@ const SpecificSettingItem: React.FC<SpecificItemProps> = ({
   switch (type) {
     case "boolean":
       return <BooleanSetting {...props} />;
+
+    case "enum":
+      return <EnumSetting {...props} />;
+
+    case "string":
+      return <StringSetting {...props} />;
 
     default:
       return <></>;

@@ -3,15 +3,15 @@ import { Alert, Divider, Paper, Stack, Typography } from "@mui/material";
 import { SettingItem } from "../../components/settings/SettingItem";
 import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
 
-interface RCloneSettingsProps {
+interface CloudStorageSettingsProps {
   settings: ObjectSettingsDTO[];
 }
 
-export const CloudStorageSettings: React.FC<RCloneSettingsProps> = ({
+export const CloudStorageSettings: React.FC<CloudStorageSettingsProps> = ({
   settings,
 }) => {
   const experimentalBisync = settings.find(
-    (x) => x.key === "cloudstorage.rclone.experimental-bisync"
+    (x) => x.key === "cloudstorage.rclone.experimental-bisync",
   );
 
   return (
