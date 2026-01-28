@@ -315,7 +315,7 @@ const ManageItemsToolbar: React.FC<ManageItemsToolbarProps> = ({
 
           {/* Filter */}
           {showQuickFilter && (
-            <StyledQuickFilter expanded debounceMs={600}>
+            <StyledQuickFilter expanded debounceMs={400}>
               <QuickFilterControl
                 render={({ ref, ...other }) => (
                   <TextField
