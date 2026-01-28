@@ -1404,6 +1404,334 @@ public class BooksLogicTests
     }
 
     /// <summary>
+    /// Tests DeleteBooksAsync deletes all requested books and their files.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_DeletesAllRequestedBooks_AndDeletesFiles()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries".Unique(),
+        };
+
+        var book1Id = Guid.NewGuid();
+        var book2Id = Guid.NewGuid();
+
+        var book1 = new BookModel
+        {
+            Id = book1Id,
+            Title = "DeleteBooks_Book1".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var book2 = new BookModel
+        {
+            Id = book2Id,
+            Title = "DeleteBooks_Book2".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.AddRange(book1, book2);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([book1Id, book2Id]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(book1Id);
+        this.bookStorage.Received(1).DeleteDirectory(book2Id);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == book1Id), Is.False);
+                Assert.That(context.Books.Any(x => x.Id == book2Id), Is.False);
+            });
+
+            // our series should be removed by CleanupDatabase because it became orphaned
+            Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync ignores unknown ids and still deletes existing books.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_IgnoresUnknownIds_AndDeletesExisting()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_UnknownIds".Unique(),
+        };
+
+        var existingBookId = Guid.NewGuid();
+        var unknownId = Guid.NewGuid();
+
+        var existingBook = new BookModel
+        {
+            Id = existingBookId,
+            Title = "DeleteBooks_Existing".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(existingBook);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([existingBookId, unknownId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(existingBookId);
+        this.bookStorage.DidNotReceive().DeleteDirectory(unknownId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == existingBookId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync with an empty list does not delete any of the books created in this test.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_DoesNotDelete_WhenListIsEmpty()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_Empty".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "DeleteBooks_Keep".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([]);
+
+        // Assert
+        this.bookStorage.DidNotReceiveWithAnyArgs().DeleteDirectory(default);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == bookId), Is.True);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.True);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync is idempotent: calling it twice does not throw and the book remains deleted.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_IsIdempotent()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_Idempotent".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "DeleteBooks_Idempotent".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([bookId]);
+        await this.testee.DeleteBooksAsync([bookId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(bookId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == bookId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync only deletes the requested books and keeps others.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_DoesNotDeleteOtherBooks()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_Preserve".Unique(),
+        };
+
+        var toDeleteId = Guid.NewGuid();
+        var toKeepId = Guid.NewGuid();
+
+        var toDelete = new BookModel
+        {
+            Id = toDeleteId,
+            Title = "DeleteBooks_Delete".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var toKeep = new BookModel
+        {
+            Id = toKeepId,
+            Title = "DeleteBooks_Keep".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.AddRange(toDelete, toKeep);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([toDeleteId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(toDeleteId);
+        this.bookStorage.DidNotReceive().DeleteDirectory(toKeepId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == toDeleteId), Is.False);
+                Assert.That(context.Books.Any(x => x.Id == toKeepId), Is.True);
+            });
+
+            // series must still exist because one book remains
+            Assert.That(context.Series.Any(x => x.Id == seriesId), Is.True);
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteBooksAsync handles duplicate ids in input gracefully (file delete called once).
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteBooksAsync_HandlesDuplicateIdsInInput()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteBooksSeries_DuplicateIds".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "DeleteBooks_DuplicateIds".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        await this.testee.DeleteBooksAsync([bookId, bookId, bookId]);
+
+        // Assert
+        this.bookStorage.Received(1).DeleteDirectory(bookId);
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Any(x => x.Id == bookId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
     /// Tests single book import works and returns correct DTO.
     /// </summary>
     /// <returns>A task.</returns>
