@@ -1,4 +1,5 @@
 import { Alert, Box, Stack, Typography } from "@mui/material";
+import { SiOllama } from "react-icons/si";
 
 import { SettingItem } from "../../components/settings/SettingItem";
 import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
@@ -13,7 +14,10 @@ export const OllamaSetting: React.FC<OllamaSettingProps> = ({ settings }) => {
 
   return (
     <Box sx={{ mt: 3, pl: 2 }}>
-      <Typography variant="h6">Ollama</Typography>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <SiOllama fontSize="1.4rem" />
+        <Typography variant="h6">Ollama</Typography>
+      </Stack>
       <SettingItem
         setting={url}
         type="string"
