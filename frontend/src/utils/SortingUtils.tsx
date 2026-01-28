@@ -5,6 +5,7 @@ import {
   CategorySortByDTO,
   SeriesSortByDTO,
   SortDirectionDTO,
+  TagSortByDTO,
 } from "../lib/api/KapitelShelf.Api";
 
 export const ToBookSortByDTO = (value: string | null | undefined) => {
@@ -81,6 +82,20 @@ export const ToCategoriesSortByDTO = (value: string | null | undefined) => {
     case "default":
     default:
       return CategorySortByDTO.NUMBER_0;
+  }
+};
+
+export const ToTagsSortByDTO = (value: string | null | undefined) => {
+  switch (value) {
+    case "name":
+      return TagSortByDTO.NUMBER_1;
+
+    case "totalBooks":
+      return TagSortByDTO.NUMBER_2;
+
+    case "default":
+    default:
+      return TagSortByDTO.NUMBER_0;
   }
 };
 

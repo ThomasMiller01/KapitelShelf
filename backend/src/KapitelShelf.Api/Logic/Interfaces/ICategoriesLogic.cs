@@ -42,7 +42,7 @@ public interface ICategoriesLogic
     /// </summary>
     /// <param name="categoryId">The id of the category to update.</param>
     /// <param name="categoryDto">The updated category dto.</param>
-    /// <returns>A <see cref="Task{AuthorDTO}"/> representing the result of the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task{CategoryDTO}"/> representing the result of the asynchronous operation.</returns>
     Task<CategoryDTO?> UpdateCategoryAsync(Guid categoryId, CategoryDTO categoryDto);
 
     /// <summary>

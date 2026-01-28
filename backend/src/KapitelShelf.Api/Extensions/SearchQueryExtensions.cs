@@ -309,8 +309,13 @@ public static class SearchQueryExtensions
     /// <param name="query">The query.</param>
     /// <param name="name">The tag name.</param>
     /// <returns>The filtered query.</returns>
-    public static IQueryable<TagModel> FilterByTagQuery(this IQueryable<TagModel> query, string name)
+    public static IQueryable<TagModel> FilterByTagQuery(this IQueryable<TagModel> query, string? name)
     {
+        if (name is null)
+        {
+            return query;
+        }
+
         return query.Where(x =>
 
                 // full-text search
@@ -329,8 +334,13 @@ public static class SearchQueryExtensions
     /// <param name="query">The query.</param>
     /// <param name="name">The tag name.</param>
     /// <returns>The sorted query.</returns>
-    public static IQueryable<TagModel> SortByTagQuery(this IQueryable<TagModel> query, string name)
+    public static IQueryable<TagModel> SortByTagQuery(this IQueryable<TagModel> query, string? name)
     {
+        if (name is null)
+        {
+            return query;
+        }
+
         return query.OrderByDescending(x =>
 
                 // full-text search

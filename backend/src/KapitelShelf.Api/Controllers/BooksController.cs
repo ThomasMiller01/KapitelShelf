@@ -22,6 +22,7 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="seriesLogic">The series logic.</param>
 /// <param name="authorsLogic">The authors logic.</param>
 /// <param name="categoriesLogic">The categories logic.</param>
+/// <param name="tagsLogic">The tagslogic.</param>
 [ApiController]
 [Route("books")]
 public class BooksController(
@@ -30,7 +31,8 @@ public class BooksController(
     IBookStorage bookStorage,
     ISeriesLogic seriesLogic,
     IAuthorsLogic authorsLogic,
-    ICategoriesLogic categoriesLogic) : ControllerBase
+    ICategoriesLogic categoriesLogic,
+    ITagsLogic tagsLogic) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
@@ -43,6 +45,8 @@ public class BooksController(
     private readonly IAuthorsLogic authorsLogic = authorsLogic;
 
     private readonly ICategoriesLogic categoriesLogic = categoriesLogic;
+
+    private readonly ITagsLogic tagsLogic = tagsLogic;
 
     /// <summary>
     /// Fetch all books.
@@ -299,11 +303,12 @@ public class BooksController(
     /// <param name="partialTagName">The partial tag name.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("autocomplete/tag")]
+    [Obsolete("Use /tags/autocomplete instead", false)]
     public async Task<ActionResult<List<string>>> AutocompleteTag(string? partialTagName)
     {
         try
         {
-            var autocompleteResult = await this.logic.AutocompleteTagAsync(partialTagName);
+            var autocompleteResult = await this.tagsLogic.AutocompleteAsync(partialTagName);
             return Ok(autocompleteResult);
         }
         catch (Exception ex)

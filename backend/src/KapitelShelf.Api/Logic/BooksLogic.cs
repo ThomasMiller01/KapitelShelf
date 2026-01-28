@@ -608,25 +608,6 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
-    public async Task<List<string>> AutocompleteTagAsync(string? partialTagName)
-    {
-        if (string.IsNullOrWhiteSpace(partialTagName))
-        {
-            return [];
-        }
-
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        return await context.Tags
-            .AsNoTracking()
-            .FilterByTagQuery(partialTagName)
-            .SortByTagQuery(partialTagName)
-            .Take(5)
-            .Select(x => x.Name)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
     public async Task CleanupDatabase()
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

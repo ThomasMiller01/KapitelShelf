@@ -11,6 +11,7 @@ import {
   OneDriveApi,
   SeriesApi,
   SettingsApi,
+  TagsApi,
   TasksApi,
   UsersApi,
   VersionApi,
@@ -34,6 +35,7 @@ export interface ApiClients {
   hooks: HooksApi;
   authors: AuthorsApi;
   categories: CategoriesApi;
+  tags: TagsApi;
 }
 
 interface ApiContextData {
@@ -80,6 +82,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
       hooks: new HooksApi(config),
       authors: new AuthorsApi(config),
       categories: new CategoriesApi(config),
+      tags: new TagsApi(config),
     };
   }, [basePath]);
 

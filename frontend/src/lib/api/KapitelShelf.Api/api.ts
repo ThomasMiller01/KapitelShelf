@@ -1078,7 +1078,47 @@ export interface TagDTO {
      * @memberof TagDTO
      */
     'name'?: string | null;
+    /**
+     * Gets or sets the total number of books.
+     * @type {number}
+     * @memberof TagDTO
+     */
+    'totalBooks'?: number | null;
 }
+/**
+ * The paginated result.
+ * @export
+ * @interface TagDTOPagedResult
+ */
+export interface TagDTOPagedResult {
+    /**
+     * Gets or sets the items.
+     * @type {Array<TagDTO>}
+     * @memberof TagDTOPagedResult
+     */
+    'items'?: Array<TagDTO> | null;
+    /**
+     * Gets or sets the total number of items.
+     * @type {number}
+     * @memberof TagDTOPagedResult
+     */
+    'totalCount'?: number;
+}
+/**
+ * The sort by enum for tags.
+ * @export
+ * @enum {number}
+ */
+
+export const TagSortByDTO = {
+    NUMBER_0: 0,
+    NUMBER_1: 1,
+    NUMBER_2: 2
+} as const;
+
+export type TagSortByDTO = typeof TagSortByDTO[keyof typeof TagSortByDTO];
+
+
 /**
  * The task dto.
  * @export
@@ -1841,6 +1881,7 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
          * @summary Autocomplete the book tag.
          * @param {string} [partialTagName] The partial tag name.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         booksAutocompleteTagGet: async (partialTagName?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -2506,6 +2547,7 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * @summary Autocomplete the book tag.
          * @param {string} [partialTagName] The partial tag name.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async booksAutocompleteTagGet(partialTagName?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
@@ -2768,6 +2810,7 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * @summary Autocomplete the book tag.
          * @param {string} [partialTagName] The partial tag name.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         booksAutocompleteTagGet(partialTagName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
@@ -2988,6 +3031,7 @@ export class BooksApi extends BaseAPI {
      * @summary Autocomplete the book tag.
      * @param {string} [partialTagName] The partial tag name.
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof BooksApi
      */
@@ -6454,6 +6498,438 @@ export class SettingsApi extends BaseAPI {
      */
     public settingsSettingIdPut(settingId: string, body?: any, options?: RawAxiosRequestConfig) {
         return SettingsApiFp(this.configuration).settingsSettingIdPut(settingId, body, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * TagsApi - axios parameter creator
+ * @export
+ */
+export const TagsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Autocomplete the book tag.
+         * @param {string} [partialTagName] The partial tag name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsAutocompleteGet: async (partialTagName?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/tags/autocomplete`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (partialTagName !== undefined) {
+                localVarQueryParameter['partialTagName'] = partialTagName;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete tags in bulk.
+         * @param {Array<string>} [requestBody] The tags ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsDelete: async (requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/tags`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Fetch all tags.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {TagSortByDTO} [sortBy] Sort the tags by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the tags in this direction.
+         * @param {string} [filter] Filter the tags.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsGet: async (page?: number, pageSize?: number, sortBy?: TagSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/tags`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (pageSize !== undefined) {
+                localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (sortDir !== undefined) {
+                localVarQueryParameter['sortDir'] = sortDir;
+            }
+
+            if (filter !== undefined) {
+                localVarQueryParameter['filter'] = filter;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Merge all source tags into the target tag.
+         * @param {string} tagId The target tag id.
+         * @param {Array<string>} [requestBody] The source tag ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsTagIdMergePut: async (tagId: string, requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('tagsTagIdMergePut', 'tagId', tagId)
+            const localVarPath = `/tags/{tagId}/merge`
+                .replace(`{${"tagId"}}`, encodeURIComponent(String(tagId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update a tag.
+         * @param {string} tagId The id of the tag to update.
+         * @param {TagDTO} [tagDTO] The updated tag.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsTagIdPut: async (tagId: string, tagDTO?: TagDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('tagsTagIdPut', 'tagId', tagId)
+            const localVarPath = `/tags/{tagId}`
+                .replace(`{${"tagId"}}`, encodeURIComponent(String(tagId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(tagDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * TagsApi - functional programming interface
+ * @export
+ */
+export const TagsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = TagsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Autocomplete the book tag.
+         * @param {string} [partialTagName] The partial tag name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tagsAutocompleteGet(partialTagName?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tagsAutocompleteGet(partialTagName, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TagsApi.tagsAutocompleteGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete tags in bulk.
+         * @param {Array<string>} [requestBody] The tags ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tagsDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tagsDelete(requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TagsApi.tagsDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Fetch all tags.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {TagSortByDTO} [sortBy] Sort the tags by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the tags in this direction.
+         * @param {string} [filter] Filter the tags.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tagsGet(page?: number, pageSize?: number, sortBy?: TagSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TagDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tagsGet(page, pageSize, sortBy, sortDir, filter, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TagsApi.tagsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Merge all source tags into the target tag.
+         * @param {string} tagId The target tag id.
+         * @param {Array<string>} [requestBody] The source tag ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tagsTagIdMergePut(tagId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tagsTagIdMergePut(tagId, requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TagsApi.tagsTagIdMergePut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update a tag.
+         * @param {string} tagId The id of the tag to update.
+         * @param {TagDTO} [tagDTO] The updated tag.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tagsTagIdPut(tagId: string, tagDTO?: TagDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tagsTagIdPut(tagId, tagDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TagsApi.tagsTagIdPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * TagsApi - factory interface
+ * @export
+ */
+export const TagsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = TagsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Autocomplete the book tag.
+         * @param {string} [partialTagName] The partial tag name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsAutocompleteGet(partialTagName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.tagsAutocompleteGet(partialTagName, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete tags in bulk.
+         * @param {Array<string>} [requestBody] The tags ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.tagsDelete(requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Fetch all tags.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {TagSortByDTO} [sortBy] Sort the tags by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the tags in this direction.
+         * @param {string} [filter] Filter the tags.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsGet(page?: number, pageSize?: number, sortBy?: TagSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): AxiosPromise<TagDTOPagedResult> {
+            return localVarFp.tagsGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Merge all source tags into the target tag.
+         * @param {string} tagId The target tag id.
+         * @param {Array<string>} [requestBody] The source tag ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsTagIdMergePut(tagId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.tagsTagIdMergePut(tagId, requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update a tag.
+         * @param {string} tagId The id of the tag to update.
+         * @param {TagDTO} [tagDTO] The updated tag.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tagsTagIdPut(tagId: string, tagDTO?: TagDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.tagsTagIdPut(tagId, tagDTO, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * TagsApi - object-oriented interface
+ * @export
+ * @class TagsApi
+ * @extends {BaseAPI}
+ */
+export class TagsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Autocomplete the book tag.
+     * @param {string} [partialTagName] The partial tag name.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TagsApi
+     */
+    public tagsAutocompleteGet(partialTagName?: string, options?: RawAxiosRequestConfig) {
+        return TagsApiFp(this.configuration).tagsAutocompleteGet(partialTagName, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete tags in bulk.
+     * @param {Array<string>} [requestBody] The tags ids to delete.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TagsApi
+     */
+    public tagsDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return TagsApiFp(this.configuration).tagsDelete(requestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Fetch all tags.
+     * @param {number} [page] The page number.
+     * @param {number} [pageSize] The page size.
+     * @param {TagSortByDTO} [sortBy] Sort the tags by this field.
+     * @param {SortDirectionDTO} [sortDir] Sort the tags in this direction.
+     * @param {string} [filter] Filter the tags.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TagsApi
+     */
+    public tagsGet(page?: number, pageSize?: number, sortBy?: TagSortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig) {
+        return TagsApiFp(this.configuration).tagsGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Merge all source tags into the target tag.
+     * @param {string} tagId The target tag id.
+     * @param {Array<string>} [requestBody] The source tag ids.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TagsApi
+     */
+    public tagsTagIdMergePut(tagId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return TagsApiFp(this.configuration).tagsTagIdMergePut(tagId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update a tag.
+     * @param {string} tagId The id of the tag to update.
+     * @param {TagDTO} [tagDTO] The updated tag.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TagsApi
+     */
+    public tagsTagIdPut(tagId: string, tagDTO?: TagDTO, options?: RawAxiosRequestConfig) {
+        return TagsApiFp(this.configuration).tagsTagIdPut(tagId, tagDTO, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

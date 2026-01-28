@@ -99,12 +99,12 @@ public class CategoriesController(ILogger<CategoriesController> logger, ICategor
     /// <param name="category">The updated category.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPut("{categoryId}")]
-    public async Task<IActionResult> UpdateAuthor(Guid categoryId, CategoryDTO category)
+    public async Task<IActionResult> UpdateCategory(Guid categoryId, CategoryDTO category)
     {
         try
         {
-            var updatedAuthor = await this.logic.UpdateCategoryAsync(categoryId, category);
-            if (updatedAuthor is null)
+            var updatedCategory = await this.logic.UpdateCategoryAsync(categoryId, category);
+            if (updatedCategory is null)
             {
                 return NotFound();
             }

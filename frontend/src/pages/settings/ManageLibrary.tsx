@@ -1,4 +1,4 @@
-import { Alert, Box, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
 import { useMemo, type ReactElement } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { TabPanel } from "../../components/base/TabPanel";
@@ -6,6 +6,7 @@ import { ManageAuthorsList } from "../../features/authors/ManageAuthorsList";
 import { ManageBooksList } from "../../features/book/ManageBooksList";
 import { ManageCategoriesList } from "../../features/categories/ManageCategoriesList";
 import { ManageSeriesList } from "../../features/series/ManageSeriesList";
+import { ManageTagsList } from "../../features/tags/ManageTagsList";
 
 const TABS = [
   { label: "Series", value: "series" },
@@ -61,7 +62,7 @@ export const ManageLibraryPage = (): ReactElement => {
           <ManageCategoriesList />
         </TabPanel>
         <TabPanel value={activeTab} index={4}>
-          <Alert severity="info">This section is not yet implemented.</Alert>
+          <ManageTagsList />
         </TabPanel>
       </Box>
     </Box>

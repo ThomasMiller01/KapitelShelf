@@ -889,7 +889,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/books/{bookId}": {
@@ -2881,6 +2882,276 @@
         }
       }
     },
+    "/tags": {
+      "get": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Fetch all tags.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort the tags by this field.",
+            "schema": {
+              "$ref": "#/components/schemas/TagSortByDTO"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Sort the tags in this direction.",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirectionDTO"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Filter the tags.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagDTOPagedResult"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Delete tags in bulk.",
+        "requestBody": {
+          "description": "The tags ids to delete.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/tags/autocomplete": {
+      "get": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Autocomplete the book tag.",
+        "parameters": [
+          {
+            "name": "partialTagName",
+            "in": "query",
+            "description": "The partial tag name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tags/{tagId}": {
+      "put": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Update a tag.",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "description": "The id of the tag to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated tag.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/tags/{tagId}/merge": {
+      "put": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Merge all source tags into the target tag.",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "description": "The target tag id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The source tag ids.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "tags": [
@@ -4428,10 +4699,46 @@
             "type": "string",
             "description": "Gets or sets the name.",
             "nullable": true
+          },
+          "totalBooks": {
+            "type": "integer",
+            "description": "Gets or sets the total number of books.",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false,
         "description": "The tag dto."
+      },
+      "TagDTOPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagDTO"
+            },
+            "description": "Gets or sets the items.",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Gets or sets the total number of items.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The paginated result."
+      },
+      "TagSortByDTO": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "The sort by enum for tags.",
+        "format": "int32"
       },
       "TaskDTO": {
         "type": "object",
