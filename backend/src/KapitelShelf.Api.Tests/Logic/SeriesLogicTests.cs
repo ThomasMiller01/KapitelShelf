@@ -968,26 +968,349 @@ public class SeriesLogicTests
     }
 
     /// <summary>
-    /// Tests MergeSeries throws if target series does not exist.
+    /// Tests MergeSeries moves books from a single source to target, updates timestamps and deletes the source series.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task MergeSeries_MovesBooks_UpdatesTimestamps_DeletesSource_AndDoesNotDeleteFiles()
+    {
+        // Setup
+        var targetId = Guid.NewGuid();
+        var sourceId = Guid.NewGuid();
+
+        var before = DateTime.UtcNow;
+
+        var book1Id = Guid.NewGuid();
+        var book2Id = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.AddRange(
+                new SeriesModel
+                {
+                    Id = targetId,
+                    Name = "Merge_Target".Unique(),
+                    UpdatedAt = before.AddMinutes(-10),
+                },
+                new SeriesModel
+                {
+                    Id = sourceId,
+                    Name = "Merge_Source".Unique(),
+                    UpdatedAt = before.AddMinutes(-10),
+                });
+
+            context.Books.AddRange(
+                new BookModel
+                {
+                    Id = book1Id,
+                    Title = "Merge_Book1".Unique(),
+                    Description = "Description",
+                    SeriesId = sourceId,
+                    UpdatedAt = before.AddMinutes(-10),
+                },
+                new BookModel
+                {
+                    Id = book2Id,
+                    Title = "Merge_Book2".Unique(),
+                    Description = "Description",
+                    SeriesId = sourceId,
+                    UpdatedAt = before.AddMinutes(-10),
+                });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        await this.testee.MergeSeries(targetId, [sourceId]);
+
+        // Assert
+        this.booksLogic.DidNotReceiveWithAnyArgs().DeleteFiles(default);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var b1 = await context.Books.FindAsync(book1Id);
+            var b2 = await context.Books.FindAsync(book2Id);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(b1, Is.Not.Null);
+                Assert.That(b2, Is.Not.Null);
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(b1!.SeriesId, Is.EqualTo(targetId));
+                Assert.That(b2!.SeriesId, Is.EqualTo(targetId));
+
+                Assert.That(b1.UpdatedAt, Is.GreaterThanOrEqualTo(before));
+                Assert.That(b2.UpdatedAt, Is.GreaterThanOrEqualTo(before));
+            });
+
+            var source = await context.Series.FindAsync(sourceId);
+            Assert.That(source, Is.Null);
+
+            var target = await context.Series.FindAsync(targetId);
+            Assert.That(target, Is.Not.Null);
+            Assert.That(target!.UpdatedAt, Is.GreaterThanOrEqualTo(before));
+        }
+    }
+
+    /// <summary>
+    /// Tests MergeSeries moves books from multiple sources to target and deletes all source series.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task MergeSeries_MultipleSources_MovesAllBooks_DeletesAllSources_AndCleansUpOnce()
+    {
+        // Setup
+        var targetId = Guid.NewGuid();
+        var source1Id = Guid.NewGuid();
+        var source2Id = Guid.NewGuid();
+
+        var book1Id = Guid.NewGuid();
+        var book2Id = Guid.NewGuid();
+        var book3Id = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.AddRange(
+                new SeriesModel
+                {
+                    Id = targetId,
+                    Name = "Merge_Target_Multi".Unique(),
+                },
+                new SeriesModel
+                {
+                    Id = source1Id,
+                    Name = "Merge_Source_1".Unique(),
+                },
+                new SeriesModel
+                {
+                    Id = source2Id,
+                    Name = "Merge_Source_2".Unique(),
+                });
+
+            context.Books.AddRange(
+                new BookModel
+                {
+                    Id = book1Id,
+                    Title = "Merge_Multi_Book1".Unique(),
+                    Description = "Description",
+                    SeriesId = source1Id,
+                },
+                new BookModel
+                {
+                    Id = book2Id,
+                    Title = "Merge_Multi_Book2".Unique(),
+                    Description = "Description",
+                    SeriesId = source2Id,
+                },
+                new BookModel
+                {
+                    Id = book3Id,
+                    Title = "Merge_Multi_Book3".Unique(),
+                    Description = "Description",
+                    SeriesId = source2Id,
+                });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        await this.testee.MergeSeries(targetId, [source1Id, source2Id]);
+
+        // Assert
+        this.booksLogic.DidNotReceiveWithAnyArgs().DeleteFiles(default);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Single(x => x.Id == book1Id).SeriesId, Is.EqualTo(targetId));
+                Assert.That(context.Books.Single(x => x.Id == book2Id).SeriesId, Is.EqualTo(targetId));
+                Assert.That(context.Books.Single(x => x.Id == book3Id).SeriesId, Is.EqualTo(targetId));
+
+                Assert.That(context.Series.Any(x => x.Id == source1Id), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == source2Id), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == targetId), Is.True);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests MergeSeries throws when target series does not exist.
     /// </summary>
     [Test]
     public void MergeSeries_ThrowsOnUnknownTarget()
     {
-        var sourceId = Guid.NewGuid();
+        // Setup
         var unknownTarget = Guid.NewGuid();
+        var sourceId = Guid.NewGuid();
 
         using (var context = new KapitelShelfDBContext(this.dbOptions))
         {
             context.Series.Add(new SeriesModel
             {
                 Id = sourceId,
-                Name = "Source".Unique(),
+                Name = "Merge_Source_UnknownTarget".Unique(),
             });
+
             context.SaveChanges();
         }
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.testee.MergeSeries(unknownTarget, [sourceId]));
+        // Execute, Assert
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+        {
+            await this.testee.MergeSeries(unknownTarget, [sourceId]);
+        });
+
         Assert.That(ex!.Message, Does.Contain("Unknown target series id"));
+    }
+
+    /// <summary>
+    /// Tests MergeSeries throws when no source series ids exist.
+    /// </summary>
+    [Test]
+    public void MergeSeries_ThrowsOnUnknownSources()
+    {
+        // Setup
+        var targetId = Guid.NewGuid();
+        var unknownSource1 = Guid.NewGuid();
+        var unknownSource2 = Guid.NewGuid();
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = targetId,
+                Name = "Merge_Target_UnknownSources".Unique(),
+            });
+
+            context.SaveChanges();
+        }
+
+        // Execute, Assert
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+        {
+            await this.testee.MergeSeries(targetId, [unknownSource1, unknownSource2]);
+        });
+
+        Assert.That(ex!.Message, Does.Contain("Unknown source series ids"));
+    }
+
+    /// <summary>
+    /// Tests MergeSeries ignores unknown source ids when at least one source exists (current behavior).
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task MergeSeries_IgnoresUnknownSourceIds_WhenAtLeastOneSourceExists()
+    {
+        // Setup
+        var targetId = Guid.NewGuid();
+        var sourceId = Guid.NewGuid();
+        var unknownSourceId = Guid.NewGuid();
+
+        var bookId = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.AddRange(
+                new SeriesModel
+                {
+                    Id = targetId,
+                    Name = "Merge_Target_IgnoreUnknown".Unique(),
+                },
+                new SeriesModel
+                {
+                    Id = sourceId,
+                    Name = "Merge_Source_IgnoreUnknown".Unique(),
+                });
+
+            context.Books.Add(new BookModel
+            {
+                Id = bookId,
+                Title = "Merge_IgnoreUnknown_Book".Unique(),
+                Description = "Description",
+                SeriesId = sourceId,
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        await this.testee.MergeSeries(targetId, [sourceId, unknownSourceId]);
+
+        // Assert
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Books.Single(x => x.Id == bookId).SeriesId, Is.EqualTo(targetId));
+                Assert.That(context.Series.Any(x => x.Id == sourceId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == targetId), Is.True);
+
+                // unknown source was never created; still must not exist
+                Assert.That(context.Series.Any(x => x.Id == unknownSourceId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests MergeSeries deletes source series even if it has no books.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task MergeSeries_DeletesEmptySourceSeries()
+    {
+        // Setup
+        var targetId = Guid.NewGuid();
+        var sourceId = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.AddRange(
+                new SeriesModel
+                {
+                    Id = targetId,
+                    Name = "Merge_Target_EmptySource".Unique(),
+                },
+                new SeriesModel
+                {
+                    Id = sourceId,
+                    Name = "Merge_Source_Empty".Unique(),
+                    Books = [],
+                });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        await this.testee.MergeSeries(targetId, [sourceId]);
+
+        // Assert
+        this.booksLogic.DidNotReceiveWithAnyArgs().DeleteFiles(default);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Series.Any(x => x.Id == sourceId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == targetId), Is.True);
+            });
+        }
     }
 
     /// <summary>
