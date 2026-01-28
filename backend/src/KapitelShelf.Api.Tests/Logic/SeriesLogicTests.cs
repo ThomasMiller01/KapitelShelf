@@ -344,6 +344,325 @@ public class SeriesLogicTests
     }
 
     /// <summary>
+    /// Tests DeleteSeriesAsync(Guid) removes series, deletes files for its books and calls CleanupDatabase.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteSeriesAsync_RemovesSeries_DeletesBookFiles_AndCallsCleanup()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "DeleteSeries".Unique(),
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var book1Id = Guid.NewGuid();
+        var book2Id = Guid.NewGuid();
+
+        var book1 = new BookModel
+        {
+            Id = book1Id,
+            Title = "DeleteSeries_Book1".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var book2 = new BookModel
+        {
+            Id = book2Id,
+            Title = "DeleteSeries_Book2".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.AddRange(book1, book2);
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        var result = await this.testee.DeleteSeriesAsync(seriesId);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Id, Is.EqualTo(seriesId));
+
+        this.booksLogic.Received(1).DeleteFiles(book1Id);
+        this.booksLogic.Received(1).DeleteFiles(book2Id);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.That(await context.Series.AnyAsync(x => x.Id == seriesId), Is.False);
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteSeriesAsync(Guid) does not call DeleteFiles when the series has no books.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteSeriesAsync_DoesNotDeleteFiles_WhenSeriesHasNoBooks()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "DeleteSeries_NoBooks".Unique(),
+                UpdatedAt = DateTime.UtcNow,
+                Books = [],
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        var result = await this.testee.DeleteSeriesAsync(seriesId);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Id, Is.EqualTo(seriesId));
+
+        this.booksLogic.DidNotReceiveWithAnyArgs().DeleteFiles(default);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.That(await context.Series.AnyAsync(x => x.Id == seriesId), Is.False);
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteSeriesAsync(Guid) is idempotent: calling twice does not throw and ends with deleted record.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteSeriesAsync_IsIdempotent()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "DeleteSeries_Idempotent".Unique(),
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        var first = await this.testee.DeleteSeriesAsync(seriesId);
+        var second = await this.testee.DeleteSeriesAsync(seriesId);
+
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(first, Is.Not.Null);
+            Assert.That(second, Is.Null);
+        });
+
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.That(await context.Series.AnyAsync(x => x.Id == seriesId), Is.False);
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteSeriesAsync(List{Guid}) deletes all existing series, deletes files for their books and calls CleanupDatabase once.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteSeriesAsyncList_DeletesAllExisting_DeletesFiles_AndCallsCleanupOnce()
+    {
+        // Setup
+        var series1Id = Guid.NewGuid();
+        var series2Id = Guid.NewGuid();
+
+        var book1Id = Guid.NewGuid();
+        var book2Id = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.AddRange(
+                new SeriesModel
+                {
+                    Id = series1Id,
+                    Name = "DeleteSeries_List_1".Unique(),
+                    UpdatedAt = DateTime.UtcNow,
+                },
+                new SeriesModel
+                {
+                    Id = series2Id,
+                    Name = "DeleteSeries_List_2".Unique(),
+                    UpdatedAt = DateTime.UtcNow,
+                });
+
+            context.Books.AddRange(
+                new BookModel
+                {
+                    Id = book1Id,
+                    Title = "DeleteSeries_List_Book1".Unique(),
+                    Description = "Description",
+                    SeriesId = series1Id,
+                    UpdatedAt = DateTime.UtcNow,
+                },
+                new BookModel
+                {
+                    Id = book2Id,
+                    Title = "DeleteSeries_List_Book2".Unique(),
+                    Description = "Description",
+                    SeriesId = series2Id,
+                    UpdatedAt = DateTime.UtcNow,
+                });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        await this.testee.DeleteSeriesAsync([series1Id, series2Id]);
+
+        // Assert
+        this.booksLogic.Received(1).DeleteFiles(book1Id);
+        this.booksLogic.Received(1).DeleteFiles(book2Id);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Series.Any(x => x.Id == series1Id), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == series2Id), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteSeriesAsync(List{Guid}) ignores unknown ids and deletes only existing series.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteSeriesAsyncList_IgnoresUnknownIds_AndDeletesExisting()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var unknownId = Guid.NewGuid();
+
+        var bookId = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "DeleteSeries_List_Existing".Unique(),
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            context.Books.Add(new BookModel
+            {
+                Id = bookId,
+                Title = "DeleteSeries_List_ExistingBook".Unique(),
+                Description = "Description",
+                SeriesId = seriesId,
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        await this.testee.DeleteSeriesAsync([seriesId, unknownId]);
+
+        // Assert
+        this.booksLogic.Received(1).DeleteFiles(bookId);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+                Assert.That(context.Series.Any(x => x.Id == unknownId), Is.False);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Tests DeleteSeriesAsync(List{Guid}) handles duplicate ids in input (delete once, cleanup once).
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Test]
+    public async Task DeleteSeriesAsyncList_HandlesDuplicateIdsInInput()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(new SeriesModel
+            {
+                Id = seriesId,
+                Name = "DeleteSeries_List_DuplicateIds".Unique(),
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            context.Books.Add(new BookModel
+            {
+                Id = bookId,
+                Title = "DeleteSeries_List_DuplicateIds_Book".Unique(),
+                Description = "Description",
+                SeriesId = seriesId,
+                UpdatedAt = DateTime.UtcNow,
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        this.booksLogic.CleanupDatabase().Returns(Task.CompletedTask);
+
+        // Execute
+        await this.testee.DeleteSeriesAsync([seriesId, seriesId, seriesId]);
+
+        // Assert
+        this.booksLogic.Received(1).DeleteFiles(bookId);
+        await this.booksLogic.Received(1).CleanupDatabase();
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            Assert.That(context.Series.Any(x => x.Id == seriesId), Is.False);
+        }
+    }
+
+    /// <summary>
     /// Tests UpdateSeriesAsync throws if a duplicate exists.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
