@@ -14,6 +14,23 @@ namespace KapitelShelf.Api.Mappings;
 public sealed partial class Mapper
 {
     /// <summary>
+    /// Map an category model to an category dto, applying additional manual field logic.
+    /// </summary>
+    /// <param name="model">The category model.</param>
+    /// <returns>The mapped category dto.</returns>
+    [UserMapping(Default = true)]
+    public CategoryDTO CategoryModelToCategoryDto(CategoryModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        var dto = this.CategoryModelToCategoryDtoCore(model);
+
+        dto.TotalBooks = model.Books.Count;
+
+        return dto;
+    }
+
+    /// <summary>
     /// Map a category model to a category dto.
     /// </summary>
     /// <param name="model">The category model.</param>
@@ -21,7 +38,8 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(CategoryModel.Books))]
     [MapperIgnoreSource(nameof(CategoryModel.CreatedAt))]
     [MapperIgnoreSource(nameof(CategoryModel.UpdatedAt))]
-    public partial CategoryDTO CategoryModelToCategoryDto(CategoryModel model);
+    [MapperIgnoreTarget(nameof(CategoryDTO.TotalBooks))]
+    public partial CategoryDTO CategoryModelToCategoryDtoCore(CategoryModel model);
 
     /// <summary>
     /// Map a create category dto to a category model.
@@ -40,5 +58,6 @@ public sealed partial class Mapper
     /// <param name="dto">The category dto.</param>
     /// <returns>The create category dto.</returns>
     [MapperIgnoreSource(nameof(CategoryDTO.Id))]
+    [MapperIgnoreSource(nameof(CategoryDTO.TotalBooks))]
     public partial CreateCategoryDTO CategoryDtoToCreateCategoryDto(CategoryDTO dto);
 }

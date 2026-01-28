@@ -100,7 +100,7 @@ public class AuthorsLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFact
             return null;
         }
 
-        // check for duplicate series
+        // check for duplicate authors
         var duplicates = await this.GetDuplicatesAsync(authorDto.FirstName, authorDto.LastName);
         if (duplicates.Any())
         {

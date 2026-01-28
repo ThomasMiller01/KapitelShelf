@@ -5,12 +5,12 @@
 namespace KapitelShelf.Api.DTOs.Author;
 
 /// <summary>
-/// The sort by enum for series.
+/// The sort by enum for authors.
 /// </summary>
 public enum AuthorSortByDTO
 {
     /// <summary>
-    /// Default sorting order for series.
+    /// Default sorting order for authors.
     /// </summary>
     Default,
 

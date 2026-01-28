@@ -74,7 +74,7 @@ export interface AuthorDTOPagedResult {
     'totalCount'?: number;
 }
 /**
- * The sort by enum for series.
+ * The sort by enum for authors.
  * @export
  * @enum {number}
  */
@@ -224,7 +224,47 @@ export interface CategoryDTO {
      * @memberof CategoryDTO
      */
     'name'?: string | null;
+    /**
+     * Gets or sets the total number of books.
+     * @type {number}
+     * @memberof CategoryDTO
+     */
+    'totalBooks'?: number | null;
 }
+/**
+ * The paginated result.
+ * @export
+ * @interface CategoryDTOPagedResult
+ */
+export interface CategoryDTOPagedResult {
+    /**
+     * Gets or sets the items.
+     * @type {Array<CategoryDTO>}
+     * @memberof CategoryDTOPagedResult
+     */
+    'items'?: Array<CategoryDTO> | null;
+    /**
+     * Gets or sets the total number of items.
+     * @type {number}
+     * @memberof CategoryDTOPagedResult
+     */
+    'totalCount'?: number;
+}
+/**
+ * The sort by enum for categories.
+ * @export
+ * @enum {number}
+ */
+
+export const CategorySortByDTO = {
+    NUMBER_0: 0,
+    NUMBER_1: 1,
+    NUMBER_2: 2
+} as const;
+
+export type CategorySortByDTO = typeof CategorySortByDTO[keyof typeof CategorySortByDTO];
+
+
 /**
  * The cloud storage dto.
  * @export
@@ -1296,7 +1336,7 @@ export const AuthorsApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary Update a series.
+         * @summary Update a author.
          * @param {string} authorId The id of the author to update.
          * @param {AuthorDTO} [authorDTO] The updated author.
          * @param {*} [options] Override http request option.
@@ -1482,7 +1522,7 @@ export const AuthorsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Update a series.
+         * @summary Update a author.
          * @param {string} authorId The id of the author to update.
          * @param {AuthorDTO} [authorDTO] The updated author.
          * @param {*} [options] Override http request option.
@@ -1560,7 +1600,7 @@ export const AuthorsApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary Update a series.
+         * @summary Update a author.
          * @param {string} authorId The id of the author to update.
          * @param {AuthorDTO} [authorDTO] The updated author.
          * @param {*} [options] Override http request option.
@@ -1628,7 +1668,7 @@ export class AuthorsApi extends BaseAPI {
 
     /**
      * 
-     * @summary Update a series.
+     * @summary Update a author.
      * @param {string} authorId The id of the author to update.
      * @param {AuthorDTO} [authorDTO] The updated author.
      * @param {*} [options] Override http request option.
@@ -1729,6 +1769,7 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
          * @summary Autocomplete the book category.
          * @param {string} [partialCategoryName] The partial category name.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         booksAutocompleteCategoryGet: async (partialCategoryName?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -2437,6 +2478,7 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * @summary Autocomplete the book category.
          * @param {string} [partialCategoryName] The partial category name.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async booksAutocompleteCategoryGet(partialCategoryName?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
@@ -2704,6 +2746,7 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * @summary Autocomplete the book category.
          * @param {string} [partialCategoryName] The partial category name.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         booksAutocompleteCategoryGet(partialCategoryName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
@@ -2919,6 +2962,7 @@ export class BooksApi extends BaseAPI {
      * @summary Autocomplete the book category.
      * @param {string} [partialCategoryName] The partial category name.
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof BooksApi
      */
@@ -3140,6 +3184,438 @@ export class BooksApi extends BaseAPI {
      */
     public booksSearchSuggestionsGet(searchterm?: string, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksSearchSuggestionsGet(searchterm, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CategoriesApi - axios parameter creator
+ * @export
+ */
+export const CategoriesApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Autocomplete the book category.
+         * @param {string} [partialCategoryName] The partial category name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesAutocompleteGet: async (partialCategoryName?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/categories/autocomplete`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (partialCategoryName !== undefined) {
+                localVarQueryParameter['partialCategoryName'] = partialCategoryName;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Merge all source categories into the target category.
+         * @param {string} categoryId The target category id.
+         * @param {Array<string>} [requestBody] The source category ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesCategoryIdMergePut: async (categoryId: string, requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'categoryId' is not null or undefined
+            assertParamExists('categoriesCategoryIdMergePut', 'categoryId', categoryId)
+            const localVarPath = `/categories/{categoryId}/merge`
+                .replace(`{${"categoryId"}}`, encodeURIComponent(String(categoryId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update a category.
+         * @param {string} categoryId The id of the category to update.
+         * @param {CategoryDTO} [categoryDTO] The updated category.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesCategoryIdPut: async (categoryId: string, categoryDTO?: CategoryDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'categoryId' is not null or undefined
+            assertParamExists('categoriesCategoryIdPut', 'categoryId', categoryId)
+            const localVarPath = `/categories/{categoryId}`
+                .replace(`{${"categoryId"}}`, encodeURIComponent(String(categoryId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(categoryDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete categories in bulk.
+         * @param {Array<string>} [requestBody] The categories ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesDelete: async (requestBody?: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/categories`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Fetch all categories.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {CategorySortByDTO} [sortBy] Sort the categories by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the categories in this direction.
+         * @param {string} [filter] Filter the categories.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesGet: async (page?: number, pageSize?: number, sortBy?: CategorySortByDTO, sortDir?: SortDirectionDTO, filter?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/categories`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (pageSize !== undefined) {
+                localVarQueryParameter['pageSize'] = pageSize;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (sortDir !== undefined) {
+                localVarQueryParameter['sortDir'] = sortDir;
+            }
+
+            if (filter !== undefined) {
+                localVarQueryParameter['filter'] = filter;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CategoriesApi - functional programming interface
+ * @export
+ */
+export const CategoriesApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CategoriesApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Autocomplete the book category.
+         * @param {string} [partialCategoryName] The partial category name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoriesAutocompleteGet(partialCategoryName?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesAutocompleteGet(partialCategoryName, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoriesAutocompleteGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Merge all source categories into the target category.
+         * @param {string} categoryId The target category id.
+         * @param {Array<string>} [requestBody] The source category ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoriesCategoryIdMergePut(categoryId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesCategoryIdMergePut(categoryId, requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoriesCategoryIdMergePut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update a category.
+         * @param {string} categoryId The id of the category to update.
+         * @param {CategoryDTO} [categoryDTO] The updated category.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoriesCategoryIdPut(categoryId: string, categoryDTO?: CategoryDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesCategoryIdPut(categoryId, categoryDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoriesCategoryIdPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete categories in bulk.
+         * @param {Array<string>} [requestBody] The categories ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoriesDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesDelete(requestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoriesDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Fetch all categories.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {CategorySortByDTO} [sortBy] Sort the categories by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the categories in this direction.
+         * @param {string} [filter] Filter the categories.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoriesGet(page?: number, pageSize?: number, sortBy?: CategorySortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoryDTOPagedResult>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoriesGet(page, pageSize, sortBy, sortDir, filter, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoriesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CategoriesApi - factory interface
+ * @export
+ */
+export const CategoriesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CategoriesApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Autocomplete the book category.
+         * @param {string} [partialCategoryName] The partial category name.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesAutocompleteGet(partialCategoryName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.categoriesAutocompleteGet(partialCategoryName, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Merge all source categories into the target category.
+         * @param {string} categoryId The target category id.
+         * @param {Array<string>} [requestBody] The source category ids.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesCategoryIdMergePut(categoryId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.categoriesCategoryIdMergePut(categoryId, requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update a category.
+         * @param {string} categoryId The id of the category to update.
+         * @param {CategoryDTO} [categoryDTO] The updated category.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesCategoryIdPut(categoryId: string, categoryDTO?: CategoryDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.categoriesCategoryIdPut(categoryId, categoryDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete categories in bulk.
+         * @param {Array<string>} [requestBody] The categories ids to delete.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.categoriesDelete(requestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Fetch all categories.
+         * @param {number} [page] The page number.
+         * @param {number} [pageSize] The page size.
+         * @param {CategorySortByDTO} [sortBy] Sort the categories by this field.
+         * @param {SortDirectionDTO} [sortDir] Sort the categories in this direction.
+         * @param {string} [filter] Filter the categories.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoriesGet(page?: number, pageSize?: number, sortBy?: CategorySortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig): AxiosPromise<CategoryDTOPagedResult> {
+            return localVarFp.categoriesGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CategoriesApi - object-oriented interface
+ * @export
+ * @class CategoriesApi
+ * @extends {BaseAPI}
+ */
+export class CategoriesApi extends BaseAPI {
+    /**
+     * 
+     * @summary Autocomplete the book category.
+     * @param {string} [partialCategoryName] The partial category name.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoriesApi
+     */
+    public categoriesAutocompleteGet(partialCategoryName?: string, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoriesAutocompleteGet(partialCategoryName, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Merge all source categories into the target category.
+     * @param {string} categoryId The target category id.
+     * @param {Array<string>} [requestBody] The source category ids.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoriesApi
+     */
+    public categoriesCategoryIdMergePut(categoryId: string, requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoriesCategoryIdMergePut(categoryId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update a category.
+     * @param {string} categoryId The id of the category to update.
+     * @param {CategoryDTO} [categoryDTO] The updated category.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoriesApi
+     */
+    public categoriesCategoryIdPut(categoryId: string, categoryDTO?: CategoryDTO, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoriesCategoryIdPut(categoryId, categoryDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete categories in bulk.
+     * @param {Array<string>} [requestBody] The categories ids to delete.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoriesApi
+     */
+    public categoriesDelete(requestBody?: Array<string>, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoriesDelete(requestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Fetch all categories.
+     * @param {number} [page] The page number.
+     * @param {number} [pageSize] The page size.
+     * @param {CategorySortByDTO} [sortBy] Sort the categories by this field.
+     * @param {SortDirectionDTO} [sortDir] Sort the categories in this direction.
+     * @param {string} [filter] Filter the categories.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoriesApi
+     */
+    public categoriesGet(page?: number, pageSize?: number, sortBy?: CategorySortByDTO, sortDir?: SortDirectionDTO, filter?: string, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoriesGet(page, pageSize, sortBy, sortDir, filter, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

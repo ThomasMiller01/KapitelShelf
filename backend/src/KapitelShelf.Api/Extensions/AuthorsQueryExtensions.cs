@@ -15,11 +15,11 @@ namespace KapitelShelf.Api.Extensions;
 public static class AuthorsQueryExtensions
 {
     /// <summary>
-    /// Apply sorting to the books.
+    /// Apply sorting to the authors.
     /// </summary>
     /// <param name="query">The query.</param>
-    /// <param name="sortBy">Sort the books by this field.</param>
-    /// <param name="sortDir">Sort the books in this direction.</param>
+    /// <param name="sortBy">Sort the authors by this field.</param>
+    /// <param name="sortDir">Sort the authors in this direction.</param>
     /// <returns>The sorted query.</returns>
     public static IQueryable<AuthorModel> ApplySorting(this IQueryable<AuthorModel> query, AuthorSortByDTO sortBy, SortDirectionDTO sortDir)
     {
@@ -43,6 +43,7 @@ public static class AuthorsQueryExtensions
                 query.OrderByDescending(x => x.LastName)
                     .ThenByDescending(x => x.UpdatedAt),
 
+            // Total Books
             (AuthorSortByDTO.TotalBooks, SortDirectionDTO.Asc) =>
                 query.OrderBy(x => x.Books.Count())
                      .ThenBy(x => x.UpdatedAt),

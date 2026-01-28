@@ -14,11 +14,11 @@ namespace KapitelShelf.Api.Extensions;
 public static class SeriesQueryExtensions
 {
     /// <summary>
-    /// Apply sorting to the books.
+    /// Apply sorting to the series.
     /// </summary>
     /// <param name="query">The query.</param>
-    /// <param name="sortBy">Sort the books by this field.</param>
-    /// <param name="sortDir">Sort the books in this direction.</param>
+    /// <param name="sortBy">Sort the series by this field.</param>
+    /// <param name="sortDir">Sort the series in this direction.</param>
     /// <returns>The sorted query.</returns>
     public static IQueryable<SeriesModel> ApplySorting(this IQueryable<SeriesModel> query, SeriesSortByDTO sortBy, SortDirectionDTO sortDir)
     {

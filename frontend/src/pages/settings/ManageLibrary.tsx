@@ -4,6 +4,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { TabPanel } from "../../components/base/TabPanel";
 import { ManageAuthorsList } from "../../features/authors/ManageAuthorsList";
 import { ManageBooksList } from "../../features/book/ManageBooksList";
+import { ManageCategoriesList } from "../../features/categories/ManageCategoriesList";
 import { ManageSeriesList } from "../../features/series/ManageSeriesList";
 
 const TABS = [
@@ -57,7 +58,7 @@ export const ManageLibraryPage = (): ReactElement => {
           <ManageAuthorsList />
         </TabPanel>
         <TabPanel value={activeTab} index={3}>
-          <Alert severity="info">This section is not yet implemented.</Alert>
+          <ManageCategoriesList />
         </TabPanel>
         <TabPanel value={activeTab} index={4}>
           <Alert severity="info">This section is not yet implemented.</Alert>

@@ -93,7 +93,7 @@ public class AuthorsController(ILogger<AuthorsController> logger, IAuthorsLogic 
     }
 
     /// <summary>
-    /// Update a series.
+    /// Update a author.
     /// </summary>
     /// <param name="authorId">The id of the author to update.</param>
     /// <param name="author">The updated author.</param>
@@ -113,7 +113,7 @@ public class AuthorsController(ILogger<AuthorsController> logger, IAuthorsLogic 
         }
         catch (InvalidOperationException ex) when (ex.Message == StaticConstants.DuplicateExceptionKey)
         {
-            return Conflict(new { error = "An author with this author already exists." });
+            return Conflict(new { error = "An author with this name already exists." });
         }
         catch (Exception ex)
         {
@@ -129,7 +129,7 @@ public class AuthorsController(ILogger<AuthorsController> logger, IAuthorsLogic 
     /// <param name="sourceAuthorIds">The source author ids.</param>
     /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPut("{authorId}/merge")]
-    public async Task<IActionResult> MergeSeriesBulk(Guid authorId, List<Guid> sourceAuthorIds)
+    public async Task<IActionResult> MergeAuthorsBulk(Guid authorId, List<Guid> sourceAuthorIds)
     {
         try
         {

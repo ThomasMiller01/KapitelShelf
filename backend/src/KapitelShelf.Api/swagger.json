@@ -178,7 +178,7 @@
         "tags": [
           "Authors"
         ],
-        "summary": "Update a series.",
+        "summary": "Update a author.",
         "parameters": [
           {
             "name": "authorId",
@@ -839,7 +839,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/books/autocomplete/tag": {
@@ -1134,6 +1135,276 @@
               "encoding": {
                 "bookFile": {
                   "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Fetch all categories.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The page size.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 24
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort the categories by this field.",
+            "schema": {
+              "$ref": "#/components/schemas/CategorySortByDTO"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Sort the categories in this direction.",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirectionDTO"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Filter the categories.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDTOPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDTOPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDTOPagedResult"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Delete categories in bulk.",
+        "requestBody": {
+          "description": "The categories ids to delete.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/categories/autocomplete": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Autocomplete the book category.",
+        "parameters": [
+          {
+            "name": "partialCategoryName",
+            "in": "query",
+            "description": "The partial category name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{categoryId}": {
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Update a category.",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "description": "The id of the category to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The updated category.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/categories/{categoryId}/merge": {
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Merge all source categories into the target category.",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "description": "The target category id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The source category ids.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
                 }
               }
             }
@@ -3324,7 +3595,7 @@
           3
         ],
         "type": "integer",
-        "description": "The sort by enum for series.",
+        "description": "The sort by enum for authors.",
         "format": "int32"
       },
       "BookDTO": {
@@ -3440,10 +3711,46 @@
             "type": "string",
             "description": "Gets or sets the name.",
             "nullable": true
+          },
+          "totalBooks": {
+            "type": "integer",
+            "description": "Gets or sets the total number of books.",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false,
         "description": "The category dto."
+      },
+      "CategoryDTOPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryDTO"
+            },
+            "description": "Gets or sets the items.",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Gets or sets the total number of items.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The paginated result."
+      },
+      "CategorySortByDTO": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "The sort by enum for categories.",
+        "format": "int32"
       },
       "CloudStorageDTO": {
         "type": "object",

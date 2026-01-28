@@ -105,13 +105,6 @@ public interface IBooksLogic
     Task<bool> BookFileExists(IFormFile file);
 
     /// <summary>
-    /// Get the autocomplete result for the category.
-    /// </summary>
-    /// <param name="partialCategoryName">The partial category name.</param>
-    /// <returns>The autocomplete result.</returns>
-    Task<List<string>> AutocompleteCategoryAsync(string? partialCategoryName);
-
-    /// <summary>
     /// Get the autocomplete result for the tag.
     /// </summary>
     /// <param name="partialTagName">The partial tag name.</param>

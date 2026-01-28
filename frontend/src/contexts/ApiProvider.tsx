@@ -3,6 +3,7 @@ import { createContext, useContext, useMemo, useState } from "react";
 import {
   AuthorsApi,
   BooksApi,
+  CategoriesApi,
   CloudStorageApi,
   HooksApi,
   MetadataApi,
@@ -32,6 +33,7 @@ export interface ApiClients {
   notifications: NotificationsApi;
   hooks: HooksApi;
   authors: AuthorsApi;
+  categories: CategoriesApi;
 }
 
 interface ApiContextData {
@@ -77,6 +79,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
       notifications: new NotificationsApi(config),
       hooks: new HooksApi(config),
       authors: new AuthorsApi(config),
+      categories: new CategoriesApi(config),
     };
   }, [basePath]);
 
