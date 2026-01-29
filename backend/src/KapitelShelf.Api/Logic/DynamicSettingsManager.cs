@@ -11,6 +11,7 @@ using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
@@ -35,6 +36,8 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         // ai
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiProvider, AiProvider.None.ToString());
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiProviderConfigured, false);
+        await this.AddIfNotExists<List<string>>(StaticConstants.DynamicSettingAiEnabledFeatures, []);
+
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaUrl, "http://host.docker.internal:11434");
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaModel, "llama3.1:8b");
 #pragma warning restore IDE0022 // Use expression body for method
@@ -97,6 +100,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         {
             bool => SettingsValueType.TBoolean,
             string => SettingsValueType.TString,
+            List<string> => SettingsValueType.TListString,
             _ => throw new InvalidOperationException("Invalid value type."),
         };
     }
@@ -112,16 +116,13 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     {
         ArgumentNullException.ThrowIfNull(setting);
 
-        switch (setting.Type)
+        return setting.Type switch
         {
-            case SettingsValueType.TBoolean:
-                var result = bool.Parse(setting.Value);
-                return (T)(object)result;
-            case SettingsValueType.TString:
-                return (T)(object)setting.Value;
-            default:
-                throw new InvalidOperationException("Invalid value type.");
-        }
+            SettingsValueType.TBoolean => (T)(object)bool.Parse(setting.Value),
+            SettingsValueType.TString => (T)(object)setting.Value,
+            SettingsValueType.TListString => (T)(object)(TryDeserializeStringList(setting.Value) ?? []),
+            _ => throw new InvalidOperationException("Invalid value type."),
+        };
     }
 
     /// <summary>
@@ -143,6 +144,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         {
             SettingsValueType.TBoolean => bool.TryParse(value, out _),
             SettingsValueType.TString => value is not null,
+            SettingsValueType.TListString => TryDeserializeStringList(value) is not null,
             _ => false,
         };
     }
@@ -179,5 +181,18 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         });
 
         await context.SaveChangesAsync();
+    }
+
+    internal static List<string>? TryDeserializeStringList(string value)
+    {
+        try
+        {
+            var result = JsonConvert.DeserializeObject<List<string>>(value);
+            return result;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

@@ -7,9 +7,14 @@ import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
 import { useUpdateSetting } from "../../lib/requests/settings/useUpdateSetting";
 import { BooleanSetting } from "./BooleanSetting";
 import { EnumSetting } from "./EnumSetting";
+import { ListStringAsBoolean } from "./ListStringAsBoolean";
 import { StringSetting } from "./StringSetting";
 
-type SettingType = "boolean" | "enum" | "string";
+type SettingType = "boolean" | "enum" | "string" | "list{string}-as-boolean";
+
+const IngoreDefaultDescriptionPosition: SettingType[] = [
+  "list{string}-as-boolean",
+];
 
 interface SettingItemProps {
   setting: ObjectSettingsDTO | undefined;
@@ -18,7 +23,7 @@ interface SettingItemProps {
   description?: string;
   details?: ReactNode;
 
-  // enum-only props
+  // enum & list{string}-as-boolean props
   options?: Array<{ value: string; label: ReactNode }>;
 
   // string-only props
@@ -29,6 +34,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
   setting,
   description,
   details,
+  type,
   ...props
 }) => {
   const { mutate: updateSetting } = useUpdateSetting(setting);
@@ -46,10 +52,12 @@ export const SettingItem: React.FC<SettingItemProps> = ({
     >
       <SpecificSettingItem
         setting={setting}
+        type={type}
+        description={description}
         {...props}
         update={(value: any) => updateSetting(value)}
       />
-      {description && (
+      {description && !IngoreDefaultDescriptionPosition.includes(type) && (
         <Typography variant="subtitle2" sx={{ mt: "3px !important" }}>
           {description}
         </Typography>
@@ -78,12 +86,12 @@ const SpecificSettingItem: React.FC<SpecificItemProps> = ({
     case "string":
       return <StringSetting {...props} />;
 
+    case "list{string}-as-boolean":
+      return <ListStringAsBoolean {...props} />;
+
     default:
       return <></>;
   }
 };
 
-export type TypeSettingProps = Omit<
-  SpecificItemProps,
-  "type" | "description" | "details"
->;
+export type TypeSettingProps = Omit<SpecificItemProps, "type" | "details">;

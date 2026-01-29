@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Ai;
 using Microsoft.Extensions.AI;
 
 namespace KapitelShelf.Api.Logic.Interfaces;
@@ -25,4 +26,11 @@ public interface IAiManager
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task.</returns>
     Task ConfigureCurrentProvider(IProgress<int>? progress = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Check if a feature is currently enabled.
+    /// </summary>
+    /// <param name="feature">The feature to check.</param>
+    /// <returns>True, if the feature is enabled, otherwise false.</returns>
+    Task<bool> FeatureEnabled(AiFeatures feature);
 }

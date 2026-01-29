@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { type ReactElement } from "react";
 
-import { AiSettings } from "../../features/settings/AiSettingsFeature";
+import { AiSettings } from "../../features/settings/ai/AiSettingsFeature";
 import { CloudStorageSettings } from "../../features/settings/CloudStorageSettingsFeature";
 import { MobileSettings } from "../../features/settings/MobileSettingsFeature";
 import { useSettingsList } from "../../lib/requests/settings/useSettingsList";

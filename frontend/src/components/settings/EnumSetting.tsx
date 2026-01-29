@@ -9,7 +9,7 @@ import React from "react";
 
 import type { TypeSettingProps } from "./SettingItem";
 
-type EnumSettingProps = TypeSettingProps & {
+export type EnumSettingProps = TypeSettingProps & {
   options?: Array<{ value: string; label: React.ReactNode }>;
 };
 

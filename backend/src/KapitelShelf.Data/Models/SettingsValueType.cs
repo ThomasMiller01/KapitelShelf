@@ -18,4 +18,9 @@ public enum SettingsValueType
     /// The "string" type.
     /// </summary>
     TString = 1,
+
+    /// <summary>
+    /// The "List{string}" type.
+    /// </summary>
+    TListString = 2,
 }

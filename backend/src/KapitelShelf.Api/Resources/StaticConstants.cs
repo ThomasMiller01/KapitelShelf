@@ -80,6 +80,11 @@ namespace KapitelShelf.Api.Resources
         public static readonly string DynamicSettingCloudStorageExperimentalBisync = "cloudstorage.rclone.experimental-bisync";
 
         /// <summary>
+        /// Dynamic setting ai enabled features.
+        /// </summary>
+        public static readonly string DynamicSettingAiEnabledFeatures = "ai.enabled.features";
+
+        /// <summary>
         /// Dynamic setting ai provider.
         /// </summary>
         public static readonly string DynamicSettingAiProvider = "ai.provider";

@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import { SiOllama } from "react-icons/si";
 
-import { SettingItem } from "../../components/settings/SettingItem";
-import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
+import { SettingItem } from "../../../components/settings/SettingItem";
+import type { ObjectSettingsDTO } from "../../../lib/api/KapitelShelf.Api";
 
 interface OllamaSettingProps {
   settings: ObjectSettingsDTO[];
@@ -21,14 +21,12 @@ export const OllamaSetting: React.FC<OllamaSettingProps> = ({ settings }) => {
   const model = settings.find((x) => x.key === "ai.ollama.model");
   const url = settings.find((x) => x.key === "ai.ollama.url");
 
-  console.log(url);
-
   return (
     <Box sx={{ mt: 3 }}>
       <Accordion
         defaultExpanded={model?.value === undefined || url?.value === ""}
         disableGutters
-        sx={{ boxShadow: "none" }}
+        sx={{ boxShadow: "none", border: "1px solid", borderColor: "divider" }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}

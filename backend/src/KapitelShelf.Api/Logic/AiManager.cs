@@ -85,6 +85,13 @@ public class AiManager(
         }
     }
 
+    /// <inheritdoc/>
+    public async Task<bool> FeatureEnabled(AiFeatures feature)
+    {
+        var enabledFeaturesSetting = await this.settingsManager.GetAsync<List<string>>(StaticConstants.DynamicSettingAiEnabledFeatures);
+        return enabledFeaturesSetting.Value.Contains(feature.ToString());
+    }
+
     private async Task<OllamaApiClient?> CreateOllamaClient(CancellationToken cancellationToken)
     {
         var urlSetting = await this.settingsManager.GetAsync<string>(StaticConstants.DynamicSettingAiOllamaUrl);

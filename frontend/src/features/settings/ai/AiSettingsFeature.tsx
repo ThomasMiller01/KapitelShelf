@@ -1,8 +1,9 @@
 import { Chip, Divider, Paper, Stack, Typography } from "@mui/material";
 import { SiOllama } from "react-icons/si";
 
-import { SettingItem } from "../../components/settings/SettingItem";
-import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
+import { SettingItem } from "../../../components/settings/SettingItem";
+import type { ObjectSettingsDTO } from "../../../lib/api/KapitelShelf.Api";
+import { AiFeaturesSelection } from "./AiFeaturesSelection";
 import { OllamaSetting } from "./OllamaSettings";
 
 interface AiSettingsProps {
@@ -48,6 +49,7 @@ export const AiSettings: React.FC<AiSettingsProps> = ({ settings }) => {
         description="Select which AI provider should be used for AI-powered features."
       />
       {provider?.value === "Ollama" && <OllamaSetting settings={settings} />}
+      <AiFeaturesSelection settings={settings} />
     </Paper>
   );
 };

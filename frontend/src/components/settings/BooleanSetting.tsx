@@ -23,7 +23,7 @@ const PinkSwitch = styled(Switch)(({ theme }) => ({
 }));
 
 export const BooleanSetting: React.FC<TypeSettingProps> = ({
-  setting,
+  setting: { value },
   label,
   update,
 }) => (
@@ -31,7 +31,7 @@ export const BooleanSetting: React.FC<TypeSettingProps> = ({
     <FormControlLabel
       label={label}
       control={<PinkSwitch onChange={(e) => update(e.target.checked)} />}
-      checked={setting.value === true}
+      checked={value === true}
       sx={{ mr: "10px" }}
     />
   </FormGroup>
