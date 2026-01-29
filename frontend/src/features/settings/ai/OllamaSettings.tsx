@@ -8,7 +8,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { SiOllama } from "react-icons/si";
 
 import { SettingItem } from "../../../components/settings/SettingItem";
 import type { ObjectSettingsDTO } from "../../../lib/api/KapitelShelf.Api";
@@ -37,10 +36,7 @@ export const OllamaSetting: React.FC<OllamaSettingProps> = ({ settings }) => {
             },
           }}
         >
-          <Stack direction="row" spacing={1} alignItems="center">
-            <SiOllama fontSize="1.4rem" />
-            <Typography variant="h6">Configure Ollama</Typography>
-          </Stack>
+          <Typography variant="h6">Configure Ollama</Typography>
         </AccordionSummary>
         <AccordionDetails sx={{ pt: 0 }}>
           <SettingItem
