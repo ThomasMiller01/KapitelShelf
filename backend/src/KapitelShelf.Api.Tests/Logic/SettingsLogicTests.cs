@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
@@ -10,6 +11,7 @@ using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Quartz;
 using Testcontainers.PostgreSql;
 
@@ -195,9 +197,140 @@ public class SettingsLogicTests
         await context.SaveChangesAsync();
 
         // Execute / Assert
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(
-            () => this.testee.UpdateSettingAsync(model.Id, "not-bool"));
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(() => this.testee.UpdateSettingAsync(model.Id, "not-bool"));
 
         Assert.That(ex!.Message, Is.EqualTo(StaticConstants.InvalidSettingValueType));
+    }
+
+    /// <summary>
+    /// Tests <see cref="SettingsLogic.UpdateSettingAsync"/> triggers side effects when the updated key is in the AI provider side-effect list.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task UpdateSettingAsync_TriggersAiProviderSideEffects_WhenKeyIsAiProviderKey()
+    {
+        // Setup
+        var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var setting = new SettingsModel
+        {
+            Id = Guid.NewGuid(),
+            Key = StaticConstants.DynamicSettingAiProvider,
+            Value = "ollama",
+            Type = SettingsValueType.TString,
+        };
+
+        await context.Settings.AddAsync(setting);
+        await context.SaveChangesAsync();
+
+        var scheduler = Substitute.For<IScheduler>();
+        this.schedulerFactory.GetScheduler().Returns(Task.FromResult(scheduler));
+
+        // Execute
+        _ = await this.testee.UpdateSettingAsync(setting.Id, "openai");
+
+        // Assert
+        await this.settingsManager.Received(1).SetAsync(StaticConstants.DynamicSettingAiProviderConfigured, false);
+        _ = await this.schedulerFactory.Received(1).GetScheduler();
+    }
+
+    /// <summary>
+    /// Tests <see cref="SettingsLogic.UpdateSettingAsync"/> does not trigger side effects when the updated key is not in the AI provider side-effect list.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task UpdateSettingAsync_DoesNotTriggerSideEffects_WhenKeyIsNotAiProviderKey()
+    {
+        // Setup
+        var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var setting = new SettingsModel
+        {
+            Id = Guid.NewGuid(),
+            Key = "some-other-key".Unique(),
+            Value = "x",
+            Type = SettingsValueType.TString,
+        };
+
+        await context.Settings.AddAsync(setting);
+        await context.SaveChangesAsync();
+
+        // Execute
+        _ = await this.testee.UpdateSettingAsync(setting.Id, "y");
+
+        // Assert
+        await this.settingsManager.DidNotReceiveWithAnyArgs().SetAsync<string>(default!, default!);
+        _ = await this.schedulerFactory.DidNotReceive().GetScheduler();
+    }
+
+    /// <summary>
+    /// Tests <see cref="SettingsLogic.SettingUpdateSideEffectsAsync"/> triggers AI provider configuration when the key is in the side-effect list.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SettingUpdateSideEffectsAsync_TriggersAiProviderConfiguration_WhenKeyIsAiProviderKey()
+    {
+        // Setup
+        var scheduler = Substitute.For<IScheduler>();
+        this.schedulerFactory.GetScheduler().Returns(Task.FromResult(scheduler));
+
+        var settingDto = new SettingsDTO<object>
+        {
+            Id = Guid.NewGuid(),
+            Key = StaticConstants.DynamicSettingAiOllamaModel,
+            Value = "llama3.1",
+        };
+
+        // Execute
+        await this.testee.SettingUpdateSideEffectsAsync(settingDto);
+
+        // Assert
+        await this.settingsManager.Received(1).SetAsync(StaticConstants.DynamicSettingAiProviderConfigured, false);
+        _ = await this.schedulerFactory.Received(1).GetScheduler();
+    }
+
+    /// <summary>
+    /// Tests <see cref="SettingsLogic.SettingUpdateSideEffectsAsync"/> does nothing when the key is not in the side-effect list.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SettingUpdateSideEffectsAsync_DoesNothing_WhenKeyIsNotAiProviderKey()
+    {
+        // Setup
+        var settingDto = new SettingsDTO<object>
+        {
+            Id = Guid.NewGuid(),
+            Key = "not-ai-related",
+            Value = "x",
+        };
+
+        // Execute
+        await this.testee.SettingUpdateSideEffectsAsync(settingDto);
+
+        // Assert
+        await this.settingsManager.DidNotReceiveWithAnyArgs().SetAsync<string>(default!, default!);
+        _ = await this.schedulerFactory.DidNotReceive().GetScheduler();
+    }
+
+    /// <summary>
+    /// Tests <see cref="SettingsLogic.SettingUpdateSideEffectsAsync"/> still sets provider configured false even if scheduling throws.
+    /// </summary>
+    [Test]
+    public void SettingUpdateSideEffectsAsync_SetsConfiguredFalse_EvenIfSchedulingThrows()
+    {
+        // Setup
+        this.schedulerFactory.GetScheduler().Throws(new InvalidOperationException("scheduler failed"));
+
+        var settingDto = new SettingsDTO<object>
+        {
+            Id = Guid.NewGuid(),
+            Key = StaticConstants.DynamicSettingAiProvider,
+            Value = "ollama",
+        };
+
+        // Execute / Assert
+        Assert.ThrowsAsync<InvalidOperationException>(() => this.testee.SettingUpdateSideEffectsAsync(settingDto));
+
+        this.settingsManager.Received(1).SetAsync(StaticConstants.DynamicSettingAiProviderConfigured, false);
     }
 }

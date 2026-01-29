@@ -93,7 +93,7 @@ public class SettingsLogic(
         return settingDto;
     }
 
-    private async Task SettingUpdateSideEffectsAsync(SettingsDTO<object> setting)
+    internal async Task SettingUpdateSideEffectsAsync(SettingsDTO<object> setting)
     {
         // trigger ai provider configuration
         if (this.aiConfigureProviderSideEffects.Contains(setting.Key))
