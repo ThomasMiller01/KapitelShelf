@@ -49,7 +49,10 @@ export const AiSettings: React.FC<AiSettingsProps> = ({ settings }) => {
         description="Select which AI provider should be used for AI-powered features."
       />
       {provider?.value === "Ollama" && <OllamaSetting settings={settings} />}
-      <AiFeaturesSelection settings={settings} />
+      <AiFeaturesSelection
+        settings={settings}
+        aiConfigured={providerConfigured?.value}
+      />
     </Paper>
   );
 };

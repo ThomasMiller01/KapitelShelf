@@ -9,4 +9,8 @@ namespace KapitelShelf.Api.DTOs.Ai;
 /// </summary>
 public enum AiFeatures
 {
+    /// <summary>
+    /// Automatically generate metadata like categories and tags during book import.
+    /// </summary>
+    BookImportMetadataGeneration,
 }

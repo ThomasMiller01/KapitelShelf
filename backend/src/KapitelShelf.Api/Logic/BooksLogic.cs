@@ -3,6 +3,7 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
 using KapitelShelf.Api.DTOs.Category;
@@ -700,57 +701,23 @@ public class BooksLogic(
         var description = string.IsNullOrWhiteSpace(book.Description) ? "(none)" : book.Description;
         var author = book.Author is not null ? $"{book.Author.FirstName} {book.Author.LastName}".Trim() : "(none)";
         var series = book.Series?.Name ?? "(none)";
-        var existingCategories = book.Categories?.Select((x) => x.Name).ToList() ?? [];
-        var existingTags = book.Tags?.Select((x) => x.Name).ToList() ?? [];
+        var bookCategories = book.Categories ?? [];
+        var bookTags = book.Tags ?? [];
 
         var libraryCategories = await this.categoriesLogic.GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null);
         var libraryTags = await this.tagsLogic.GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null);
 
-        var systemPrompt = """
-                You are a library assistant for a personal book manager.
-                Generate categories and tags for a book based on the provided information.
-                Return ONLY valid JSON with exactly these keys: categories, tags.
-                Both values must be arrays of strings.
-                Do not include any extra text, markdown, or explanations.
-            """;
+        var userPrompt = AiPrompts.GenerateCategoriesAndTagsFromBook_User(
+            title,
+            description,
+            series,
+            author,
+            bookCategories,
+            bookTags,
+            libraryCategories.Items,
+            libraryTags.Items);
 
-        var userPrompt = $"""
-                Book information:
-                Title: {title}
-                Description: {description}
-                Series: {series}
-                Author: {author}
-
-                Existing metadata of this book:
-                Categories: {string.Join(", ", existingCategories)}
-                Tags: {string.Join(", ", existingTags)}
-
-                Existing categories in the library (prefer using these when appropriate):
-                {string.Join(", ", libraryCategories.Items.Select(x => x.Name).ToList())}
-
-                Existing tags in the library (prefer using these when appropriate):
-                {string.Join(", ", libraryTags.Items.Select(x => x.Name).ToList())}
-
-                Rules:
-                - categories: 0-3 items, genres or high-level topics
-                - tags: 0-5 items, subgenres, tropes, themes, settings, or tone
-
-                - be conservative and accuracy-focused:
-                  - only assign a specific genre (e.g. "Science Fiction", "Fantasy") if the title/description supports it
-                  - do not guess a genre when the information is unclear
-                  - if unsure, return fewer categories rather than an incorrect one
-
-                - existing library categories/tags are suggestions only:
-                  - reuse them if they match the book
-                  - do not choose a category just because it exists in the library or is common
-
-                - avoid generic labels like "Book", "Novel", "Story"
-                - use English-style title casing for all categories and tags
-                - do not invent author names or series
-                - do not include duplicates
-            """;
-
-        return await this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(userPrompt, systemPrompt);
+        return await this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(userPrompt, AiPrompts.GenerateCategoriesAndTagsFromBook_System);
     }
 
     private async Task<IList<BookModel>> GetDuplicatesAsync(string title, string? url)
@@ -797,6 +764,17 @@ public class BooksLogic(
             FileInfo = locationFile,
         };
 
+        // automatically generate categories and tags if ai is enabled
+        if (await this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration))
+        {
+            var generatedMetadata = await this.AiGenerateCategoriesTags(bookDto.Id);
+            if (generatedMetadata is not null)
+            {
+                bookDto.Categories = generatedMetadata.Categories.Select(x => new CategoryDTO { Name = x }).ToList();
+                bookDto.Tags = generatedMetadata.Tags.Select(x => new TagDTO { Name = x }).ToList();
+            }
+        }
+
         // update book with new cover and file
         await this.UpdateBookAsync(bookDto.Id, bookDto);
 
@@ -822,6 +800,17 @@ public class BooksLogic(
         {
             Type = this.mapper.MetadataSourceToLocationTypeDto(source),
         };
+
+        // automatically generate categories and tags if ai is enabled
+        if (await this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration))
+        {
+            var generatedMetadata = await this.AiGenerateCategoriesTags(bookDto.Id);
+            if (generatedMetadata is not null)
+            {
+                bookDto.Categories = generatedMetadata.Categories.Select(x => new CategoryDTO { Name = x }).ToList();
+                bookDto.Tags = generatedMetadata.Tags.Select(x => new TagDTO { Name = x }).ToList();
+            }
+        }
 
         // update book with new cover and location
         await this.UpdateBookAsync(bookDto.Id, bookDto);

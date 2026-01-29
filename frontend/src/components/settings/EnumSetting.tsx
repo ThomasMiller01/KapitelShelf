@@ -22,6 +22,7 @@ export const EnumSetting: React.FC<EnumSettingProps> = ({
   label,
   update,
   options,
+  enabled,
 }) => {
   const value: string = (setting.value as string | undefined) ?? "";
   const id: string =
@@ -39,6 +40,7 @@ export const EnumSetting: React.FC<EnumSettingProps> = ({
         value={value}
         label={typeof label === "string" ? label : undefined}
         onChange={handleChange}
+        disabled={!enabled}
       >
         {(options ?? []).map((o) => (
           <MenuItem key={o.value} value={o.value}>

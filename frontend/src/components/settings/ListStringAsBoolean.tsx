@@ -13,6 +13,7 @@ export const ListStringAsBoolean: React.FC<ListStringAsBooleanProps> = ({
   description,
   update,
   options,
+  enabled,
 }) => {
   const enabledSet = useMemo<Set<string>>(() => {
     return new Set(setting.value);
@@ -33,8 +34,17 @@ export const ListStringAsBoolean: React.FC<ListStringAsBooleanProps> = ({
   return (
     <Stack spacing={0.5} sx={{ minWidth: "200px" }}>
       <Stack>
-        <Typography variant="subtitle1">{label}</Typography>
-        <Typography variant="body2" fontStyle="italic">
+        <Typography
+          variant="subtitle1"
+          color={enabled ? "primary" : "textDisabled"}
+        >
+          {label}
+        </Typography>
+        <Typography
+          variant="body2"
+          fontStyle="italic"
+          color={enabled ? "primary" : "textDisabled"}
+        >
           {description}
         </Typography>
       </Stack>
@@ -54,9 +64,14 @@ export const ListStringAsBoolean: React.FC<ListStringAsBooleanProps> = ({
               setting={{ value: checked }}
               label={option.label}
               update={(x) => handleToggle(option.value, x === true)}
+              enabled={enabled}
             />
             {option.description && (
-              <Typography variant="subtitle2" sx={{ mt: "3px !important" }}>
+              <Typography
+                variant="subtitle2"
+                color={enabled ? "primary" : "textDisabled"}
+                sx={{ mt: "3px !important" }}
+              >
                 {option.description}
               </Typography>
             )}

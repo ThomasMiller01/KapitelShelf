@@ -26,11 +26,17 @@ export const BooleanSetting: React.FC<TypeSettingProps> = ({
   setting: { value },
   label,
   update,
+  enabled,
 }) => (
   <FormGroup>
     <FormControlLabel
       label={label}
-      control={<PinkSwitch onChange={(e) => update(e.target.checked)} />}
+      control={
+        <PinkSwitch
+          onChange={(e) => update(e.target.checked)}
+          disabled={!enabled}
+        />
+      }
       checked={value === true}
       sx={{ mr: "10px" }}
     />

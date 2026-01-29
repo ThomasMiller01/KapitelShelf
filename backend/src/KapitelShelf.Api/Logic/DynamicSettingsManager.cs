@@ -36,7 +36,9 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         // ai
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiProvider, AiProvider.None.ToString());
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiProviderConfigured, false);
-        await this.AddIfNotExists<List<string>>(StaticConstants.DynamicSettingAiEnabledFeatures, []);
+        await this.AddIfNotExists<List<string>>(StaticConstants.DynamicSettingAiEnabledFeatures, [
+            AiFeatures.BookImportMetadataGeneration.ToString(),
+        ]);
 
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaUrl, "http://host.docker.internal:11434");
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaModel, "llama3.1:8b");

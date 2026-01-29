@@ -12,6 +12,7 @@ export const StringSetting: React.FC<StringSettingProps> = ({
   label,
   update,
   placeholder,
+  enabled,
 }) => {
   const initialValue: string = (setting.value as string | undefined) ?? "";
 
@@ -44,6 +45,7 @@ export const StringSetting: React.FC<StringSettingProps> = ({
       placeholder={placeholder}
       onChange={handleChange}
       sx={{ minWidth: 260 }}
+      disabled={!enabled}
     />
   );
 };

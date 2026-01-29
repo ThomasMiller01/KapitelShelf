@@ -22,6 +22,7 @@ interface SettingItemProps {
   label: ReactNode;
   description?: string;
   details?: ReactNode;
+  enabled?: boolean;
 
   // enum & list{string}-as-boolean props
   options?: Array<{ value: string; label: ReactNode; description?: ReactNode }>;
@@ -35,6 +36,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
   description,
   details,
   type,
+  enabled = true,
   ...props
 }) => {
   const { mutate: updateSetting } = useUpdateSetting(setting);
@@ -54,11 +56,16 @@ export const SettingItem: React.FC<SettingItemProps> = ({
         setting={setting}
         type={type}
         description={description}
+        enabled={enabled}
         {...props}
         update={(value: any) => updateSetting(value)}
       />
       {description && !IngoreDefaultDescriptionPosition.includes(type) && (
-        <Typography variant="subtitle2" sx={{ mt: "3px !important" }}>
+        <Typography
+          variant="subtitle2"
+          color={enabled ? "primary" : "textDisabled"}
+          sx={{ mt: "3px !important" }}
+        >
           {description}
         </Typography>
       )}
