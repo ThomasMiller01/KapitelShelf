@@ -39,7 +39,8 @@ public class NotificationsLogic(
         string source = "",
         Guid? userId = null,
         Guid? parentId = null,
-        bool disableAutoGrouping = false)
+        bool disableAutoGrouping = false,
+        bool ignoreWhenDuplicate = false)
     {
         var title = titleArgs is null
             ? this.notificationsLocalizations.Get($"{localizationKey}_Title")
@@ -49,7 +50,7 @@ public class NotificationsLogic(
             ? this.notificationsLocalizations.Get($"{localizationKey}_Message")
             : this.notificationsLocalizations.Get($"{localizationKey}_Message", messageArgs);
 
-        return await this.AddNotification(title, message, type, severity, expires, source, userId, parentId, disableAutoGrouping);
+        return await this.AddNotification(title, message, type, severity, expires, source, userId, parentId, disableAutoGrouping, ignoreWhenDuplicate);
     }
 
     /// <inheritdoc/>
@@ -62,7 +63,8 @@ public class NotificationsLogic(
         string source = "",
         Guid? userId = null,
         Guid? parentId = null,
-        bool disableAutoGrouping = false)
+        bool disableAutoGrouping = false,
+        bool ignoreWhenDuplicate = false)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -80,6 +82,24 @@ public class NotificationsLogic(
             }
 
             return notifications;
+        }
+
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+#pragma warning disable CA1304 // Specify CultureInfo
+#pragma warning disable CA1311 // Specify a culture or use an invariant version
+        var isDuplicate = await context.Notifications
+            .Where(x =>
+                x.UserId == userId &&
+                x.Title != null &&
+                x.Title.ToLower() == title.ToLower())
+            .AnyAsync();
+#pragma warning restore CA1311 // Specify a culture or use an invariant version
+#pragma warning restore CA1304 // Specify CultureInfo
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+
+        if (ignoreWhenDuplicate && isDuplicate)
+        {
+            return [];
         }
 
         // if a notification with that title already exists,

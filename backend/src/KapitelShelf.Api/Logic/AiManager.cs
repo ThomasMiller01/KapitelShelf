@@ -91,11 +91,21 @@ public class AiManager(
         var modelSetting = await this.settingsManager.GetAsync<string>(StaticConstants.DynamicSettingAiOllamaModel);
         if (string.IsNullOrEmpty(urlSetting.Value) || string.IsNullOrEmpty(modelSetting.Value))
         {
+            // provider not yet configured, ignore
             return null;
         }
 
-        var httpClient = this.httpClientFactory.CreateClient();
-        httpClient.BaseAddress = new Uri(urlSetting.Value);
+        HttpClient httpClient;
+        try
+        {
+            httpClient = this.httpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(urlSetting.Value);
+        }
+        catch
+        {
+            this.OnFailedToCreateClient();
+            return null;
+        }
 
         var client = new OllamaApiClient(httpClient, defaultModel: modelSetting.Value);
         try
@@ -103,11 +113,13 @@ public class AiManager(
             var isClientRunning = await client.IsRunningAsync(cancellationToken);
             if (!isClientRunning)
             {
+                this.OnFailedToCreateClient();
                 return null;
             }
         }
         catch
         {
+            this.OnFailedToCreateClient();
             return null;
         }
 
@@ -125,14 +137,6 @@ public class AiManager(
         var client = await this.CreateOllamaClient(cancellationToken);
         if (client is null)
         {
-            _ = this.notifications.AddNotification(
-                "AiManagerConfigureProviderFailed",
-                titleArgs: [AiProvider.Ollama.ToString()],
-                messageArgs: [AiProvider.Ollama.ToString()],
-                type: NotificationTypeDto.System,
-                severity: NotificationSeverityDto.Medium,
-                source: "Ai Manager");
-
             return false;
         }
 
@@ -152,7 +156,7 @@ public class AiManager(
                 "AiManagerConfigureProviderFailed",
                 titleArgs: [AiProvider.Ollama.ToString()],
                 messageArgs: [AiProvider.Ollama.ToString()],
-                type: NotificationTypeDto.System,
+                type: NotificationTypeDto.Error,
                 severity: NotificationSeverityDto.Medium,
                 source: "Ai Manager");
 
@@ -161,5 +165,18 @@ public class AiManager(
         }
 
         return true;
+    }
+
+    private void OnFailedToCreateClient()
+    {
+        _ = this.notifications.AddNotification(
+                "AiManagerCreateClientFailed",
+                titleArgs: [AiProvider.Ollama.ToString()],
+                messageArgs: [AiProvider.Ollama.ToString()],
+                type: NotificationTypeDto.Warning,
+                severity: NotificationSeverityDto.Low,
+                expires: DateTime.UtcNow.AddDays(1),
+                source: "Ai Manager",
+                ignoreWhenDuplicate: true);
     }
 }
