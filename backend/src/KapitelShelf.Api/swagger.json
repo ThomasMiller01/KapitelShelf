@@ -1148,6 +1148,48 @@
         }
       }
     },
+    "/books/{bookId}/ai/generate-categories-tags": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Generate categories and tags for a book using AI.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiGenerateCategoriesTagsResultDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiGenerateCategoriesTagsResultDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiGenerateCategoriesTagsResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/categories": {
       "get": {
         "tags": [
@@ -3810,6 +3852,29 @@
   },
   "components": {
     "schemas": {
+      "AiGenerateCategoriesTagsResultDTO": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the categories.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the tags.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The ai generate categories and tags result dto."
+      },
       "AuthorDTO": {
         "type": "object",
         "properties": {
