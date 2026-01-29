@@ -3,12 +3,14 @@
 // </copyright>
 
 using KapitelShelf.Api.Logic;
+using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using Quartz;
 using Testcontainers.PostgreSql;
 
 namespace KapitelShelf.Api.Tests.Logic;
@@ -23,6 +25,8 @@ public class SettingsLogicTests
     private DbContextOptions<KapitelShelfDBContext> dbOptions;
     private IDbContextFactory<KapitelShelfDBContext> dbContextFactory;
     private Mapper mapper;
+    private ISchedulerFactory schedulerFactory;
+    private IDynamicSettingsManager settingsManager;
     private SettingsLogic testee;
 
     /// <summary>
@@ -71,8 +75,10 @@ public class SettingsLogicTests
             .Returns(call => Task.FromResult(new KapitelShelfDBContext(this.dbOptions)));
 
         this.mapper = Testhelper.CreateMapper();
+        this.schedulerFactory = Substitute.For<ISchedulerFactory>();
+        this.settingsManager = Substitute.For<IDynamicSettingsManager>();
 
-        this.testee = new SettingsLogic(this.dbContextFactory, this.mapper);
+        this.testee = new SettingsLogic(this.dbContextFactory, this.mapper, this.schedulerFactory, this.settingsManager);
     }
 
     /// <summary>

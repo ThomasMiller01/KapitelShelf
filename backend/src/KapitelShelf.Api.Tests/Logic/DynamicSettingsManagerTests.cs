@@ -190,7 +190,7 @@ public class DynamicSettingsManagerTests
     /// </summary>
     [Test]
     public void MapTypeToValueType_Throws_ForInvalidType() =>
-        Assert.Throws<InvalidOperationException>(() => DynamicSettingsManager.MapTypeToValueType("string"));
+        Assert.Throws<InvalidOperationException>(() => DynamicSettingsManager.MapTypeToValueType(new MemoryStream()));
 
     /// <summary>
     /// Tests <see cref="DynamicSettingsManager.ConvertSettingValue{T}"/> converts boolean value.
