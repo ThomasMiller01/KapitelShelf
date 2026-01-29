@@ -732,15 +732,20 @@ public class BooksLogic(
                 {string.Join(", ", libraryTags.Items.Select(x => x.Name).ToList())}
 
                 Rules:
-                - categories: 0-5 items, genres or high-level topics
-                  (examples: "Fantasy", "Science Fiction", "Mystery", "Romance")
+                - categories: 0-3 items, genres or high-level topics
                 - tags: 0-5 items, subgenres, tropes, themes, settings, or tone
-                  (examples: "Time Travel", "LITRPG", "Portal Fantasy", "Slow Burn", "Dark Academia", "Post Apocalyptic")
-                - categories and tags must be descriptive about the genre and themes of the book
-                - avoid generic labels like "Book", "Novel", "Fiction", "Story"
+
+                - be conservative and accuracy-focused:
+                  - only assign a specific genre (e.g. "Science Fiction", "Fantasy") if the title/description supports it
+                  - do not guess a genre when the information is unclear
+                  - if unsure, return fewer categories rather than an incorrect one
+
+                - existing library categories/tags are suggestions only:
+                  - reuse them if they match the book
+                  - do not choose a category just because it exists in the library or is common
+
+                - avoid generic labels like "Book", "Novel", "Story"
                 - use English-style title casing for all categories and tags
-                  (capitalize the first letter of each word, e.g. "Science Fiction", "Time Travel")
-                - you may reuse existing categories/tags from the book and from the library if appropriate
                 - do not invent author names or series
                 - do not include duplicates
             """;

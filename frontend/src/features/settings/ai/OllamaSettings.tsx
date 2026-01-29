@@ -76,29 +76,29 @@ export const OllamaSetting: React.FC<OllamaSettingProps> = ({ settings }) => {
               {
                 label: (
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography fontWeight="bold">qwen3:1.7b</Typography>
+                    <Typography fontWeight="bold">gemma2:2b</Typography>
                     <Typography>(low resources)</Typography>
                   </Stack>
                 ),
-                value: "qwen3:1.7b",
-              },
-              {
-                label: (
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography fontWeight="bold">llama3.1:8b</Typography>
-                    <Typography>(recommended)</Typography>
-                  </Stack>
-                ),
-                value: "llama3.1:8b",
+                value: "gemma2:2b",
               },
               {
                 label: (
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography fontWeight="bold">gemma2:9b</Typography>
-                    <Typography>(higher quality)</Typography>
+                    <Typography>(recommended)</Typography>
                   </Stack>
                 ),
                 value: "gemma2:9b",
+              },
+              {
+                label: (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography fontWeight="bold">gemma2:27b</Typography>
+                    <Typography>(higher quality)</Typography>
+                  </Stack>
+                ),
+                value: "gemma2:27b",
               },
             ]}
             description="Select the AI model used for Ollama."
