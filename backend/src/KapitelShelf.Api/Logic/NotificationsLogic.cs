@@ -78,7 +78,7 @@ public class NotificationsLogic(
             var notifications = new List<NotificationDto>();
             foreach (var user in users)
             {
-                notifications.AddRange(await this.AddNotification(title, message, type, severity, expires, source, user, parentId, disableAutoGrouping));
+                notifications.AddRange(await this.AddNotification(title, message, type, severity, expires, source, user, parentId, disableAutoGrouping, ignoreWhenDuplicate));
             }
 
             return notifications;

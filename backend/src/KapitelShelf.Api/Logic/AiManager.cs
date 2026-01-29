@@ -177,9 +177,9 @@ public class AiManager(
             httpClient = this.httpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(urlSetting.Value);
         }
-        catch
+        catch (Exception ex)
         {
-            this.OnFailedToCreateClient();
+            this.OnFailedToCreateClient(ex.Message);
             return null;
         }
 
@@ -189,13 +189,13 @@ public class AiManager(
             var isClientRunning = await client.IsRunningAsync(cancellationToken);
             if (!isClientRunning)
             {
-                this.OnFailedToCreateClient();
+                this.OnFailedToCreateClient("Provider is not running.");
                 return null;
             }
         }
-        catch
+        catch (Exception ex)
         {
-            this.OnFailedToCreateClient();
+            this.OnFailedToCreateClient(ex.Message);
             return null;
         }
 
@@ -261,12 +261,12 @@ public class AiManager(
         }
     }
 
-    private void OnFailedToCreateClient()
+    private void OnFailedToCreateClient(string reason)
     {
         _ = this.notifications.AddNotification(
                 "AiManagerCreateClientFailed",
                 titleArgs: [AiProvider.Ollama.ToString()],
-                messageArgs: [AiProvider.Ollama.ToString()],
+                messageArgs: [AiProvider.Ollama.ToString(), reason],
                 type: NotificationTypeDto.Warning,
                 severity: NotificationSeverityDto.Low,
                 expires: DateTime.UtcNow.AddDays(1),
