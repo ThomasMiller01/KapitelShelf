@@ -33,4 +33,14 @@ public interface IAiManager
     /// <param name="feature">The feature to check.</param>
     /// <returns>True, if the feature is enabled, otherwise false.</returns>
     Task<bool> FeatureEnabled(AiFeatures feature);
+
+    /// <summary>
+    /// Make a prompt and get a structured result.
+    /// </summary>
+    /// <typeparam name="T">The response type.</typeparam>
+    /// <param name="userPrompt">The user prompt.</param>
+    /// <param name="systemPrompt">The system prompt.</param>
+    /// <returns>The structured result.</returns>
+    Task<T?> GetStructuredResponse<T>(string userPrompt, string? systemPrompt = null)
+        where T : class;
 }

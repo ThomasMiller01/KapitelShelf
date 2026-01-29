@@ -10,6 +10,7 @@ using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.SS.Formula.Functions;
 
 namespace KapitelShelf.Api.Controllers;
 
@@ -540,6 +541,31 @@ public class BooksController(
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error updating book with Id: {BookId}", bookId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Generate categories and tags for a book using AI.
+    /// </summary>
+    /// <param name="bookId">The id of the book.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{bookId}/ai/generate-categories-tags")]
+    public async Task<ActionResult<AiGenerateCategoriesTagsResultDTO>> AiGenerateCategoriesTags(Guid bookId)
+    {
+        try
+        {
+            var generateCategoriesTagsResult = await this.logic.AiGenerateCategoriesTags(bookId);
+            if (generateCategoriesTagsResult is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(generateCategoriesTagsResult);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error generating categories and tags for book '{BookId}' using AI", bookId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

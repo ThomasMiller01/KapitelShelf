@@ -109,4 +109,11 @@ public interface IBooksLogic
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task CleanupDatabase();
+
+    /// <summary>
+    /// Generate categories and tags for a book using AI.
+    /// </summary>
+    /// <param name="bookId">The book id.</param>
+    /// <returns>The generated categories and tags result.</returns>
+    Task<AiGenerateCategoriesTagsResultDTO?> AiGenerateCategoriesTags(Guid bookId);
 }

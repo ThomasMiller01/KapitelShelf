@@ -5,11 +5,13 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
+using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
@@ -31,13 +33,19 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="bookStorage">The book storage.</param>
 /// <param name="metadataScraperManager">The metadata scraper manager.</param>
 /// <param name="notifications">The notifications logic.</param>
+/// <param name="aiManager">The ai manager.</param>
+/// <param name="categoriesLogic">The categories logic.</param>
+/// <param name="tagsLogic">The tags logic.</param>
 public class BooksLogic(
     IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
     Mapper mapper,
     IBookParserManager bookParserManager,
     IBookStorage bookStorage,
     IMetadataScraperManager metadataScraperManager,
-    INotificationsLogic notifications) : IBooksLogic
+    INotificationsLogic notifications,
+    IAiManager aiManager,
+    ICategoriesLogic categoriesLogic,
+    ITagsLogic tagsLogic) : IBooksLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -50,6 +58,12 @@ public class BooksLogic(
     private readonly IMetadataScraperManager metadataScraperManager = metadataScraperManager;
 
     private readonly INotificationsLogic notifications = notifications;
+
+    private readonly IAiManager aiManager = aiManager;
+
+    private readonly ICategoriesLogic categoriesLogic = categoriesLogic;
+
+    private readonly ITagsLogic tagsLogic = tagsLogic;
 
     /// <inheritdoc/>
     [Obsolete("Use GetBooksAsync() instead", false)]
@@ -671,6 +685,67 @@ public class BooksLogic(
         }
 
         await context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<AiGenerateCategoriesTagsResultDTO?> AiGenerateCategoriesTags(Guid bookId)
+    {
+        var book = await this.GetBookByIdAsync(bookId);
+        if (book is null)
+        {
+            return null;
+        }
+
+        var title = book.Title;
+        var description = string.IsNullOrWhiteSpace(book.Description) ? "(none)" : book.Description;
+        var author = book.Author is not null ? $"{book.Author.FirstName} {book.Author.LastName}".Trim() : "(none)";
+        var series = book.Series?.Name ?? "(none)";
+        var existingCategories = book.Categories?.Select((x) => x.Name).ToList() ?? [];
+        var existingTags = book.Tags?.Select((x) => x.Name).ToList() ?? [];
+
+        var libraryCategories = await this.categoriesLogic.GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null);
+        var libraryTags = await this.tagsLogic.GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null);
+
+        var systemPrompt = """
+                You are a library assistant for a personal book manager.
+                Generate categories and tags for a book based on the provided information.
+                Return ONLY valid JSON with exactly these keys: categories, tags.
+                Both values must be arrays of strings.
+                Do not include any extra text, markdown, or explanations.
+            """;
+
+        var userPrompt = $"""
+                Book information:
+                Title: {title}
+                Description: {description}
+                Series: {series}
+                Author: {author}
+
+                Existing metadata of this book:
+                Categories: {string.Join(", ", existingCategories)}
+                Tags: {string.Join(", ", existingTags)}
+
+                Existing categories in the library (prefer using these when appropriate):
+                {string.Join(", ", libraryCategories.Items.Select(x => x.Name).ToList())}
+
+                Existing tags in the library (prefer using these when appropriate):
+                {string.Join(", ", libraryTags.Items.Select(x => x.Name).ToList())}
+
+                Rules:
+                - categories: 0-5 items, genres or high-level topics
+                  (examples: "Fantasy", "Science Fiction", "Mystery", "Romance")
+                - tags: 0-5 items, subgenres, tropes, themes, settings, or tone
+                  (examples: "Time Travel", "LITRPG", "Portal Fantasy", "Slow Burn", "Dark Academia", "Post Apocalyptic")
+                - categories and tags must be descriptive about the genre and themes of the book
+                - avoid generic labels like "Book", "Novel", "Fiction", "Story"
+                - use English-style title casing for all categories and tags
+                  (capitalize the first letter of each word, e.g. "Science Fiction", "Time Travel")
+                - you may reuse existing categories/tags from the book and from the library if appropriate
+                - do not invent author names or series
+                - do not include duplicates
+            """;
+
+        return await this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(userPrompt, systemPrompt);
     }
 
     private async Task<IList<BookModel>> GetDuplicatesAsync(string title, string? url)

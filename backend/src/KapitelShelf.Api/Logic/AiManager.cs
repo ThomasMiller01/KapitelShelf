@@ -3,10 +3,12 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs.Ai;
+using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Resources;
 using Microsoft.Extensions.AI;
+using Newtonsoft.Json;
 using OllamaSharp;
 
 namespace KapitelShelf.Api.Logic;
@@ -92,6 +94,73 @@ public class AiManager(
         return enabledFeaturesSetting.Value.Contains(feature.ToString());
     }
 
+    /// <inheritdoc/>
+    public async Task<T?> GetStructuredResponse<T>(string userPrompt, string? systemPrompt = null)
+        where T : class
+    {
+        var ai = await this.GetAsync();
+        if (ai is null)
+        {
+            return null;
+        }
+
+        var aiOptions = new ChatOptions
+        {
+            ResponseFormat = ChatResponseFormat.ForJsonSchema<AiGenerateCategoriesTagsResultDTO>(),
+        };
+
+        // execute ai prompt
+        ChatResponse response;
+        try
+        {
+            response = await ai.GetResponseAsync(
+                [
+                    new ChatMessage(ChatRole.System, systemPrompt),
+                    new ChatMessage(ChatRole.User, userPrompt),
+                ],
+                options: aiOptions);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Get structured ai response failed");
+            return null;
+        }
+
+        // parse ai response
+        var text = response.Text.Trim() ?? string.Empty;
+        var parsed = TryParseJsonResponse<T>(text);
+        if (parsed is null)
+        {
+            // retry once with stricter instruction
+            try
+            {
+                response = await ai.GetResponseAsync(
+                    [
+                        new ChatMessage(ChatRole.System, systemPrompt),
+                        new ChatMessage(ChatRole.User, userPrompt),
+                        new ChatMessage(ChatRole.User, "Your previous output was invalid. Return ONLY valid JSON now, no extra text."),
+                    ],
+                    options: aiOptions);
+
+                text = response.Text?.Trim() ?? string.Empty;
+                parsed = TryParseJsonResponse<T>(text);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Get structured ai response retry failed");
+                return null;
+            }
+        }
+
+        if (parsed is null)
+        {
+            this.logger.LogWarning("AI returned unparseable output: {Output}", text);
+            return null;
+        }
+
+        return parsed;
+    }
+
     private async Task<OllamaApiClient?> CreateOllamaClient(CancellationToken cancellationToken)
     {
         var urlSetting = await this.settingsManager.GetAsync<string>(StaticConstants.DynamicSettingAiOllamaUrl);
@@ -172,6 +241,24 @@ public class AiManager(
         }
 
         return true;
+    }
+
+    private static T? TryParseJsonResponse<T>(string text)
+        where T : class
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonConvert.DeserializeObject<T>(text.Trim());
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private void OnFailedToCreateClient()
