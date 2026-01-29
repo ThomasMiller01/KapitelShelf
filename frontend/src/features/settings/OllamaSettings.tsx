@@ -1,4 +1,13 @@
-import { Alert, Box, Stack, Typography } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
+  Box,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { SiOllama } from "react-icons/si";
 
 import { SettingItem } from "../../components/settings/SettingItem";
@@ -12,72 +21,92 @@ export const OllamaSetting: React.FC<OllamaSettingProps> = ({ settings }) => {
   const model = settings.find((x) => x.key === "ai.ollama.model");
   const url = settings.find((x) => x.key === "ai.ollama.url");
 
+  console.log(url);
+
   return (
-    <Box sx={{ mt: 3, pl: 2 }}>
-      <Stack direction="row" spacing={1} alignItems="center">
-        <SiOllama fontSize="1.4rem" />
-        <Typography variant="h6">Ollama</Typography>
-      </Stack>
-      <SettingItem
-        setting={url}
-        type="string"
-        label="Ollama Server URL"
-        placeholder="http://host.docker.internal:11434"
-        description="Specify the URL of the Ollama server."
-        details={
-          <Alert
-            severity="info"
-            sx={{
-              padding: "0px 14px",
-              height: "fit-content",
-              "& .MuiAlert-message": {
-                height: "fit-content",
+    <Box sx={{ mt: 3 }}>
+      <Accordion
+        defaultExpanded={model?.value === undefined || url?.value === ""}
+        disableGutters
+        sx={{ boxShadow: "none" }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{
+            flexDirection: "row-reverse",
+            "& .MuiAccordionSummary-content": {
+              marginLeft: 1,
+            },
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <SiOllama fontSize="1.4rem" />
+            <Typography variant="h6">Configure Ollama</Typography>
+          </Stack>
+        </AccordionSummary>
+        <AccordionDetails sx={{ pt: 0 }}>
+          <SettingItem
+            setting={url}
+            type="string"
+            label="Ollama Server URL"
+            placeholder="http://host.docker.internal:11434"
+            description="Specify the URL of the Ollama server."
+            details={
+              <Alert
+                severity="info"
+                sx={{
+                  padding: "0px 14px",
+                  height: "fit-content",
+                  "& .MuiAlert-message": {
+                    height: "fit-content",
+                  },
+                  "& .MuiAlert-icon": {
+                    height: "fit-content",
+                    svg: { width: "0.9em", height: "0.9em" },
+                  },
+                }}
+              >
+                The server must be reachable from the KapitelShelf backend.
+              </Alert>
+            }
+          />
+          <SettingItem
+            setting={model}
+            type="enum"
+            label="Model"
+            options={[
+              {
+                label: (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography fontWeight="bold">qwen3:1.7b</Typography>
+                    <Typography>(low resources)</Typography>
+                  </Stack>
+                ),
+                value: "qwen3:1.7b",
               },
-              "& .MuiAlert-icon": {
-                height: "fit-content",
-                svg: { width: "0.9em", height: "0.9em" },
+              {
+                label: (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography fontWeight="bold">llama3.1:8b</Typography>
+                    <Typography>(recommended)</Typography>
+                  </Stack>
+                ),
+                value: "llama3.1:8b",
               },
-            }}
-          >
-            The server must be reachable from the KapitelShelf backend.
-          </Alert>
-        }
-      />
-      <SettingItem
-        setting={model}
-        type="enum"
-        label="Model"
-        options={[
-          {
-            label: (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography fontWeight="bold">qwen3:1.7b</Typography>
-                <Typography>(low resources)</Typography>
-              </Stack>
-            ),
-            value: "qwen3:1.7b",
-          },
-          {
-            label: (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography fontWeight="bold">llama3.1:8b</Typography>
-                <Typography>(recommended)</Typography>
-              </Stack>
-            ),
-            value: "llama3.1:8b",
-          },
-          {
-            label: (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography fontWeight="bold">gemma2:9b</Typography>
-                <Typography>(higher quality)</Typography>
-              </Stack>
-            ),
-            value: "gemma2:9b",
-          },
-        ]}
-        description="Select the AI model used for Ollama."
-      />
+              {
+                label: (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography fontWeight="bold">gemma2:9b</Typography>
+                    <Typography>(higher quality)</Typography>
+                  </Stack>
+                ),
+                value: "gemma2:9b",
+              },
+            ]}
+            description="Select the AI model used for Ollama."
+          />
+        </AccordionDetails>
+      </Accordion>
     </Box>
   );
 };
