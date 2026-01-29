@@ -344,6 +344,200 @@ public class NotificationsLogicTests
     }
 
     /// <summary>
+    /// Tests AddNotification(title,message) with ignoreWhenDuplicate=true does not add a second notification when a duplicate exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddNotification_IgnoreWhenDuplicate_DoesNotCreate_WhenDuplicateExists()
+    {
+        // Setup
+        var userId = await this.InsertUserAsync();
+
+        _ = await this.testee.AddNotification(
+            title: "Dup",
+            message: "First",
+            userId: userId);
+
+        // Execute
+        var result = await this.testee.AddNotification(
+            title: "Dup",
+            message: "Second",
+            userId: userId,
+            ignoreWhenDuplicate: true);
+
+        // Assert
+        Assert.That(result, Is.Empty);
+
+        using var context = new KapitelShelfDBContext(this.dbOptions);
+
+        var count = await context.Notifications.AsNoTracking()
+            .Where(x => x.UserId == userId && x.ParentId == null && x.Title == "Dup")
+            .CountAsync();
+
+        Assert.That(count, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// Tests AddNotification(title,message) with ignoreWhenDuplicate=true treats title duplicates case-insensitively.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddNotification_IgnoreWhenDuplicate_IsCaseInsensitive()
+    {
+        // Setup
+        var userId = await this.InsertUserAsync();
+
+        _ = await this.testee.AddNotification(
+            title: "Same Title",
+            message: "First",
+            userId: userId);
+
+        // Execute
+        var result = await this.testee.AddNotification(
+            title: "same title",
+            message: "Second",
+            userId: userId,
+            ignoreWhenDuplicate: true);
+
+        // Assert
+        Assert.That(result, Is.Empty);
+
+        using var context = new KapitelShelfDBContext(this.dbOptions);
+
+        var total = await context.Notifications.AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .CountAsync();
+
+        Assert.That(total, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// Tests AddNotification(title,message) with ignoreWhenDuplicate=false still creates a child notification under the existing parent (auto-grouping).
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddNotification_WhenDuplicateAndIgnoreFalse_CreatesChildUnderParent()
+    {
+        // Setup
+        var userId = await this.InsertUserAsync();
+
+        var first = await this.testee.AddNotification(
+            title: "GroupMe",
+            message: "First",
+            userId: userId);
+
+        // Execute
+        var second = await this.testee.AddNotification(
+            title: "groupme",
+            message: "Second",
+            userId: userId,
+            ignoreWhenDuplicate: false);
+
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(first, Has.Count.EqualTo(1));
+            Assert.That(second, Has.Count.EqualTo(1));
+        });
+
+        using var context = new KapitelShelfDBContext(this.dbOptions);
+
+        var models = await context.Notifications.AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .ToListAsync();
+
+        Assert.That(models, Has.Count.EqualTo(2));
+
+        var parent = models.Single(x => x.ParentId == null);
+        var child = models.Single(x => x.ParentId != null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(child.ParentId, Is.EqualTo(parent.Id));
+            Assert.That(parent.Id, Is.EqualTo(first[0].Id));
+        });
+    }
+
+    /// <summary>
+    /// Tests AddNotification(title,message) with ignoreWhenDuplicate=true does not create a child notification even when auto-grouping would apply.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddNotification_IgnoreWhenDuplicate_DoesNotCreateChild_WhenAutoGroupingWouldApply()
+    {
+        // Setup
+        var userId = await this.InsertUserAsync();
+
+        _ = await this.testee.AddNotification(
+            title: "AutoGroup",
+            message: "First",
+            userId: userId);
+
+        // Execute
+        var result = await this.testee.AddNotification(
+            title: "autogroup",
+            message: "Second",
+            userId: userId,
+            ignoreWhenDuplicate: true);
+
+        // Assert
+        Assert.That(result, Is.Empty);
+
+        using var context = new KapitelShelfDBContext(this.dbOptions);
+
+        var models = await context.Notifications.AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .ToListAsync();
+
+        Assert.That(models, Has.Count.EqualTo(1));
+        Assert.That(models[0].ParentId, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests AddNotification(title,message) with userId null and ignoreWhenDuplicate=true still creates notifications for multiple users,
+    /// but does not create a second notification for the same user when a duplicate already exists.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddNotification_Broadcast_IgnoreWhenDuplicate_SkipsPerUserDuplicates()
+    {
+        // Setup
+        var user1 = await this.InsertUserAsync();
+        var user2 = await this.InsertUserAsync();
+
+        // create an existing notification for user1 only
+        _ = await this.testee.AddNotification(
+            title: "BroadcastDup",
+            message: "Existing",
+            userId: user1);
+
+        // Execute
+        var result = await this.testee.AddNotification(
+            title: "BroadcastDup",
+            message: "New",
+            userId: null,
+            ignoreWhenDuplicate: true);
+
+        // Assert
+        using var context = new KapitelShelfDBContext(this.dbOptions);
+
+        var user1Count = await context.Notifications.AsNoTracking()
+            .Where(x => x.UserId == user1 && x.Title == "BroadcastDup" && x.ParentId == null)
+            .CountAsync();
+
+        var user2Count = await context.Notifications.AsNoTracking()
+            .Where(x => x.UserId == user2 && x.Title == "BroadcastDup" && x.ParentId == null)
+            .CountAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(user1Count, Is.EqualTo(1)); // skipped, because duplicate existed
+            Assert.That(user2Count, Is.EqualTo(1)); // created, because no duplicate existed
+            Assert.That(result, Is.Not.Empty); // at least user2 created
+        });
+    }
+
+    /// <summary>
     /// Tests GetByIdAsync returns only parent notifications for the user and includes children.
     /// </summary>
     /// <returns>A task.</returns>
