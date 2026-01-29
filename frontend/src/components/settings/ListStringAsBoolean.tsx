@@ -43,12 +43,24 @@ export const ListStringAsBoolean: React.FC<ListStringAsBooleanProps> = ({
         const checked = enabledSet.has(option.value);
 
         return (
-          <BooleanSetting
-            key={option.value}
-            setting={{ value: checked }}
-            label={option.label}
-            update={(x) => handleToggle(option.value, x === true)}
-          />
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            alignItems={{ xs: "start", md: "center" }}
+            spacing={{ xs: 1, md: 1.5 }}
+            sx={{ my: "10px" }}
+          >
+            <BooleanSetting
+              key={option.value}
+              setting={{ value: checked }}
+              label={option.label}
+              update={(x) => handleToggle(option.value, x === true)}
+            />
+            {option.description && (
+              <Typography variant="subtitle2" sx={{ mt: "3px !important" }}>
+                {option.description}
+              </Typography>
+            )}
+          </Stack>
         );
       })}
     </Stack>

@@ -24,7 +24,7 @@ interface SettingItemProps {
   details?: ReactNode;
 
   // enum & list{string}-as-boolean props
-  options?: Array<{ value: string; label: ReactNode }>;
+  options?: Array<{ value: string; label: ReactNode; description?: ReactNode }>;
 
   // string-only props
   placeholder?: string;

@@ -10,7 +10,11 @@ import React from "react";
 import type { TypeSettingProps } from "./SettingItem";
 
 export type EnumSettingProps = TypeSettingProps & {
-  options?: Array<{ value: string; label: React.ReactNode }>;
+  options?: Array<{
+    value: string;
+    label: React.ReactNode;
+    description?: React.ReactNode;
+  }>;
 };
 
 export const EnumSetting: React.FC<EnumSettingProps> = ({
