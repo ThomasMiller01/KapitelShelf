@@ -12,8 +12,6 @@ export const AiFeaturesSelection: React.FC<AiFeaturesSelectionProps> = ({
 }) => {
   const features = settings.find((x) => x.key === "ai.enabled.features");
 
-  console.log(features);
-
   return (
     <Box sx={{ mt: 3 }}>
       <SettingItem
