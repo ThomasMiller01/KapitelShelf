@@ -75,12 +75,14 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
             throw new KeyNotFoundException($"Setting with key '{key}' not found");
         }
 
-        if (!ValidateValue(setting, value?.ToString()))
+        var valueJson = JsonConvert.SerializeObject(value);
+
+        if (!ValidateValue(setting, valueJson))
         {
             throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
         }
 
-        setting.Value = value?.ToString() ?? throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
+        setting.Value = valueJson ?? throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
 
         await context.SaveChangesAsync();
 
@@ -121,7 +123,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         return setting.Type switch
         {
             SettingsValueType.TBoolean => (T)(object)bool.Parse(setting.Value),
-            SettingsValueType.TString => (T)(object)setting.Value,
+            SettingsValueType.TString => (T)(object)(JsonConvert.DeserializeObject<string>(setting.Value) ?? string.Empty),
             SettingsValueType.TListString => (T)(object)(TryDeserializeStringList(setting.Value) ?? []),
             _ => throw new InvalidOperationException("Invalid value type."),
         };
@@ -137,7 +139,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     {
         ArgumentNullException.ThrowIfNull(setting);
 
-        if (value == null)
+        if (value is null or "null")
         {
             return false;
         }
@@ -178,7 +180,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         await context.Settings.AddAsync(new SettingsModel
         {
             Key = key,
-            Value = value.ToString() ?? throw new InvalidOperationException("Value cannot be converted to string"),
+            Value = JsonConvert.SerializeObject(value) ?? throw new InvalidOperationException("Value cannot be converted to string"),
             Type = MapTypeToValueType(value),
         });
 
