@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Runtime.CompilerServices;
 using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Notifications;
@@ -10,6 +11,8 @@ using KapitelShelf.Api.Resources;
 using Microsoft.Extensions.AI;
 using Newtonsoft.Json;
 using OllamaSharp;
+
+[assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
 namespace KapitelShelf.Api.Logic;
 
@@ -35,7 +38,7 @@ public class AiManager(
     private readonly INotificationsLogic notifications = notifications;
 
     /// <inheritdoc/>
-    public async Task<IChatClient?> GetAsync(CancellationToken cancellationToken = default)
+    public virtual async Task<IChatClient?> GetAsync(CancellationToken cancellationToken = default)
     {
         var configuredSetting = await this.settingsManager.GetAsync<bool>(StaticConstants.DynamicSettingAiProviderConfigured);
         if (!configuredSetting.Value)
@@ -161,7 +164,7 @@ public class AiManager(
         return parsed;
     }
 
-    private async Task<OllamaApiClient?> CreateOllamaClient(CancellationToken cancellationToken)
+    internal async Task<OllamaApiClient?> CreateOllamaClient(CancellationToken cancellationToken)
     {
         var urlSetting = await this.settingsManager.GetAsync<string>(StaticConstants.DynamicSettingAiOllamaUrl);
         var modelSetting = await this.settingsManager.GetAsync<string>(StaticConstants.DynamicSettingAiOllamaModel);
@@ -202,7 +205,7 @@ public class AiManager(
         return client;
     }
 
-    private async Task<bool> ConfigureOllama(IProgress<int>? progress, CancellationToken cancellationToken)
+    internal async Task<bool> ConfigureOllama(IProgress<int>? progress, CancellationToken cancellationToken)
     {
         var modelSetting = await this.settingsManager.GetAsync<string>(StaticConstants.DynamicSettingAiOllamaModel);
         if (string.IsNullOrEmpty(modelSetting.Value))
@@ -243,7 +246,7 @@ public class AiManager(
         return true;
     }
 
-    private static T? TryParseJsonResponse<T>(string text)
+    internal static T? TryParseJsonResponse<T>(string text)
         where T : class
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -261,7 +264,7 @@ public class AiManager(
         }
     }
 
-    private void OnFailedToCreateClient(string reason)
+    internal void OnFailedToCreateClient(string reason)
     {
         _ = this.notifications.AddNotification(
                 "AiManagerCreateClientFailed",
