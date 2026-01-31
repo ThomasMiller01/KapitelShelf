@@ -273,6 +273,44 @@ public class DynamicSettingsManagerTests
     }
 
     /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> updates an existing string setting when passed an object that is a string.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_UpdatesStringSetting_FromObjectString()
+    {
+        // Setup
+        var key = "string-key".Unique();
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "old",
+                Type = SettingsValueType.TString,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        var newValue = "new";
+
+        // Execute
+        var result = await this.testee.SetAsync(key, (object)newValue);
+
+        // Assert
+        Assert.That(result.Value, Is.EqualTo("new"));
+
+        using var assertContext = await this.dbContextFactory.CreateDbContextAsync();
+        var updated = await assertContext.Settings.AsNoTracking().FirstAsync(x => x.Key == key);
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated.Value, Is.EqualTo("\"new\""));
+            Assert.That(updated.Type, Is.EqualTo(SettingsValueType.TString));
+        });
+    }
+
+    /// <summary>
     /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> throws when setting does not exist.
     /// </summary>
     [Test]

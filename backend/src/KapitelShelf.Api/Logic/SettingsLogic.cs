@@ -77,14 +77,7 @@ public class SettingsLogic(
             throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
         }
 
-        // patch setting root scalars
-        context.Entry(setting).CurrentValues.SetValues(new
-        {
-            Value = value.ToString() ?? throw new InvalidOperationException(StaticConstants.InvalidSettingValueType),
-        });
-
-        // commit
-        await context.SaveChangesAsync();
+        await this.settingsManager.SetAsync(setting.Key, value);
 
         var settingDto = this.mapper.SettingsModelToSettingsDto<object>(setting);
 

@@ -216,7 +216,7 @@ public class SettingsLogicTests
         {
             Id = Guid.NewGuid(),
             Key = StaticConstants.DynamicSettingAiProvider,
-            Value = "ollama",
+            Value = "\"ollama\"",
             Type = SettingsValueType.TString,
         };
 
@@ -248,7 +248,7 @@ public class SettingsLogicTests
         {
             Id = Guid.NewGuid(),
             Key = "some-other-key".Unique(),
-            Value = "x",
+            Value = "\"x\"",
             Type = SettingsValueType.TString,
         };
 
