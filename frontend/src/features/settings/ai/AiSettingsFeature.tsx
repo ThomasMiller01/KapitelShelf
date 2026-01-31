@@ -1,4 +1,15 @@
-import { Chip, Divider, Paper, Stack, Typography } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Chip,
+  Divider,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { SiOllama } from "react-icons/si";
 
 import { SettingItem } from "../../../components/settings/SettingItem";
@@ -48,11 +59,62 @@ export const AiSettings: React.FC<AiSettingsProps> = ({ settings }) => {
         ]}
         description="Select which AI provider should be used for AI-powered features."
       />
-      {provider?.value === "Ollama" && <OllamaSetting settings={settings} />}
+      {provider?.value !== "None" && (
+        <ConfigureProvider
+          settings={settings}
+          provider={provider}
+          providerConfigured={providerConfigured}
+        />
+      )}
       <AiFeaturesSelection
         settings={settings}
         aiConfigured={providerConfigured?.value}
       />
     </Paper>
+  );
+};
+
+interface ConfigureProviderProps {
+  settings: ObjectSettingsDTO[];
+  provider: ObjectSettingsDTO | undefined;
+  providerConfigured: ObjectSettingsDTO | undefined;
+}
+
+const ConfigureProvider: React.FC<ConfigureProviderProps> = ({
+  settings,
+  provider,
+  providerConfigured,
+}) => {
+  console.log(settings);
+
+  if (provider === undefined) {
+    return <></>;
+  }
+
+  return (
+    <Box sx={{ mt: 3 }}>
+      <Accordion
+        defaultExpanded={!providerConfigured?.value}
+        disableGutters
+        sx={{ boxShadow: "none", border: "1px solid", borderColor: "divider" }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{
+            flexDirection: "row-reverse",
+            "& .MuiAccordionSummary-content": {
+              marginLeft: 1,
+            },
+          }}
+        >
+          <Typography variant="h6">Configure {provider?.value}</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ pt: 0 }}>
+          {provider?.value === "Ollama" && (
+            <OllamaSetting settings={settings} />
+          )}
+        </AccordionDetails>
+      </Accordion>
+    </Box>
   );
 };
