@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using DocumentFormat.OpenXml.Bibliography;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
@@ -2213,6 +2214,107 @@ public class BooksLogicTests
                 Assert.That(context.FileInfos.FirstOrDefault(x => x.Id == fileInfoId), Is.Null);
             });
         }
+    }
+
+    /// <summary>
+    /// Tests AiGenerateCategoriesTags returns null when book does not exist.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AiGenerateCategoriesTags_ReturnsNull_WhenBookNotFound()
+    {
+        // Setup
+        var bookId = Guid.NewGuid();
+
+        // Execute
+        var result = await this.testee.AiGenerateCategoriesTags(bookId);
+
+        // Assert
+        Assert.That(result, Is.Null);
+        await this.aiManager.DidNotReceiveWithAnyArgs()
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(default!, default!);
+    }
+
+    /// <summary>
+    /// Tests AiGenerateCategoriesTags returns ai result and calls dependencies.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AiGenerateCategoriesTags_ReturnsResult_WhenBookExists()
+    {
+        // Setup
+        var createdBookDto = await this.testee.CreateBookAsync(new CreateBookDTO
+        {
+            Title = "AiBook".Unique(),
+            Description = "Desc",
+            Categories = [
+                new CreateCategoryDTO
+                {
+                    Name = "ExistingCat".Unique(),
+                },
+            ],
+            Tags = [
+                new CreateTagDTO
+                {
+                    Name = "ExistingTag".Unique(),
+                },
+            ],
+            Series = new CreateSeriesDTO
+            {
+                Name = "Series".Unique(),
+            },
+            Author = new CreateAuthorDTO
+            {
+                FirstName = "A".Unique(),
+                LastName = "B".Unique(),
+            },
+        });
+        Assert.That(createdBookDto, Is.Not.Null);
+
+        this.categoriesLogic.GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<CategoryDTO>
+            {
+                Items = [new CategoryDTO { Name = "LibraryCat".Unique() }],
+                TotalCount = 1,
+            }));
+
+        this.tagsLogic.GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<TagDTO>
+            {
+                Items = [new TagDTO { Name = "LibraryTag".Unique() }],
+                TotalCount = 1,
+            }));
+
+        var aiResult = new AiGenerateCategoriesTagsResultDTO
+        {
+            Categories = ["GenCat1".Unique(), "GenCat2".Unique()],
+            Tags = ["GenTag1".Unique()],
+        };
+
+        this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(
+                Arg.Any<string>(),
+                Arg.Any<string>())
+            .Returns(Task.FromResult<AiGenerateCategoriesTagsResultDTO?>(aiResult));
+
+        // Execute
+        var result = await this.testee.AiGenerateCategoriesTags(createdBookDto.Id);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.Categories, Is.EquivalentTo(aiResult.Categories));
+            Assert.That(result.Tags, Is.EquivalentTo(aiResult.Tags));
+        });
+
+        _ = this.categoriesLogic.Received(1)
+            .GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null);
+
+        _ = this.tagsLogic.Received(1)
+            .GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null);
+
+        _ = this.aiManager.Received(1)
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(Arg.Any<string>(), Arg.Any<string>());
     }
 
     /// <summary>
