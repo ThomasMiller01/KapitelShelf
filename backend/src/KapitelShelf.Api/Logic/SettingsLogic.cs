@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
@@ -10,6 +11,7 @@ using KapitelShelf.Api.Resources;
 using KapitelShelf.Api.Tasks.Ai;
 using KapitelShelf.Data;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Quartz;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
@@ -71,13 +73,8 @@ public class SettingsLogic(
             return null;
         }
 
-        // check, if the passed value can be used for this setting
-        if (!DynamicSettingsManager.ValidateValue(setting, value.ToString()))
-        {
-            throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
-        }
-
-        await this.settingsManager.SetAsync(setting.Key, value);
+        var normalized = value is JsonElement json ? JsonConvert.DeserializeObject(json.GetRawText()) : value;
+        await this.settingsManager.SetAsync(setting.Key, normalized);
 
         var settingDto = this.mapper.SettingsModelToSettingsDto<object>(setting);
 

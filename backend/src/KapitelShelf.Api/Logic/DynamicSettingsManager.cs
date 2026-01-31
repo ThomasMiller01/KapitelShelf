@@ -41,7 +41,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         ]);
 
         await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaUrl, "http://host.docker.internal:11434");
-        await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaModel, "llama3.1:8b");
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaModel, "gemma2:9b");
 #pragma warning restore IDE0022 // Use expression body for method
     }
 

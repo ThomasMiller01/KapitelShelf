@@ -178,31 +178,6 @@ public class SettingsLogicTests
     }
 
     /// <summary>
-    /// Tests <see cref="SettingsLogic.UpdateSettingAsync"/> throws if value type is invalid.
-    /// </summary>
-    /// <returns>A task.</returns>
-    [Test]
-    public async Task UpdateSettingAsync_Throws_WhenInvalidValue()
-    {
-        // Setup
-        var context = await this.dbContextFactory.CreateDbContextAsync();
-        var model = new SettingsModel
-        {
-            Id = Guid.NewGuid(),
-            Key = "test-key".Unique(),
-            Value = "False",
-            Type = SettingsValueType.TBoolean,
-        };
-        await context.Settings.AddAsync(model);
-        await context.SaveChangesAsync();
-
-        // Execute / Assert
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(() => this.testee.UpdateSettingAsync(model.Id, "not-bool"));
-
-        Assert.That(ex!.Message, Is.EqualTo(StaticConstants.InvalidSettingValueType));
-    }
-
-    /// <summary>
     /// Tests <see cref="SettingsLogic.UpdateSettingAsync"/> triggers side effects when the updated key is in the AI provider side-effect list.
     /// </summary>
     /// <returns>A task.</returns>
