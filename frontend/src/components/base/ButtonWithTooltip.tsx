@@ -2,7 +2,7 @@ import type { ButtonProps } from "@mui/material";
 import { Button, Tooltip } from "@mui/material";
 import React from "react";
 
-interface ButtonWithTooltipProps extends ButtonProps {
+export interface ButtonWithTooltipProps extends ButtonProps {
   tooltip: string | undefined;
   disabledTooltip?: string;
   to?: string;

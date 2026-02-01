@@ -4,6 +4,7 @@ export const TaskCategoryColors: Record<string, string> = {
   Maintenance: "#A13B00",
   ["Cloud Storage"]: "#005662",
   Watchlist: "#53286e",
+  Ai: "#00A3A3",
   default: "rgba(255, 255, 255, 0.16)",
 };
 
@@ -16,7 +17,7 @@ export const GetTaskCategoryColor = (category: string | undefined): string =>
     : TaskCategoryColors.default;
 
 export const GetTaskFinishedReasonString = (
-  reason: FinishedReasonNullable
+  reason: FinishedReasonNullable,
 ): string => {
   switch (reason) {
     case FinishedReasonNullable.NUMBER_0:

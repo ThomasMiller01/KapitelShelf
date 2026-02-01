@@ -3,13 +3,16 @@
 // </copyright>
 
 using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
+using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Notifications;
 using KapitelShelf.Api.DTOs.Series;
+using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.MetadataScraper;
@@ -31,13 +34,19 @@ namespace KapitelShelf.Api.Logic;
 /// <param name="bookStorage">The book storage.</param>
 /// <param name="metadataScraperManager">The metadata scraper manager.</param>
 /// <param name="notifications">The notifications logic.</param>
+/// <param name="aiManager">The ai manager.</param>
+/// <param name="categoriesLogic">The categories logic.</param>
+/// <param name="tagsLogic">The tags logic.</param>
 public class BooksLogic(
     IDbContextFactory<KapitelShelfDBContext> dbContextFactory,
     Mapper mapper,
     IBookParserManager bookParserManager,
     IBookStorage bookStorage,
     IMetadataScraperManager metadataScraperManager,
-    INotificationsLogic notifications) : IBooksLogic
+    INotificationsLogic notifications,
+    IAiManager aiManager,
+    ICategoriesLogic categoriesLogic,
+    ITagsLogic tagsLogic) : IBooksLogic
 {
     private readonly IDbContextFactory<KapitelShelfDBContext> dbContextFactory = dbContextFactory;
 
@@ -50,6 +59,12 @@ public class BooksLogic(
     private readonly IMetadataScraperManager metadataScraperManager = metadataScraperManager;
 
     private readonly INotificationsLogic notifications = notifications;
+
+    private readonly IAiManager aiManager = aiManager;
+
+    private readonly ICategoriesLogic categoriesLogic = categoriesLogic;
+
+    private readonly ITagsLogic tagsLogic = tagsLogic;
 
     /// <inheritdoc/>
     [Obsolete("Use GetBooksAsync() instead", false)]
@@ -673,6 +688,38 @@ public class BooksLogic(
         await context.SaveChangesAsync();
     }
 
+    /// <inheritdoc/>
+    public async Task<AiGenerateCategoriesTagsResultDTO?> AiGenerateCategoriesTags(Guid bookId)
+    {
+        var book = await this.GetBookByIdAsync(bookId);
+        if (book is null)
+        {
+            return null;
+        }
+
+        var title = book.Title;
+        var description = string.IsNullOrWhiteSpace(book.Description) ? "(none)" : book.Description;
+        var author = book.Author is not null ? $"{book.Author.FirstName} {book.Author.LastName}".Trim() : "(none)";
+        var series = book.Series?.Name ?? "(none)";
+        var bookCategories = book.Categories ?? [];
+        var bookTags = book.Tags ?? [];
+
+        var libraryCategories = await this.categoriesLogic.GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null);
+        var libraryTags = await this.tagsLogic.GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null);
+
+        var userPrompt = AiPrompts.GenerateCategoriesAndTagsFromBook_User(
+            title,
+            description,
+            series,
+            author,
+            bookCategories,
+            bookTags,
+            libraryCategories.Items,
+            libraryTags.Items);
+
+        return await this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(userPrompt, AiPrompts.GenerateCategoriesAndTagsFromBook_System);
+    }
+
     private async Task<IList<BookModel>> GetDuplicatesAsync(string title, string? url)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -717,6 +764,17 @@ public class BooksLogic(
             FileInfo = locationFile,
         };
 
+        // automatically generate categories and tags if ai is enabled
+        if (await this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration))
+        {
+            var generatedMetadata = await this.AiGenerateCategoriesTags(bookDto.Id);
+            if (generatedMetadata is not null)
+            {
+                bookDto.Categories = generatedMetadata.Categories.Select(x => new CategoryDTO { Name = x }).ToList();
+                bookDto.Tags = generatedMetadata.Tags.Select(x => new TagDTO { Name = x }).ToList();
+            }
+        }
+
         // update book with new cover and file
         await this.UpdateBookAsync(bookDto.Id, bookDto);
 
@@ -742,6 +800,17 @@ public class BooksLogic(
         {
             Type = this.mapper.MetadataSourceToLocationTypeDto(source),
         };
+
+        // automatically generate categories and tags if ai is enabled
+        if (await this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration))
+        {
+            var generatedMetadata = await this.AiGenerateCategoriesTags(bookDto.Id);
+            if (generatedMetadata is not null)
+            {
+                bookDto.Categories = generatedMetadata.Categories.Select(x => new CategoryDTO { Name = x }).ToList();
+                bookDto.Tags = generatedMetadata.Tags.Select(x => new TagDTO { Name = x }).ToList();
+            }
+        }
 
         // update book with new cover and location
         await this.UpdateBookAsync(bookDto.Id, bookDto);

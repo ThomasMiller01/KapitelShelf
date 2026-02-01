@@ -4,9 +4,11 @@
 
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Mappings;
+using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using NSubstitute;
 using Testcontainers.PostgreSql;
 
@@ -97,7 +99,7 @@ public class DynamicSettingsManagerTests
         Assert.Multiple(() =>
         {
             Assert.That(setting!.Key, Is.EqualTo(key));
-            Assert.That(setting.Value, Is.EqualTo("True"));
+            Assert.That(setting.Value, Is.EqualTo("true"));
             Assert.That(setting.Type, Is.EqualTo(SettingsValueType.TBoolean));
         });
     }
@@ -173,6 +175,237 @@ public class DynamicSettingsManagerTests
     }
 
     /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> updates an existing boolean setting when value is valid.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_UpdatesBooleanSetting_WhenValid()
+    {
+        // Setup
+        var key = "bool-key".Unique();
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "False",
+                Type = SettingsValueType.TBoolean,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.SetAsync(key, true);
+
+        // Assert
+        Assert.That(result.Value, Is.True);
+
+        using var assertContext = await this.dbContextFactory.CreateDbContextAsync();
+        var updated = await assertContext.Settings.AsNoTracking().FirstAsync(x => x.Key == key);
+        Assert.That(updated.Value, Is.EqualTo("true"));
+    }
+
+    /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> updates an existing string setting when value is valid.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_UpdatesStringSetting_WhenValid()
+    {
+        // Setup
+        var key = "string-key".Unique();
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "old",
+                Type = SettingsValueType.TString,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.SetAsync(key, "new");
+
+        // Assert
+        Assert.That(result.Value, Is.EqualTo("new"));
+
+        using var assertContext = await this.dbContextFactory.CreateDbContextAsync();
+        var updated = await assertContext.Settings.AsNoTracking().FirstAsync(x => x.Key == key);
+        Assert.That(updated.Value, Is.EqualTo("\"new\""));
+    }
+
+    /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> updates an existing list-string setting when value is valid JSON.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_UpdatesListStringSetting_WhenValid()
+    {
+        // Setup
+        var key = "list-key".Unique();
+        var list = new List<string> { "a", "b" };
+        var json = JsonConvert.SerializeObject(list);
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "[]",
+                Type = SettingsValueType.TListString,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.SetAsync(key, list);
+
+        // Assert
+        Assert.That(result.Value, Is.EqualTo(list));
+
+        using var assertContext = await this.dbContextFactory.CreateDbContextAsync();
+        var updated = await assertContext.Settings.AsNoTracking().FirstAsync(x => x.Key == key);
+        Assert.That(updated.Value, Is.EqualTo(json));
+    }
+
+    /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> updates an existing string setting when passed an object that is a string.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_UpdatesStringSetting_FromObjectString()
+    {
+        // Setup
+        var key = "string-key".Unique();
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "old",
+                Type = SettingsValueType.TString,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        var newValue = "new";
+
+        // Execute
+        var result = await this.testee.SetAsync(key, (object)newValue);
+
+        // Assert
+        Assert.That(result.Value, Is.EqualTo("new"));
+
+        using var assertContext = await this.dbContextFactory.CreateDbContextAsync();
+        var updated = await assertContext.Settings.AsNoTracking().FirstAsync(x => x.Key == key);
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated.Value, Is.EqualTo("\"new\""));
+            Assert.That(updated.Type, Is.EqualTo(SettingsValueType.TString));
+        });
+    }
+
+    /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> throws when setting does not exist.
+    /// </summary>
+    [Test]
+    public void SetAsync_Throws_WhenNotFound()
+    {
+        // Setup
+        var key = "missing".Unique();
+
+        // Execute / Assert
+        Assert.ThrowsAsync<KeyNotFoundException>(() => this.testee.SetAsync(key, true));
+    }
+
+    /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> throws when value type does not match setting type.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_Throws_WhenInvalidValueType()
+    {
+        // Setup
+        var key = "bool-key".Unique();
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "True",
+                Type = SettingsValueType.TBoolean,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Execute / Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(() => this.testee.SetAsync(key, "not-bool"));
+        Assert.That(ex!.Message, Is.EqualTo(StaticConstants.InvalidSettingValueType));
+    }
+
+    /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> throws when value is null (cannot be converted to string for storage).
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_Throws_WhenValueIsNull()
+    {
+        // Setup
+        var key = "string-key".Unique();
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "old",
+                Type = SettingsValueType.TString,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Execute / Assert
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(() => this.testee.SetAsync<string?>(key, null));
+        Assert.That(ex!.Message, Is.EqualTo(StaticConstants.InvalidSettingValueType));
+    }
+
+    /// <summary>
+    /// Tests <see cref="DynamicSettingsManager.SetAsync{T}"/> does not change the stored value when validation fails.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task SetAsync_DoesNotUpdateDatabase_WhenValidationFails()
+    {
+        // Setup
+        var key = "bool-key".Unique();
+
+        using (var setupContext = await this.dbContextFactory.CreateDbContextAsync())
+        {
+            await setupContext.Settings.AddAsync(new SettingsModel
+            {
+                Key = key,
+                Value = "False",
+                Type = SettingsValueType.TBoolean,
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Execute
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => this.testee.SetAsync(key, "not-bool"));
+
+        // Assert
+        using var assertContext = await this.dbContextFactory.CreateDbContextAsync();
+        var after = await assertContext.Settings.AsNoTracking().FirstAsync(x => x.Key == key);
+        Assert.That(after.Value, Is.EqualTo("False"));
+    }
+
+    /// <summary>
     /// Tests <see cref="DynamicSettingsManager.MapTypeToValueType{T}"/> returns correct mapping.
     /// </summary>
     [Test]
@@ -190,7 +423,7 @@ public class DynamicSettingsManagerTests
     /// </summary>
     [Test]
     public void MapTypeToValueType_Throws_ForInvalidType() =>
-        Assert.Throws<InvalidOperationException>(() => DynamicSettingsManager.MapTypeToValueType("string"));
+        Assert.Throws<InvalidOperationException>(() => DynamicSettingsManager.MapTypeToValueType(new MemoryStream()));
 
     /// <summary>
     /// Tests <see cref="DynamicSettingsManager.ConvertSettingValue{T}"/> converts boolean value.

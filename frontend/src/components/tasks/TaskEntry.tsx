@@ -2,8 +2,11 @@ import { Chip, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import cronstrue from "cronstrue";
 
 import { useLiveTimeUntil } from "../../hooks/useLiveTimeUntil";
-import { FinishedReasonNullable } from "../../lib/api/KapitelShelf.Api/api";
-import { type TaskDTO, TaskState } from "../../lib/api/KapitelShelf.Api/api";
+import {
+  FinishedReasonNullable,
+  type TaskDTO,
+  TaskState,
+} from "../../lib/api/KapitelShelf.Api/api";
 import {
   GetTaskCategoryColor,
   GetTaskFinishedReasonString,

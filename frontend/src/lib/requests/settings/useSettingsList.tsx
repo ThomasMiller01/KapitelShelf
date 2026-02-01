@@ -10,5 +10,8 @@ export const useSettingsList = () => {
       const { data } = await clients.settings.settingsGet();
       return data;
     },
+    // get data from cache, useSettingsListPoller is handling the re-fetching
+    staleTime: Infinity,
+    refetchInterval: false,
   });
 };

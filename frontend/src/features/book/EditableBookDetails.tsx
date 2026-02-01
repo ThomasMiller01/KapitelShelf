@@ -1,4 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+
 import CategoryIcon from "@mui/icons-material/Category";
 import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
@@ -9,10 +10,12 @@ import type { ReactNode } from "react";
 import { type ReactElement, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
+import { AiButton } from "../../components/AiButton";
 import { AutoComplete } from "../../components/base/AutoComplete";
 import FileUploadButton from "../../components/base/FileUploadButton";
 import ItemList from "../../components/base/ItemList";
 import { useApi } from "../../contexts/ApiProvider";
+import { useAiEnabled } from "../../hooks/useAiEnabled";
 import { useCoverImage } from "../../hooks/useCoverImage";
 import { useMobile } from "../../hooks/useMobile";
 import type { MetadataDTO } from "../../lib/api/KapitelShelf.Api/api";
@@ -23,6 +26,7 @@ import {
   type SeriesDTO,
   type TagDTO,
 } from "../../lib/api/KapitelShelf.Api/api";
+import { useAiGenerateCategoriesTags } from "../../lib/requests/books/useAiGenerateCategoriesTags";
 import { useProxyCover } from "../../lib/requests/books/useProxyCover";
 import type { BookFormValues } from "../../lib/schemas/BookSchema";
 import { BookSchema } from "../../lib/schemas/BookSchema";
@@ -49,6 +53,12 @@ const EditableBookDetails = ({
 }: EditableBookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
   const { clients } = useApi();
+
+  const aiEnabled = useAiEnabled();
+  const {
+    mutate: aiGenerateCategoriesTags,
+    isPending: aiGenerateCategoriesTagsLoading,
+  } = useAiGenerateCategoriesTags();
 
   let initialAuthor = initial?.author?.firstName ?? "";
   if (initial?.author?.lastName) {
@@ -411,6 +421,59 @@ const EditableBookDetails = ({
                   />
                 </Stack>
 
+                {aiEnabled && (
+                  <Box width="100%" textAlign="right" mt="5px !important">
+                    <AiButton
+                      tooltip="Automatically generate tags and categories using AI"
+                      onClick={() => {
+                        aiGenerateCategoriesTags(initial?.id, {
+                          onSuccess: (data) => {
+                            if (!data) {
+                              return;
+                            }
+
+                            const normalize = (
+                              values: (string | undefined)[] | undefined,
+                            ): string[] =>
+                              (values ?? []).filter(
+                                (x): x is string => typeof x === "string",
+                              );
+
+                            const currentCategories = normalize(
+                              methods.getValues("categories"),
+                            );
+                            const currentTags = normalize(
+                              methods.getValues("tags"),
+                            );
+
+                            methods.setValue(
+                              "categories",
+                              mergeUniqueItemsInList(
+                                currentCategories,
+                                data.categories ?? [],
+                              ),
+                              { shouldDirty: true, shouldValidate: true },
+                            );
+
+                            methods.setValue(
+                              "tags",
+                              mergeUniqueItemsInList(
+                                currentTags,
+                                data.tags ?? [],
+                              ),
+                              { shouldDirty: true, shouldValidate: true },
+                            );
+                          },
+                        });
+                      }}
+                      loading={aiGenerateCategoriesTagsLoading}
+                      loadingPosition="start"
+                    >
+                      Generate Tags & Categories
+                    </AiButton>
+                  </Box>
+                )}
+
                 <Divider />
 
                 <Stack
@@ -474,3 +537,21 @@ const EditableBookDetails = ({
 };
 
 export default EditableBookDetails;
+
+const mergeUniqueItemsInList = (
+  current: string[],
+  incoming: string[],
+): string[] => {
+  const set = new Set(
+    (current ?? []).map((x) => x?.trim() ?? "").filter((x) => x.length > 0),
+  );
+
+  for (const x of incoming ?? []) {
+    const v = x?.trim() ?? "";
+    if (v.length > 0) {
+      set.add(v);
+    }
+  }
+
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+};

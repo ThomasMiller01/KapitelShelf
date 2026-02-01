@@ -19,12 +19,12 @@ export const useNotificationStats = ():
       }
 
       const { data } = await clients.notifications.notificationsStatsGet(
-        profile.id
+        profile.id,
       );
       return data;
     },
 
-    // get data from cache, NotificationStatsPoller is handling the re-fetching
+    // get data from cache, useNotificationStatsPoller is handling the re-fetching
     staleTime: Infinity,
     refetchInterval: false,
   });

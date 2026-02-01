@@ -2,7 +2,9 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using DocumentFormat.OpenXml.Bibliography;
 using KapitelShelf.Api.DTOs;
+using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.BookParser;
@@ -45,6 +47,9 @@ public class BooksLogicTests
     private IBookStorage bookStorage;
     private IMetadataScraperManager metadataScraperManager;
     private INotificationsLogic notificationsLogic;
+    private IAiManager aiManager;
+    private ICategoriesLogic categoriesLogic;
+    private ITagsLogic tagsLogic;
     private BooksLogic testee;
 
     /// <summary>
@@ -98,7 +103,19 @@ public class BooksLogicTests
         this.bookStorage = Substitute.For<IBookStorage>();
         this.metadataScraperManager = Substitute.For<IMetadataScraperManager>();
         this.notificationsLogic = Substitute.For<INotificationsLogic>();
-        this.testee = new BooksLogic(this.dbContextFactory, this.mapper, this.bookParserManager, this.bookStorage, this.metadataScraperManager, this.notificationsLogic);
+        this.aiManager = Substitute.For<IAiManager>();
+        this.categoriesLogic = Substitute.For<ICategoriesLogic>();
+        this.tagsLogic = Substitute.For<ITagsLogic>();
+        this.testee = new BooksLogic(
+            this.dbContextFactory,
+            this.mapper,
+            this.bookParserManager,
+            this.bookStorage,
+            this.metadataScraperManager,
+            this.notificationsLogic,
+            this.aiManager,
+            this.categoriesLogic,
+            this.tagsLogic);
     }
 
     /// <summary>
@@ -1918,6 +1935,151 @@ public class BooksLogicTests
     }
 
     /// <summary>
+    /// Tests CreateBookFromParsingResult keeps original categories/tags when ai feature is disabled (indirect via ImportBookAsync).
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookAsync_SingleImport_DoesNotGenerateCategoriesTags_WhenFeatureDisabled()
+    {
+        // Setup
+        var file = Substitute.For<IFormFile>();
+
+        this.bookParserManager.IsBulkFile(file).Returns(false);
+
+        var originalCategory = "OrigCat".Unique();
+        var originalTag = "OrigTag".Unique();
+
+        var parsingResult = CreateParsingResult(
+            title: "Book".Unique(),
+            categories: [originalCategory],
+            tags: [originalTag]);
+
+        this.bookParserManager.Parse(file).Returns(Task.FromResult(parsingResult));
+
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO
+        {
+            FilePath = "/path/book.pdf",
+            FileSizeBytes = 1,
+            MimeType = "application/pdf",
+            Sha256 = "sha256",
+        }));
+
+        this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration).Returns(Task.FromResult(false));
+
+        // Execute
+        var result = await this.testee.ImportBookAsync(file);
+
+        // Assert
+        Assert.That(result.ImportedBooks, Has.Count.EqualTo(1));
+        var bookId = result.ImportedBooks[0].Id;
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var book = await context.Books
+                .AsNoTracking()
+                .Include(x => x.Categories).ThenInclude(x => x.Category)
+                .Include(x => x.Tags).ThenInclude(x => x.Tag)
+                .FirstAsync(x => x.Id == bookId);
+
+            var cats = book.Categories.Select(x => x.Category.Name).ToList();
+            var tags = book.Tags.Select(x => x.Tag.Name).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cats, Is.EquivalentTo([originalCategory]));
+                Assert.That(tags, Is.EquivalentTo([originalTag]));
+            });
+        }
+
+        await this.aiManager.DidNotReceiveWithAnyArgs()
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(default!, default!);
+    }
+
+    /// <summary>
+    /// Tests CreateBookFromParsingResult overwrites categories/tags when ai feature is enabled (indirect via ImportBookAsync).
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookAsync_SingleImport_GeneratesCategoriesTags_WhenFeatureEnabled()
+    {
+        // Setup
+        var file = Substitute.For<IFormFile>();
+
+        this.bookParserManager.IsBulkFile(file).Returns(false);
+
+        var parsingResult = CreateParsingResult(
+            title: "Book".Unique(),
+            categories: ["OrigCat".Unique()],
+            tags: ["OrigTag".Unique()]);
+
+        this.bookParserManager.Parse(file).Returns(Task.FromResult(parsingResult));
+
+        this.bookStorage.Save(Arg.Any<Guid>(), Arg.Any<IFormFile>()).Returns(Task.FromResult(new FileInfoDTO
+        {
+            FilePath = "/path/book.pdf",
+            FileSizeBytes = 1,
+            MimeType = "application/pdf",
+            Sha256 = "sha256",
+        }));
+
+        this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration).Returns(Task.FromResult(true));
+
+        this.categoriesLogic.GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<CategoryDTO>
+            {
+                Items = [new CategoryDTO { Name = "LibraryCat".Unique() }],
+                TotalCount = 1,
+            }));
+
+        this.tagsLogic.GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<TagDTO>
+            {
+                Items = [new TagDTO { Name = "LibraryTag".Unique() }],
+                TotalCount = 1,
+            }));
+
+        var genCats = new List<string> { "GenCat1".Unique(), "GenCat2".Unique() };
+        var genTags = new List<string> { "GenTag1".Unique() };
+
+        this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(
+                Arg.Any<string>(),
+                Arg.Any<string>())
+            .Returns(Task.FromResult<AiGenerateCategoriesTagsResultDTO?>(new AiGenerateCategoriesTagsResultDTO
+            {
+                Categories = genCats,
+                Tags = genTags,
+            }));
+
+        // Execute
+        var result = await this.testee.ImportBookAsync(file);
+
+        // Assert
+        Assert.That(result.ImportedBooks, Has.Count.EqualTo(1));
+        var bookId = result.ImportedBooks[0].Id;
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var book = await context.Books
+                .AsNoTracking()
+                .Include(x => x.Categories).ThenInclude(x => x.Category)
+                .Include(x => x.Tags).ThenInclude(x => x.Tag)
+                .FirstAsync(x => x.Id == bookId);
+
+            var cats = book.Categories.Select(x => x.Category.Name).ToList();
+            var tags = book.Tags.Select(x => x.Tag.Name).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cats, Is.EquivalentTo(genCats));
+                Assert.That(tags, Is.EquivalentTo(genTags));
+            });
+        }
+
+        _ = this.aiManager.Received(1)
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    /// <summary>
     /// Tests that bulk import handles an empty result gracefully.
     /// </summary>
     /// <returns>A task.</returns>
@@ -2043,6 +2205,141 @@ public class BooksLogicTests
             Assert.That(result.Errors, Has.Count.EqualTo(1));
         });
         Assert.That(result.Errors[0], Does.Contain(metadata.Title));
+    }
+
+    /// <summary>
+    /// Tests CreateBookFromMetadata keeps categories/tags unchanged when ai feature is disabled (indirect via ImportBookFromAsinAsync).
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookFromAsinAsync_DoesNotGenerateCategoriesTags_WhenFeatureDisabled()
+    {
+        // Setup
+        var asin = "ASIN-1";
+
+        var metadata = new MetadataDTO
+        {
+            Title = "AsinBook".Unique(),
+            Authors = ["Jane Doe"],
+            Series = "Series".Unique(),
+
+            // keep cover fields empty so DownloadCover returns null
+        };
+
+        var scraper = Substitute.For<IAmazonScraper>();
+        scraper.ScrapeFromAsin(asin).Returns(metadata);
+
+        this.metadataScraperManager.GetNewScraper(MetadataSources.Amazon).Returns(scraper);
+
+        this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration).Returns(Task.FromResult(false));
+
+        // Execute
+        var result = await this.testee.ImportBookFromAsinAsync(asin);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.ImportedBooks, Has.Count.EqualTo(1));
+
+        var bookId = result.ImportedBooks[0].Id;
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var book = await context.Books
+                .AsNoTracking()
+                .Include(x => x.Categories).ThenInclude(x => x.Category)
+                .Include(x => x.Tags).ThenInclude(x => x.Tag)
+                .FirstAsync(x => x.Id == bookId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(book.Categories, Is.Empty);
+                Assert.That(book.Tags, Is.Empty);
+            });
+        }
+
+        await this.aiManager.DidNotReceiveWithAnyArgs()
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(default!, default!);
+    }
+
+    /// <summary>
+    /// Tests CreateBookFromMetadata overwrites categories/tags when ai feature is enabled (indirect via ImportBookFromAsinAsync).
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ImportBookFromAsinAsync_GeneratesCategoriesTags_WhenFeatureEnabled()
+    {
+        // Setup
+        var asin = "ASIN-2";
+
+        var metadata = new MetadataDTO
+        {
+            Title = "AsinBook".Unique(),
+            Authors = ["Jane Doe"],
+            Series = "Series".Unique(),
+        };
+
+        var scraper = Substitute.For<IAmazonScraper>();
+        scraper.ScrapeFromAsin(asin).Returns(metadata);
+
+        this.metadataScraperManager.GetNewScraper(MetadataSources.Amazon).Returns(scraper);
+
+        this.aiManager.FeatureEnabled(AiFeatures.BookImportMetadataGeneration).Returns(Task.FromResult(true));
+
+        this.categoriesLogic.GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<CategoryDTO>
+            {
+                Items = [new CategoryDTO { Name = "LibraryCat".Unique() }],
+                TotalCount = 1,
+            }));
+
+        this.tagsLogic.GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<TagDTO>
+            {
+                Items = [new TagDTO { Name = "LibraryTag".Unique() }],
+                TotalCount = 1,
+            }));
+
+        var genCats = new List<string> { "GenCat1".Unique() };
+        var genTags = new List<string> { "GenTag1".Unique(), "GenTag2".Unique() };
+
+        this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(
+                Arg.Any<string>(),
+                Arg.Any<string>())
+            .Returns(Task.FromResult<AiGenerateCategoriesTagsResultDTO?>(new AiGenerateCategoriesTagsResultDTO
+            {
+                Categories = genCats,
+                Tags = genTags,
+            }));
+
+        // Execute
+        var result = await this.testee.ImportBookFromAsinAsync(asin);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.ImportedBooks, Has.Count.EqualTo(1));
+
+        var bookId = result.ImportedBooks[0].Id;
+
+        await using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var book = await context.Books
+                .AsNoTracking()
+                .Include(x => x.Categories).ThenInclude(x => x.Category)
+                .Include(x => x.Tags).ThenInclude(x => x.Tag)
+                .FirstAsync(x => x.Id == bookId);
+
+            var cats = book.Categories.Select(x => x.Category.Name).ToList();
+            var tags = book.Tags.Select(x => x.Tag.Name).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cats, Is.EquivalentTo(genCats));
+                Assert.That(tags, Is.EquivalentTo(genTags));
+            });
+        }
+
+        _ = this.aiManager.Received(1)
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(Arg.Any<string>(), Arg.Any<string>());
     }
 
     /// <summary>
@@ -2201,9 +2498,110 @@ public class BooksLogicTests
     }
 
     /// <summary>
+    /// Tests AiGenerateCategoriesTags returns null when book does not exist.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AiGenerateCategoriesTags_ReturnsNull_WhenBookNotFound()
+    {
+        // Setup
+        var bookId = Guid.NewGuid();
+
+        // Execute
+        var result = await this.testee.AiGenerateCategoriesTags(bookId);
+
+        // Assert
+        Assert.That(result, Is.Null);
+        await this.aiManager.DidNotReceiveWithAnyArgs()
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(default!, default!);
+    }
+
+    /// <summary>
+    /// Tests AiGenerateCategoriesTags returns ai result and calls dependencies.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AiGenerateCategoriesTags_ReturnsResult_WhenBookExists()
+    {
+        // Setup
+        var createdBookDto = await this.testee.CreateBookAsync(new CreateBookDTO
+        {
+            Title = "AiBook".Unique(),
+            Description = "Desc",
+            Categories = [
+                new CreateCategoryDTO
+                {
+                    Name = "ExistingCat".Unique(),
+                },
+            ],
+            Tags = [
+                new CreateTagDTO
+                {
+                    Name = "ExistingTag".Unique(),
+                },
+            ],
+            Series = new CreateSeriesDTO
+            {
+                Name = "Series".Unique(),
+            },
+            Author = new CreateAuthorDTO
+            {
+                FirstName = "A".Unique(),
+                LastName = "B".Unique(),
+            },
+        });
+        Assert.That(createdBookDto, Is.Not.Null);
+
+        this.categoriesLogic.GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<CategoryDTO>
+            {
+                Items = [new CategoryDTO { Name = "LibraryCat".Unique() }],
+                TotalCount = 1,
+            }));
+
+        this.tagsLogic.GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null)
+            .Returns(Task.FromResult(new PagedResult<TagDTO>
+            {
+                Items = [new TagDTO { Name = "LibraryTag".Unique() }],
+                TotalCount = 1,
+            }));
+
+        var aiResult = new AiGenerateCategoriesTagsResultDTO
+        {
+            Categories = ["GenCat1".Unique(), "GenCat2".Unique()],
+            Tags = ["GenTag1".Unique()],
+        };
+
+        this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(
+                Arg.Any<string>(),
+                Arg.Any<string>())
+            .Returns(Task.FromResult<AiGenerateCategoriesTagsResultDTO?>(aiResult));
+
+        // Execute
+        var result = await this.testee.AiGenerateCategoriesTags(createdBookDto.Id);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.Categories, Is.EquivalentTo(aiResult.Categories));
+            Assert.That(result.Tags, Is.EquivalentTo(aiResult.Tags));
+        });
+
+        _ = this.categoriesLogic.Received(1)
+            .GetCategoriesAsync(1, 100, CategorySortByDTO.Default, SortDirectionDTO.Desc, null);
+
+        _ = this.tagsLogic.Received(1)
+            .GetTagsAsync(1, 100, TagSortByDTO.Default, SortDirectionDTO.Desc, null);
+
+        _ = this.aiManager.Received(1)
+            .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    /// <summary>
     /// Helper for building a parsing result for test.
     /// </summary>
-    private static BookParsingResult CreateParsingResult(string title, string? description = null)
+    private static BookParsingResult CreateParsingResult(string title, string? description = null, List<string>? categories = null, List<string>? tags = null)
     {
         return new BookParsingResult
         {
@@ -2215,13 +2613,13 @@ public class BooksLogicTests
                 {
                     Name = "TestSeries".Unique(),
                 },
-                Categories = [
+                Categories = categories?.Select(x => new CategoryDTO { Name = x }).ToList() ?? [
                     new CategoryDTO
                     {
                         Name = "TestCategory".Unique(),
                     },
                 ],
-                Tags = [
+                Tags = tags?.Select(x => new TagDTO { Name = x }).ToList() ?? [
                     new TagDTO
                     {
                         Name = "TestTag".Unique(),

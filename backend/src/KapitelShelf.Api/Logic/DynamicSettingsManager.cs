@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Runtime.CompilerServices;
+using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
@@ -10,6 +11,7 @@ using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 [assembly: InternalsVisibleTo("KapitelShelf.Api.Tests")]
 
@@ -28,7 +30,18 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     public async Task InitializeOnStartup()
     {
 #pragma warning disable IDE0022 // Use expression body for method
+        // cloudstorage
         await this.AddIfNotExists(StaticConstants.DynamicSettingCloudStorageExperimentalBisync, false);
+
+        // ai
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiProvider, AiProvider.None.ToString());
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiProviderConfigured, false);
+        await this.AddIfNotExists<List<string>>(StaticConstants.DynamicSettingAiEnabledFeatures, [
+            AiFeatures.BookImportMetadataGeneration.ToString(),
+        ]);
+
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaUrl, "http://host.docker.internal:11434");
+        await this.AddIfNotExists(StaticConstants.DynamicSettingAiOllamaModel, "gemma2:9b");
 #pragma warning restore IDE0022 // Use expression body for method
     }
 
@@ -49,6 +62,33 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         return this.mapper.SettingsModelToSettingsDto<T>(setting);
     }
 
+    /// <inheritdoc/>
+    public async Task<SettingsDTO<T>> SetAsync<T>(string key, T value)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var setting = await context.Settings
+            .FirstOrDefaultAsync(x => x.Key == key);
+
+        if (setting == null)
+        {
+            throw new KeyNotFoundException($"Setting with key '{key}' not found");
+        }
+
+        var valueJson = JsonConvert.SerializeObject(value);
+
+        if (!ValidateValue(setting, valueJson))
+        {
+            throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
+        }
+
+        setting.Value = valueJson ?? throw new InvalidOperationException(StaticConstants.InvalidSettingValueType);
+
+        await context.SaveChangesAsync();
+
+        return this.mapper.SettingsModelToSettingsDto<T>(setting);
+    }
+
     /// <summary>
     /// Map a C# type to a database setting value type.
     /// </summary>
@@ -63,6 +103,8 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         return value switch
         {
             bool => SettingsValueType.TBoolean,
+            string => SettingsValueType.TString,
+            List<string> => SettingsValueType.TListString,
             _ => throw new InvalidOperationException("Invalid value type."),
         };
     }
@@ -78,14 +120,13 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     {
         ArgumentNullException.ThrowIfNull(setting);
 
-        switch (setting.Type)
+        return setting.Type switch
         {
-            case SettingsValueType.TBoolean:
-                var result = bool.Parse(setting.Value);
-                return (T)(object)result;
-            default:
-                throw new InvalidOperationException("Invalid value type.");
-        }
+            SettingsValueType.TBoolean => (T)(object)bool.Parse(setting.Value),
+            SettingsValueType.TString => (T)(object)(JsonConvert.DeserializeObject<string>(setting.Value) ?? string.Empty),
+            SettingsValueType.TListString => (T)(object)(TryDeserializeStringList(setting.Value) ?? []),
+            _ => throw new InvalidOperationException("Invalid value type."),
+        };
     }
 
     /// <summary>
@@ -98,7 +139,7 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
     {
         ArgumentNullException.ThrowIfNull(setting);
 
-        if (value == null)
+        if (value is null or "null")
         {
             return false;
         }
@@ -106,6 +147,8 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         return setting.Type switch
         {
             SettingsValueType.TBoolean => bool.TryParse(value, out _),
+            SettingsValueType.TString => value is not null,
+            SettingsValueType.TListString => TryDeserializeStringList(value) is not null,
             _ => false,
         };
     }
@@ -137,10 +180,23 @@ public class DynamicSettingsManager(IDbContextFactory<KapitelShelfDBContext> dbC
         await context.Settings.AddAsync(new SettingsModel
         {
             Key = key,
-            Value = value.ToString() ?? throw new InvalidOperationException("Value cannot be converted to string"),
+            Value = JsonConvert.SerializeObject(value) ?? throw new InvalidOperationException("Value cannot be converted to string"),
             Type = MapTypeToValueType(value),
         });
 
         await context.SaveChangesAsync();
+    }
+
+    internal static List<string>? TryDeserializeStringList(string value)
+    {
+        try
+        {
+            var result = JsonConvert.DeserializeObject<List<string>>(value);
+            return result;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

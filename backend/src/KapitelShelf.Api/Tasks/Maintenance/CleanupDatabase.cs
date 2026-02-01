@@ -35,7 +35,7 @@ public class CleanupDatabase(
     {
         ArgumentNullException.ThrowIfNull(scheduler);
 
-        var internalTask = new InternalTask<CleanupFinishedTasks>
+        var internalTask = new InternalTask<CleanupDatabase>
         {
             Title = "Cleanup Database",
             Category = "Maintenance",

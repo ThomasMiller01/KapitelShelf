@@ -13,4 +13,14 @@ public enum SettingsValueType
     /// The "boolean" type.
     /// </summary>
     TBoolean = 0,
+
+    /// <summary>
+    /// The "string" type.
+    /// </summary>
+    TString = 1,
+
+    /// <summary>
+    /// The "List{string}" type.
+    /// </summary>
+    TListString = 2,
 }

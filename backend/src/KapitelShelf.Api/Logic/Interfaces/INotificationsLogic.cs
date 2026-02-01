@@ -24,6 +24,7 @@ public interface INotificationsLogic
     /// <param name="userId">The user id.</param>
     /// <param name="parentId">The parent id.</param>
     /// <param name="disableAutoGrouping">Disable that notifications are automatically grouped by their title.</param>
+    /// <param name="ignoreWhenDuplicate">Ignore this notification, if there already exists a duplicate.</param>
     /// <returns>A task.</returns>
     /// <remarks>If userId is null, the notification will be added to all users.</remarks>
     Task<List<NotificationDto>> AddNotification(
@@ -36,7 +37,8 @@ public interface INotificationsLogic
         string source = "",
         Guid? userId = null,
         Guid? parentId = null,
-        bool disableAutoGrouping = false);
+        bool disableAutoGrouping = false,
+        bool ignoreWhenDuplicate = false);
 
     /// <summary>
     /// Add a notification.
@@ -50,6 +52,7 @@ public interface INotificationsLogic
     /// <param name="userId">The user id.</param>
     /// <param name="parentId">The parent id.</param>
     /// <param name="disableAutoGrouping">Disable that notifications are automatically grouped by their title.</param>
+    /// <param name="ignoreWhenDuplicate">Ignore this notification, if there already exists a duplicate.</param>
     /// <returns>A task.</returns>
     /// <remarks>If userId is null, the notification will be added to all users.</remarks>
     Task<List<NotificationDto>> AddNotification(
@@ -61,7 +64,8 @@ public interface INotificationsLogic
         string source = "",
         Guid? userId = null,
         Guid? parentId = null,
-        bool disableAutoGrouping = false);
+        bool disableAutoGrouping = false,
+        bool ignoreWhenDuplicate = false);
 
     /// <summary>
     /// Get all notifications for the current user.

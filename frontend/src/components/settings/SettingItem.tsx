@@ -6,8 +6,15 @@ import React from "react";
 import type { ObjectSettingsDTO } from "../../lib/api/KapitelShelf.Api";
 import { useUpdateSetting } from "../../lib/requests/settings/useUpdateSetting";
 import { BooleanSetting } from "./BooleanSetting";
+import { EnumSetting } from "./EnumSetting";
+import { ListStringAsBoolean } from "./ListStringAsBoolean";
+import { StringSetting } from "./StringSetting";
 
-type SettingType = "boolean";
+type SettingType = "boolean" | "enum" | "string" | "list{string}-as-boolean";
+
+const IngoreDefaultDescriptionPosition: SettingType[] = [
+  "list{string}-as-boolean",
+];
 
 interface SettingItemProps {
   setting: ObjectSettingsDTO | undefined;
@@ -15,12 +22,21 @@ interface SettingItemProps {
   label: ReactNode;
   description?: string;
   details?: ReactNode;
+  enabled?: boolean;
+
+  // enum & list{string}-as-boolean props
+  options?: Array<{ value: string; label: ReactNode; description?: ReactNode }>;
+
+  // string-only props
+  placeholder?: string;
 }
 
 export const SettingItem: React.FC<SettingItemProps> = ({
   setting,
   description,
   details,
+  type,
+  enabled = true,
   ...props
 }) => {
   const { mutate: updateSetting } = useUpdateSetting(setting);
@@ -34,15 +50,22 @@ export const SettingItem: React.FC<SettingItemProps> = ({
       direction={{ xs: "column", md: "row" }}
       alignItems={{ xs: "start", md: "center" }}
       spacing={{ xs: 1, md: 1.5 }}
-      sx={{ my: "5px" }}
+      sx={{ my: "10px" }}
     >
       <SpecificSettingItem
         setting={setting}
+        type={type}
+        description={description}
+        enabled={enabled}
         {...props}
         update={(value: any) => updateSetting(value)}
       />
-      {description && (
-        <Typography variant="subtitle2" sx={{ mt: "3px !important" }}>
+      {description && !IngoreDefaultDescriptionPosition.includes(type) && (
+        <Typography
+          variant="subtitle2"
+          color={enabled ? "primary" : "textDisabled"}
+          sx={{ mt: "3px !important" }}
+        >
           {description}
         </Typography>
       )}
@@ -64,12 +87,18 @@ const SpecificSettingItem: React.FC<SpecificItemProps> = ({
     case "boolean":
       return <BooleanSetting {...props} />;
 
+    case "enum":
+      return <EnumSetting {...props} />;
+
+    case "string":
+      return <StringSetting {...props} />;
+
+    case "list{string}-as-boolean":
+      return <ListStringAsBoolean {...props} />;
+
     default:
       return <></>;
   }
 };
 
-export type TypeSettingProps = Omit<
-  SpecificItemProps,
-  "type" | "description" | "details"
->;
+export type TypeSettingProps = Omit<SpecificItemProps, "type" | "details">;
