@@ -89,6 +89,16 @@ Open the book detail page and select the **Edit** (pencil) icon.
 
 Update the necessary fields and confirm with **Edit Book**.
 
+### Use AI to generate tags and categories
+
+> ℹ️ **Requires AI** to be **configured** in KapitelShelf. See [AI Quickstart](../ai.md) for more information.
+
+You can use AI to generate tags and categories when editing a book.
+
+Click the "Generate Tags & Categories" button, which will add the generated tags and categories.
+
+![AI generate Tags & Categories](../.attachments/references/book-management/edit/ai_generate_tags_category_button.png)
+
 ## Delete a Book
 
 > ℹ️ Deleting a **book** also removes associated files such as covers or attachments.
