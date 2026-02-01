@@ -52,6 +52,12 @@ Browse the collection you have built and dive into each series.
 
 > ℹ️ Series act as containers for books. To focus on a single series, open it from the list and explore the options described in [Library and Search](./references.md#library-and-search).
 
+-
+
+## 5. Start with AI
+
+If you want to use KapitelShelf's AI features _(search, metadata generation)_, see the full guide: [AI Quickstart in KapitelShelf](./ai.md).
+
 ## Next Steps
 
 - Continue building your collection: import files, upload CSVs or fetch books by ASIN. The [References](./references.md) page covers each method in depth.
