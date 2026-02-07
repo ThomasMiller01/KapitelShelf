@@ -179,6 +179,20 @@ public sealed partial class Mapper
     }
 
     /// <summary>
+    /// Map a create book dto to a book dto.
+    /// </summary>
+    /// <param name="dto">The create dto.</param>
+    /// <returns>The book dto.</returns>
+    [UserMapping(Default = true)]
+    public BookDTO CreateBookDtoToBookDto(CreateBookDTO dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        var model = this.CreateBookDtoToBookModel(dto);
+        return this.BookModelToBookDto(model);
+    }
+
+    /// <summary>
     /// Map a book dto to a create book dto.
     /// </summary>
     /// <param name="dto">The book dto.</param>

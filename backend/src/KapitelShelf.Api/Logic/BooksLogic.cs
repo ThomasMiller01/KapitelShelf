@@ -245,7 +245,7 @@ public class BooksLogic(
         }
 
         // check for duplicate books
-        var duplicates = await this.GetDuplicatesAsync(createBookDTO.Title, createBookDTO.Location?.Url);
+        var duplicates = await this.GetDuplicatesAsync(this.mapper.CreateBookDtoToBookDto(createBookDTO));
         if (duplicates.Any())
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
@@ -368,7 +368,7 @@ public class BooksLogic(
         }
 
         // check for other duplicate books
-        var duplicates = await this.GetDuplicatesAsync(bookDto.Title, bookDto.Location?.Url);
+        var duplicates = await this.GetDuplicatesAsync(bookDto);
         if (duplicates.Any(x => x.Id != bookId))
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
@@ -729,7 +729,7 @@ public class BooksLogic(
         return await this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(userPrompt, AiPrompts.GenerateCategoriesAndTagsFromBook_System);
     }
 
-    private async Task<IList<BookModel>> GetDuplicatesAsync(string title, string? url)
+    private async Task<IList<BookModel>> GetDuplicatesAsync(BookDTO book)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
@@ -739,8 +739,9 @@ public class BooksLogic(
             .Include(x => x.Location)
                 .ThenInclude(x => x.FileInfo)
             .Where(x =>
-                x.Title == title ||
-                (url != null && x.Location.Url == url))
+                (x.Title == book.Title ||
+                (book.Location.Url != null && x.Location.Url == book.Location.Url)) &&
+                x.Id != book.Id)
             .ToListAsync();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
     }

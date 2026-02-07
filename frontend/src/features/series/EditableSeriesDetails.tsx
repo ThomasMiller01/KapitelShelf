@@ -101,14 +101,21 @@ const EditableSeriesDetails = ({
                 >
                   {/* User Rating */}
                   <Stack>
-                    <Typography>Custom Rating (WiP)</Typography>
-                    <Rating value={0} max={5} precision={0.5} readOnly />
+                    <Typography gutterBottom>Custom Rating (WiP)</Typography>
+                    <Rating
+                      defaultValue={0}
+                      max={5}
+                      precision={0.5}
+                      size="large"
+                    />
                   </Stack>
 
                   {/* Calculated Rating */}
                   <Stack alignItems="end">
                     <Stack direction="row" alignItems="center" spacing={0.5}>
-                      <Typography color="textDisabled">Calculated</Typography>
+                      <Typography color="textDisabled" gutterBottom>
+                        Calculated
+                      </Typography>
                       <IconButtonWithTooltip
                         tooltip="Calculated based on the book ratings from this series"
                         color="primary"

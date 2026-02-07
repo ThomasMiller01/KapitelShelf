@@ -199,7 +199,6 @@ const EditableUserBookMetadataContent: React.FC<
             onChange={(_, value) => setRating(value)}
             max={5}
             precision={0.5}
-            size="small"
           />
         </Stack>
         <Stack

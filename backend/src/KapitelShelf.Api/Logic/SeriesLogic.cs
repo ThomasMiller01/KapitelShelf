@@ -263,7 +263,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         }
 
         // check for duplicate series
-        var duplicates = await this.GetDuplicatesAsync(seriesDto.Name);
+        var duplicates = await this.GetDuplicatesAsync(seriesDto);
         if (duplicates.Any())
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
@@ -348,13 +348,13 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         await this.DeleteSeriesAsync(sourceSeries.Select(x => x.Id).ToList());
     }
 
-    internal async Task<IList<SeriesModel>> GetDuplicatesAsync(string name)
+    internal async Task<IList<SeriesModel>> GetDuplicatesAsync(SeriesDTO series)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
         return await context.Series
             .AsNoTracking()
-            .Where(x => x.Name == name)
+            .Where(x => x.Name == series.Name && x.Id != series.Id)
             .ToListAsync();
     }
 }
