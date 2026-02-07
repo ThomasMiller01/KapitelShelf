@@ -71,4 +71,21 @@ public interface IUsersLogic
     /// <param name="settingDto">The setting.</param>
     /// <returns>A task.</returns>
     Task UpdateSettingAsync(Guid userId, UserSettingDTO settingDto);
+
+    /// <summary>
+    /// Adds or updates the users book metadata.
+    /// </summary>
+    /// <param name="bookId">The book id.</param>
+    /// <param name="userId">The user id.</param>
+    /// <param name="bookMetadata">The user book metadata.</param>
+    /// <returns>A task.</returns>
+    Task AddOrUpdateBookMetadata(Guid bookId, Guid userId, CreateOrUpdateUserBookMetadataDTO bookMetadata);
+
+    /// <summary>
+    /// Delete the users book metadata.
+    /// </summary>
+    /// <param name="bookId">The book id.</param>
+    /// <param name="userId">The user id.</param>
+    /// <returns>A task.</returns>
+    Task DeleteBookMetadata(Guid bookId, Guid userId);
 }

@@ -1148,6 +1148,94 @@
         }
       }
     },
+    "/books/{bookId}/rating/{userId}": {
+      "put": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Add or update a user book rating.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The user book rating.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateUserBookMetadataDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateUserBookMetadataDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateUserBookMetadataDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Delete a user book rating.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/books/{bookId}/ai/generate-categories-tags": {
       "get": {
         "tags": [
@@ -4293,6 +4381,26 @@
         },
         "additionalProperties": false,
         "description": "The create model for a location."
+      },
+      "CreateOrUpdateUserBookMetadataDTO": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the rating.",
+            "format": "int32",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "description": "Gets or sets the notes.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The book dto."
       },
       "CreateSeriesDTO": {
         "type": "object",
