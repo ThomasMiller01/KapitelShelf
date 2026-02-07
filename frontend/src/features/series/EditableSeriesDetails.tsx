@@ -98,6 +98,7 @@ const EditableSeriesDetails = ({
                   spacing={2}
                   justifyContent="space-between"
                   alignItems="center"
+                  sx={{ marginTop: "30px !important" }}
                 >
                   {/* User Rating */}
                   <Stack>
