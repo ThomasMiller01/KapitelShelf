@@ -3996,6 +3996,23 @@
           },
           "location": {
             "$ref": "#/components/schemas/LocationDTO"
+          },
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets the rating.",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          },
+          "userMetadata": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserBookMetadataDTO"
+            },
+            "description": "Gets or sets the user metadata.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -4883,6 +4900,44 @@
         "type": "integer",
         "description": "The task state enum.",
         "format": "int32"
+      },
+      "UserBookMetadataDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDTO"
+          },
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the rating.",
+            "format": "int32",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "description": "Gets or sets the notes.",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "description": "Gets or sets the created date.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The book dto."
       },
       "UserDTO": {
         "type": "object",

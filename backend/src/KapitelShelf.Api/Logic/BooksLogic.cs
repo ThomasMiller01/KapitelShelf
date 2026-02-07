@@ -167,12 +167,20 @@ public class BooksLogic(
             .Include(x => x.Tags)
                 .ThenInclude(x => x.Tag)
             .Include(x => x.UserMetadata)
+                .ThenInclude(x => x.User)
             .AsSingleQuery()
 
             .Where(x => x.Id == bookId)
 
             .Select(x => this.mapper.BookModelToBookDto(x))
             .FirstOrDefaultAsync();
+
+        if (book is not null)
+        {
+            book.UserMetadata = book.UserMetadata
+                .OrderByDescending(x => x.UserId == userId ? 1 : -1)
+                .ToList();
+        }
 
         // mark book as visited for user
         await this.MarkBookAsVisited(bookId, userId);

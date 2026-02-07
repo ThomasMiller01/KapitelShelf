@@ -22,6 +22,11 @@ public class UserBookMetadataDTO
     public Guid UserId { get; set; }
 
     /// <summary>
+    /// Gets or sets the user.
+    /// </summary>
+    public UserDTO User { get; set; } = null!;
+
+    /// <summary>
     /// Gets or sets the rating.
     /// </summary>
     [Range(1, 10)]
@@ -31,4 +36,9 @@ public class UserBookMetadataDTO
     /// Gets or sets the notes.
     /// </summary>
     public string? Notes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the created date.
+    /// </summary>
+    public DateTime CreatedOn { get; set; }
 }

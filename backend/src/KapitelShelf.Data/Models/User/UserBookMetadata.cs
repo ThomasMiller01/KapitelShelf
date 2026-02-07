@@ -60,4 +60,9 @@ public class UserBookMetadataModel
     /// Gets or sets the notes.
     /// </summary>
     public string? Notes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the created date.
+    /// </summary>
+    public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 }

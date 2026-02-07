@@ -64,6 +64,7 @@ public sealed partial class Mapper
         // user metadata
         dto.UserMetadata = model.UserMetadata
             .Select(this.UserBookMetadataModelToUserBookMetadataDto)
+            .OrderByDescending(x => x.CreatedOn)
             .ToList();
 
         // series: prefer full entity, fallback to ID

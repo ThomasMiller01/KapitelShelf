@@ -85,6 +85,5 @@ public sealed partial class Mapper
     /// <returns>The user book metadata dto.</returns>
     [MapperIgnoreSource(nameof(UserBookMetadataModel.BookId))]
     [MapperIgnoreSource(nameof(UserBookMetadataModel.Book))]
-    [MapperIgnoreSource(nameof(UserBookMetadataModel.User))]
     public partial UserBookMetadataDTO UserBookMetadataModelToUserBookMetadataDto(UserBookMetadataModel model);
 }

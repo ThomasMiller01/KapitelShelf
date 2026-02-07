@@ -186,6 +186,18 @@ export interface BookDTO {
      * @memberof BookDTO
      */
     'location'?: LocationDTO;
+    /**
+     * Gets the rating.
+     * @type {number}
+     * @memberof BookDTO
+     */
+    'rating'?: number | null;
+    /**
+     * Gets or sets the user metadata.
+     * @type {Array<UserBookMetadataDTO>}
+     * @memberof BookDTO
+     */
+    'userMetadata'?: Array<UserBookMetadataDTO> | null;
 }
 /**
  * The paginated result.
@@ -1240,6 +1252,49 @@ export const TaskState = {
 export type TaskState = typeof TaskState[keyof typeof TaskState];
 
 
+/**
+ * The book dto.
+ * @export
+ * @interface UserBookMetadataDTO
+ */
+export interface UserBookMetadataDTO {
+    /**
+     * Gets or sets the id.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'id'?: string;
+    /**
+     * Gets or sets the id.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'userId'?: string;
+    /**
+     * 
+     * @type {UserDTO}
+     * @memberof UserBookMetadataDTO
+     */
+    'user'?: UserDTO;
+    /**
+     * Gets or sets the rating.
+     * @type {number}
+     * @memberof UserBookMetadataDTO
+     */
+    'rating'?: number | null;
+    /**
+     * Gets or sets the notes.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'notes'?: string | null;
+    /**
+     * Gets or sets the created date.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'createdOn'?: string;
+}
 /**
  * The user dto.
  * @export
