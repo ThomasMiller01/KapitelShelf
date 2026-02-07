@@ -2,6 +2,8 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using KapitelShelf.Data.Models.User;
+
 namespace KapitelShelf.Data.Models;
 
 /// <summary>
@@ -88,4 +90,9 @@ public class BookModel
     /// Gets or sets the tags.
     /// </summary>
     public virtual ICollection<BookTagModel> Tags { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the user ratings.
+    /// </summary>
+    public virtual ICollection<UserBookMetadataModel> UserMetadata { get; set; } = [];
 }

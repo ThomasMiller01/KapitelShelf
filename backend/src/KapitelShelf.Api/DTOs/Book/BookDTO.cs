@@ -2,12 +2,14 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.ComponentModel.DataAnnotations;
 using KapitelShelf.Api.DTOs.Author;
 using KapitelShelf.Api.DTOs.Category;
 using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
+using KapitelShelf.Api.DTOs.User;
 
 namespace KapitelShelf.Api.DTOs.Book;
 
@@ -75,4 +77,32 @@ public class BookDTO
     /// Gets or sets the location.
     /// </summary>
     public LocationDTO? Location { get; set; }
+
+    /// <summary>
+    /// Gets the rating.
+    /// </summary>
+    [Range(1, 10)]
+    public int? Rating
+    {
+        get
+        {
+            var ratings = this.UserMetadata
+                .Where(x => x.Rating.HasValue)
+                .Select(x => x.Rating)
+                .ToList();
+
+            if (ratings.Count == 0)
+            {
+                return null;
+            }
+
+            var average = ratings.Average(x => x!.Value);
+            return (int)Math.Round(average, MidpointRounding.AwayFromZero);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the user metadata.
+    /// </summary>
+    public IList<UserBookMetadataDTO> UserMetadata { get; set; } = [];
 }

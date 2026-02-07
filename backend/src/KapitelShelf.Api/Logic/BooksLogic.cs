@@ -166,6 +166,7 @@ public class BooksLogic(
                 .ThenInclude(x => x.Category)
             .Include(x => x.Tags)
                 .ThenInclude(x => x.Tag)
+            .Include(x => x.UserMetadata)
             .AsSingleQuery()
 
             .Where(x => x.Id == bookId)

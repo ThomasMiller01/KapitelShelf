@@ -10,7 +10,6 @@ using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.SS.Formula.Functions;
 
 namespace KapitelShelf.Api.Controllers;
 
