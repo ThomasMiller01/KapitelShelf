@@ -43,6 +43,17 @@ public sealed partial class Mapper
             dto.LastVolume = this.BookModelToBookDto(lastVolume);
         }
 
+        var ratings = model.Books
+                .SelectMany(x => x.UserMetadata, (_, y) => y.Rating)
+                .Where(x => x.HasValue)
+                .ToList();
+
+        if (ratings.Count != 0)
+        {
+            var average = ratings.Average(x => x!.Value);
+            dto.Rating = (int)Math.Round(average, MidpointRounding.AwayFromZero);
+        }
+
         return dto;
     }
 
@@ -88,5 +99,6 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(SeriesDTO.UpdatedAt))]
     [MapperIgnoreSource(nameof(SeriesDTO.LastVolume))]
     [MapperIgnoreSource(nameof(SeriesDTO.TotalBooks))]
+    [MapperIgnoreSource(nameof(SeriesDTO.Rating))]
     public partial CreateSeriesDTO SeriesDtoToCreateSeriesDto(SeriesDTO dto);
 }

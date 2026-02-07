@@ -4831,6 +4831,14 @@
             "description": "Gets or sets the total number of books.",
             "format": "int32",
             "nullable": true
+          },
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the rating.",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false,

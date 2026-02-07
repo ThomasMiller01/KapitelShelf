@@ -6,12 +6,11 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   Box,
-  Chip,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
-  styled,
+  Rating,
 } from "@mui/material";
 import React, { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -34,17 +33,11 @@ import { useRemoveSeriesFromWatchlist } from "../../lib/requests/watchlist/useRe
 import { useSeriesOnWatchlist } from "../../lib/requests/watchlist/useSeriesOnWatchlist";
 import { SeriesSupportsWatchlist } from "../../utils/WatchlistUtils";
 
-const VolumesBadge = styled(Chip, {
-  shouldForwardProp: (prop) => prop !== "isMobile",
-})<{ isMobile: boolean }>(({ isMobile }) => ({
-  fontSize: isMobile ? "0.82rem" : "0.95rem",
-}));
-
 const SeriesDetailPage = (): ReactElement => {
   const { seriesId } = useParams<{ seriesId: string }>();
+  const { isMobile } = useMobile();
 
   const navigate = useNavigate();
-  const { isMobile } = useMobile();
   const { triggerNavigate } = useNotification();
 
   const { data: series, isLoading, isError, refetch } = useSeriesById(seriesId);
@@ -96,11 +89,18 @@ const SeriesDetailPage = (): ReactElement => {
         backTooltip="Go to library"
         backUrl="/library"
         addons={[
-          <VolumesBadge
-            key="series-count"
-            label={`${series?.totalBooks} Volume(s)`}
-            isMobile={isMobile}
-          />,
+          series?.rating ? (
+            <Rating
+              value={series.rating / 2}
+              max={5}
+              precision={0.5}
+              readOnly
+              size="small"
+              sx={{ ml: isMobile ? "10px !important" : 0 }}
+            />
+          ) : (
+            <></>
+          ),
         ]}
         actions={[
           SeriesSupportsWatchlist(series) ? (
@@ -128,16 +128,10 @@ const SeriesDetailPage = (): ReactElement => {
           >
             <EditIcon />
           </IconButtonWithTooltip>,
-          <IconButtonWithTooltip
-            tooltip="Delete series"
-            onClick={() => setDeleteOpen(true)}
-            key="delete"
-          >
-            <DeleteIcon />
-          </IconButtonWithTooltip>,
           <OptionsMenu
             key="options"
             onMergeSeriesClick={() => setMergeSeriesOpen(true)}
+            onDeleteSeriesClick={() => setDeleteOpen(true)}
           />,
         ]}
       />
@@ -161,10 +155,12 @@ const SeriesDetailPage = (): ReactElement => {
 
 interface OptionsMenuProps {
   onMergeSeriesClick: () => void;
+  onDeleteSeriesClick: () => void;
 }
 
 const OptionsMenu = ({
   onMergeSeriesClick,
+  onDeleteSeriesClick,
 }: OptionsMenuProps): ReactElement => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -186,6 +182,14 @@ const OptionsMenu = ({
           icon={<AddLinkIcon />}
           onClick={() => {
             onMergeSeriesClick();
+            handleClose();
+          }}
+        />
+        <OptionMenuItem
+          text="Delete series"
+          icon={<DeleteIcon />}
+          onClick={() => {
+            onDeleteSeriesClick();
             handleClose();
           }}
         />

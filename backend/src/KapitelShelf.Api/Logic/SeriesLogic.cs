@@ -45,6 +45,9 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
                 .ThenInclude(x => x.Author)
             .Include(x => x.Books)
                 .ThenInclude(b => b.Cover)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.UserMetadata)
+                    .ThenInclude(x => x.User)
             .AsSingleQuery()
 
             // apply filter if it is set
@@ -88,6 +91,9 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
                 .ThenInclude(b => b.Cover)
             .Include(x => x.Books)
                 .ThenInclude(b => b.Location)
+            .Include(x => x.Books)
+                .ThenInclude(b => b.UserMetadata)
+                    .ThenInclude(x => x.User)
             .AsSingleQuery()
 
             .Where(x => x.Id == seriesId)
@@ -182,6 +188,8 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
                 .ThenInclude(x => x.Category)
             .Include(x => x.Tags)
                 .ThenInclude(x => x.Tag)
+            .Include(x => x.UserMetadata)
+                .ThenInclude(x => x.User)
             .AsSingleQuery()
 
             .Where(x => x.SeriesId == seriesId)

@@ -1,5 +1,6 @@
 import React, { type ReactElement } from "react";
 
+import { Rating } from "@mui/material";
 import bookCover from "../assets/books/nocover.png";
 import { useMobile } from "../hooks/useMobile";
 import type { SeriesDTO } from "../lib/api/KapitelShelf.Api/api";
@@ -56,6 +57,19 @@ const SeriesCard = ({
         >
           {book?.author?.firstName} {book?.author?.lastName}
         </MetadataItem>,
+        series.rating ? (
+          <Rating
+            key="rating"
+            value={series.rating / 2}
+            max={5}
+            precision={0.5}
+            readOnly
+            size="small"
+            sx={{ mt: 0.5 }}
+          />
+        ) : (
+          <></>
+        ),
       ]}
     />
   );

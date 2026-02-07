@@ -1059,6 +1059,12 @@ export interface SeriesDTO {
      * @memberof SeriesDTO
      */
     'totalBooks'?: number | null;
+    /**
+     * Gets or sets the rating.
+     * @type {number}
+     * @memberof SeriesDTO
+     */
+    'rating'?: number | null;
 }
 /**
  * The paginated result.
