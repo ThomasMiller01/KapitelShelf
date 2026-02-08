@@ -1335,7 +1335,7 @@ public class SeriesLogicTests
         }
 
         // Execute
-        var result = await this.testee.GetDuplicatesAsync(name);
+        var result = await this.testee.GetDuplicatesAsync(this.mapper.SeriesModelToSeriesDto(match));
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
@@ -1350,7 +1350,7 @@ public class SeriesLogicTests
     public async Task GetDuplicatesAsync_ReturnsEmpty_IfNoMatch()
     {
         // Execute
-        var result = await this.testee.GetDuplicatesAsync("NoSuchSeries".Unique());
+        var result = await this.testee.GetDuplicatesAsync(new SeriesDTO());
 
         // Assert
         Assert.That(result, Is.Empty);
