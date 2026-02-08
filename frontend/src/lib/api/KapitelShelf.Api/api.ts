@@ -231,7 +231,8 @@ export const BookSortByDTO = {
     NUMBER_3: 3,
     NUMBER_4: 4,
     NUMBER_5: 5,
-    NUMBER_6: 6
+    NUMBER_6: 6,
+    NUMBER_7: 7
 } as const;
 
 export type BookSortByDTO = typeof BookSortByDTO[keyof typeof BookSortByDTO];
@@ -1096,7 +1097,8 @@ export const SeriesSortByDTO = {
     NUMBER_1: 1,
     NUMBER_2: 2,
     NUMBER_3: 3,
-    NUMBER_4: 4
+    NUMBER_4: 4,
+    NUMBER_5: 5
 } as const;
 
 export type SeriesSortByDTO = typeof SeriesSortByDTO[keyof typeof SeriesSortByDTO];
