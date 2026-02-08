@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Rating, Stack } from "@mui/material";
 import React, { type ReactElement } from "react";
 
 import bookCover from "../assets/books/nocover.png";
@@ -13,6 +13,7 @@ interface BookCardProps {
   book: BookDTO;
   showAuthor?: boolean;
   showMetadata?: boolean;
+  showRating?: boolean;
   itemVariant?: ItemCardType;
   onClick?: () => void;
   small?: boolean;
@@ -22,6 +23,7 @@ const BookCard = ({
   book,
   showAuthor = false,
   showMetadata = true,
+  showRating = true,
   itemVariant = "normal",
   onClick,
   small = false,
@@ -50,22 +52,42 @@ const BookCard = ({
           <React.Fragment key="no-author" />
         ),
         showMetadata ? (
-          <Stack
-            key="location-pagenumber"
-            direction="row"
-            justifyContent="space-between"
-            spacing={0}
-            width="100%"
-          >
-            <MetadataItem sx={{ fontSize: MetadataFontSize(isMobile, small) }}>
-              {LocationTypeToString[book.location?.type ?? -1]}
-            </MetadataItem>
-            {book.pageNumber && book.pageNumber !== 0 && (
+          <Stack spacing={1}>
+            <Stack
+              key="location-pagenumber"
+              direction="row"
+              justifyContent="space-between"
+              spacing={0}
+              width="100%"
+            >
+              {/* Location */}
               <MetadataItem
                 sx={{ fontSize: MetadataFontSize(isMobile, small) }}
               >
-                {book.pageNumber} pages
+                {LocationTypeToString[book.location?.type ?? -1]}
               </MetadataItem>
+
+              {/* Page Number */}
+              {book.pageNumber && book.pageNumber !== 0 && (
+                <MetadataItem
+                  sx={{ fontSize: MetadataFontSize(isMobile, small) }}
+                >
+                  {book.pageNumber} pages
+                </MetadataItem>
+              )}
+            </Stack>
+
+            {/* Rating */}
+            {showRating && book.rating && (
+              <Rating
+                key="rating"
+                value={book.rating / 2}
+                max={5}
+                precision={0.5}
+                readOnly
+                size="small"
+                sx={{ mt: 0.5 }}
+              />
             )}
           </Stack>
         ) : (

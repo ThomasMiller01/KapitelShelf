@@ -25,7 +25,7 @@ const LastVisitedBooksList = (): ReactElement => {
       itemGap={16}
     >
       {data?.items?.map((x) => (
-        <BookCard key={x.id} book={x} small />
+        <BookCard key={x.id} book={x} small showRating={false} />
       ))}
       {data?.totalCount === 0 && (
         <NoItemsFoundCard itemName="Last Visited Books" extraSmall />

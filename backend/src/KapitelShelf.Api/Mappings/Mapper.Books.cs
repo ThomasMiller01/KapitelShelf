@@ -33,8 +33,10 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(BookModel.AuthorId))]
     [MapperIgnoreSource(nameof(BookModel.CreatedAt))]
     [MapperIgnoreSource(nameof(BookModel.UpdatedAt))]
+    [MapperIgnoreSource(nameof(BookModel.UserMetadata))]
     [MapperIgnoreTarget(nameof(BookDTO.Categories))]
     [MapperIgnoreTarget(nameof(BookDTO.Tags))]
+    [MapperIgnoreTarget(nameof(BookDTO.UserMetadata))]
     public partial BookDTO BookModelToBookDtoCore(BookModel model);
 
     /// <summary>
@@ -57,6 +59,12 @@ public sealed partial class Mapper
         // tags
         dto.Tags = model.Tags
             .Select(x => this.TagModelToTagDto(x.Tag))
+            .ToList();
+
+        // user metadata
+        dto.UserMetadata = model.UserMetadata
+            .Select(this.UserBookMetadataModelToUserBookMetadataDto)
+            .OrderByDescending(x => x.CreatedOn)
             .ToList();
 
         // series: prefer full entity, fallback to ID
@@ -105,6 +113,7 @@ public sealed partial class Mapper
     [MapperIgnoreTarget(nameof(BookModel.Location))]
     [MapperIgnoreTarget(nameof(BookModel.CreatedAt))]
     [MapperIgnoreTarget(nameof(BookModel.UpdatedAt))]
+    [MapperIgnoreTarget(nameof(BookModel.UserMetadata))]
     public partial BookModel CreateBookDtoToBookModelCore(CreateBookDTO dto);
 
     /// <summary>
@@ -170,12 +179,28 @@ public sealed partial class Mapper
     }
 
     /// <summary>
+    /// Map a create book dto to a book dto.
+    /// </summary>
+    /// <param name="dto">The create dto.</param>
+    /// <returns>The book dto.</returns>
+    [UserMapping(Default = true)]
+    public BookDTO CreateBookDtoToBookDto(CreateBookDTO dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        var model = this.CreateBookDtoToBookModel(dto);
+        return this.BookModelToBookDto(model);
+    }
+
+    /// <summary>
     /// Map a book dto to a create book dto.
     /// </summary>
     /// <param name="dto">The book dto.</param>
     /// <returns>The create dto.</returns>
     [MapperIgnoreSource(nameof(BookDTO.Id))]
     [MapperIgnoreSource(nameof(BookDTO.Cover))]
+    [MapperIgnoreSource(nameof(BookDTO.UserMetadata))]
+    [MapperIgnoreSource(nameof(BookDTO.Rating))]
     public partial CreateBookDTO BookDtoToCreateBookDto(BookDTO dto);
 
     /// <summary>
@@ -199,6 +224,7 @@ public sealed partial class Mapper
     [MapperIgnoreTarget(nameof(BookDTO.ReleaseDate))]
     [MapperIgnoreTarget(nameof(BookDTO.PageNumber))]
     [MapperIgnoreTarget(nameof(BookDTO.SeriesNumber))]
+    [MapperIgnoreTarget(nameof(BookDTO.UserMetadata))]
     public partial BookDTO BookSearchViewToBookDtoCore(BookSearchView view);
 
     /// <summary>

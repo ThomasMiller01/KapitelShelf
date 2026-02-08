@@ -1,9 +1,20 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Divider, Grid, Stack, TextField } from "@mui/material";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  Rating,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import type { ReactNode } from "react";
 import { type ReactElement, useEffect } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
+import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
 import { useMobile } from "../../hooks/useMobile";
 import { type SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
 import type { SeriesFormValues } from "../../lib/schemas/SeriesSchema";
@@ -81,6 +92,49 @@ const EditableSeriesDetails = ({
                     />
                   )}
                 />
+
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ marginTop: "30px !important" }}
+                >
+                  {/* User Rating */}
+                  <Stack>
+                    <Typography gutterBottom>Custom Rating (WiP)</Typography>
+                    <Rating
+                      defaultValue={0}
+                      max={5}
+                      precision={0.5}
+                      size="large"
+                    />
+                  </Stack>
+
+                  {/* Calculated Rating */}
+                  <Stack alignItems="end">
+                    <Stack direction="row" alignItems="center" spacing={0.5}>
+                      <Typography color="textDisabled" gutterBottom>
+                        Calculated
+                      </Typography>
+                      <IconButtonWithTooltip
+                        tooltip="Calculated based on the book ratings from this series"
+                        color="primary"
+                        size="small"
+                        disabled
+                      >
+                        <HelpOutlineIcon fontSize="small" />
+                      </IconButtonWithTooltip>
+                    </Stack>
+                    <Rating
+                      value={(initial?.rating ?? 0) / 2}
+                      max={5}
+                      precision={0.5}
+                      readOnly
+                      disabled
+                    />
+                  </Stack>
+                </Stack>
 
                 <Divider />
 

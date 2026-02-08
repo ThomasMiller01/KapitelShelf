@@ -1,4 +1,5 @@
 import AddLinkIcon from "@mui/icons-material/AddLink";
+import { Rating } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { useState } from "react";
 import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
@@ -26,6 +27,30 @@ export const columns: GridColDef<SeriesDTO>[] = [
     sortable: true,
     editable: true,
     valueGetter: (_, row) => row.name ?? "-",
+  },
+  {
+    field: "rating",
+    headerName: "Rating",
+    type: "number",
+    width: 120,
+    sortable: true,
+    align: "right",
+    headerAlign: "right",
+    renderCell: (params) => {
+      if (params.value == null) {
+        return null;
+      }
+
+      return (
+        <Rating
+          value={params.value / 2}
+          max={5}
+          precision={0.5}
+          readOnly
+          size="small"
+        />
+      );
+    },
   },
   {
     field: "totalBooks",

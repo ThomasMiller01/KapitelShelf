@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.ComponentModel.DataAnnotations;
 using KapitelShelf.Api.DTOs.Book;
 
 namespace KapitelShelf.Api.DTOs.Series;
@@ -40,4 +41,10 @@ public class SeriesDTO
     /// Gets or sets the total number of books.
     /// </summary>
     public int? TotalBooks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the rating.
+    /// </summary>
+    [Range(1, 10)]
+    public int? Rating { get; set; }
 }

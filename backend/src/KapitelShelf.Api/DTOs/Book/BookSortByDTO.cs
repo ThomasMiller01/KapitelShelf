@@ -43,4 +43,9 @@ public enum BookSortByDTO
     /// Sort by the book release date.
     /// </summary>
     Release,
+
+    /// <summary>
+    /// Sort by the book rating.
+    /// </summary>
+    Rating,
 }

@@ -1148,6 +1148,94 @@
         }
       }
     },
+    "/books/{bookId}/rating/{userId}": {
+      "put": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Add or update a user book rating.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The user book rating.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateUserBookMetadataDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateUserBookMetadataDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrUpdateUserBookMetadataDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Delete a user book rating.",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "description": "The id of the book to update.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/books/{bookId}/ai/generate-categories-tags": {
       "get": {
         "tags": [
@@ -3996,6 +4084,23 @@
           },
           "location": {
             "$ref": "#/components/schemas/LocationDTO"
+          },
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets the rating.",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          },
+          "userMetadata": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserBookMetadataDTO"
+            },
+            "description": "Gets or sets the user metadata.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -4029,7 +4134,8 @@
           3,
           4,
           5,
-          6
+          6,
+          7
         ],
         "type": "integer",
         "description": "The sort by enum for books.",
@@ -4276,6 +4382,26 @@
         },
         "additionalProperties": false,
         "description": "The create model for a location."
+      },
+      "CreateOrUpdateUserBookMetadataDTO": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the rating.",
+            "format": "int32",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "description": "Gets or sets the notes.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "The book dto."
       },
       "CreateSeriesDTO": {
         "type": "object",
@@ -4706,6 +4832,14 @@
             "description": "Gets or sets the total number of books.",
             "format": "int32",
             "nullable": true
+          },
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the rating.",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -4737,7 +4871,8 @@
           1,
           2,
           3,
-          4
+          4,
+          5
         ],
         "type": "integer",
         "description": "The sort by enum for series.",
@@ -4883,6 +5018,44 @@
         "type": "integer",
         "description": "The task state enum.",
         "format": "int32"
+      },
+      "UserBookMetadataDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Gets or sets the id.",
+            "format": "uuid"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDTO"
+          },
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the rating.",
+            "format": "int32",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "description": "Gets or sets the notes.",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "description": "Gets or sets the created date.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The book dto."
       },
       "UserDTO": {
         "type": "object",

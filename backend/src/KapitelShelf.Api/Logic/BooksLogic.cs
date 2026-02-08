@@ -115,6 +115,9 @@ public class BooksLogic(
              .Include(x => x.BookModel)
                 .ThenInclude(x => x.Tags)
                     .ThenInclude(x => x.Tag)
+            .Include(x => x.BookModel)
+                .ThenInclude(x => x.UserMetadata)
+                    .ThenInclude(x => x.User)
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             .AsSingleQuery()
 
@@ -166,12 +169,21 @@ public class BooksLogic(
                 .ThenInclude(x => x.Category)
             .Include(x => x.Tags)
                 .ThenInclude(x => x.Tag)
+            .Include(x => x.UserMetadata)
+                .ThenInclude(x => x.User)
             .AsSingleQuery()
 
             .Where(x => x.Id == bookId)
 
             .Select(x => this.mapper.BookModelToBookDto(x))
             .FirstOrDefaultAsync();
+
+        if (book is not null)
+        {
+            book.UserMetadata = book.UserMetadata
+                .OrderByDescending(x => x.UserId == userId ? 1 : -1)
+                .ToList();
+        }
 
         // mark book as visited for user
         await this.MarkBookAsVisited(bookId, userId);
@@ -236,7 +248,7 @@ public class BooksLogic(
         }
 
         // check for duplicate books
-        var duplicates = await this.GetDuplicatesAsync(createBookDTO.Title, createBookDTO.Location?.Url);
+        var duplicates = await this.GetDuplicatesAsync(this.mapper.CreateBookDtoToBookDto(createBookDTO));
         if (duplicates.Any())
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
@@ -359,7 +371,7 @@ public class BooksLogic(
         }
 
         // check for other duplicate books
-        var duplicates = await this.GetDuplicatesAsync(bookDto.Title, bookDto.Location?.Url);
+        var duplicates = await this.GetDuplicatesAsync(bookDto);
         if (duplicates.Any(x => x.Id != bookId))
         {
             throw new InvalidOperationException(StaticConstants.DuplicateExceptionKey);
@@ -720,9 +732,11 @@ public class BooksLogic(
         return await this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(userPrompt, AiPrompts.GenerateCategoriesAndTagsFromBook_System);
     }
 
-    private async Task<IList<BookModel>> GetDuplicatesAsync(string title, string? url)
+    private async Task<IList<BookModel>> GetDuplicatesAsync(BookDTO book)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var localUrl = book.Location?.Url;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
         return await context.Books
@@ -730,8 +744,9 @@ public class BooksLogic(
             .Include(x => x.Location)
                 .ThenInclude(x => x.FileInfo)
             .Where(x =>
-                x.Title == title ||
-                (url != null && x.Location.Url == url))
+                (x.Title == book.Title ||
+                (localUrl != null && x.Location.Url == localUrl)) &&
+                x.Id != book.Id)
             .ToListAsync();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
     }

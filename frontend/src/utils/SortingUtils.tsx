@@ -28,6 +28,9 @@ export const ToBookSortByDTO = (value: string | null | undefined) => {
     case "releaseDate":
       return BookSortByDTO.NUMBER_6;
 
+    case "rating":
+      return BookSortByDTO.NUMBER_7;
+
     case "default":
     default:
       return BookSortByDTO.NUMBER_0;
@@ -39,14 +42,17 @@ export const ToSeriesSortByDTO = (value: string | null | undefined) => {
     case "name":
       return SeriesSortByDTO.NUMBER_1;
 
-    case "totalBooks":
+    case "rating":
       return SeriesSortByDTO.NUMBER_2;
 
-    case "updatedAt":
+    case "totalBooks":
       return SeriesSortByDTO.NUMBER_3;
 
-    case "createdAt":
+    case "updatedAt":
       return SeriesSortByDTO.NUMBER_4;
+
+    case "createdAt":
+      return SeriesSortByDTO.NUMBER_5;
 
     case "default":
     default:

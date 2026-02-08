@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using DocumentFormat.OpenXml.Wordprocessing;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Data.Extensions;
@@ -137,6 +136,23 @@ public static class SearchQueryExtensions
             (BookSortByDTO.Release, SortDirectionDTO.Desc) =>
                 query.OrderByDescending(x => x.BookModel!.ReleaseDate)
                     .ThenByDescending(x => x.BookModel!.UpdatedAt),
+
+            // Rating
+            (BookSortByDTO.Rating, SortDirectionDTO.Asc) =>
+                query.OrderBy(x => x.BookModel!.UserMetadata.Any(um => um.Rating.HasValue) ? 0 : 1) // books without rating always at the bottom
+
+                    .ThenBy(x => x.BookModel!.UserMetadata
+                        .Where(y => y.Rating.HasValue)
+                        .Average(y => y.Rating))
+                     .ThenBy(x => x.BookModel!.UpdatedAt),
+
+            (BookSortByDTO.Rating, SortDirectionDTO.Desc) =>
+                query.OrderBy(x => x.BookModel!.UserMetadata.Any(um => um.Rating.HasValue) ? 0 : 1) // books without rating always at the bottom
+
+                    .ThenByDescending(x => x.BookModel!.UserMetadata
+                        .Where(y => y.Rating.HasValue)
+                        .Average(y => y.Rating))
+                     .ThenBy(x => x.BookModel!.UpdatedAt),
 
             // Default
             (BookSortByDTO.Default, SortDirectionDTO.Asc) =>

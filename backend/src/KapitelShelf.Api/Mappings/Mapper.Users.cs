@@ -77,4 +77,13 @@ public sealed partial class Mapper
     /// <param name="dto">The user setting value type dto.</param>
     /// <returns>The user setting value type.</returns>
     public partial UserSettingValueType UserSettingValueTypeDtoToUserSettingValueType(UserSettingValueTypeDTO dto);
+
+    /// <summary>
+    /// Map a user book metadata model to a user book metadata dto.
+    /// </summary>
+    /// <param name="model">The user book metadata model.</param>
+    /// <returns>The user book metadata dto.</returns>
+    [MapperIgnoreSource(nameof(UserBookMetadataModel.BookId))]
+    [MapperIgnoreSource(nameof(UserBookMetadataModel.Book))]
+    public partial UserBookMetadataDTO UserBookMetadataModelToUserBookMetadataDto(UserBookMetadataModel model);
 }
