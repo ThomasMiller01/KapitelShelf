@@ -122,7 +122,7 @@ const UserBookMetadataContent: React.FC<UserBookMetadataContentProps> = ({
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        mb={userMetadata.notes ? 1.5 : 0}
+        mb={userMetadata.notes ? 0.5 : 0}
       >
         <Stack direction="row" spacing={2} alignItems="center">
           <Typography

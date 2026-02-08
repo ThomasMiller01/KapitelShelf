@@ -4,7 +4,6 @@
 
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
-using KapitelShelf.Api.DTOs.Settings;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
@@ -135,6 +134,9 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .Include(x => x.Book)
                 .ThenInclude(x => x.Tags)
                     .ThenInclude(x => x.Tag)
+            .Include(x => x.Book)
+                .ThenInclude(x => x.UserMetadata)
+                    .ThenInclude(x => x.User)
             .AsSingleQuery()
 
             .Where(x => x.UserId == userId);
