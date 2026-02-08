@@ -197,4 +197,71 @@ public class MapperSeriesTests
             Assert.That(createDto.Name, Is.EqualTo(dto.Name));
         });
     }
+
+    /// <summary>
+    /// Tests SeriesModelToSeriesDto includes Rating property in mapping.
+    /// </summary>
+    [Test]
+    public void SeriesModelToSeriesDto_IncludesRating_WhenSet()
+    {
+        // setup
+        var seriesId = Guid.NewGuid();
+        var model = new SeriesModel
+        {
+            Id = seriesId,
+            Name = "Rated Series",
+            CreatedAt = DateTime.UtcNow.AddDays(-5),
+            UpdatedAt = DateTime.UtcNow,
+            Books = [],
+        };
+
+        // execute
+        var dto = this.testee.SeriesModelToSeriesDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.Id, Is.EqualTo(model.Id));
+            Assert.That(dto.Name, Is.EqualTo(model.Name));
+            Assert.That(dto.Rating, Is.Null);
+        });
+    }
+
+    /// <summary>
+    /// Tests SeriesModelToSeriesDto with populated Rating.
+    /// </summary>
+    [Test]
+    public void SeriesModelToSeriesDto_MapsRatingValue_Correctly()
+    {
+        // setup
+        var model = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "High Rated Series",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Books =
+            [
+                new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Book One",
+                    SeriesNumber = 1,
+                    Description = "D1",
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.SeriesModelToSeriesDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.Name, Is.EqualTo(model.Name));
+            Assert.That(dto.TotalBooks, Is.EqualTo(1));
+        });
+    }
 }
