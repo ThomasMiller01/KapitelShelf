@@ -1335,7 +1335,10 @@ public class SeriesLogicTests
         }
 
         // Execute
-        var result = await this.testee.GetDuplicatesAsync(this.mapper.SeriesModelToSeriesDto(match));
+        var result = await this.testee.GetDuplicatesAsync(new SeriesDTO
+        {
+            Name = name,
+        });
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));

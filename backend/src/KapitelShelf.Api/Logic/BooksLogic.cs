@@ -736,6 +736,8 @@ public class BooksLogic(
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
 
+        var localUrl = book.Location?.Url;
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
         return await context.Books
             .AsNoTracking()
@@ -743,7 +745,7 @@ public class BooksLogic(
                 .ThenInclude(x => x.FileInfo)
             .Where(x =>
                 (x.Title == book.Title ||
-                (book.Location.Url != null && x.Location.Url == book.Location.Url)) &&
+                (localUrl != null && x.Location.Url == localUrl)) &&
                 x.Id != book.Id)
             .ToListAsync();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
