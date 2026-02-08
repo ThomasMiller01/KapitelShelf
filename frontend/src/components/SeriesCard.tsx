@@ -40,7 +40,7 @@ const SeriesCard = ({
       onClick={onClick}
       image={CoverUrl(book)}
       fallbackImage={bookCover}
-      badge={series.totalBooks ? series.totalBooks?.toString() : ""}
+      badge={(series.totalBooks ?? 0) > 1 ? series.totalBooks?.toString() : ""}
       squareBadge={false}
       metadata={[
         showMetadata ? (
