@@ -186,6 +186,18 @@ export interface BookDTO {
      * @memberof BookDTO
      */
     'location'?: LocationDTO;
+    /**
+     * Gets the rating.
+     * @type {number}
+     * @memberof BookDTO
+     */
+    'rating'?: number | null;
+    /**
+     * Gets or sets the user metadata.
+     * @type {Array<UserBookMetadataDTO>}
+     * @memberof BookDTO
+     */
+    'userMetadata'?: Array<UserBookMetadataDTO> | null;
 }
 /**
  * The paginated result.
@@ -219,7 +231,8 @@ export const BookSortByDTO = {
     NUMBER_3: 3,
     NUMBER_4: 4,
     NUMBER_5: 5,
-    NUMBER_6: 6
+    NUMBER_6: 6,
+    NUMBER_7: 7
 } as const;
 
 export type BookSortByDTO = typeof BookSortByDTO[keyof typeof BookSortByDTO];
@@ -512,6 +525,25 @@ export interface CreateLocationDTO {
 }
 
 
+/**
+ * The book dto.
+ * @export
+ * @interface CreateOrUpdateUserBookMetadataDTO
+ */
+export interface CreateOrUpdateUserBookMetadataDTO {
+    /**
+     * Gets or sets the rating.
+     * @type {number}
+     * @memberof CreateOrUpdateUserBookMetadataDTO
+     */
+    'rating'?: number | null;
+    /**
+     * Gets or sets the notes.
+     * @type {string}
+     * @memberof CreateOrUpdateUserBookMetadataDTO
+     */
+    'notes'?: string | null;
+}
 /**
  * The create dto for a series.
  * @export
@@ -1028,6 +1060,12 @@ export interface SeriesDTO {
      * @memberof SeriesDTO
      */
     'totalBooks'?: number | null;
+    /**
+     * Gets or sets the rating.
+     * @type {number}
+     * @memberof SeriesDTO
+     */
+    'rating'?: number | null;
 }
 /**
  * The paginated result.
@@ -1059,7 +1097,8 @@ export const SeriesSortByDTO = {
     NUMBER_1: 1,
     NUMBER_2: 2,
     NUMBER_3: 3,
-    NUMBER_4: 4
+    NUMBER_4: 4,
+    NUMBER_5: 5
 } as const;
 
 export type SeriesSortByDTO = typeof SeriesSortByDTO[keyof typeof SeriesSortByDTO];
@@ -1240,6 +1279,49 @@ export const TaskState = {
 export type TaskState = typeof TaskState[keyof typeof TaskState];
 
 
+/**
+ * The book dto.
+ * @export
+ * @interface UserBookMetadataDTO
+ */
+export interface UserBookMetadataDTO {
+    /**
+     * Gets or sets the id.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'id'?: string;
+    /**
+     * Gets or sets the id.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'userId'?: string;
+    /**
+     * 
+     * @type {UserDTO}
+     * @memberof UserBookMetadataDTO
+     */
+    'user'?: UserDTO;
+    /**
+     * Gets or sets the rating.
+     * @type {number}
+     * @memberof UserBookMetadataDTO
+     */
+    'rating'?: number | null;
+    /**
+     * Gets or sets the notes.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'notes'?: string | null;
+    /**
+     * Gets or sets the created date.
+     * @type {string}
+     * @memberof UserBookMetadataDTO
+     */
+    'createdOn'?: string;
+}
 /**
  * The user dto.
  * @export
@@ -2232,6 +2314,86 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Delete a user book rating.
+         * @param {string} bookId The id of the book to update.
+         * @param {string} userId The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksBookIdRatingUserIdDelete: async (bookId: string, userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'bookId' is not null or undefined
+            assertParamExists('booksBookIdRatingUserIdDelete', 'bookId', bookId)
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('booksBookIdRatingUserIdDelete', 'userId', userId)
+            const localVarPath = `/books/{bookId}/rating/{userId}`
+                .replace(`{${"bookId"}}`, encodeURIComponent(String(bookId)))
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Add or update a user book rating.
+         * @param {string} bookId The id of the book to update.
+         * @param {string} userId The user id.
+         * @param {CreateOrUpdateUserBookMetadataDTO} [createOrUpdateUserBookMetadataDTO] The user book rating.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksBookIdRatingUserIdPut: async (bookId: string, userId: string, createOrUpdateUserBookMetadataDTO?: CreateOrUpdateUserBookMetadataDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'bookId' is not null or undefined
+            assertParamExists('booksBookIdRatingUserIdPut', 'bookId', bookId)
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('booksBookIdRatingUserIdPut', 'userId', userId)
+            const localVarPath = `/books/{bookId}/rating/{userId}`
+                .replace(`{${"bookId"}}`, encodeURIComponent(String(bookId)))
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createOrUpdateUserBookMetadataDTO, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Delete books in bulk.
          * @param {Array<string>} [requestBody] The book ids to delete.
          * @param {*} [options] Override http request option.
@@ -2719,6 +2881,35 @@ export const BooksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Delete a user book rating.
+         * @param {string} bookId The id of the book to update.
+         * @param {string} userId The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksBookIdRatingUserIdDelete(bookId: string, userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdRatingUserIdDelete(bookId, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdRatingUserIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Add or update a user book rating.
+         * @param {string} bookId The id of the book to update.
+         * @param {string} userId The user id.
+         * @param {CreateOrUpdateUserBookMetadataDTO} [createOrUpdateUserBookMetadataDTO] The user book rating.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async booksBookIdRatingUserIdPut(bookId: string, userId: string, createOrUpdateUserBookMetadataDTO?: CreateOrUpdateUserBookMetadataDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdRatingUserIdPut(bookId, userId, createOrUpdateUserBookMetadataDTO, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdRatingUserIdPut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Delete books in bulk.
          * @param {Array<string>} [requestBody] The book ids to delete.
          * @param {*} [options] Override http request option.
@@ -2968,6 +3159,29 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @summary Delete a user book rating.
+         * @param {string} bookId The id of the book to update.
+         * @param {string} userId The user id.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksBookIdRatingUserIdDelete(bookId: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.booksBookIdRatingUserIdDelete(bookId, userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Add or update a user book rating.
+         * @param {string} bookId The id of the book to update.
+         * @param {string} userId The user id.
+         * @param {CreateOrUpdateUserBookMetadataDTO} [createOrUpdateUserBookMetadataDTO] The user book rating.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        booksBookIdRatingUserIdPut(bookId: string, userId: string, createOrUpdateUserBookMetadataDTO?: CreateOrUpdateUserBookMetadataDTO, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.booksBookIdRatingUserIdPut(bookId, userId, createOrUpdateUserBookMetadataDTO, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Delete books in bulk.
          * @param {Array<string>} [requestBody] The book ids to delete.
          * @param {*} [options] Override http request option.
@@ -3213,6 +3427,33 @@ export class BooksApi extends BaseAPI {
      */
     public booksBookIdPut(bookId: string, bookDTO?: BookDTO, options?: RawAxiosRequestConfig) {
         return BooksApiFp(this.configuration).booksBookIdPut(bookId, bookDTO, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete a user book rating.
+     * @param {string} bookId The id of the book to update.
+     * @param {string} userId The user id.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksBookIdRatingUserIdDelete(bookId: string, userId: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksBookIdRatingUserIdDelete(bookId, userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Add or update a user book rating.
+     * @param {string} bookId The id of the book to update.
+     * @param {string} userId The user id.
+     * @param {CreateOrUpdateUserBookMetadataDTO} [createOrUpdateUserBookMetadataDTO] The user book rating.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BooksApi
+     */
+    public booksBookIdRatingUserIdPut(bookId: string, userId: string, createOrUpdateUserBookMetadataDTO?: CreateOrUpdateUserBookMetadataDTO, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksBookIdRatingUserIdPut(bookId, userId, createOrUpdateUserBookMetadataDTO, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

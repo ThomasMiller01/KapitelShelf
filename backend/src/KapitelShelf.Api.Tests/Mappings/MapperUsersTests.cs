@@ -4,6 +4,7 @@
 
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Mappings;
+using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;
 
 namespace KapitelShelf.Api.Tests.Mappings;
@@ -205,6 +206,131 @@ public class MapperUsersTests
 
         // assert
         Assert.That(modelEnum.ToString(), Is.EqualTo(dtoValue.ToString()));
+    }
+
+    /// <summary>
+    /// Tests that UserBookMetadataModelToUserBookMetadataDto maps all properties correctly.
+    /// </summary>
+    [Test]
+    public void UserBookMetadataModelToUserBookMetadataDto_MapsAllPropertiesCorrectly()
+    {
+        // setup - note: mapper doesn't require User to be set (it's marked [MapperIgnoreSource])
+        var userId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+        var model = new UserBookMetadataModel
+        {
+            BookId = bookId,
+            UserId = userId,
+            Rating = 5,
+            Notes = "Excellent read!",
+            CreatedOn = now,
+            User = new UserModel { Id = userId, Username = "tester" },
+        };
+
+        // execute
+        var dto = this.testee.UserBookMetadataModelToUserBookMetadataDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.UserId, Is.EqualTo(userId));
+            Assert.That(dto.Rating, Is.EqualTo(5));
+            Assert.That(dto.Notes, Is.EqualTo("Excellent read!"));
+            Assert.That(dto.CreatedOn, Is.EqualTo(now));
+        });
+    }
+
+    /// <summary>
+    /// Tests UserBookMetadataModelToUserBookMetadataDto with null notes.
+    /// </summary>
+    [Test]
+    public void UserBookMetadataModelToUserBookMetadataDto_HandlesNullNotes()
+    {
+        // setup
+        var userId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+        var model = new UserBookMetadataModel
+        {
+            BookId = bookId,
+            UserId = userId,
+            Rating = 3,
+            Notes = null,
+            CreatedOn = DateTime.UtcNow,
+            User = new UserModel { Id = userId, Username = "tester" },
+        };
+
+        // execute
+        var dto = this.testee.UserBookMetadataModelToUserBookMetadataDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.UserId, Is.EqualTo(userId));
+            Assert.That(dto.Rating, Is.EqualTo(3));
+            Assert.That(dto.Notes, Is.Null);
+        });
+    }
+
+    /// <summary>
+    /// Tests UserBookMetadataModelToUserBookMetadataDto with minimum and maximum ratings.
+    /// </summary>
+    /// <param name="rating">The rating to test.</param>
+    [TestCase(1)]
+    [TestCase(5)]
+    [TestCase(10)]
+    public void UserBookMetadataModelToUserBookMetadataDto_MapsRatingCorrectly(int rating)
+    {
+        // setup
+        var model = new UserBookMetadataModel
+        {
+            BookId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Rating = rating,
+            Notes = $"Rating {rating}",
+            CreatedOn = DateTime.UtcNow,
+            User = new UserModel { Id = Guid.NewGuid(), Username = "tester" },
+        };
+
+        // execute
+        var dto = this.testee.UserBookMetadataModelToUserBookMetadataDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.Rating, Is.EqualTo(rating));
+    }
+
+    /// <summary>
+    /// Tests UserBookMetadataModelToUserBookMetadataDto ignores BookId and Book properties.
+    /// </summary>
+    [Test]
+    public void UserBookMetadataModelToUserBookMetadataDto_IgnoresBookIdAndBook()
+    {
+        // setup - BookId and Book are marked [MapperIgnoreSource] so they don't cause issues
+        var userId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+        var model = new UserBookMetadataModel
+        {
+            BookId = bookId,
+            UserId = userId,
+            Rating = 4,
+            Notes = "Good",
+            CreatedOn = DateTime.UtcNow,
+            User = new UserModel { Id = userId, Username = "tester" },
+        };
+
+        // execute
+        var dto = this.testee.UserBookMetadataModelToUserBookMetadataDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto.UserId, Is.EqualTo(userId));
+            Assert.That(dto.Rating, Is.EqualTo(4));
+        });
     }
 
     // helper sources

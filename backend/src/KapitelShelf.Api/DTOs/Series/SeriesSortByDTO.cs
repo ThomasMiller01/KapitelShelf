@@ -20,6 +20,11 @@ public enum SeriesSortByDTO
     Name,
 
     /// <summary>
+    /// Sort by the series rating.
+    /// </summary>
+    Rating,
+
+    /// <summary>
     /// Sort by the series total books.
     /// </summary>
     TotalBooks,

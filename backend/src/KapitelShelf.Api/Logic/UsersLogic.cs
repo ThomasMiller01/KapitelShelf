@@ -8,6 +8,7 @@ using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data;
+using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace KapitelShelf.Api.Logic;
@@ -133,6 +134,9 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
             .Include(x => x.Book)
                 .ThenInclude(x => x.Tags)
                     .ThenInclude(x => x.Tag)
+            .Include(x => x.Book)
+                .ThenInclude(x => x.UserMetadata)
+                    .ThenInclude(x => x.User)
             .AsSingleQuery()
 
             .Where(x => x.UserId == userId);
@@ -193,5 +197,50 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
         }
 
         await context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task AddOrUpdateBookMetadata(Guid bookId, Guid userId, CreateOrUpdateUserBookMetadataDTO bookMetadata)
+    {
+        ArgumentNullException.ThrowIfNull(bookMetadata);
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var bookMetadataModel = await context.UserBookMetadata
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.BookId == bookId);
+
+        if (bookMetadataModel is null)
+        {
+            // add new book metadata
+            context.UserBookMetadata.Add(new UserBookMetadataModel
+            {
+                BookId = bookId,
+                UserId = userId,
+                Rating = bookMetadata.Rating,
+                Notes = bookMetadata.Notes,
+                CreatedOn = DateTime.UtcNow,
+            });
+        }
+        else
+        {
+            // update existing book metadata
+            context.Entry(bookMetadataModel).CurrentValues.SetValues(new
+            {
+                bookMetadata.Rating,
+                bookMetadata.Notes,
+                CreatedOn = DateTime.UtcNow,
+            });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task DeleteBookMetadata(Guid bookId, Guid userId)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        await context.UserBookMetadata.Where(x => x.UserId == userId && x.BookId == bookId)
+            .ExecuteDeleteAsync();
     }
 }

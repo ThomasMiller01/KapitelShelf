@@ -550,4 +550,291 @@ public class UsersLogicTests
             Assert.That(saved.Type, Is.EqualTo(UserSettingValueType.TBoolean));
         });
     }
+
+    /// <summary>
+    /// Tests GetLastVisitedBooksAsync returns books with UserMetadata and rating included.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetLastVisitedBooksAsync_IncludesUserMetadataWithRating()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user_visited".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_Visited".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book_Visited".Unique(),
+            Description = "Description",
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var visitedBook = new VisitedBooksModel
+        {
+            BookId = book.Id,
+            UserId = user.Id,
+            VisitedAt = DateTime.UtcNow,
+        };
+
+        var userMetadata = new UserBookMetadataModel
+        {
+            BookId = book.Id,
+            UserId = user.Id,
+            Book = book,
+            User = user,
+            Rating = 5,
+            Notes = "Excellent book!",
+            CreatedOn = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Series.Add(series);
+            context.Books.Add(book);
+            context.VisitedBooks.Add(visitedBook);
+            context.UserBookMetadata.Add(userMetadata);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetLastVisitedBooksAsync(user.Id, page: 1, pageSize: 10);
+
+        // Assert
+        Assert.That(result.Items, Has.Count.GreaterThanOrEqualTo(1));
+        var returnedBook = result.Items.FirstOrDefault(x => x.Id == book.Id);
+        Assert.That(returnedBook, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(returnedBook!.UserMetadata, Is.Not.Null);
+            Assert.That(returnedBook.UserMetadata, Has.Count.GreaterThanOrEqualTo(1));
+            var metadata = returnedBook.UserMetadata.FirstOrDefault(x => x.UserId == user.Id);
+            Assert.That(metadata, Is.Not.Null);
+            Assert.That(metadata!.Rating, Is.EqualTo(5));
+            Assert.That(metadata.Notes, Is.EqualTo("Excellent book!"));
+        });
+    }
+
+    /// <summary>
+    /// Tests AddOrUpdateBookMetadata adds new book metadata.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddOrUpdateBookMetadata_AddsNewMetadata()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user_add_metadata".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book_Add_Metadata".Unique(),
+            Description = "Description",
+            Series = new SeriesModel { Id = Guid.NewGuid(), Name = "Series".Unique() },
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Series.Add(book.Series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        var metadata = new CreateOrUpdateUserBookMetadataDTO
+        {
+            Rating = 4,
+            Notes = "Initial rating",
+        };
+
+        // Execute
+        await this.testee.AddOrUpdateBookMetadata(book.Id, user.Id, metadata);
+
+        // Assert
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var saved = await context2.UserBookMetadata
+            .FirstOrDefaultAsync(x => x.UserId == user.Id && x.BookId == book.Id);
+        Assert.That(saved, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved!.Rating, Is.EqualTo(4));
+            Assert.That(saved.Notes, Is.EqualTo("Initial rating"));
+        });
+    }
+
+    /// <summary>
+    /// Tests AddOrUpdateBookMetadata updates existing book metadata.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task AddOrUpdateBookMetadata_UpdatesExistingMetadata()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user_update_metadata".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_Update".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book_Update_Metadata".Unique(),
+            Description = "Description",
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var existingMetadata = new UserBookMetadataModel
+        {
+            BookId = book.Id,
+            UserId = user.Id,
+            Rating = 2,
+            Notes = "Initially poor",
+            CreatedOn = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Series.Add(series);
+            context.Books.Add(book);
+            context.UserBookMetadata.Add(existingMetadata);
+            await context.SaveChangesAsync();
+        }
+
+        var updatedMetadata = new CreateOrUpdateUserBookMetadataDTO
+        {
+            Rating = 5,
+            Notes = "Now it's great!",
+        };
+
+        // Execute
+        await this.testee.AddOrUpdateBookMetadata(book.Id, user.Id, updatedMetadata);
+
+        // Assert
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var saved = await context2.UserBookMetadata
+            .FirstOrDefaultAsync(x => x.UserId == user.Id && x.BookId == book.Id);
+        Assert.That(saved, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved!.Rating, Is.EqualTo(5));
+            Assert.That(saved.Notes, Is.EqualTo("Now it's great!"));
+
+            // CreatedOn should be updated
+            Assert.That(saved.CreatedOn, Is.GreaterThan(existingMetadata.CreatedOn));
+        });
+    }
+
+    /// <summary>
+    /// Tests DeleteBookMetadata removes existing book metadata.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task DeleteBookMetadata_DeletesExistingMetadata()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user_delete_metadata".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_Delete".Unique(),
+        };
+
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book_Delete_Metadata".Unique(),
+            Description = "Description",
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var metadata = new UserBookMetadataModel
+        {
+            BookId = book.Id,
+            UserId = user.Id,
+            Rating = 3,
+            Notes = "To be deleted",
+            CreatedOn = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Series.Add(series);
+            context.Books.Add(book);
+            context.UserBookMetadata.Add(metadata);
+            await context.SaveChangesAsync();
+        }
+
+        // Verify metadata exists
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            var existing = await context.UserBookMetadata
+                .FirstOrDefaultAsync(x => x.UserId == user.Id && x.BookId == book.Id);
+            Assert.That(existing, Is.Not.Null);
+        }
+
+        // Execute
+        await this.testee.DeleteBookMetadata(book.Id, user.Id);
+
+        // Assert
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var deleted = await context2.UserBookMetadata
+            .FirstOrDefaultAsync(x => x.UserId == user.Id && x.BookId == book.Id);
+        Assert.That(deleted, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests DeleteBookMetadata handles non-existent metadata gracefully.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task DeleteBookMetadata_HandlesNonExistentMetadata()
+    {
+        // Setup
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        // Execute - should not throw
+        Assert.DoesNotThrowAsync(async () =>
+            await this.testee.DeleteBookMetadata(bookId, userId));
+    }
 }

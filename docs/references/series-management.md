@@ -22,3 +22,7 @@ Merge duplicate series to keep your catalogue tidy when titles vary slightly.
    If the series you need is not listed, use the search field at the top to find it.
 
 4. Click **Merge**. KapitelShelf redirects you to the target series once the process finishes successfully.
+
+## Series Rating in Series Detail Page
+
+The Series detail page displays the calculated series rating (an average calculated from book ratings for all users).

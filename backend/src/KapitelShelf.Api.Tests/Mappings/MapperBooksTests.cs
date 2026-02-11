@@ -12,6 +12,7 @@ using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 
 namespace KapitelShelf.Api.Tests.Mappings;
 
@@ -283,6 +284,158 @@ public class MapperBooksTests
             Assert.That(createDto.Tags, Has.Count.EqualTo(2));
             Assert.That(createDto.PageNumber, Is.EqualTo(456));
             Assert.That(createDto.ReleaseDate?.Date, Is.EqualTo(DateTime.Parse("2025-10-08", CultureInfo.InvariantCulture).ToUniversalTime().Date));
+        });
+    }
+
+    /// <summary>
+    /// Tests BookModelToBookDto maps UserMetadata correctly with multiple entries.
+    /// </summary>
+    [Test]
+    public void BookModelToBookDto_MapsUserMetadataCorrectly_WithMultipleEntries()
+    {
+        // setup
+        var bookId = Guid.NewGuid();
+        var series = new SeriesModel { Id = Guid.NewGuid(), Name = "Series" };
+        var user1 = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user1",
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#ffffff",
+        };
+        var user2 = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "user2",
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#000000",
+        };
+
+        var model = new BookModel
+        {
+            Id = bookId,
+            Title = "Book with Metadata",
+            Description = "Test",
+            Series = series,
+            SeriesId = series.Id,
+            UserMetadata =
+            [
+                new UserBookMetadataModel
+                {
+                    BookId = bookId,
+                    UserId = user1.Id,
+                    User = user1,
+                    Rating = 5,
+                    Notes = "Excellent!",
+                    CreatedOn = DateTime.UtcNow,
+                },
+                new UserBookMetadataModel
+                {
+                    BookId = bookId,
+                    UserId = user2.Id,
+                    User = user2,
+                    Rating = 3,
+                    Notes = "Average",
+                    CreatedOn = DateTime.UtcNow,
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.BookModelToBookDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.UserMetadata, Has.Count.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            var metadata1 = dto.UserMetadata.FirstOrDefault(x => x.UserId == user1.Id);
+            var metadata2 = dto.UserMetadata.FirstOrDefault(x => x.UserId == user2.Id);
+            Assert.That(metadata1, Is.Not.Null);
+            Assert.That(metadata1!.Rating, Is.EqualTo(5));
+            Assert.That(metadata1.Notes, Is.EqualTo("Excellent!"));
+            Assert.That(metadata2, Is.Not.Null);
+            Assert.That(metadata2!.Rating, Is.EqualTo(3));
+            Assert.That(metadata2.Notes, Is.EqualTo("Average"));
+        });
+    }
+
+    /// <summary>
+    /// Tests BookModelToBookDto handles empty UserMetadata collection.
+    /// </summary>
+    [Test]
+    public void BookModelToBookDto_MapsUserMetadataCorrectly_WithEmptyCollection()
+    {
+        // setup
+        var series = new SeriesModel { Id = Guid.NewGuid(), Name = "Series" };
+        var model = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book without Metadata",
+            Description = "Test",
+            Series = series,
+            SeriesId = series.Id,
+            UserMetadata = [],
+        };
+
+        // execute
+        var dto = this.testee.BookModelToBookDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.UserMetadata, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests BookModelToBookDto maps single UserMetadata entry.
+    /// </summary>
+    [Test]
+    public void BookModelToBookDto_MapsUserMetadataCorrectly_WithSingleEntry()
+    {
+        // setup
+        var bookId = Guid.NewGuid();
+        var series = new SeriesModel { Id = Guid.NewGuid(), Name = "Series" };
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "testuser",
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#ffffff",
+        };
+
+        var model = new BookModel
+        {
+            Id = bookId,
+            Title = "Book with One Metadata",
+            Description = "Test",
+            Series = series,
+            SeriesId = series.Id,
+            UserMetadata =
+            [
+                new UserBookMetadataModel
+                {
+                    BookId = bookId,
+                    UserId = user.Id,
+                    User = user,
+                    Rating = 4,
+                    Notes = "Good book",
+                    CreatedOn = DateTime.UtcNow,
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.BookModelToBookDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.UserMetadata, Has.Count.EqualTo(1));
+        var metadata = dto.UserMetadata.First();
+        Assert.Multiple(() =>
+        {
+            Assert.That(metadata.UserId, Is.EqualTo(user.Id));
+            Assert.That(metadata.Rating, Is.EqualTo(4));
+            Assert.That(metadata.Notes, Is.EqualTo("Good book"));
         });
     }
 }

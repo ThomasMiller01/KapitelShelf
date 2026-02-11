@@ -85,8 +85,6 @@ const ConfigureProvider: React.FC<ConfigureProviderProps> = ({
   provider,
   providerConfigured,
 }) => {
-  console.log(settings);
-
   if (provider === undefined) {
     return <></>;
   }

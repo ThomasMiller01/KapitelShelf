@@ -10,6 +10,7 @@ using KapitelShelf.Api.Mappings;
 using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Testcontainers.PostgreSql;
@@ -120,6 +121,77 @@ public class SeriesLogicTests
         {
             Assert.That(result.TotalCount, Is.Not.Zero);
             Assert.That(result.Items, Has.Count.EqualTo(10));
+        });
+    }
+
+    /// <summary>
+    /// Tests GetSeriesAsync includes Rating in returned DTOs.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetSeriesAsync_IncludesRatingProperty_Async()
+    {
+        // Setup
+        var seriesName = "Series_RatingProperty".Unique();
+
+        // create a series with one book that has one user rating
+        var seriesId = Guid.NewGuid();
+        var bookId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = seriesName,
+        };
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = "SeriesRatingBook".Unique(),
+            Description = "Description",
+            SeriesId = seriesId,
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Username = "tester",
+        };
+
+        var metadata = new UserBookMetadataModel
+        {
+            Id = Guid.NewGuid(),
+            BookId = bookId,
+            Book = book,
+            UserId = userId,
+            User = user,
+            Rating = 8,
+        };
+
+        book.UserMetadata.Add(metadata);
+        series.Books.Add(book);
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            context.Users.Add(user);
+            context.Add(metadata);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var dto = await this.testee.GetSeriesByIdAsync(seriesId);
+
+        // Assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dto!.Id, Is.EqualTo(seriesId));
+            Assert.That(dto.Rating, Is.EqualTo(8));
         });
     }
 
@@ -1335,7 +1407,10 @@ public class SeriesLogicTests
         }
 
         // Execute
-        var result = await this.testee.GetDuplicatesAsync(name);
+        var result = await this.testee.GetDuplicatesAsync(new SeriesDTO
+        {
+            Name = name,
+        });
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
@@ -1350,9 +1425,60 @@ public class SeriesLogicTests
     public async Task GetDuplicatesAsync_ReturnsEmpty_IfNoMatch()
     {
         // Execute
-        var result = await this.testee.GetDuplicatesAsync("NoSuchSeries".Unique());
+        var result = await this.testee.GetDuplicatesAsync(new SeriesDTO());
 
         // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests GetDuplicatesAsync ignores series with same id.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetDuplicatesAsync_IgnoresDuplicateWithSameId()
+    {
+        // Setup
+        var seriesId = Guid.NewGuid();
+        var name = "Duplicate_Series_IgnoreId".Unique();
+        var series = new SeriesModel
+        {
+            Id = seriesId,
+            Name = name,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute - call with same id should return empty
+        var result = await this.testee.GetDuplicatesAsync(new SeriesDTO
+        {
+            Id = seriesId,
+            Name = name,
+        });
+
+        // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests GetDuplicatesAsync with name that doesn't match any series.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetDuplicatesAsync_ReturnsEmpty_WhenNoMatches()
+    {
+        // Execute - call with non-existent name
+        var result = await this.testee.GetDuplicatesAsync(new SeriesDTO
+        {
+            Id = Guid.NewGuid(),
+            Name = "NonExistent_Series_" + Guid.NewGuid().ToString("N"),
+        });
+
+        // Assert - no duplicates found
         Assert.That(result, Is.Empty);
     }
 }

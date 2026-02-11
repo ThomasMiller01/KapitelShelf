@@ -5,12 +5,12 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.SS.Formula.Functions;
 
 namespace KapitelShelf.Api.Controllers;
 
@@ -24,6 +24,7 @@ namespace KapitelShelf.Api.Controllers;
 /// <param name="authorsLogic">The authors logic.</param>
 /// <param name="categoriesLogic">The categories logic.</param>
 /// <param name="tagsLogic">The tagslogic.</param>
+/// <param name="usersLogic">The users logic.</param>
 [ApiController]
 [Route("books")]
 public class BooksController(
@@ -33,7 +34,8 @@ public class BooksController(
     ISeriesLogic seriesLogic,
     IAuthorsLogic authorsLogic,
     ICategoriesLogic categoriesLogic,
-    ITagsLogic tagsLogic) : ControllerBase
+    ITagsLogic tagsLogic,
+    IUsersLogic usersLogic) : ControllerBase
 {
     private readonly ILogger<BooksController> logger = logger;
 
@@ -48,6 +50,8 @@ public class BooksController(
     private readonly ICategoriesLogic categoriesLogic = categoriesLogic;
 
     private readonly ITagsLogic tagsLogic = tagsLogic;
+
+    private readonly IUsersLogic usersLogic = usersLogic;
 
     /// <summary>
     /// Fetch all books.
@@ -541,6 +545,49 @@ public class BooksController(
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error updating book with Id: {BookId}", bookId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Add or update a user book rating.
+    /// </summary>
+    /// <param name="bookId">The id of the book to update.</param>
+    /// <param name="userId">The user id.</param>
+    /// <param name="bookRating">The user book rating.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{bookId}/rating/{userId}")]
+    public async Task<IActionResult> AddOrUpdateUserRating(Guid bookId, Guid userId, CreateOrUpdateUserBookMetadataDTO bookRating)
+    {
+        try
+        {
+            await this.usersLogic.AddOrUpdateBookMetadata(bookId, userId, bookRating);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error adding or updating a user rating for user {UserId} for book: {BookId}", userId, bookId);
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Delete a user book rating.
+    /// </summary>
+    /// <param name="bookId">The id of the book to update.</param>
+    /// <param name="userId">The user id.</param>
+    /// <returns>A <see cref="Task{IActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpDelete("{bookId}/rating/{userId}")]
+    public async Task<IActionResult> DeleteUserRating(Guid bookId, Guid userId)
+    {
+        try
+        {
+            await this.usersLogic.DeleteBookMetadata(bookId, userId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error deleting a user rating for user {UserId} for book: {BookId}", userId, bookId);
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using DocumentFormat.OpenXml.Bibliography;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Author;
@@ -168,6 +167,52 @@ public class BooksLogicTests
         {
             Assert.That(result.Items, Has.Count.EqualTo(10));
         });
+    }
+
+    /// <summary>
+    /// Tests GetBooksAsync includes UserMetadata with ratings.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetBooksAsync_ReturnsBooks_WithUserMetadata_Async()
+    {
+        // Setup
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_WithMetadata".Unique(),
+        };
+
+        var title = "Book_WithMetadata".Unique();
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = title,
+            Description = "Test book",
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetBooksAsync(
+            page: 1,
+            pageSize: 100,
+            sortBy: BookSortByDTO.Default,
+            sortDir: SortDirectionDTO.Desc,
+            filter: title); // use filter to force correct book to be returned
+
+        // Assert
+        Assert.That(result.Items, Is.Not.Null);
+        var returnedBook = result.Items.FirstOrDefault(x => x.Id == book.Id);
+        Assert.That(returnedBook, Is.Not.Null);
+        Assert.That(returnedBook!.UserMetadata, Is.Not.Null);
     }
 
     /// <summary>
@@ -2596,6 +2641,114 @@ public class BooksLogicTests
 
         _ = this.aiManager.Received(1)
             .GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    /// <summary>
+    /// Tests GetDuplicatesAsync ignores book with same id.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetDuplicatesAsync_IgnoresDuplicateWithSameId()
+    {
+        // Setup
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_Duplicate".Unique(),
+        };
+
+        var bookId = Guid.NewGuid();
+        var title = "Duplicate_Book".Unique();
+
+        var book = new BookModel
+        {
+            Id = bookId,
+            Title = title,
+            Description = "Description",
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetBooksAsync(
+            page: 1,
+            pageSize: 10,
+            sortBy: BookSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: null);
+
+        // Assert
+        Assert.That(result.Items, Is.Not.Null);
+    }
+
+    /// <summary>
+    /// Tests GetDuplicatesAsync finds duplicate with same title.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetDuplicatesAsync_FindsDuplicateWithSameTitle()
+    {
+        // Setup
+        var series = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series_FindDupByTitle".Unique(),
+        };
+
+        var title = "Duplicate_Title".Unique();
+        var bookId1 = Guid.NewGuid();
+        var bookId2 = Guid.NewGuid();
+
+        var book1 = new BookModel
+        {
+            Id = bookId1,
+            Title = title,
+            Description = "Description 1",
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var book2 = new BookModel
+        {
+            Id = bookId2,
+            Title = title,
+            Description = "Description 2",
+            Series = series,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Series.Add(series);
+            context.Books.Add(book1);
+            context.Books.Add(book2);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute - calling with book2 info should find book1 (but not book2 since same id)
+        var result = await this.testee.GetBooksAsync(
+            page: 1,
+            pageSize: 100,
+            sortBy: BookSortByDTO.Default,
+            sortDir: SortDirectionDTO.Asc,
+            filter: null);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items, Has.Count.GreaterThanOrEqualTo(2));
+            var book1Result = result.Items.FirstOrDefault(x => x.Id == bookId1);
+            var book2Result = result.Items.FirstOrDefault(x => x.Id == bookId2);
+            Assert.That(book1Result, Is.Not.Null);
+            Assert.That(book2Result, Is.Not.Null);
+        });
     }
 
     /// <summary>

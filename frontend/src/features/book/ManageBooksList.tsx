@@ -1,4 +1,4 @@
-import { Chip, Stack } from "@mui/material";
+import { Chip, Rating, Stack } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { AutoComplete } from "../../components/base/AutoComplete";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
@@ -166,6 +166,30 @@ const columns = (clients: ApiClients): GridColDef<BookDTO>[] => [
     },
     valueFormatter: (value) => FormatTime(value, "date"),
     renderEditCell: (params) => <EditDatePickerCell {...params} />,
+  },
+  {
+    field: "rating",
+    headerName: "Rating",
+    type: "number",
+    width: 120,
+    sortable: true,
+    align: "right",
+    headerAlign: "right",
+    renderCell: (params) => {
+      if (params.value == null) {
+        return null;
+      }
+
+      return (
+        <Rating
+          value={params.value / 2}
+          max={5}
+          precision={0.5}
+          readOnly
+          size="small"
+        />
+      );
+    },
   },
   {
     field: "categories",

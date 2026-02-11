@@ -211,7 +211,7 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
 
         modelBuilder.Entity<UserBookMetadataModel>()
             .HasOne(x => x.Book)
-            .WithMany()
+            .WithMany(x => x.UserMetadata)
             .HasForeignKey(x => x.BookId)
             .OnDelete(DeleteBehavior.Cascade);
 
