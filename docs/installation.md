@@ -13,7 +13,7 @@ Installation methods:
 
 ## Helm Chart
 
-Deploy KapitelShelf to your Kubernetes cluster using a Helm chart. This option installs all core components (frontend, API, migrator) and can optionally provision a bundled PostgreSQL database.
+Deploy KapitelShelf to your Kubernetes cluster using a Helm chart. This option installs all core components (frontend, API) and can optionally provision a bundled PostgreSQL database.
 
 For a detailed installation and configuration options see the Helm chart's [README](../helm/kapitelshelf/README.md).
 
