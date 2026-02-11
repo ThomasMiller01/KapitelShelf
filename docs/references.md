@@ -17,6 +17,7 @@ Use this hub as the in-depth companion to the [Quickstart Guide](./quickstart.md
 | [Watchlist](./references/watchlist.md)                   | Track upcoming releases for monitored series and manage watchlist entries.                    |
 |                                                          |                                                                                               |
 | [Book Management](./references/book-management.md)       | Add books manually, import files or CSV batches, enrich metadata and remove entries safely.   |
+| > [Ratings](./references/book-ratings.md)                | User ratings for books and series: how to add, edit and remove ratings.                       |
 | [Series Management](./references/series-management.md)   | Merge duplicate series names to keep collections tidy.                                        |
 | [Library Management](./references/library-management.md) | Manage a potentially large number of books in your library.                                   |
 |                                                          |                                                                                               |

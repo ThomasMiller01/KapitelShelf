@@ -112,3 +112,17 @@ On the book detail page, click the **Delete** (trash) icon.
 Confirm the action via the red **Delete** button in the dialog.
 
 ![Delete Dialog](../.attachments/references/book-management/delete/delete_dialog.png)
+
+## Book Rating
+
+Book ratings are stored as part of user-specific metadata on a per-user basis. On a Book detail page you can:
+
+- **Add new rating**: Use the star icon to select a value, the rating is saved to your active profile.
+- **Edit existing rating**: Click the edit icon to update your rating.
+- **Delete existing rating**: Use the remove action in the rating options menu to remove your rating from your profile.
+
+Calculated averages for the book (and for series) are computed from all user ratings and displayed alongside your personal value.
+
+For more information about book ratings, see [Book Rating](./ratings.md).
+
+![Book Rating](../.attachments/references/book-management/book-rating.png)
