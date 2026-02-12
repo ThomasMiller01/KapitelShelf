@@ -36,6 +36,7 @@ export const columns: GridColDef<SeriesDTO>[] = [
     sortable: true,
     align: "right",
     headerAlign: "right",
+    valueGetter: (_, row) => row.rating ?? row.calculatedRating,
     renderCell: (params) => {
       if (params.value == null) {
         return null;

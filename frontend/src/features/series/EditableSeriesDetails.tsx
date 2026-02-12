@@ -1,5 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import {
   Box,
   Button,
@@ -42,6 +43,7 @@ const EditableSeriesDetails = ({
     mode: "onBlur",
     defaultValues: {
       name: initial?.name ?? "",
+      rating: (initial?.rating ?? 0) / 2,
     },
   });
 
@@ -62,8 +64,11 @@ const EditableSeriesDetails = ({
       return;
     }
 
+    console.log(data);
+
     const series: SeriesDTO = {
       name: data.name,
+      rating: data.rating ? data.rating * 2 : null,
     };
 
     action.onClick(series);
@@ -102,12 +107,32 @@ const EditableSeriesDetails = ({
                 >
                   {/* User Rating */}
                   <Stack>
-                    <Typography gutterBottom>Custom Rating (WiP)</Typography>
-                    <Rating
-                      defaultValue={0}
-                      max={5}
-                      precision={0.5}
-                      size="large"
+                    <Typography gutterBottom>Custom Rating</Typography>
+                    <Controller
+                      name="rating"
+                      control={control}
+                      render={({ field }) => (
+                        <Stack direction="row" spacing={1}>
+                          <Rating
+                            {...field}
+                            max={5}
+                            precision={0.5}
+                            size="large"
+                          />
+                          <IconButtonWithTooltip
+                            tooltip="Remove custom rating"
+                            size="small"
+                            onClick={() => field.onChange(null)}
+                          >
+                            <HighlightOffIcon
+                              fontSize="small"
+                              sx={(theme) => ({
+                                color: theme.palette.text.secondary,
+                              })}
+                            />
+                          </IconButtonWithTooltip>
+                        </Stack>
+                      )}
                     />
                   </Stack>
 
@@ -127,7 +152,7 @@ const EditableSeriesDetails = ({
                       </IconButtonWithTooltip>
                     </Stack>
                     <Rating
-                      value={(initial?.rating ?? 0) / 2}
+                      value={(initial?.calculatedRating ?? 0) / 2}
                       max={5}
                       precision={0.5}
                       readOnly

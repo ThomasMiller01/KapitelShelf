@@ -556,6 +556,12 @@ export interface CreateSeriesDTO {
      * @memberof CreateSeriesDTO
      */
     'name'?: string | null;
+    /**
+     * Gets or sets the custom rating.
+     * @type {number}
+     * @memberof CreateSeriesDTO
+     */
+    'rating'?: number | null;
 }
 /**
  * The create dto for a tag.
@@ -1061,11 +1067,17 @@ export interface SeriesDTO {
      */
     'totalBooks'?: number | null;
     /**
-     * Gets or sets the rating.
+     * Gets or sets the custom rating.
      * @type {number}
      * @memberof SeriesDTO
      */
     'rating'?: number | null;
+    /**
+     * Gets or sets the calculated rating.
+     * @type {number}
+     * @memberof SeriesDTO
+     */
+    'calculatedRating'?: number | null;
 }
 /**
  * The paginated result.

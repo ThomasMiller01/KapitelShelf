@@ -35,22 +35,26 @@ public static class SeriesQueryExtensions
 
             // Rating
             (SeriesSortByDTO.Rating, SortDirectionDTO.Asc) =>
-                query.OrderBy(x => x.Books
-                    .SelectMany(b => b.UserMetadata)
-                    .Any(um => um.Rating.HasValue) ? 0 : 1) // books without rating always at the bottom
+                query.OrderBy(x =>
+                    x.Rating.HasValue ||
+                    x.Books
+                        .SelectMany(b => b.UserMetadata)
+                        .Any(um => um.Rating.HasValue) ? 0 : 1) // books without rating always at the bottom
 
-                    .ThenBy(x => x.Books
+                    .ThenBy(x => x.Rating ?? x.Books
                         .SelectMany(y => y.UserMetadata)
                         .Where(y => y.Rating.HasValue)
                         .Average(y => y.Rating))
                      .ThenBy(x => x.UpdatedAt),
 
             (SeriesSortByDTO.Rating, SortDirectionDTO.Desc) =>
-                query.OrderBy(x => x.Books
-                    .SelectMany(x => x.UserMetadata)
-                    .Any(x => x.Rating.HasValue) ? 0 : 1) // books without rating always at the bottom
+                query.OrderBy(x =>
+                    x.Rating.HasValue ||
+                    x.Books
+                        .SelectMany(x => x.UserMetadata)
+                        .Any(x => x.Rating.HasValue) ? 0 : 1) // books without rating always at the bottom
 
-                    .ThenByDescending(x => x.Books
+                    .ThenByDescending(x => x.Rating ?? x.Books
                         .SelectMany(y => y.UserMetadata)
                         .Where(y => y.Rating.HasValue)
                         .Average(y => y.Rating))

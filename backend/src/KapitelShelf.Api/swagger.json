@@ -4410,6 +4410,14 @@
             "type": "string",
             "description": "Gets or sets the name.",
             "nullable": true
+          },
+          "rating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the custom rating.",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -4837,7 +4845,15 @@
             "maximum": 10,
             "minimum": 1,
             "type": "integer",
-            "description": "Gets or sets the rating.",
+            "description": "Gets or sets the custom rating.",
+            "format": "int32",
+            "nullable": true
+          },
+          "calculatedRating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the calculated rating.",
             "format": "int32",
             "nullable": true
           }

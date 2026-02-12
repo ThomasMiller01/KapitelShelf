@@ -67,6 +67,16 @@ const SeriesCard = ({
             size="small"
             sx={{ mt: 0.5 }}
           />
+        ) : series.calculatedRating ? (
+          <Rating
+            key="rating"
+            value={series.calculatedRating / 2}
+            max={5}
+            precision={0.5}
+            readOnly
+            size="small"
+            sx={{ mt: 0.5 }}
+          />
         ) : (
           <></>
         ),

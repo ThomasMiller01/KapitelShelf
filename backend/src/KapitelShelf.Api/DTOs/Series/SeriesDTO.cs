@@ -43,8 +43,14 @@ public class SeriesDTO
     public int? TotalBooks { get; set; }
 
     /// <summary>
-    /// Gets or sets the rating.
+    /// Gets or sets the custom rating.
     /// </summary>
     [Range(1, 10)]
     public int? Rating { get; set; }
+
+    /// <summary>
+    /// Gets or sets the calculated rating.
+    /// </summary>
+    [Range(1, 10)]
+    public int? CalculatedRating { get; set; }
 }
