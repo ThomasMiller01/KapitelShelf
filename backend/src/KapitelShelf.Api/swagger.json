@@ -4837,7 +4837,15 @@
             "maximum": 10,
             "minimum": 1,
             "type": "integer",
-            "description": "Gets or sets the rating.",
+            "description": "Gets or sets the either the calculated rating or the custom set rating.",
+            "format": "int32",
+            "nullable": true
+          },
+          "calculatedRating": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Gets or sets the calculated rating.",
             "format": "int32",
             "nullable": true
           }

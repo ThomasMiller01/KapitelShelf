@@ -91,7 +91,18 @@ const SeriesDetailPage = (): ReactElement => {
         addons={[
           series?.rating ? (
             <Rating
+              key="rating"
               value={series.rating / 2}
+              max={5}
+              precision={0.5}
+              readOnly
+              size="small"
+              sx={{ ml: isMobile ? "10px !important" : 0 }}
+            />
+          ) : series?.calculatedRating ? (
+            <Rating
+              key="rating"
+              value={series.calculatedRating / 2}
               max={5}
               precision={0.5}
               readOnly

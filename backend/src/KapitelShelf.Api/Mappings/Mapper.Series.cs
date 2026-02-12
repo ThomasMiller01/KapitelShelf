@@ -28,6 +28,7 @@ public sealed partial class Mapper
             Name = model.Name,
             CreatedAt = model.CreatedAt,
             UpdatedAt = model.UpdatedAt,
+            Rating = model.Rating,
             TotalBooks = model.Books.Count,
         };
 
@@ -43,15 +44,16 @@ public sealed partial class Mapper
             dto.LastVolume = this.BookModelToBookDto(lastVolume);
         }
 
+        // calculate rating from books
         var ratings = model.Books
-                .SelectMany(x => x.UserMetadata, (_, y) => y.Rating)
-                .Where(x => x.HasValue)
-                .ToList();
+                    .SelectMany(x => x.UserMetadata, (_, y) => y.Rating)
+                    .Where(x => x.HasValue)
+                    .ToList();
 
         if (ratings.Count != 0)
         {
             var average = ratings.Average(x => x!.Value);
-            dto.Rating = (int)Math.Round(average, MidpointRounding.AwayFromZero);
+            dto.CalculatedRating = (int)Math.Round(average, MidpointRounding.AwayFromZero);
         }
 
         return dto;
@@ -87,6 +89,7 @@ public sealed partial class Mapper
     [MapperIgnoreTarget(nameof(SeriesModel.CreatedAt))]
     [MapperIgnoreTarget(nameof(SeriesModel.UpdatedAt))]
     [MapperIgnoreTarget(nameof(SeriesModel.Books))]
+    [MapperIgnoreTarget(nameof(SeriesModel.Rating))]
     public partial SeriesModel CreateSeriesDtoToSeriesModel(CreateSeriesDTO dto);
 
     /// <summary>
@@ -100,5 +103,6 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(SeriesDTO.LastVolume))]
     [MapperIgnoreSource(nameof(SeriesDTO.TotalBooks))]
     [MapperIgnoreSource(nameof(SeriesDTO.Rating))]
+    [MapperIgnoreSource(nameof(SeriesDTO.CalculatedRating))]
     public partial CreateSeriesDTO SeriesDtoToCreateSeriesDto(SeriesDTO dto);
 }

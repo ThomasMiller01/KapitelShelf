@@ -104,7 +104,7 @@ const EditableSeriesDetails = ({
                   <Stack>
                     <Typography gutterBottom>Custom Rating (WiP)</Typography>
                     <Rating
-                      defaultValue={0}
+                      value={(initial?.rating ?? 0) / 2}
                       max={5}
                       precision={0.5}
                       size="large"
@@ -127,7 +127,7 @@ const EditableSeriesDetails = ({
                       </IconButtonWithTooltip>
                     </Stack>
                     <Rating
-                      value={(initial?.rating ?? 0) / 2}
+                      value={(initial?.calculatedRating ?? 0) / 2}
                       max={5}
                       precision={0.5}
                       readOnly

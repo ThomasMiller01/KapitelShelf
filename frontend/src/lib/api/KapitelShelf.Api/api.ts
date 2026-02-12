@@ -1061,11 +1061,17 @@ export interface SeriesDTO {
      */
     'totalBooks'?: number | null;
     /**
-     * Gets or sets the rating.
+     * Gets or sets the either the calculated rating or the custom set rating.
      * @type {number}
      * @memberof SeriesDTO
      */
     'rating'?: number | null;
+    /**
+     * Gets or sets the calculated rating.
+     * @type {number}
+     * @memberof SeriesDTO
+     */
+    'calculatedRating'?: number | null;
 }
 /**
  * The paginated result.
