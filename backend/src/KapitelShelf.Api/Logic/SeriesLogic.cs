@@ -283,6 +283,7 @@ public class SeriesLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFacto
         context.Entry(series).CurrentValues.SetValues(new
         {
             seriesDto.Name,
+            seriesDto.Rating,
             UpdatedAt = DateTime.UtcNow,
         });
 

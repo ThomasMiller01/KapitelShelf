@@ -89,7 +89,6 @@ public sealed partial class Mapper
     [MapperIgnoreTarget(nameof(SeriesModel.CreatedAt))]
     [MapperIgnoreTarget(nameof(SeriesModel.UpdatedAt))]
     [MapperIgnoreTarget(nameof(SeriesModel.Books))]
-    [MapperIgnoreTarget(nameof(SeriesModel.Rating))]
     public partial SeriesModel CreateSeriesDtoToSeriesModel(CreateSeriesDTO dto);
 
     /// <summary>
@@ -102,7 +101,6 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(SeriesDTO.UpdatedAt))]
     [MapperIgnoreSource(nameof(SeriesDTO.LastVolume))]
     [MapperIgnoreSource(nameof(SeriesDTO.TotalBooks))]
-    [MapperIgnoreSource(nameof(SeriesDTO.Rating))]
     [MapperIgnoreSource(nameof(SeriesDTO.CalculatedRating))]
     public partial CreateSeriesDTO SeriesDtoToCreateSeriesDto(SeriesDTO dto);
 }
