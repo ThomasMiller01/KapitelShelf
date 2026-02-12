@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.5](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.3...api@0.3.5) (2026-02-12)
+
+
+### Features
+
+* Add feature to generate tags and categories with AI ([#372](https://github.com/ThomasMiller01/KapitelShelf/issues/372)) ([483d451](https://github.com/ThomasMiller01/KapitelShelf/commit/483d45169519f34c1cd67032455b665d1ec0e3a8))
+* Add user based book metadata like rating and comments ([#374](https://github.com/ThomasMiller01/KapitelShelf/issues/374)) ([d2516a6](https://github.com/ThomasMiller01/KapitelShelf/commit/d2516a679faa1e0a604c8c05172f3163a6c23f43))
+* manage library by allowing a user to manage books, series, authors, categories and tags in bulk ([#369](https://github.com/ThomasMiller01/KapitelShelf/issues/369)) ([247cfb1](https://github.com/ThomasMiller01/KapitelShelf/commit/247cfb10cfe84048bb5530fbf166a788fb47e5d6))
+* set custom series rating in addition to calculated rating ([#377](https://github.com/ThomasMiller01/KapitelShelf/issues/377)) ([53d8e1c](https://github.com/ThomasMiller01/KapitelShelf/commit/53d8e1cf1aa51747b8b249b7593654a73580a5d5))
+
 ## [0.3.4](https://github.com/ThomasMiller01/KapitelShelf/compare/api@0.3.3...api@0.3.4) (2026-01-14)
 
 
