@@ -129,7 +129,7 @@ public class SeriesLogicTests
     /// </summary>
     /// <returns>A task.</returns>
     [Test]
-    public async Task GetSeriesAsync_IncludesRatingProperty_Async()
+    public async Task GetSeriesAsync_IncludesCalculatedRatingProperty_Async()
     {
         // Setup
         var seriesName = "Series_RatingProperty".Unique();
@@ -191,7 +191,7 @@ public class SeriesLogicTests
         Assert.Multiple(() =>
         {
             Assert.That(dto!.Id, Is.EqualTo(seriesId));
-            Assert.That(dto.Rating, Is.EqualTo(8));
+            Assert.That(dto.CalculatedRating, Is.EqualTo(8));
         });
     }
 
@@ -791,6 +791,7 @@ public class SeriesLogicTests
         {
             Id = id,
             Name = "Updated".Unique(),
+            Rating = 7,
         };
 
         // Execute
@@ -803,7 +804,9 @@ public class SeriesLogicTests
             Assert.That(result.Name, Is.EqualTo(updatedDto.Name));
 
             using var context = new KapitelShelfDBContext(this.dbOptions);
-            Assert.That(context.Series.Single(x => x.Id == id).Name, Is.EqualTo(updatedDto.Name));
+            var seriesModel = context.Series.Single(x => x.Id == id);
+            Assert.That(seriesModel.Name, Is.EqualTo(updatedDto.Name));
+            Assert.That(seriesModel.Rating, Is.EqualTo(updatedDto.Rating));
         });
     }
 

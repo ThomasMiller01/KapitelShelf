@@ -6,6 +6,7 @@ using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.Mappings;
 using KapitelShelf.Data.Models;
+using KapitelShelf.Data.Models.User;
 
 namespace KapitelShelf.Api.Tests.Mappings;
 
@@ -148,6 +149,7 @@ public class MapperSeriesTests
         var dto = new CreateSeriesDTO
         {
             Name = "Created Series",
+            Rating = 7,
         };
 
         // execute
@@ -161,6 +163,7 @@ public class MapperSeriesTests
             Assert.That(model.Name, Is.EqualTo(dto.Name));
             Assert.That(model.CreatedAt, Is.Not.EqualTo(default(DateTime)));
             Assert.That(model.UpdatedAt, Is.Not.EqualTo(default(DateTime)));
+            Assert.That(model.Rating, Is.EqualTo(dto.Rating));
             Assert.That(model.Books, Is.Empty);
         });
     }
@@ -199,46 +202,17 @@ public class MapperSeriesTests
     }
 
     /// <summary>
-    /// Tests SeriesModelToSeriesDto includes Rating property in mapping.
+    /// Tests SeriesModelToSeriesDto calculates CalculatedRating from multiple user book ratings.
     /// </summary>
     [Test]
-    public void SeriesModelToSeriesDto_IncludesRating_WhenSet()
+    public void SeriesModelToSeriesDto_CalculatesAverageRating_FromMultipleUserRatings()
     {
         // setup
         var seriesId = Guid.NewGuid();
         var model = new SeriesModel
         {
             Id = seriesId,
-            Name = "Rated Series",
-            CreatedAt = DateTime.UtcNow.AddDays(-5),
-            UpdatedAt = DateTime.UtcNow,
-            Books = [],
-        };
-
-        // execute
-        var dto = this.testee.SeriesModelToSeriesDto(model);
-
-        // assert
-        Assert.That(dto, Is.Not.Null);
-        Assert.Multiple(() =>
-        {
-            Assert.That(dto.Id, Is.EqualTo(model.Id));
-            Assert.That(dto.Name, Is.EqualTo(model.Name));
-            Assert.That(dto.Rating, Is.Null);
-        });
-    }
-
-    /// <summary>
-    /// Tests SeriesModelToSeriesDto with populated Rating.
-    /// </summary>
-    [Test]
-    public void SeriesModelToSeriesDto_MapsRatingValue_Correctly()
-    {
-        // setup
-        var model = new SeriesModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "High Rated Series",
+            Name = "Multi-Rating Series",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Books =
@@ -249,6 +223,22 @@ public class MapperSeriesTests
                     Title = "Book One",
                     SeriesNumber = 1,
                     Description = "D1",
+                    UserMetadata =
+                    [
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = 8, User = new UserModel() },
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = 10, User = new UserModel() },
+                    ],
+                },
+                new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Book Two",
+                    SeriesNumber = 2,
+                    Description = "D2",
+                    UserMetadata =
+                    [
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = 6, User = new UserModel() },
+                    ],
                 },
             ],
         };
@@ -258,10 +248,142 @@ public class MapperSeriesTests
 
         // assert
         Assert.That(dto, Is.Not.Null);
-        Assert.Multiple(() =>
+
+        // Average of [8, 10, 6] = 24 / 3 = 8
+        Assert.That(dto.CalculatedRating, Is.EqualTo(8));
+    }
+
+    /// <summary>
+    /// Tests SeriesModelToSeriesDto ignores null ratings when calculating average.
+    /// </summary>
+    [Test]
+    public void SeriesModelToSeriesDto_IgnoresNullRatings_WhenCalculatingAverage()
+    {
+        // setup
+        var model = new SeriesModel
         {
-            Assert.That(dto.Name, Is.EqualTo(model.Name));
-            Assert.That(dto.TotalBooks, Is.EqualTo(1));
-        });
+            Id = Guid.NewGuid(),
+            Name = "Series with Ratings and Nulls",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Books =
+            [
+                new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Book One",
+                    SeriesNumber = 1,
+                    Description = "D1",
+                    UserMetadata =
+                    [
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = 9, User = new UserModel() },
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = null, User = new UserModel() }, // ignored
+                    ],
+                },
+                new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Book Two",
+                    SeriesNumber = 2,
+                    Description = "D2",
+                    UserMetadata =
+                    [
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = 7, User = new UserModel() },
+                    ],
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.SeriesModelToSeriesDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+
+        // Average of [9, 7] (null ignored) = 16 / 2 = 8
+        Assert.That(dto.CalculatedRating, Is.EqualTo(8));
+    }
+
+    /// <summary>
+    /// Tests SeriesModelToSeriesDto sets CalculatedRating to null when no ratings exist.
+    /// </summary>
+    [Test]
+    public void SeriesModelToSeriesDto_SetsCalculatedRating_ToNull_WhenNoRatings()
+    {
+        // setup
+        var model = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Series with No Ratings",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Books =
+            [
+                new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Unrated Book",
+                    SeriesNumber = 1,
+                    Description = "No ratings",
+                    UserMetadata = [],
+                },
+            ],
+        };
+
+        // execute
+        var dto = this.testee.SeriesModelToSeriesDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.CalculatedRating, Is.Null);
+    }
+
+    /// <summary>
+    /// Tests SeriesModelToSeriesDto rounds calculated rating properly (midpoint rounding away from zero).
+    /// </summary>
+    [Test]
+    public void SeriesModelToSeriesDto_RoundsCalculatedRating_AwayFromZero()
+    {
+        // setup - ratings: 7, 8, 9 = 24/3 = 8 exactly
+        // ratings: 6, 7 = 13/2 = 6.5 -> rounds to 7
+        var model = new SeriesModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Rounding Series",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Books =
+            [
+                new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Book One",
+                    SeriesNumber = 1,
+                    Description = "D1",
+                    UserMetadata =
+                    [
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = 6, User = new UserModel() },
+                    ],
+                },
+                new BookModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Book Two",
+                    SeriesNumber = 2,
+                    Description = "D2",
+                    UserMetadata =
+                    [
+                        new UserBookMetadataModel { Id = Guid.NewGuid(), Rating = 7, User = new UserModel() },
+                    ],
+                },
+            ],
+        };
+
+        // execute - 6 + 7 = 13, 13 / 2 = 6.5 rounds to 7 (AwayFromZero)
+        var dto = this.testee.SeriesModelToSeriesDto(model);
+
+        // assert
+        Assert.That(dto, Is.Not.Null);
+        Assert.That(dto.CalculatedRating, Is.EqualTo(7));
     }
 }
