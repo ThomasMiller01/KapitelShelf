@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.3.3...helm@0.3.4) (2026-02-12)
+
+
+### Features
+
+* bump frontend and api images ([01c5cff](https://github.com/ThomasMiller01/KapitelShelf/commit/01c5cff0f48214ecff15545a736e4eb532e6d595))
+
 ## [0.3.3](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.3.2...helm@0.3.3) (2026-01-14)
 
 
