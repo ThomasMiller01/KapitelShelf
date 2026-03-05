@@ -10,14 +10,29 @@ KapitelShelf helm chart for deploying the KapitelShelf application stack, includ
 
 This Helm chart is primarily intended to deploy **KapitelShelf**, including all necessary components like the frontend and API components.
 
+### Database
+
 Additionally, the chart can deploy a **PostgreSQL** database alongside KapitelShelf by enabling the bundled [Bitnami PostgreSQL](https://artifacthub.io/packages/helm/bitnami/postgresql) subchart. This provides a fully self-contained deployment without requiring any external database setup.
 
 By default, PostgreSQL is **enabled**.  
 However, if you already have your own PostgreSQL instance available, you can configure KapitelShelf to connect to your external database instead.
 
 To use your own database:
+
 - Set `global.deployPostgresql=false`
 - Provide the external database connection information to KapitelShelf via Helm values.
+
+### AI
+
+Optional AI‑powered features can be deployed alongide KapitelShelf by enabling the bundled [Otwld Ollama](https://github.com/otwld/ollama-helm) subchart. These features are disabled by default and depend on an external AI service, as KapitelShelf itself does _not_ host or run any models.
+
+To use the bundled Ollama subchart:
+
+- Set `global.deployOllama=true`
+
+**Additionally**, refer to the [AI quickstart documentation](../../docs/ai.md) for the **remaining setup.**
+
+> The **Ollama Server Url** in this case would be ``.
 
 ## Installing the Chart
 
@@ -35,6 +50,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | postgresql | 16.6.6 |
+| https://helm.otwld.com | ollama | 1.48.0 |
 
 ## Values
 
@@ -74,9 +90,19 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| global.deployOllama | bool | `false` | Whether to deploy a bundled Ollama instance using the Otwld Ollama subchart.<br /> Set to `true` if you want to use AI features with selfhosted Ollama.<br /> See [AI: Ollama Provider](../../docs/ai.md#ollama-provider) for more information. |
 | global.deployPostgresql | bool | `true` | Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
 | global.namespace | string | `"kapitelshelf"` | The helm chart will be deployed into this namespace |
 | global.storage.size | string | `"20Gi"` | Size of the KapitelShelf storage |
+
+### Ollama Values _[SubChart]_
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| ollama.gpu.enabled | bool | `false` | Enable GPU integration, see [Otwld Ollama Helm Values](https://github.com/otwld/ollama-helm?tab=readme-ov-file#helm-values) for more information |
+| ollama.persistentVolume.size | string | `"20Gi"` | Size of the Ollama storage |
+| ollama.resources.limits | object | `{"memory":"8Gi"}` | Sets the Ollama container resources limits |
+| ollama.resources.requests | object | `{"memory":"4Gi"}` | Sets the Ollama container resources requests |
 
 ### PostgreSQL Values _[SubChart]_
 

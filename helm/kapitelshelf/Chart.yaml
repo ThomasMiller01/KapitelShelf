@@ -11,6 +11,10 @@ dependencies:
     version: 16.6.6
     repository: https://charts.bitnami.com/bitnami
     condition: global.deployPostgresql
+  - name: ollama
+    version: 1.48.0
+    repository: https://helm.otwld.com
+    condition: global.deployOllama
 home: "https://github.com/ThomasMiller01/KapitelShelf"
 sources:
   [
