@@ -4,6 +4,12 @@ global:
   # @section -- Global Values
   deployPostgresql: true
 
+  # -- Whether to deploy a bundled Ollama instance using the Otwld Ollama subchart.<br />
+  # Set to `true` if you want to use AI features with selfhosted Ollama.<br />
+  # See [AI: Ollama Provider](../../docs/ai.md#ollama-provider) for more information.
+  # @section -- Global Values
+  deployOllama: false
+
   # -- The helm chart will be deployed into this namespace
   # @section -- Global Values
   namespace: kapitelshelf
@@ -168,3 +174,40 @@ postgresql:
   # @ignored
   metrics:
     enabled: false
+
+ollama:
+  gpu:
+    # -- Enable GPU integration, see [Otwld Ollama Helm Values](https://github.com/otwld/ollama-helm?tab=readme-ov-file#helm-values) for more information
+    # @section -- Ollama Values _[SubChart]_
+    enabled: false
+
+  # @ignored
+  models:
+    pull: [] # models will be pulled by KapitelShelf when necessary
+
+  # @ignored
+  ingress:
+    enabled: false
+
+  resources:
+    # -- Sets the Ollama container resources requests
+    # @section -- Ollama Values _[SubChart]_
+    requests:
+      memory: 4Gi
+
+    # -- Sets the Ollama container resources limits
+    # @section -- Ollama Values _[SubChart]_
+    limits:
+      memory: 8Gi
+
+  persistentVolume:
+    # @ignored
+    enabled: true
+
+    # -- Size of the Ollama storage
+    # @section -- Ollama Values _[SubChart]_
+    size: 20Gi
+
+  # @ignored
+    updateStrategy:
+      type: RollingUpdate
