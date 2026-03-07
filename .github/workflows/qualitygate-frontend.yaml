@@ -1,0 +1,63 @@
+name: "Quality Gate: Frontend"
+
+on:
+  workflow_dispatch: {} # allow manual run
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/qualitygate-frontend.yaml'
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from package.json
+        working-directory: ./frontend
+        id: version
+        run: |
+          # grab the version key
+          VERSION=$(jq -r .version package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Decode keystore
+        run: |
+          mkdir -p android/app/keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore/release-key.jks
+          keytool -list -v -keystore android/app/keystore/release-key.jks -storepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+
+      - name: Write credentials to gradle.properties
+        run: |
+          echo "KS_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/gradle.properties
+          echo "KS_ALIAS_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/gradle.properties
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync mobile content
+        run: npm run mobile:sync
+
+      - name: Build Android APK (Release)
+        run: chmod +x android/gradlew && cd android && ./gradlew clean assembleRelease
