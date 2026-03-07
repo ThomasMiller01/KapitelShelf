@@ -1,9 +1,9 @@
 dependencies:
-- name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 16.6.6
 - name: ollama
   repository: https://helm.otwld.com
   version: 1.48.0
-digest: sha256:3b9dbc60a8c54335b96295594c619257d19b52e10d13fb8e23c46e6a06386814
-generated: "2026-03-05T18:34:25.4089689+01:00"
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.6.6
+digest: sha256:e2bb818c609624fa28db76a7159e949b0a41c246d038113f852951ab77e79cf0
+generated: "2026-03-07T11:10:25.1734402+01:00"

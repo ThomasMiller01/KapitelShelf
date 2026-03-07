@@ -26,11 +26,11 @@ spec:
               containerPort: {{ .Values.api.service.port }}
           env:
             - name: KapitelShelf__Database__Host
-              value: {{ include "postgresql.host" . | quote }}
+              value: "{{ include "kapitelshelf.database.host" . }}:{{ include "kapitelshelf.database.port" . }}"
             - name: KapitelShelf__Database__Username
-              value: {{ .Values.postgresql.auth.username | quote }}
+              value: {{ include "kapitelshelf.database.username" . | quote }}
             - name: KapitelShelf__Database__Password
-              value: {{ .Values.postgresql.auth.password | quote }}
+              value: {{ include "kapitelshelf.database.password" . | quote }}
             - name: KapitelShelf__Domain
               value: {{ include "kapitelshelf.api.host" . | quote }}
           volumeMounts:

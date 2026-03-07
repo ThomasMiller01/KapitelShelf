@@ -9,19 +9,76 @@
 
 This Helm chart is primarily intended to deploy **KapitelShelf**, including all necessary components like the frontend and API components.
 
-### Database
+### Configure the Database
 
-Additionally, the chart can deploy a **PostgreSQL** database alongside KapitelShelf by enabling the bundled [Bitnami PostgreSQL](https://artifacthub.io/packages/helm/bitnami/postgresql) subchart. This provides a fully self-contained deployment without requiring any external database setup.
+KapitelShelf requires a **PostgreSQL** database.
 
-By default, PostgreSQL is **enabled**.  
-However, if you already have your own PostgreSQL instance available, you can configure KapitelShelf to connect to your external database instead.
+This chart supports **three database configurations**, depending on your environment:
 
-To use your own database:
+1. **Bundled PostgreSQL (recommended for simple setups)**
+2. **Bitnami PostgreSQL subchart (deprecated)**
+3. **External PostgreSQL database**
+
+#### 1. Bundled PostgreSQL
+
+The chart includes a **lightweight bundled PostgreSQL deployment** based on the official PostgreSQL Docker image.  
+This option provides a simple, self-contained setup without requiring any external database infrastructure.
+
+To enable the bundled database:
+
+- Set `global.deployDatabase=true`
+
+The API will automatically connect to this bundled database.
+
+#### 2. Bitnami PostgreSQL (Deprecated)
+
+Previous versions of KapitelShelf used the [Bitnami PostgreSQL](https://artifacthub.io/packages/helm/bitnami/postgresql) Helm chart.
+
+This option is **deprecated** and will be removed in a future release.
+
+To enable it temporarily:
+
+- Set `global.deployDatabase=false`
+- Set `global.deployPostgresql=true`
+
+#### 3. External PostgreSQL
+
+If you already have a PostgreSQL instance available, KapitelShelf can connect to an **external database** instead.
+
+To use an external database:
+
+<!-- - Set `global.deployDatabase=false` -->
 
 - Set `global.deployPostgresql=false`
-- Provide the external database connection information to KapitelShelf via Helm values.
+- Configure the connection settings under:
 
-### AI
+<!-- ```yaml
+database:
+  auth:
+    username: <YOUR_POSTGRESQL-USERNAME>
+    password: <YOUR_POSTGRESQL-PASSWORD>
+
+  service:
+    host: <YOUR-POSTGRESQL-HOST>
+    port: <YOUR-POSTGRESQL-PORT>
+``` -->
+
+```yaml
+postgresql:
+  auth:
+    username: "<POSTGRES_USERNAME>"
+    password: "<POSTGRES_PASSWORD>"
+
+  primary:
+    service:
+      # Set the host and port to the external PostgreSQL instance
+      host: "<POSTGRES_HOST>"
+      port: 5432
+```
+
+You can find an example in [examples/external-database.values.yaml](../../examples/helm/external-database.values.yaml).
+
+### Configure AI
 
 Optional AI‑powered features can be deployed alongide KapitelShelf by enabling the bundled [Otwld Ollama](https://github.com/otwld/ollama-helm) subchart. These features are disabled by default and depend on an external AI service, as KapitelShelf itself does _not_ host or run any models.
 
@@ -29,7 +86,7 @@ To use the bundled Ollama subchart:
 
 - Set `global.deployOllama=true`
 
-**Additionally**, refer to the [AI quickstart documentation](../../docs/ai.md) for the **remaining setup.**
+**Additionally**, refer to the [AI Quickstart Documentation](../../docs/ai.md) for the **remaining setup.**
 
 > The **Ollama Server Url** in this case would be ``.
 
