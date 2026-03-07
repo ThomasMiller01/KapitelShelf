@@ -10,19 +10,76 @@ KapitelShelf helm chart for deploying the KapitelShelf application stack, includ
 
 This Helm chart is primarily intended to deploy **KapitelShelf**, including all necessary components like the frontend and API components.
 
-### Database
+### Configure the Database
 
-Additionally, the chart can deploy a **PostgreSQL** database alongside KapitelShelf by enabling the bundled [Bitnami PostgreSQL](https://artifacthub.io/packages/helm/bitnami/postgresql) subchart. This provides a fully self-contained deployment without requiring any external database setup.
+KapitelShelf requires a **PostgreSQL** database.
 
-By default, PostgreSQL is **enabled**.  
-However, if you already have your own PostgreSQL instance available, you can configure KapitelShelf to connect to your external database instead.
+This chart supports **three database configurations**, depending on your environment:
 
-To use your own database:
+1. **Bundled PostgreSQL (recommended for simple setups)**
+2. **Bitnami PostgreSQL subchart (deprecated)**
+3. **External PostgreSQL database**
+
+#### 1. Bundled PostgreSQL
+
+The chart includes a **lightweight bundled PostgreSQL deployment** based on the official PostgreSQL Docker image.  
+This option provides a simple, self-contained setup without requiring any external database infrastructure.
+
+To enable the bundled database:
+
+- Set `global.deployDatabase=true`
+
+The API will automatically connect to this bundled database.
+
+#### 2. Bitnami PostgreSQL (Deprecated)
+
+Previous versions of KapitelShelf used the [Bitnami PostgreSQL](https://artifacthub.io/packages/helm/bitnami/postgresql) Helm chart.
+
+This option is **deprecated** and will be removed in a future release.
+
+To enable it temporarily:
+
+- Set `global.deployDatabase=false`
+- Set `global.deployPostgresql=true`
+
+#### 3. External PostgreSQL
+
+If you already have a PostgreSQL instance available, KapitelShelf can connect to an **external database** instead.
+
+To use an external database:
+
+<!-- - Set `global.deployDatabase=false` -->
 
 - Set `global.deployPostgresql=false`
-- Provide the external database connection information to KapitelShelf via Helm values.
+- Configure the connection settings under:
 
-### AI
+<!-- ```yaml
+database:
+  auth:
+    username: <YOUR_POSTGRESQL-USERNAME>
+    password: <YOUR_POSTGRESQL-PASSWORD>
+
+  service:
+    host: <YOUR-POSTGRESQL-HOST>
+    port: <YOUR-POSTGRESQL-PORT>
+``` -->
+
+```yaml
+postgresql:
+  auth:
+    username: "<POSTGRES_USERNAME>"
+    password: "<POSTGRES_PASSWORD>"
+
+  primary:
+    service:
+      # Set the host and port to the external PostgreSQL instance
+      host: "<POSTGRES_HOST>"
+      port: 5432
+```
+
+You can find an example in [examples/external-database.values.yaml](../../examples/helm/external-database.values.yaml).
+
+### Configure AI
 
 Optional AI‑powered features can be deployed alongide KapitelShelf by enabling the bundled [Otwld Ollama](https://github.com/otwld/ollama-helm) subchart. These features are disabled by default and depend on an external AI service, as KapitelShelf itself does _not_ host or run any models.
 
@@ -70,6 +127,18 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 | api.resources.requests | object | `{"cpu":"250m","memory":"512Mi"}` | Sets the api container resources requests |
 | api.service.port | int | `5261` | Api port |
 
+### Database Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| database.auth.password | string | `"kapitelshelf"` | PostgreSQL database password **(Change this for production!)** |
+| database.auth.username | string | `"kapitelshelf"` | PostgreSQL database username **(Change this for production!)** |
+| database.persistence.size | string | `"20Gi"` | Size of the PostgreSQL storage |
+| database.persistence.storageClass | string | `nil` | Storage class for the PostgreSQL persistent volume claim<br /> Will use the cluster default storage class if not set |
+| database.resources.limits | object | `{"memory":"2Gi"}` | Sets the PostgreSQL container resources limits |
+| database.service.host | string | `nil` | Sets the PostgreSQL host, if you're using an external PostgreSQL.<br /> Will be ignored, if `global.deployDatabase=true` |
+| database.service.port | int | `5432` | TCP port the PostgreSQL service will listen on |
+
 ### Frontend Values
 
 | Key | Type | Default | Description |
@@ -90,8 +159,9 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| global.deployDatabase | bool | `false` | Whether to deploy a bundled PostgreSQL database.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
 | global.deployOllama | bool | `false` | Whether to deploy a bundled Ollama instance using the Otwld Ollama subchart.<br /> Set to `true` if you want to use AI features with selfhosted Ollama.<br /> See [AI: Ollama Provider](../../docs/ai.md#ollama-provider) for more information. |
-| global.deployPostgresql | bool | `true` | Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
+| global.deployPostgresql | bool | `true` | [DEPRECATED] Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br /> Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database |
 | global.namespace | string | `"kapitelshelf"` | The helm chart will be deployed into this namespace |
 | global.storage.size | string | `"20Gi"` | Size of the KapitelShelf storage |
 
@@ -104,7 +174,7 @@ You can find example `values.yaml` configuration in [KapitelShelf Examples](http
 | ollama.resources.limits | object | `{"memory":"8Gi"}` | Sets the Ollama container resources limits |
 | ollama.resources.requests | object | `{"memory":"4Gi"}` | Sets the Ollama container resources requests |
 
-### PostgreSQL Values _[SubChart]_
+### [DEPRECATED] PostgreSQL Values _[SubChart]_
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|

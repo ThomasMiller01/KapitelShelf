@@ -1,14 +1,19 @@
 global:
-  # -- Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br />
+  # -- Whether to deploy a bundled PostgreSQL database.<br />
   # Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database
   # @section -- Global Values
-  deployPostgresql: true
+  deployDatabase: false
 
   # -- Whether to deploy a bundled Ollama instance using the Otwld Ollama subchart.<br />
   # Set to `true` if you want to use AI features with selfhosted Ollama.<br />
   # See [AI: Ollama Provider](../../docs/ai.md#ollama-provider) for more information.
   # @section -- Global Values
   deployOllama: false
+
+  # -- [DEPRECATED] Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br />
+  # Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database
+  # @section -- Global Values
+  deployPostgresql: true
 
   # -- The helm chart will be deployed into this namespace
   # @section -- Global Values
@@ -129,51 +134,44 @@ api:
       cpu: 250m
       memory: 512Mi
 
-postgresql:  
+database:
+  # @ignored
+  name: kapitelshelf
+
   auth:
     # -- PostgreSQL database username **(Change this for production!)**
-    # @section -- PostgreSQL Values _[SubChart]_
+    # @section -- Database Values
     username: "kapitelshelf"
+
     # -- PostgreSQL database password **(Change this for production!)**
-    # @section -- PostgreSQL Values _[SubChart]_
+    # @section -- Database Values
     password: "kapitelshelf"
 
-    # @ignored
-    database: kapitelshelf
+  service:
+    # -- TCP port the PostgreSQL service will listen on
+    # @section -- Database Values
+    port: 5432
 
-  primary:
-    service:
-      # -- TCP port the PostgreSQL service will listen on
-      # @section -- PostgreSQL Values _[SubChart]_
-      port: 5432
+    # -- (string) Sets the PostgreSQL host, if you're using an external PostgreSQL.<br />
+    # Will be ignored, if `global.deployDatabase=true`
+    # @section -- Database Values
+    host:
 
-      # -- (string) Sets the PostgreSQL host, if you're using an external PostgreSQL.<br />
-      # Will be ignored, if `global.deployPostgres=true`
-      # @section -- PostgreSQL Values _[SubChart]_
-      host:
-
-    persistence:
+  persistence:
       # -- Size of the PostgreSQL storage
-      # @section -- PostgreSQL Values _[SubChart]_
+      # @section -- Database Values
       size: 20Gi
 
-    # @ignored
-    updateStrategy:
-      type: RollingUpdate
+      # -- Storage class for the PostgreSQL persistent volume claim<br />
+      # Will use the cluster default storage class if not set
+      # @section -- Database Values
+      storageClass:
 
-    resources:
-      # -- Sets the PostgreSQL container resources limits
-      # @section -- PostgreSQL Values _[SubChart]_
-      limits:
-        memory: 2Gi
-
-  # @ignored
-  readReplicas:
-    replicaCount: 0
-
-  # @ignored
-  metrics:
-    enabled: false
+  resources:
+    # -- Sets the PostgreSQL container resources limits
+    # @section -- Database Values
+    limits:
+      memory: 2Gi
 
 ollama:
   gpu:
@@ -208,6 +206,53 @@ ollama:
     # @section -- Ollama Values _[SubChart]_
     size: 20Gi
 
-  # @ignored
+    # @ignored
     updateStrategy:
       type: RollingUpdate
+
+# [DEPRECATED] The bitnami postgresql chart is deprecated and will be removed in a future release.
+postgresql:  
+  auth:
+    # -- PostgreSQL database username **(Change this for production!)**
+    # @section -- [DEPRECATED] PostgreSQL Values _[SubChart]_
+    username: "kapitelshelf"
+    # -- PostgreSQL database password **(Change this for production!)**
+    # @section -- [DEPRECATED] PostgreSQL Values _[SubChart]_
+    password: "kapitelshelf"
+
+    # @ignored
+    database: kapitelshelf
+
+  primary:
+    service:
+      # -- TCP port the PostgreSQL service will listen on
+      # @section -- [DEPRECATED] PostgreSQL Values _[SubChart]_
+      port: 5432
+
+      # -- (string) Sets the PostgreSQL host, if you're using an external PostgreSQL.<br />
+      # Will be ignored, if `global.deployPostgres=true`
+      # @section -- [DEPRECATED] PostgreSQL Values _[SubChart]_
+      host:
+
+    persistence:
+      # -- Size of the PostgreSQL storage
+      # @section -- [DEPRECATED] PostgreSQL Values _[SubChart]_
+      size: 20Gi
+
+    # @ignored
+    updateStrategy:
+      type: RollingUpdate
+
+    resources:
+      # -- Sets the PostgreSQL container resources limits
+      # @section -- [DEPRECATED] PostgreSQL Values _[SubChart]_
+      limits:
+        memory: 2Gi
+
+  # @ignored
+  readReplicas:
+    replicaCount: 0
+
+  # @ignored
+  metrics:
+    enabled: false

@@ -7,14 +7,14 @@ type: application
 version: 0.3.4
 appVersion: "N/A"
 dependencies:
-  - name: postgresql
-    version: 16.6.6
-    repository: https://charts.bitnami.com/bitnami
-    condition: global.deployPostgresql
   - name: ollama
     version: 1.48.0
     repository: https://helm.otwld.com
     condition: global.deployOllama
+  - name: postgresql # [DEPRECATED] The bitnami postgresql chart is deprecated and will be removed in a future release.
+    version: 16.6.6
+    repository: https://charts.bitnami.com/bitnami
+    condition: global.deployPostgresql
 home: "https://github.com/ThomasMiller01/KapitelShelf"
 sources:
   [
