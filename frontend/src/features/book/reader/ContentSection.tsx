@@ -1,72 +1,27 @@
-import { serializeStyles } from "@emotion/serialize";
-import { Box, Theme, Typography, useTheme } from "@mui/material";
-import React, { useRef } from "react";
+import { Box, Theme, useTheme } from "@mui/material";
+import React from "react";
 import { ScrollbarStyles } from "../../../styles/GlobalStyles";
 import { BookSection } from "../../../utils/bookReader/BookContent";
 
 interface ContentSectionProps {
   section: BookSection;
+  page?: number;
 }
 
 export const ContentSection: React.FC<ContentSectionProps> = ({ section }) => {
   const theme = useTheme();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  if (section.contentType === "html" || section.contentType === "xhtml") {
-    const injectStyles = () => {
-      const iframe = iframeRef.current;
-      if (!iframe) return;
-
-      const doc = iframe.contentDocument;
-      if (!doc) return;
-
-      const style = doc.createElement("style");
-      style.innerHTML = serializeStyles([ContentStyles(theme)]).styles;
-      doc.head.appendChild(style);
-    };
-    return (
-      <ContentSectionWrapper>
-        <iframe
-          key={section.id}
-          ref={iframeRef}
-          src={section.content}
-          title={section.title ?? section.id}
-          onLoad={injectStyles}
-          style={{
-            width: "100%",
-            height: "100%",
-            border: "none",
-          }}
-        />
-      </ContentSectionWrapper>
-    );
-  }
-
-  if (section.contentType === "text") {
-    return (
-      <ContentSectionWrapper>
-        <Box
-          sx={{
-            p: 3,
-            height: "100%",
-            overflowY: "auto",
-            whiteSpace: "pre-wrap",
-            ...ContentStyles(theme),
-          }}
-        >
-          <Typography>{section.content}</Typography>
-        </Box>
-      </ContentSectionWrapper>
-    );
-  }
-
+  console.log(section);
   return (
     <ContentSectionWrapper>
-      <Box sx={{ p: 2 }}>
-        <Typography>
-          Unsupported section content type: {section.contentType}
-        </Typography>
-      </Box>
+      <Box
+        sx={{
+          p: 3,
+          height: "100%",
+          overflowY: "auto",
+          ...ContentStyles(theme),
+        }}
+        dangerouslySetInnerHTML={{ __html: section.content || "" }}
+      />
     </ContentSectionWrapper>
   );
 };

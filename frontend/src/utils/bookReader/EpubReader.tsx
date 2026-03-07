@@ -130,8 +130,9 @@ const mapSections = async (
 
   for (let index = 0; index < sections.length; index++) {
     const section = sections[index];
-    const content = await section.load();
-
+    const blobUrl = await section.load();
+    const response = await fetch(blobUrl);
+    const content = await response.text();
     result.push({
       id: section.id,
       index,
