@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { useState, type ReactElement } from "react";
 
 import LoadingCard from "../../../components/base/feedback/LoadingCard";
@@ -45,19 +45,23 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
 
   if (isLoading) {
     return (
-      <LoadingCard
-        useLogo
-        delayed
-        itemName="Book"
-        loadingText="Parsing"
-        showRandomFacts
-      />
+      <Box width="100%" justifyContent="center">
+        <LoadingCard
+          useLogo
+          delayed
+          itemName="Book"
+          loadingText="Parsing"
+          showRandomFacts
+        />
+      </Box>
     );
   }
 
   if (error || !content) {
     return (
-      <RequestErrorCard itemName="book" actionText="parse" subtitle={error} />
+      <Box width="100%" justifyContent="center">
+        <RequestErrorCard itemName="book" actionText="parse" subtitle={error} />
+      </Box>
     );
   }
 
