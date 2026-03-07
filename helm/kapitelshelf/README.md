@@ -2,7 +2,7 @@
 
 KapitelShelf helm chart for deploying the KapitelShelf application stack, including optional PostgreSQL database support. Provides a flexible setup for both self-contained and external database configurations.
 
-![Version: 0.3.4](https://img.shields.io/badge/Version-0.3.4-informational?style=flat-square) 
+![Version: 0.3.5](https://img.shields.io/badge/Version-0.3.5-informational?style=flat-square) 
 
 **Homepage:** <https://github.com/ThomasMiller01/KapitelShelf>
 
@@ -87,7 +87,7 @@ To use the bundled Ollama subchart:
 
 - Set `global.deployOllama=true`
 
-**Additionally**, refer to the [AI quickstart documentation](../../docs/ai.md) for the **remaining setup.**
+**Additionally**, refer to the [AI Quickstart Documentation](../../docs/ai.md) for the **remaining setup.**
 
 > The **Ollama Server Url** in this case would be ``.
 

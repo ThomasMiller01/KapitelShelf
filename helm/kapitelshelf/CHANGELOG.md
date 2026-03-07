@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.5](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.3.4...helm@0.3.5) (2026-03-07)
+
+
+### Features
+
+* add minimal bundled database as alternative to bitnami postgresql chart ([#389](https://github.com/ThomasMiller01/KapitelShelf/issues/389)) ([33c6414](https://github.com/ThomasMiller01/KapitelShelf/commit/33c64140e2f72880be8da96d42b7d86cae94219f))
+* add Ollama subchart to KapitelShelf helm chart ([#385](https://github.com/ThomasMiller01/KapitelShelf/issues/385)) ([8f3d08a](https://github.com/ThomasMiller01/KapitelShelf/commit/8f3d08a337f73eedb57b4f50c0934ffd30f8a442))
+
 ## [0.3.4](https://github.com/ThomasMiller01/KapitelShelf/compare/helm@0.3.3...helm@0.3.4) (2026-02-12)
 
 
