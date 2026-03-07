@@ -1,7 +1,7 @@
 name: Product Backlog Item (Maintainers Only)
 description: "Maintainers: Use this to track a new feature, enhancement, or technical task."
 title: "[PBI] "
-labels: ["pbi", "internal", "maintainers-only"]
+labels: ["maintainers-only"]
 body:
   - type: markdown
     attributes:
