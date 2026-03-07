@@ -1,6 +1,8 @@
 import { Box, styled } from "@mui/material";
 import { useState, type ReactElement } from "react";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 import LoadingCard from "../../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
 import { DRAWER_WIDTH } from "../../../components/base/ResponsiveDrawer";
@@ -42,6 +44,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
     prev: prevSection,
     set: setSection,
   } = useReadBookPagination();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -60,7 +63,14 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   if (error || !content) {
     return (
       <Box width="100%" justifyContent="center">
-        <RequestErrorCard itemName="book" actionText="parse" subtitle={error} />
+        <RequestErrorCard
+          itemName="book"
+          actionText="parse"
+          subtitle={error}
+          secondAction={() => navigate(`/library/books/${book.id}`)}
+          secondActionText="Back to Library"
+          secondActionIcon={<ArrowBackIcon />}
+        />
       </Box>
     );
   }
