@@ -23,10 +23,39 @@ const Main = styled("main", {
   ...(open && !isMobile && { marginLeft: 0 }),
 }));
 
-export const MainLayout = (): ReactElement => {
+interface MainLayoutProps {
+  minimal?: boolean;
+}
+
+export const MainLayout: React.FC<MainLayoutProps> = ({ minimal = false }) => {
   const { isMobile } = useMobile();
   const [open, toggleDrawer] = useResponsiveDrawer();
 
+  if (minimal) {
+    return (
+      <MainLayoutWrapper>
+        <Outlet />
+      </MainLayoutWrapper>
+    );
+  }
+
+  return (
+    <MainLayoutWrapper>
+      <Sidebar open={open} onClose={toggleDrawer} />
+      <AppBar open={open} toggle={toggleDrawer} />
+      <Main open={open} isMobile={isMobile}>
+        <Toolbar />
+        <Outlet />
+      </Main>
+    </MainLayoutWrapper>
+  );
+};
+
+interface MainLayoutWrapperProps {
+  children: ReactElement | ReactElement[];
+}
+
+const MainLayoutWrapper: React.FC<MainLayoutWrapperProps> = ({ children }) => {
   return (
     <Box
       sx={{
@@ -36,12 +65,7 @@ export const MainLayout = (): ReactElement => {
         paddingBottom: IsMobileApp() ? "10px" : 0,
       }}
     >
-      <Sidebar open={open} onClose={toggleDrawer} />
-      <AppBar open={open} toggle={toggleDrawer} />
-      <Main open={open} isMobile={isMobile}>
-        <Toolbar />
-        <Outlet />
-      </Main>
+      {children}
     </Box>
   );
 };

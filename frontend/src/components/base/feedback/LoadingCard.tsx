@@ -13,6 +13,7 @@ interface LoadingCardProps {
   delayed?: boolean;
   showRandomFacts?: boolean;
   small?: boolean;
+  loadingText?: string;
 }
 
 const LoadingCard = ({
@@ -21,6 +22,7 @@ const LoadingCard = ({
   delayed = false,
   showRandomFacts = false,
   small = false,
+  loadingText = "Loading",
 }: LoadingCardProps): ReactElement => {
   const [show, setShow] = useState(false);
 
@@ -57,7 +59,7 @@ const LoadingCard = ({
         fontSize={small ? "1.2rem !important" : "1.5rem !important"}
         textTransform="uppercase"
       >
-        Loading {itemName}
+        {loadingText} {itemName}
         <DotsProgress small />
       </Typography>
       {showRandomFacts && <BookFactsCard />}
