@@ -33,6 +33,7 @@
     "axios": "^1.8.4",
     "cronstrue": "^3.0.0",
     "dayjs": "^1.11.13",
+    "foliate-js": "github:johnfactotum/foliate-js",
     "notistack": "^3.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
