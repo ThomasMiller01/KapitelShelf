@@ -3,10 +3,9 @@ import { useState, type ReactElement } from "react";
 
 import LoadingCard from "../../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
-import { ResponsiveDrawer } from "../../../components/base/ResponsiveDrawer";
 import { useReadBook } from "../../../hooks/useReadBook";
 import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
-import TableOfContents from "./TableOfContents";
+import { Sidebar } from "./Sidebar";
 import { Toolbar } from "./Toolbar";
 
 interface BookDetailsProps {
@@ -43,14 +42,13 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
       <Toolbar
         content={content}
         sidebarOpen={sidebarOpen}
-        toggleSidebarOpen={() => setSidebarOpen(true)}
+        openSidebar={() => setSidebarOpen(true)}
       />
-      <ResponsiveDrawer
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      >
-        <TableOfContents items={content?.navigation.tableOfContents ?? []} />
-      </ResponsiveDrawer>
+      <Sidebar
+        content={content}
+        sidebarOpen={sidebarOpen}
+        closeSidebar={() => setSidebarOpen(false)}
+      />
     </Box>
   );
 };
