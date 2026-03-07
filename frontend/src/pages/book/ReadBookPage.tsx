@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import { type ReactElement } from "react";
 import { useParams } from "react-router-dom";
 
@@ -22,11 +21,7 @@ const ReadBookPage = (): ReactElement => {
     return <RequestErrorCard itemName="book" onRetry={refetch} />;
   }
 
-  return (
-    <Box p={2}>
-      <BookReader book={book} />
-    </Box>
-  );
+  return <BookReader book={book} />;
 };
 
 export default ReadBookPage;

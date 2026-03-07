@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "../../../contexts/ApiProvider";
-import { SortingModel } from "../../../hooks/url/useItemsTableParams";
+import { SortingModel } from "../../../hooks/useItemsTableParams";
 import {
   ToAuthorsSortByDTO,
   ToSortDirectionDTO,

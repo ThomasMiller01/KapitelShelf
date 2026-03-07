@@ -10,7 +10,7 @@ import {
   ManageItemsTable,
 } from "../../components/ManageItemsTable";
 import { ApiClients, useApi } from "../../contexts/ApiProvider";
-import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
+import { useItemsTableParams } from "../../hooks/useItemsTableParams";
 import { BookDTO, CategoryDTO, TagDTO } from "../../lib/api/KapitelShelf.Api";
 import { useBooksList } from "../../lib/requests/books/useBooksList";
 import { useDeleteBooks } from "../../lib/requests/books/useDeleteBooks";

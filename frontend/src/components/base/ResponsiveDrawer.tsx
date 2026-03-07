@@ -3,6 +3,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import {
   AppBar,
   Box,
+  Button,
   Divider,
   Drawer,
   IconButton,
@@ -12,6 +13,7 @@ import {
 import { styled } from "@mui/material/styles";
 import type { ReactElement, ReactNode } from "react";
 
+import { NavLink } from "react-router-dom";
 import { useMobile } from "../../hooks/useMobile";
 import { IsMobileApp } from "../../utils/MobileUtils";
 import FancyText from "../FancyText";
@@ -32,6 +34,9 @@ export interface ResponsiveDrawerProps {
   children: ReactNode;
   name?: string;
   logo?: string;
+  actionLink?: string;
+  actionText?: string;
+  actionIcon?: ReactNode;
 }
 
 export const ResponsiveDrawer = ({
@@ -40,6 +45,9 @@ export const ResponsiveDrawer = ({
   children,
   name,
   logo,
+  actionLink,
+  actionText,
+  actionIcon,
 }: ResponsiveDrawerProps): ReactElement => {
   const { isMobile } = useMobile();
   return (
@@ -69,24 +77,38 @@ export const ResponsiveDrawer = ({
           justifyContent: "space-between",
         }}
       >
-        <Stack direction="row" spacing={1} alignItems="center">
-          {logo && (
-            <Box
-              component="img"
-              src={logo}
-              alt="My Image"
-              sx={{
-                width: 40,
-                objectFit: "cover",
-              }}
-            />
-          )}
-          {name && (
-            <FancyText variant="h6" noWrap sx={{ width: "100%" }}>
-              {name}
-            </FancyText>
-          )}
-        </Stack>
+        {(logo || name) && (
+          <Stack direction="row" spacing={1} alignItems="center">
+            {logo && (
+              <Box
+                component="img"
+                src={logo}
+                alt="My Image"
+                sx={{
+                  width: 40,
+                  objectFit: "cover",
+                }}
+              />
+            )}
+            {name && (
+              <FancyText variant="h6" noWrap sx={{ width: "100%" }}>
+                {name}
+              </FancyText>
+            )}
+          </Stack>
+        )}
+        {actionLink && actionText && (
+          <Button
+            component={NavLink}
+            to={actionLink}
+            size="small"
+            variant="text"
+            startIcon={actionIcon}
+            sx={{ ml: 1 }}
+          >
+            {actionText}
+          </Button>
+        )}
         {!isMobile && (
           <IconButton onClick={onClose}>
             <ChevronLeftIcon />

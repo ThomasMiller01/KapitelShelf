@@ -33,7 +33,7 @@ import { NavLink } from "react-router-dom";
 import {
   setItemsTableParamsProps,
   SortingModel,
-} from "../hooks/url/useItemsTableParams";
+} from "../hooks/useItemsTableParams";
 import { useSetting } from "../hooks/useSetting";
 import { toTitleCase } from "../utils/TextUtils";
 import { IconButtonWithTooltip } from "./base/IconButtonWithTooltip";

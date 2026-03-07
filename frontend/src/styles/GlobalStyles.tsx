@@ -10,7 +10,7 @@ export const KapitelShelfGlobalStyles: React.FC = () => {
   );
 };
 
-const ScrollbarStyles = {
+export const ScrollbarStyles = {
   "*": {
     scrollbarWidth: "thin",
     scrollbarColor: "#b0b0b0 transparent",

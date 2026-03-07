@@ -25,7 +25,11 @@ function App(): ReactElement {
     <ApiProvider>
       <UserProfileProvider>
         <UserSettingsProvider>
-          <ThemeProvider theme={theme} noSsr>
+          <ThemeProvider
+            theme={theme}
+            noSsr
+            modeStorageKey="kapitelshelf.colorscheme"
+          >
             <CssBaseline />
             <KapitelShelfGlobalStyles />
             <NotificationProvider>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { BookDTO, FileInfoDTO } from "../lib/api/KapitelShelf.Api";
 import { BookFileUrl, UrlToFile } from "../utils/FileUtils";
 import { BookContent } from "../utils/bookReader/BookContent";
-import { ParseEpub } from "../utils/bookReader/epubReader";
+import { ParseEpub } from "../utils/bookReader/EpubReader";
 
 interface useReadBookResult {
   content: BookContent | undefined;

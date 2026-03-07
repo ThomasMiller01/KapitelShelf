@@ -78,6 +78,14 @@ export const ParseEpub = async (
     return undefined;
   }
 
+  const sections = await mapSections(parsed.sections);
+  const sectionIndexMap = new Map<string, number>();
+  for (const section of sections) {
+    if (section.href) {
+      sectionIndexMap.set(section.href.split("#")[0], section.index);
+    }
+  }
+
   const result: BookContent = {
     metadata: {
       title: parsed.metadata?.title,
@@ -85,23 +93,32 @@ export const ParseEpub = async (
       description: parsed.metadata?.description,
     },
     navigation: {
-      tableOfContents: mapTocItems(parsed.toc),
+      tableOfContents: mapTocItems(parsed.toc, sectionIndexMap),
       pageCount: undefined,
     },
-    sections: await mapSections(parsed.sections),
+    sections,
   };
 
   return result;
 };
 
-const mapTocItems = (toc: FoliateTocItem[] | undefined): BookTocItem[] => {
+const mapTocItems = (
+  toc: FoliateTocItem[] | undefined,
+  sectionIndexMap: Map<string, number>,
+): BookTocItem[] => {
   return (toc ?? []).map((item: FoliateTocItem, index: number): BookTocItem => {
+    const hrefWithoutHash = item.href?.split("#")[0];
+    const sectionIndex =
+      hrefWithoutHash !== undefined
+        ? sectionIndexMap.get(hrefWithoutHash)
+        : undefined;
+
     return {
       id: `${index}-${item.href ?? item.label ?? "toc"}`,
       label: item.label ?? "Untitled",
       href: item.href,
-      sectionIndex: undefined,
-      children: mapTocItems(item.subitems),
+      sectionIndex,
+      children: mapTocItems(item.subitems, sectionIndexMap),
     };
   });
 };

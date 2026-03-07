@@ -1,5 +1,6 @@
 import { Stack, Typography } from "@mui/material";
 import { ResponsiveDrawerAppBar } from "../../../components/base/ResponsiveDrawer";
+import { useMobile } from "../../../hooks/useMobile";
 import { BookContent } from "../../../utils/bookReader/BookContent";
 
 interface ToolbarProps {
@@ -13,14 +14,26 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   sidebarOpen,
   openSidebar,
 }) => {
+  const { isMobile } = useMobile();
+
   return (
     <ResponsiveDrawerAppBar open={sidebarOpen} toggle={openSidebar}>
       <Stack
         direction={{ sm: "column", md: "row" }}
         spacing={1}
         alignItems="baseline"
+        width="100%"
       >
-        <Typography variant="h6" noWrap component="div">
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          overflow="hidden"
+          textOverflow="ellipsis"
+          pr={isMobile ? 5 : 4}
+          width="100%"
+          color="textPrimary"
+        >
           {content.metadata.title}
         </Typography>
         <Typography

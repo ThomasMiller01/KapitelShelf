@@ -5,7 +5,7 @@ import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
 import { ManageItemsTable } from "../../components/ManageItemsTable";
-import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
+import { useItemsTableParams } from "../../hooks/useItemsTableParams";
 import { CategoryDTO } from "../../lib/api/KapitelShelf.Api";
 import { useCategoriesListQuery } from "../../lib/requests/categories/useCategoriesListQuery";
 import { useDeleteCategoriesBulk } from "../../lib/requests/categories/useDeleteCategoriesBulk";
