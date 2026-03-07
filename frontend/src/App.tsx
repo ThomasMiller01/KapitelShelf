@@ -13,6 +13,7 @@ import { UserProfileProvider } from "./contexts/UserProfileContext";
 import { UserSettingsProvider } from "./contexts/UserSettingsContext";
 import { InitializeMobile } from "./InitializeMobile";
 import AppRoutes from "./routes/routes";
+import { KapitelShelfGlobalStyles } from "./styles/GlobalStyles";
 import { theme } from "./styles/Theme";
 
 function App(): ReactElement {
@@ -26,6 +27,7 @@ function App(): ReactElement {
         <UserSettingsProvider>
           <ThemeProvider theme={theme} noSsr>
             <CssBaseline />
+            <KapitelShelfGlobalStyles />
             <NotificationProvider>
               <BrowserRouter>
                 <ApiNotificationListener />
