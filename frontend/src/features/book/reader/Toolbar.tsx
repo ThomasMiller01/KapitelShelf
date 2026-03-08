@@ -1,4 +1,5 @@
 import { Stack, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { ResponsiveDrawerAppBar } from "../../../components/base/ResponsiveDrawer";
 import { useMobile } from "../../../hooks/useMobile";
 import { BookContent } from "../../../utils/bookReader/BookContent";
@@ -15,6 +16,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   openSidebar,
 }) => {
   const { isMobile } = useMobile();
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    setVisible(true);
+    const timer = setTimeout(() => setVisible(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <ResponsiveDrawerAppBar open={sidebarOpen} toggle={openSidebar}>
@@ -23,6 +31,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         spacing={1}
         alignItems="baseline"
         width="100%"
+        sx={{
+          opacity: isMobile && !visible ? 0 : 1,
+          transition: "opacity 0.5s ease",
+        }}
       >
         <Typography
           variant="h6"

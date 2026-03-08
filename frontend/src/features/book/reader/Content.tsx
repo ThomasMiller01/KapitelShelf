@@ -167,6 +167,7 @@ const PaginationButton: React.FC<PaginationButtonProps> = ({
         borderTopRightRadius: direction === "prev" ? "10px" : "50px",
         borderBottomRightRadius: direction === "prev" ? "10px" : "50px",
         width: "100px",
+        height: "100%",
         "&:hover": {
           backgroundColor: "transparent",
         },
@@ -175,7 +176,6 @@ const PaginationButton: React.FC<PaginationButtonProps> = ({
           left: direction === "prev" ? 5 : "auto",
           right: direction === "next" ? 5 : "auto",
           zIndex: 1,
-          height: "100%",
         }),
       }}
     >
