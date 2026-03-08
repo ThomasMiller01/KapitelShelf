@@ -20,6 +20,7 @@ export const ThemeSelector: React.FC = (): React.ReactElement => {
           const selected = colorScheme === option;
           return (
             <Box
+              key={option}
               onClick={() => setColorScheme(option)}
               sx={(theme) => ({
                 position: "relative",

@@ -147,6 +147,7 @@ export const Content: React.FC<ContentProps> = ({
         </Typography>
         <ContentSection
           section={content.sections[currentSection]}
+          sectionIndex={currentSection}
           currentPage={currentPage}
           onTotalPagesChange={handleTotalPagesChange}
         />
