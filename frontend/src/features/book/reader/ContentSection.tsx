@@ -46,6 +46,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         aspectRatio: isMobile ? "none" : "2 / 3",
         maxWidth: "100%",
         maxHeight: "100%",
+        height: "100%",
         overflow: "hidden",
         background: theme.palette.background.paper,
         borderRadius: 1,
