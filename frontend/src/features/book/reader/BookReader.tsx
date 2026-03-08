@@ -38,12 +38,8 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
   const { content, isLoading, error } = useReadBook(book);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const {
-    section,
-    next: nextSection,
-    prev: prevSection,
-    set: setSection,
-  } = useReadBookPagination();
+  const { section, page, nextSection, prevSection, setSection, setPage } =
+    useReadBookPagination();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -93,6 +89,8 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
         <Content
           content={content}
           currentSection={section}
+          currentPage={page}
+          setCurrentPage={setPage}
           nextSection={nextSection}
           prevSection={prevSection}
         />

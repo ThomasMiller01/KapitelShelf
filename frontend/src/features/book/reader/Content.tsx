@@ -11,6 +11,8 @@ import { useBookPageProgress } from "./useBookPageProgress";
 interface ContentProps {
   content: BookContent;
   currentSection: number;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
   nextSection: () => void;
   prevSection: () => void;
 }
@@ -18,11 +20,12 @@ interface ContentProps {
 export const Content: React.FC<ContentProps> = ({
   content,
   currentSection,
+  currentPage,
+  setCurrentPage,
   nextSection,
   prevSection,
 }) => {
   const { isMobile } = useMobile();
-  const [currentPage, setCurrentPage] = useState(0);
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   );
@@ -40,14 +43,18 @@ export const Content: React.FC<ContentProps> = ({
   }, []);
   const [totalPages, setTotalPages] = useState(1);
   const navigatedBackRef = useRef(false);
+  const isInitialMountRef = useRef(true);
 
   useEffect(() => {
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      return; // Preserve page from URL on initial load
+    }
+
     if (navigatedBackRef.current) {
       navigatedBackRef.current = false;
       return; // handleTotalPagesChange already set the correct last page
     }
-
-    setCurrentPage(0);
   }, [currentSection]);
 
   const {
@@ -72,7 +79,7 @@ export const Content: React.FC<ContentProps> = ({
 
   const handleNext = () => {
     if (currentPage < totalPages - 1) {
-      setCurrentPage((p) => p + 1);
+      setCurrentPage(currentPage + 1);
     } else {
       nextSection();
     }
@@ -80,7 +87,7 @@ export const Content: React.FC<ContentProps> = ({
 
   const handlePrev = () => {
     if (currentPage > 0) {
-      setCurrentPage((p) => p - 1);
+      setCurrentPage(currentPage - 1);
     } else {
       navigatedBackRef.current = true;
       prevSection();
