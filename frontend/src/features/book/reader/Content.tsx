@@ -1,11 +1,12 @@
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { IconButton, Stack } from "@mui/material";
+import { IconButton, Stack, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
 import { useMobile } from "../../../hooks/useMobile";
 import { BookContent } from "../../../utils/bookReader/BookContent";
 import { ContentSection } from "./ContentSection";
+import { useBookPageProgress } from "./useBookPageProgress";
 
 interface ContentProps {
   content: BookContent;
@@ -34,14 +35,25 @@ export const Content: React.FC<ContentProps> = ({
     setCurrentPage(0);
   }, [currentSection]);
 
-  const handleTotalPagesChange = useCallback((total: number) => {
-    setTotalPages(total);
+  const {
+    absoluteCurrentPage,
+    absoluteTotalPages,
+    progressPercent,
+    onTotalPagesChange: onPageProgressChange,
+  } = useBookPageProgress(content, currentSection, currentPage, totalPages);
 
-    if (navigatedBackRef.current) {
-      // Don't clear the flag here, let useEffect do it after layout effects settle
-      setCurrentPage(total - 1);
-    }
-  }, []);
+  const handleTotalPagesChange = useCallback(
+    (total: number) => {
+      setTotalPages(total);
+      onPageProgressChange(total);
+
+      if (navigatedBackRef.current) {
+        // Don't clear the flag here, let useEffect do it after layout effects settle
+        setCurrentPage(total - 1);
+      }
+    },
+    [onPageProgressChange],
+  );
 
   const handleNext = () => {
     if (currentPage < totalPages - 1) {
@@ -86,11 +98,36 @@ export const Content: React.FC<ContentProps> = ({
         disabled={currentPage === 0 && currentSection === 0}
         direction="prev"
       />
-      <ContentSection
-        section={content.sections[currentSection]}
-        currentPage={currentPage}
-        onTotalPagesChange={handleTotalPagesChange}
-      />
+      <Stack
+        direction="column"
+        alignItems="center"
+        height="100%"
+        width={{ xs: "100%", sm: "auto" }}
+        justifyContent="center"
+        spacing={1}
+      >
+        <ContentSection
+          section={content.sections[currentSection]}
+          currentPage={currentPage}
+          onTotalPagesChange={handleTotalPagesChange}
+        />
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="space-between"
+          width="100%"
+          px={isMobile ? 1 : 2}
+        >
+          <Stack>
+            <Typography variant="caption" color="text.disabled">
+              Page {absoluteCurrentPage} of {absoluteTotalPages}
+            </Typography>
+          </Stack>
+          <Typography variant="caption" color="text.disabled">
+            {progressPercent}%
+          </Typography>
+        </Stack>
+      </Stack>
       <PaginationButton
         onClick={handleNext}
         disabled={

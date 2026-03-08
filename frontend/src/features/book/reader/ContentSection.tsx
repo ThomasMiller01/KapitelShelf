@@ -43,9 +43,9 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     <Box
       ref={containerRef}
       sx={{
-        aspectRatio: "2 / 3",
-        height: "100%",
+        aspectRatio: isMobile ? "none" : "2 / 3",
         maxWidth: "100%",
+        maxHeight: "100%",
         overflow: "hidden",
         background: theme.palette.background.paper,
         borderRadius: 1,
@@ -84,7 +84,7 @@ const ContentStyles = (theme: Theme): any => {
     },
 
     "& p": {
-      margin: "0 0 1em 0 !important",
+      margin: "0 0 0.8em 0 !important",
       color: `${theme.palette.text.primary} !important`,
       fontFamily: `${theme.typography.fontFamily} !important`,
     },
