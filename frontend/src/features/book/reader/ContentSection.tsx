@@ -109,7 +109,7 @@ const ContentStyles = (theme: Theme): any => {
     },
 
     "& a": {
-      color: theme.palette.primary.main,
+      color: `${theme.palette.primary.main} !important`,
       textDecoration: "underline",
       textDecorationColor: theme.palette.primary.main,
       "&:hover": {

@@ -1,9 +1,9 @@
 import TuneIcon from "@mui/icons-material/Tune";
 import { Box, styled, SwipeableDrawer } from "@mui/material";
 import { useState } from "react";
-import { IconButtonWithTooltip } from "../../../components/base/IconButtonWithTooltip";
 
-const drawerBleeding = 56;
+import { IconButtonWithTooltip } from "../../../components/base/IconButtonWithTooltip";
+import { ThemeSelector } from "./settings/ThemeSelector";
 
 const Puller = styled("div")(({ theme }) => ({
   width: 30,
@@ -37,7 +37,9 @@ export const Settings: React.FC = () => {
         }}
       >
         <Puller />
-        <Box sx={{ p: 2, pb: 2, height: "100%", overflow: "auto" }}>TODO</Box>
+        <Box sx={{ p: 2, pb: 2, height: "100%", overflow: "auto" }}>
+          <ThemeSelector />
+        </Box>
       </SwipeableDrawer>
     </>
   );

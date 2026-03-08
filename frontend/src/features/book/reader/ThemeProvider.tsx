@@ -23,7 +23,7 @@ const ReaderColorSchemeContext = createContext<ReaderColorSchemeContextValue>({
 export const useReaderColorScheme = (): ReaderColorSchemeContextValue =>
   useContext(ReaderColorSchemeContext);
 
-const themeForScheme = {
+export const themeForScheme = {
   light: createReaderTheme("light"),
   dark: createReaderTheme("dark"),
   sepia: createReaderTheme("sepia"),

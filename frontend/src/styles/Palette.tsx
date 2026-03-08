@@ -51,8 +51,8 @@ export const PaletteSepia: PaletteOptions = {
     main: "#A08060",
   },
   background: {
-    default: "#EDE4CC",
-    paper: "#F5EDD8",
+    default: "#CAAE84",
+    paper: "#E8CDA0",
   },
   text: {
     primary: "#3B2A1A",
