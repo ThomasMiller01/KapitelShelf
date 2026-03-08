@@ -75,8 +75,6 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
     );
   }
 
-  console.log(content);
-
   return (
     <>
       <Toolbar

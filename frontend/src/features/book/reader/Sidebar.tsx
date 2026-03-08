@@ -19,8 +19,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   content,
   sidebarOpen,
   closeSidebar,
-  onTocItemSelect,
+  onTocItemSelect: onTocItemSelectBase,
 }) => {
+  const onTocItemSelect = (item: BookTocItem) => {
+    closeSidebar();
+    onTocItemSelectBase?.(item);
+  };
+
   return (
     <ResponsiveDrawer
       open={sidebarOpen}

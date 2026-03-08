@@ -76,8 +76,10 @@ export const Content: React.FC<ContentProps> = ({
       height="100%"
       maxWidth="100%"
       justifyContent="center"
+      alignItems="center"
       direction="row"
-      spacing={2}
+      spacing={{ sm: 0, md: 2 }}
+      position="relative"
     >
       <PaginationButton
         onClick={handlePrev}
@@ -131,8 +133,11 @@ const PaginationButton: React.FC<PaginationButtonProps> = ({
           backgroundColor: "transparent",
         },
         ...(isMobile && {
-          transform:
-            direction === "prev" ? "translateX(110px)" : "translateX(-110px)",
+          position: "absolute",
+          left: direction === "prev" ? 5 : "auto",
+          right: direction === "next" ? 5 : "auto",
+          zIndex: 1,
+          height: "100%",
         }),
       }}
     >
