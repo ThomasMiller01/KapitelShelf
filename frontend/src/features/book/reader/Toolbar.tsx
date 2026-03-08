@@ -1,8 +1,10 @@
 import { Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
+
 import { ResponsiveDrawerAppBar } from "../../../components/base/ResponsiveDrawer";
 import { useMobile } from "../../../hooks/useMobile";
-import { BookContent } from "../../../utils/bookReader/BookContent";
+import type { BookContent } from "../../../utils/bookReader/BookContent";
+import { Settings } from "./Settings";
 
 interface ToolbarProps {
   content: BookContent;
@@ -26,37 +28,40 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   return (
     <ResponsiveDrawerAppBar open={sidebarOpen} toggle={openSidebar}>
-      <Stack
-        direction={{ sm: "column", md: "row" }}
-        spacing={1}
-        alignItems="baseline"
-        width="100%"
-        sx={{
-          opacity: isMobile && !visible ? 0 : 1,
-          transition: "opacity 0.5s ease",
-        }}
-      >
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
+      <Stack direction="row" alignItems="center" flex={1} minWidth={0}>
+        <Stack
+          direction={{ sm: "column", md: "row" }}
+          spacing={1}
+          alignItems={{ sm: "stretch", md: "baseline" }}
+          flex={1}
+          minWidth={0}
           overflow="hidden"
-          textOverflow="ellipsis"
-          pr={isMobile ? 5 : 4}
-          width="100%"
-          color="textPrimary"
-          textAlign="left"
+          sx={{
+            opacity: isMobile && !visible ? 0 : 1,
+            transition: "opacity 0.5s ease",
+          }}
         >
-          {content.metadata.title}
-        </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          noWrap
-          component="div"
-        >
-          {content.metadata.subtitle}
-        </Typography>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            pr={isMobile ? 0 : 1}
+            minWidth={0}
+            color="textPrimary"
+            textAlign="left"
+          >
+            {content.metadata.title}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            noWrap
+            component="div"
+          >
+            {content.metadata.subtitle}
+          </Typography>
+        </Stack>
+        <Settings />
       </Stack>
     </ResponsiveDrawerAppBar>
   );
