@@ -180,10 +180,10 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
           sx={{
             px: isMobile ? 1.5 : 3,
             height: "100%",
-            ...ContentStyles(theme),
           }}
-          dangerouslySetInnerHTML={{ __html: targetSection.content || "" }}
-        />
+        >
+          <ShadowBookContent html={targetSection.content || ""} theme={theme} />
+        </Box>
       </Box>
     </Box>
   );
@@ -272,94 +272,117 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   );
 };
 
-const ContentStyles = (theme: Theme): any => ({
-  "&": {
-    color: `${theme.palette.text.primary} !important`,
-    background: "transparent",
-    fontFamily: theme.typography.fontFamily,
-    fontSize: "1rem",
-    lineHeight: 1.7,
-    wordBreak: "break-word",
-    overflowWrap: "break-word",
-  },
+interface ShadowBookContentProps {
+  html: string;
+  theme: Theme;
+}
 
-  // Override any EPUB-authored forced page/column breaks that cause empty pages
-  "& *": {
-    breakAfter: "auto !important",
-    breakBefore: "auto !important",
-    pageBreakAfter: "auto !important",
-    pageBreakBefore: "auto !important",
-    breakInside: "auto !important",
-    pageBreakInside: "auto !important",
-  },
+const ShadowBookContent: React.FC<ShadowBookContentProps> = ({
+  html,
+  theme,
+}) => {
+  const hostRef = useRef<HTMLDivElement>(null);
 
-  "& p": {
-    margin: "0 0 0.5em 0 !important",
-    color: `${theme.palette.text.primary} !important`,
-    fontFamily: `${theme.typography.fontFamily} !important`,
-    textAlign: "justify",
-    textAlignLast: "left",
-  },
+  useLayoutEffect(() => {
+    const host = hostRef.current;
+    if (!host) {
+      return;
+    }
 
-  "& a": {
-    color: `${theme.palette.primary.main} !important`,
-    textDecoration: "underline",
-    textDecorationColor: theme.palette.primary.main,
-    "&:hover": {
-      color: theme.palette.primary.dark,
-      textDecorationColor: theme.palette.primary.dark,
-    },
-    "&:visited": {
-      color: theme.palette.primary.main,
-    },
-  },
+    const shadowRoot = host.shadowRoot ?? host.attachShadow({ mode: "open" });
+    shadowRoot.innerHTML = `<style>${ContentStyles(theme)}</style>${html}`;
+  }, [html, theme]);
 
-  "& img": {
-    maxWidth: "100%",
-    height: "auto",
-    display: "block",
-  },
+  return <Box ref={hostRef} sx={{ height: "100%" }} />;
+};
 
-  "& blockquote": {
-    borderLeft: `4px solid ${theme.palette.divider}`,
-    paddingLeft: "1em",
-    marginLeft: 0,
-    color: theme.palette.text.secondary,
-    fontStyle: "italic",
-  },
+const ContentStyles = (theme: Theme): string => `
+:host {
+  color: ${theme.palette.text.primary} !important;
+  background: transparent;
+  font-family: ${theme.typography.fontFamily};
+  font-size: 1rem;
+  line-height: 1.7;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  display: block;
+  height: 100%;
+}
 
-  "& ul": {
-    paddingLeft: "1.6em",
-    marginBottom: "1em",
-  },
+:host * {
+  break-after: auto !important;
+  break-before: auto !important;
+  page-break-after: auto !important;
+  page-break-before: auto !important;
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+}
 
-  "& ol": {
-    paddingLeft: "1.6em",
-    marginBottom: "1em",
-  },
+:host p {
+  margin: 0 0 0.5em 0 !important;
+  color: ${theme.palette.text.primary} !important;
+  font-family: ${theme.typography.fontFamily} !important;
+  text-align: justify;
+  text-align-last: left;
+}
 
-  "& li": {
-    marginBottom: "0.4em",
-  },
+:host a {
+  color: ${theme.palette.primary.main} !important;
+  text-decoration: underline;
+  text-decoration-color: ${theme.palette.primary.main};
+}
 
-  "& pre": {
-    overflowX: "auto",
-    padding: "12px",
-    borderRadius: "6px",
-    background: theme.palette.background.paper,
-    fontFamily: "monospace",
-  },
+:host a:hover {
+  color: ${theme.palette.primary.dark};
+  text-decoration-color: ${theme.palette.primary.dark};
+}
 
-  "& code": {
-    fontFamily: "monospace",
-    background: theme.palette.action.hover,
-    padding: "2px 4px",
-    borderRadius: "4px",
-  },
+:host a:visited {
+  color: ${theme.palette.primary.main};
+}
 
-  "& hr": {
-    border: "none",
-    borderTop: `1px solid ${theme.palette.divider}`,
-    margin: "2em 0",
-  },
-});
+:host img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+:host blockquote {
+  border-left: 4px solid ${theme.palette.divider};
+  padding-left: 1em;
+  margin-left: 0;
+  color: ${theme.palette.text.secondary};
+  font-style: italic;
+}
+
+:host ul,
+:host ol {
+  padding-left: 1.6em;
+  margin-bottom: 1em;
+}
+
+:host li {
+  margin-bottom: 0.4em;
+}
+
+:host pre {
+  overflow-x: auto;
+  padding: 12px;
+  border-radius: 6px;
+  background: ${theme.palette.background.paper};
+  font-family: monospace;
+}
+
+:host code {
+  font-family: monospace;
+  background: ${theme.palette.action.hover};
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+:host hr {
+  border: none;
+  border-top: 1px solid ${theme.palette.divider};
+  margin: 2em 0;
+}
+`;
