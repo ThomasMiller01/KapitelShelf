@@ -1,41 +1,70 @@
 import { Box, Theme, useTheme } from "@mui/material";
-import React from "react";
-import { ScrollbarStyles } from "../../../styles/GlobalStyles";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { BookSection } from "../../../utils/bookReader/BookContent";
 
 interface ContentSectionProps {
   section: BookSection;
-  page?: number;
+  currentPage: number;
+  onTotalPagesChange: (total: number) => void;
 }
 
-export const ContentSection: React.FC<ContentSectionProps> = ({ section }) => {
-  const theme = useTheme();
-  console.log(section);
-  return (
-    <ContentSectionWrapper>
-      <Box
-        sx={{
-          p: 3,
-          height: "100%",
-          overflowY: "auto",
-          ...ContentStyles(theme),
-        }}
-        dangerouslySetInnerHTML={{ __html: section.content || "" }}
-      />
-    </ContentSectionWrapper>
-  );
-};
-
-interface ContentSectionWrapperProps {
-  children: React.ReactNode | React.ReactNode[];
-}
-
-const ContentSectionWrapper: React.FC<ContentSectionWrapperProps> = ({
-  children,
+export const ContentSection: React.FC<ContentSectionProps> = ({
+  section,
+  currentPage,
+  onTotalPagesChange,
 }) => {
+  const theme = useTheme();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+
+    const measure = () => {
+      const width = content.offsetWidth;
+      setContainerWidth(width);
+      const pages = width > 0 ? Math.ceil(content.scrollWidth / width) : 1;
+      onTotalPagesChange(Math.max(1, pages));
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [section, onTotalPagesChange]);
+
   return (
-    <Box sx={{ aspectRatio: "2 / 3", height: "100%", maxWidth: "100%" }}>
-      {children}
+    <Box
+      ref={containerRef}
+      sx={{
+        aspectRatio: "2 / 3",
+        height: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+        background: theme.palette.background.paper,
+        borderRadius: 1,
+        py: 3,
+      }}
+    >
+      <Box
+        ref={contentRef}
+        sx={{
+          height: "100%",
+          columns: "1",
+          columnFill: "auto",
+          columnGap: 0,
+          transform: `translateX(${-(currentPage * containerWidth)}px)`,
+        }}
+      >
+        <Box
+          sx={{ px: 3, height: "100%", ...ContentStyles(theme) }}
+          dangerouslySetInnerHTML={{ __html: section.content || "" }}
+        />
+      </Box>
     </Box>
   );
 };
@@ -43,7 +72,6 @@ const ContentSectionWrapper: React.FC<ContentSectionWrapperProps> = ({
 const ContentStyles = (theme: Theme): any => {
   return {
     "&": {
-      margin: "0 auto",
       color: `${theme.palette.text.primary} !important`,
       background: "transparent",
       fontFamily: theme.typography.fontFamily,
@@ -51,47 +79,31 @@ const ContentStyles = (theme: Theme): any => {
       lineHeight: 1.7,
       wordBreak: "break-word",
       overflowWrap: "break-word",
-      hyphens: "auto",
     },
 
     "& p": {
-      margin: "0 0 1.1em 0 !important",
-    },
-
-    "& h1, & h2, & h3, & h4, & h5, & h6": {
-      color: theme.palette.text.primary,
-      fontWeight: 600,
-      lineHeight: 1.3,
-      marginTop: "1.8em",
-      marginBottom: "0.6em",
-    },
-
-    "& h1": {
-      fontSize: "1.8rem",
-    },
-
-    "& h2": {
-      fontSize: "1.5rem",
-    },
-
-    "& h3": {
-      fontSize: "1.3rem",
-    },
-
-    "& a, & a:visited": {
-      color: `${theme.palette.primary.main} !important`,
-      textDecoration: "none",
+      margin: "0 0 1em 0 !important",
+      color: `${theme.palette.text.primary} !important`,
+      fontFamily: `${theme.typography.fontFamily} !important`,
     },
 
     "& a": {
-      borderBottom: `1px solid ${theme.palette.primary.main}33`,
+      color: theme.palette.primary.main,
+      textDecoration: "underline",
+      textDecorationColor: theme.palette.primary.main,
+      "&:hover": {
+        color: theme.palette.primary.dark,
+        textDecorationColor: theme.palette.primary.dark,
+      },
+      "&:visited": {
+        color: theme.palette.primary.main,
+      },
     },
 
     "& img": {
       maxWidth: "100%",
       height: "auto",
       display: "block",
-      margin: "1.2em auto",
     },
 
     "& blockquote": {
@@ -136,7 +148,5 @@ const ContentStyles = (theme: Theme): any => {
       borderTop: `1px solid ${theme.palette.divider}`,
       margin: "2em 0",
     },
-
-    ...ScrollbarStyles,
   };
 };

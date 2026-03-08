@@ -33,6 +33,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           pr={isMobile ? 5 : 4}
           width="100%"
           color="textPrimary"
+          textAlign="left"
         >
           {content.metadata.title}
         </Typography>
