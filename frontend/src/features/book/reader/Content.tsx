@@ -23,6 +23,21 @@ export const Content: React.FC<ContentProps> = ({
 }) => {
   const { isMobile } = useMobile();
   const [currentPage, setCurrentPage] = useState(0);
+  const [currentTime, setCurrentTime] = useState(() =>
+    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(
+        new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      );
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
   const [totalPages, setTotalPages] = useState(1);
   const navigatedBackRef = useRef(false);
 
@@ -116,6 +131,14 @@ export const Content: React.FC<ContentProps> = ({
         justifyContent="center"
         spacing={1}
       >
+        <Typography
+          variant="caption"
+          color="text.disabled"
+          alignSelf="flex-start"
+          px={isMobile ? 1 : 2.5}
+        >
+          {currentTime}
+        </Typography>
         <ContentSection
           section={content.sections[currentSection]}
           currentPage={currentPage}

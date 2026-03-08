@@ -52,6 +52,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         background: theme.palette.background.paper,
         borderRadius: 1,
         py: isMobile ? 1 : 2,
+        mt: "5px !important",
       }}
     >
       <Box
@@ -100,7 +101,7 @@ const ContentStyles = (theme: Theme): any => {
     },
 
     "& p": {
-      margin: "0 0 0.8em 0 !important",
+      margin: "0 0 0.5em 0 !important",
       color: `${theme.palette.text.primary} !important`,
       fontFamily: `${theme.typography.fontFamily} !important`,
       textAlign: "justify",
