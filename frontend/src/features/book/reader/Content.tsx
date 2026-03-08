@@ -200,6 +200,7 @@ const PaginationButton: React.FC<PaginationButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       size="large"
+      disableRipple
       sx={{
         borderTopLeftRadius: direction === "prev" ? "50px" : "10px",
         borderBottomLeftRadius: direction === "prev" ? "50px" : "10px",
