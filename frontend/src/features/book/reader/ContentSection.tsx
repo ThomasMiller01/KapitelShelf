@@ -26,9 +26,10 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     if (!container || !content) return;
 
     const measure = () => {
-      const width = content.offsetWidth;
+      const width = content.getBoundingClientRect().width;
       setContainerWidth(width);
-      const pages = width > 0 ? Math.ceil(content.scrollWidth / width) : 1;
+      const pages =
+        width > 0 ? Math.ceil(content.scrollWidth / width - 0.01) : 1;
       onTotalPagesChange(Math.max(1, pages));
     };
 
@@ -86,6 +87,16 @@ const ContentStyles = (theme: Theme): any => {
       lineHeight: 1.7,
       wordBreak: "break-word",
       overflowWrap: "break-word",
+    },
+
+    // Override any EPUB-authored forced page/column breaks that cause empty pages
+    "& *": {
+      breakAfter: "auto !important",
+      breakBefore: "auto !important",
+      pageBreakAfter: "auto !important",
+      pageBreakBefore: "auto !important",
+      breakInside: "auto !important",
+      pageBreakInside: "auto !important",
     },
 
     "& p": {
