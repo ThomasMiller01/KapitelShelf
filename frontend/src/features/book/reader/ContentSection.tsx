@@ -1,5 +1,6 @@
 import { Box, Theme, useTheme } from "@mui/material";
 import React, { useLayoutEffect, useRef, useState } from "react";
+import { useMobile } from "../../../hooks/useMobile";
 import { BookSection } from "../../../utils/bookReader/BookContent";
 
 interface ContentSectionProps {
@@ -17,6 +18,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const { isMobile } = useMobile();
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -47,7 +49,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         overflow: "hidden",
         background: theme.palette.background.paper,
         borderRadius: 1,
-        py: 3,
+        py: isMobile ? 1 : 2,
       }}
     >
       <Box
@@ -61,7 +63,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         }}
       >
         <Box
-          sx={{ px: 3, height: "100%", ...ContentStyles(theme) }}
+          sx={{ px: isMobile ? 2 : 3, height: "100%", ...ContentStyles(theme) }}
           dangerouslySetInnerHTML={{ __html: section.content || "" }}
         />
       </Box>
