@@ -10,6 +10,7 @@ import { useMobile } from "../../../hooks/useMobile";
 import { useReadBook } from "../../../hooks/useReadBook";
 import { useReadBookPagination } from "../../../hooks/useReadBookPagination";
 import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
+import { IsMobileApp } from "../../../utils/MobileUtils";
 import { Content } from "./Content";
 import { Sidebar } from "./Sidebar";
 import { Toolbar } from "./Toolbar";
@@ -20,7 +21,9 @@ const ContentWrapper = styled("div", {
   flexGrow: 1,
   minWidth: 0,
   width: "100%",
-  height: `calc(100vh - ${isMobile ? theme.spacing(7) : theme.spacing(8)})`,
+  height: `calc(100vh - ${isMobile ? theme.spacing(7) : theme.spacing(8)} - ${
+    IsMobileApp() ? "40px" : "0px"
+  })`,
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -95,6 +98,17 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
           prevSection={prevSection}
         />
       </ContentWrapper>
+
+      {/* Bottom padding for mobile */}
+      {IsMobileApp() && (
+        <Box
+          height="10px"
+          width="100%"
+          bgcolor="background.paper"
+          position="absolute"
+          bottom={0}
+        />
+      )}
     </>
   );
 };

@@ -115,7 +115,8 @@ export const Content: React.FC<ContentProps> = ({
   return (
     <Stack
       px={isMobile ? 1.5 : 4}
-      py={isMobile ? 2 : 4}
+      pt={isMobile ? 2.5 : 4}
+      pb={isMobile ? 1.5 : 4}
       height="100%"
       maxWidth="100%"
       justifyContent="center"

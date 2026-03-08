@@ -3,6 +3,7 @@ import { Box, styled, SwipeableDrawer } from "@mui/material";
 import { useState } from "react";
 
 import { IconButtonWithTooltip } from "../../../components/base/IconButtonWithTooltip";
+import { IsMobileApp } from "../../../utils/MobileUtils";
 import { ThemeSelector } from "./settings/ThemeSelector";
 
 const Puller = styled("div")(({ theme }) => ({
@@ -40,6 +41,11 @@ export const Settings: React.FC = () => {
         <Box sx={{ p: 2, pb: 2, height: "100%", overflow: "auto" }}>
           <ThemeSelector />
         </Box>
+
+        {/* Bottom padding for mobile */}
+        {IsMobileApp() && (
+          <Box height="10px" width="100%" bgcolor="background.paper" />
+        )}
       </SwipeableDrawer>
     </>
   );
