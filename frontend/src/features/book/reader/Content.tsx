@@ -72,6 +72,15 @@ export const Content: React.FC<ContentProps> = ({
     }
   };
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") handleNext();
+      else if (e.key === "ArrowLeft") handlePrev();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
   if (currentSection < 0 || currentSection >= content.sections.length) {
     return (
       <RequestErrorCard
