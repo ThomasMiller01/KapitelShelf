@@ -90,7 +90,7 @@ export const Content: React.FC<ContentProps> = ({
       justifyContent="center"
       alignItems="center"
       direction="row"
-      spacing={{ sm: 0, md: 2 }}
+      spacing={{ sm: 0, md: 1 }}
       position="relative"
       bgcolor={isMobile ? "background.paper" : "background.default"}
     >
