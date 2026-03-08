@@ -4,7 +4,6 @@ import { Button, Link, Stack } from "@mui/material";
 import { type ReactElement } from "react";
 
 import { NavLink } from "react-router-dom";
-import { useNotImplemented } from "../../hooks/useNotImplemented";
 import type {
   LocationDTO,
   LocationTypeDTO,
@@ -40,7 +39,6 @@ const LocationDetails = ({
   bookId,
   location,
 }: LocationDetailsProps): ReactElement => {
-  const trigger = useNotImplemented();
   if (RealWorldTypes.includes(location.type ?? -1)) {
     return (
       <Stack direction="row" justifyContent="center" mt="15px">
