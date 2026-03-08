@@ -63,7 +63,11 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         }}
       >
         <Box
-          sx={{ px: isMobile ? 2 : 3, height: "100%", ...ContentStyles(theme) }}
+          sx={{
+            px: isMobile ? 1.5 : 3,
+            height: "100%",
+            ...ContentStyles(theme),
+          }}
           dangerouslySetInnerHTML={{ __html: section.content || "" }}
         />
       </Box>
@@ -87,6 +91,8 @@ const ContentStyles = (theme: Theme): any => {
       margin: "0 0 0.8em 0 !important",
       color: `${theme.palette.text.primary} !important`,
       fontFamily: `${theme.typography.fontFamily} !important`,
+      textAlign: "justify",
+      textAlignLast: "left",
     },
 
     "& a": {

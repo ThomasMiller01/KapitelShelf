@@ -92,6 +92,7 @@ export const Content: React.FC<ContentProps> = ({
       direction="row"
       spacing={{ sm: 0, md: 2 }}
       position="relative"
+      bgcolor={isMobile ? "background.paper" : "background.default"}
     >
       <PaginationButton
         onClick={handlePrev}
