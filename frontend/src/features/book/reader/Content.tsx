@@ -121,7 +121,6 @@ export const Content: React.FC<ContentProps> = ({
       justifyContent="center"
       alignItems="center"
       direction="row"
-      spacing={{ sm: 0, md: 1 }}
       position="relative"
       bgcolor={isMobile ? "background.paper" : "background.default"}
     >
@@ -206,7 +205,7 @@ const PaginationButton: React.FC<PaginationButtonProps> = ({
         borderBottomLeftRadius: direction === "prev" ? "50px" : "10px",
         borderTopRightRadius: direction === "prev" ? "10px" : "50px",
         borderBottomRightRadius: direction === "prev" ? "10px" : "50px",
-        width: "100px",
+        width: "150px",
         height: "100%",
         "&:hover": {
           backgroundColor: "transparent",
