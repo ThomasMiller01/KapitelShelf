@@ -9,6 +9,7 @@ interface ContentSectionProps {
   section: BookSection;
   sectionIndex: number;
   currentPage: number;
+  fontScale: number;
   onTotalPagesChange: (total: number) => void;
 }
 
@@ -27,6 +28,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   section,
   sectionIndex,
   currentPage,
+  fontScale,
   onTotalPagesChange,
 }) => {
   const theme = useTheme();
@@ -87,7 +89,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     const observer = new ResizeObserver(measure);
     observer.observe(container);
     return () => observer.disconnect();
-  }, [section, onTotalPagesChange]);
+  }, [fontScale, section, onTotalPagesChange]);
 
   // Keep outgoing section mounted while sliding between sections.
   useLayoutEffect(() => {
@@ -182,7 +184,11 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
             height: "100%",
           }}
         >
-          <ShadowBookContent html={targetSection.content || ""} theme={theme} />
+          <ShadowBookContent
+            html={targetSection.content || ""}
+            theme={theme}
+            fontScale={fontScale}
+          />
         </Box>
       </Box>
     </Box>
@@ -275,11 +281,13 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
 interface ShadowBookContentProps {
   html: string;
   theme: Theme;
+  fontScale: number;
 }
 
 const ShadowBookContent: React.FC<ShadowBookContentProps> = ({
   html,
   theme,
+  fontScale,
 }) => {
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -290,18 +298,18 @@ const ShadowBookContent: React.FC<ShadowBookContentProps> = ({
     }
 
     const shadowRoot = host.shadowRoot ?? host.attachShadow({ mode: "open" });
-    shadowRoot.innerHTML = `<style>${ContentStyles(theme)}</style>${html}`;
-  }, [html, theme]);
+    shadowRoot.innerHTML = `<style>${ContentStyles(theme, fontScale)}</style>${html}`;
+  }, [fontScale, html, theme]);
 
   return <Box ref={hostRef} sx={{ height: "100%" }} />;
 };
 
-const ContentStyles = (theme: Theme): string => `
+const ContentStyles = (theme: Theme, fontScale: number): string => `
 :host {
   color: ${theme.palette.text.primary} !important;
   background: transparent;
   font-family: ${theme.typography.fontFamily};
-  font-size: 1rem;
+  font-size: ${fontScale}rem;
   line-height: 1.7;
   word-break: break-word;
   overflow-wrap: break-word;

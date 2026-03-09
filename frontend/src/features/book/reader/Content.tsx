@@ -4,8 +4,9 @@ import { IconButton, Stack, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
 import { useMobile } from "../../../hooks/useMobile";
-import { BookContent } from "../../../utils/bookReader/BookContent";
+import type { BookContent } from "../../../utils/bookReader/BookContent";
 import { ContentSection } from "./ContentSection";
+import { useReaderColorScheme } from "./ThemeProvider";
 import { useBookPageProgress } from "./useBookPageProgress";
 
 interface ContentProps {
@@ -26,6 +27,7 @@ export const Content: React.FC<ContentProps> = ({
   prevSection,
 }) => {
   const { isMobile } = useMobile();
+  const { fontScale } = useReaderColorScheme();
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   );
@@ -72,9 +74,11 @@ export const Content: React.FC<ContentProps> = ({
       if (navigatedBackRef.current) {
         // Don't clear the flag here, let useEffect do it after layout effects settle
         setCurrentPage(total - 1);
+      } else if (currentPage > total - 1) {
+        setCurrentPage(total - 1);
       }
     },
-    [onPageProgressChange],
+    [currentPage, onPageProgressChange, setCurrentPage],
   );
 
   const handleNext = () => {
@@ -96,8 +100,11 @@ export const Content: React.FC<ContentProps> = ({
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") handleNext();
-      else if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "ArrowRight") {
+        handleNext();
+      } else if (e.key === "ArrowLeft") {
+        handlePrev();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -143,6 +150,7 @@ export const Content: React.FC<ContentProps> = ({
           color="text.disabled"
           alignSelf="flex-start"
           px={isMobile ? 1 : 2.5}
+          sx={{ fontSize: `${0.75 * fontScale}rem` }}
         >
           {currentTime}
         </Typography>
@@ -150,6 +158,7 @@ export const Content: React.FC<ContentProps> = ({
           section={content.sections[currentSection]}
           sectionIndex={currentSection}
           currentPage={currentPage}
+          fontScale={fontScale}
           onTotalPagesChange={handleTotalPagesChange}
         />
         <Stack
@@ -160,11 +169,19 @@ export const Content: React.FC<ContentProps> = ({
           px={isMobile ? 1 : 2}
         >
           <Stack>
-            <Typography variant="caption" color="text.disabled">
+            <Typography
+              variant="caption"
+              color="text.disabled"
+              sx={{ fontSize: `${0.75 * fontScale}rem` }}
+            >
               Page {absoluteCurrentPage} of {absoluteTotalPages}
             </Typography>
           </Stack>
-          <Typography variant="caption" color="text.disabled">
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            sx={{ fontSize: `${0.75 * fontScale}rem` }}
+          >
             {progressPercent}%
           </Typography>
         </Stack>

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { IconButtonWithTooltip } from "../../../components/base/IconButtonWithTooltip";
 import { IsMobileApp } from "../../../utils/MobileUtils";
+import { FontSizeSelector } from "./settings/FontSizeSelector";
 import { ThemeSelector } from "./settings/ThemeSelector";
 
 const Puller = styled("div")(({ theme }) => ({
@@ -40,6 +41,7 @@ export const Settings: React.FC = () => {
         <Puller />
         <Box sx={{ p: 2, pb: 2, height: "100%", overflow: "auto" }}>
           <ThemeSelector />
+          <FontSizeSelector />
         </Box>
 
         {/* Bottom padding for mobile */}
