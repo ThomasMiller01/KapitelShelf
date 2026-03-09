@@ -15,7 +15,7 @@ export const FontSizeSelector: React.FC = (): React.ReactElement => {
   const { fontScale, setFontScale } = useReaderColorScheme();
 
   return (
-    <Stack spacing={1.5} mt={3}>
+    <Stack spacing={1.5}>
       <Typography variant="caption" color="text.secondary" fontSize="1rem">
         Font Size
       </Typography>
