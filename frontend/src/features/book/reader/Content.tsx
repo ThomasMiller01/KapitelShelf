@@ -168,15 +168,13 @@ export const Content: React.FC<ContentProps> = ({
           width="100%"
           px={isMobile ? 1 : 2}
         >
-          <Stack>
-            <Typography
-              variant="caption"
-              color="text.disabled"
-              sx={{ fontSize: `${0.75 * fontScale}rem` }}
-            >
-              Page {absoluteCurrentPage} of {absoluteTotalPages}
-            </Typography>
-          </Stack>
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            sx={{ fontSize: `${0.75 * fontScale}rem` }}
+          >
+            Page {absoluteCurrentPage} of {absoluteTotalPages}
+          </Typography>
           <Typography
             variant="caption"
             color="text.disabled"
