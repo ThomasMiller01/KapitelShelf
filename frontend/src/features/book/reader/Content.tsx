@@ -3,11 +3,13 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { IconButton, Stack, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
+import { BatteryStatus } from "../../../components/reader/BatteryStatus";
 import { useMobile } from "../../../hooks/useMobile";
 import type { BookContent } from "../../../utils/bookReader/BookContent";
 import { ContentSection } from "./ContentSection";
 import { useReaderColorScheme } from "./ThemeProvider";
 import { useBookPageProgress } from "./useBookPageProgress";
+import { useReaderBattery } from "./useReaderBattery";
 
 interface ContentProps {
   content: BookContent;
@@ -28,6 +30,7 @@ export const Content: React.FC<ContentProps> = ({
 }) => {
   const { isMobile } = useMobile();
   const { fontScale } = useReaderColorScheme();
+  const { batteryPercent, isCharging } = useReaderBattery();
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   );
@@ -145,15 +148,26 @@ export const Content: React.FC<ContentProps> = ({
         justifyContent="center"
         spacing={1}
       >
-        <Typography
-          variant="caption"
-          color="text.disabled"
-          alignSelf="flex-start"
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%"
           px={isMobile ? 1 : 2.5}
-          sx={{ fontSize: `${0.75 * fontScale}rem` }}
         >
-          {currentTime}
-        </Typography>
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            sx={{ fontSize: `${0.75 * fontScale}rem` }}
+          >
+            {currentTime}
+          </Typography>
+          <BatteryStatus
+            batteryPercent={batteryPercent}
+            isCharging={isCharging}
+            fontScale={fontScale}
+          />
+        </Stack>
         <ContentSection
           section={content.sections[currentSection]}
           sectionIndex={currentSection}
