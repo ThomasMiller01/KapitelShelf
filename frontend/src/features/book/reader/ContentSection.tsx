@@ -1,5 +1,5 @@
 import { Box, useTheme } from "@mui/material";
-import React from "react";
+import React, { useRef } from "react";
 
 import { useMobile } from "../../../hooks/useMobile";
 import type { BookSection } from "../../../utils/bookReader/BookContent";
@@ -7,12 +7,16 @@ import { PaginationButton } from "./PaginationButton";
 import { ShadowBookContent } from "./ShadowBookContent";
 import { useContainerPagination } from "./useContainerPagination";
 import { useSectionTransition } from "./useSectionTransition";
-import { useSwipeNavigation } from "./useSwipeNavigation";
+import {
+  useSwipeNavigation,
+  type BoundarySwipeTransition,
+} from "./useSwipeNavigation";
 
 interface ContentSectionProps {
   section: BookSection;
   sectionIndex: number;
   currentPage: number;
+  totalPages: number;
   fontScale: number;
   onTotalPagesChange: (total: number) => void;
   onNext: () => void;
@@ -27,6 +31,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   section,
   sectionIndex,
   currentPage,
+  totalPages,
   fontScale,
   onTotalPagesChange,
   onNext,
@@ -36,6 +41,9 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
 }) => {
   const theme = useTheme();
   const { isMobile } = useMobile();
+  const boundarySwipeTransitionRef = useRef<BoundarySwipeTransition | null>(
+    null,
+  );
 
   const { containerRef, contentRef, containerWidth, containerWidthRef } =
     useContainerPagination({ fontScale, section, onTotalPagesChange });
@@ -52,20 +60,28 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     currentPage,
     containerWidthRef,
     contentRef,
+    boundarySwipeTransitionRef,
   });
 
   const effectivePage = forcedPage ?? currentPage;
   const animatePageFlip = !isSectionTransitioning && containerWidth > 0;
+  const isAtSectionStart = currentPage === 0;
+  const isAtSectionEnd = currentPage === totalPages - 1;
 
   const { dragOffset, isSwiping, isSnapping, onTransitionEnd, bindSwipe } =
     useSwipeNavigation({
       containerWidth,
       effectivePage,
+      isAtSectionStart,
+      isAtSectionEnd,
       canGoBack,
       canGoForward,
       isSectionTransitioning,
       onNext,
       onPrev,
+      onBoundarySwipeCommit: (transition) => {
+        boundarySwipeTransitionRef.current = transition;
+      },
     });
 
   // Determine CSS transition for the content transform.

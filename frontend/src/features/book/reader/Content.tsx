@@ -121,6 +121,7 @@ export const Content: React.FC<ContentProps> = ({
           section={content.sections[currentSection]}
           sectionIndex={currentSection}
           currentPage={currentPage}
+          totalPages={totalPages}
           fontScale={fontScale}
           onTotalPagesChange={handleTotalPagesChange}
           onNext={handleNext}

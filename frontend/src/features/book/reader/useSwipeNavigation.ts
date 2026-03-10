@@ -2,16 +2,24 @@ import { useDrag } from "@use-gesture/react";
 import type { TransitionEvent } from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 
-const DISTANCE_THRESHOLD = 0.4; // More than 50% of container width
+const DISTANCE_THRESHOLD = 0.5; // More than 50% of container width
+
+export interface BoundarySwipeTransition {
+  direction: "forward" | "backward";
+  releasedOffset: number;
+}
 
 interface UseSwipeNavigationArgs {
   containerWidth: number;
   effectivePage: number;
+  isAtSectionStart: boolean;
+  isAtSectionEnd: boolean;
   canGoBack: boolean;
   canGoForward: boolean;
   isSectionTransitioning: boolean;
   onNext: () => void;
   onPrev: () => void;
+  onBoundarySwipeCommit: (transition: BoundarySwipeTransition) => void;
 }
 
 interface SwipeNavigationState {
@@ -25,11 +33,14 @@ interface SwipeNavigationState {
 export const useSwipeNavigation = ({
   containerWidth,
   effectivePage,
+  isAtSectionStart,
+  isAtSectionEnd,
   canGoBack,
   canGoForward,
   isSectionTransitioning,
   onNext,
   onPrev,
+  onBoundarySwipeCommit,
 }: UseSwipeNavigationArgs): SwipeNavigationState => {
   const [dragOffset, setDragOffset] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
@@ -45,13 +56,20 @@ export const useSwipeNavigation = ({
   // Refs for latest callback values (avoid stale closures in gesture handler).
   const onNextRef = useRef(onNext);
   const onPrevRef = useRef(onPrev);
+  const onBoundarySwipeCommitRef = useRef(onBoundarySwipeCommit);
   onNextRef.current = onNext;
   onPrevRef.current = onPrev;
+  onBoundarySwipeCommitRef.current = onBoundarySwipeCommit;
 
   const canGoBackRef = useRef(canGoBack);
   const canGoForwardRef = useRef(canGoForward);
   canGoBackRef.current = canGoBack;
   canGoForwardRef.current = canGoForward;
+
+  const isAtSectionStartRef = useRef(isAtSectionStart);
+  const isAtSectionEndRef = useRef(isAtSectionEnd);
+  isAtSectionStartRef.current = isAtSectionStart;
+  isAtSectionEndRef.current = isAtSectionEnd;
 
   const containerWidthRef = useRef(containerWidth);
   containerWidthRef.current = containerWidth;
@@ -135,8 +153,32 @@ export const useSwipeNavigation = ({
           passedThreshold && isForward && canGoForwardRef.current;
         const shouldCommitBackward =
           passedThreshold && isBackward && canGoBackRef.current;
+        const boundaryReleasedOffset = Math.max(
+          -width,
+          Math.min(width, releasedOffset),
+        );
+        const shouldCommitNextSection =
+          shouldCommitForward && isAtSectionEndRef.current;
+        const shouldCommitPrevSection =
+          shouldCommitBackward && isAtSectionStartRef.current;
 
-        if (shouldCommitForward) {
+        if (shouldCommitNextSection) {
+          dragOffsetRef.current = boundaryReleasedOffset;
+          setDragOffset(boundaryReleasedOffset);
+          onBoundarySwipeCommitRef.current({
+            direction: "forward",
+            releasedOffset: boundaryReleasedOffset,
+          });
+          onNextRef.current();
+        } else if (shouldCommitPrevSection) {
+          dragOffsetRef.current = boundaryReleasedOffset;
+          setDragOffset(boundaryReleasedOffset);
+          onBoundarySwipeCommitRef.current({
+            direction: "backward",
+            releasedOffset: boundaryReleasedOffset,
+          });
+          onPrevRef.current();
+        } else if (shouldCommitForward) {
           // Snap to next page position.
           dragOffsetRef.current = -width;
           setDragOffset(-width);
@@ -179,14 +221,14 @@ export const useSwipeNavigation = ({
 
     setIsSnapping(false);
 
-    if (dragOffset === -containerWidth) {
+    if (dragOffsetRef.current === -containerWidth) {
       // Forward commit: keep offset until page updates.
       pendingCommitRef.current = {
         direction: "next",
         targetPage: effectivePage + 1,
       };
       onNextRef.current();
-    } else if (dragOffset === containerWidth) {
+    } else if (dragOffsetRef.current === containerWidth) {
       // Backward commit: keep offset until page updates.
       pendingCommitRef.current = {
         direction: "prev",

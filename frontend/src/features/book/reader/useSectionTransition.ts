@@ -2,6 +2,7 @@ import type React from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 
 import type { BookSection } from "../../../utils/bookReader/BookContent";
+import type { BoundarySwipeTransition } from "./useSwipeNavigation";
 
 type TransitionDirection = "forward" | "backward";
 
@@ -19,6 +20,7 @@ interface UseSectionTransitionArgs {
   currentPage: number;
   containerWidthRef: React.RefObject<number>;
   contentRef: React.RefObject<HTMLDivElement | null>;
+  boundarySwipeTransitionRef: React.MutableRefObject<BoundarySwipeTransition | null>;
 }
 
 interface SectionTransitionState {
@@ -35,6 +37,7 @@ export const useSectionTransition = ({
   currentPage,
   containerWidthRef,
   contentRef,
+  boundarySwipeTransitionRef,
 }: UseSectionTransitionArgs): SectionTransitionState => {
   const prevSectionRef = useRef(section);
   const prevSectionIndexRef = useRef(sectionIndex);
@@ -71,8 +74,19 @@ export const useSectionTransition = ({
     const direction: TransitionDirection =
       sectionIndex > prevSectionIndexRef.current ? "forward" : "backward";
     const width = containerWidthRef.current;
-    const initialTrackOffset = direction === "forward" ? 0 : -width;
     const targetTrackOffset = direction === "forward" ? -width : 0;
+    const boundarySwipeTransition = boundarySwipeTransitionRef.current;
+    const hasBoundarySwipeTransition =
+      boundarySwipeTransition?.direction === direction;
+    const initialTrackOffset = hasBoundarySwipeTransition
+      ? direction === "forward"
+        ? boundarySwipeTransition.releasedOffset
+        : boundarySwipeTransition.releasedOffset - width
+      : direction === "forward"
+        ? 0
+        : -width;
+
+    boundarySwipeTransitionRef.current = null;
 
     setOutgoingSnapshot({
       section: prevSectionRef.current,
@@ -108,7 +122,13 @@ export const useSectionTransition = ({
         }, SECTION_TRANSITION_MS);
       });
     });
-  }, [section, sectionIndex, containerWidthRef, contentRef]);
+  }, [
+    section,
+    sectionIndex,
+    containerWidthRef,
+    contentRef,
+    boundarySwipeTransitionRef,
+  ]);
 
   // Track previous values for next transition comparison.
   useLayoutEffect(() => {
