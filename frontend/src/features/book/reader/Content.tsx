@@ -1,15 +1,16 @@
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { IconButton, Stack, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Stack, Typography } from "@mui/material";
+import React, { useState } from "react";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
 import { BatteryStatus } from "../../../components/reader/BatteryStatus";
 import { useMobile } from "../../../hooks/useMobile";
 import type { BookContent } from "../../../utils/bookReader/BookContent";
 import { ContentSection } from "./ContentSection";
+import { PaginationButton } from "./PaginationButton";
 import { useReaderColorScheme } from "./ThemeProvider";
 import { useBookPageProgress } from "./useBookPageProgress";
 import { useReaderBattery } from "./useReaderBattery";
+import { useReaderClock } from "./useReaderClock";
+import { useReaderNavigation } from "./useReaderNavigation";
 
 interface ContentProps {
   content: BookContent;
@@ -31,36 +32,8 @@ export const Content: React.FC<ContentProps> = ({
   const { isMobile } = useMobile();
   const { fontScale } = useReaderColorScheme();
   const { batteryPercent, isCharging } = useReaderBattery();
-  const [currentTime, setCurrentTime] = useState(() =>
-    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-  );
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      );
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  const currentTime = useReaderClock();
   const [totalPages, setTotalPages] = useState(1);
-  const navigatedBackRef = useRef(false);
-  const isInitialMountRef = useRef(true);
-
-  useEffect(() => {
-    if (isInitialMountRef.current) {
-      isInitialMountRef.current = false;
-      return; // Preserve page from URL on initial load
-    }
-
-    if (navigatedBackRef.current) {
-      navigatedBackRef.current = false;
-      return; // handleTotalPagesChange already set the correct last page
-    }
-  }, [currentSection]);
 
   const {
     absoluteCurrentPage,
@@ -69,49 +42,17 @@ export const Content: React.FC<ContentProps> = ({
     onTotalPagesChange: onPageProgressChange,
   } = useBookPageProgress(content, currentSection, currentPage, totalPages);
 
-  const handleTotalPagesChange = useCallback(
-    (total: number) => {
-      setTotalPages(total);
-      onPageProgressChange(total);
-
-      if (navigatedBackRef.current) {
-        // Don't clear the flag here, let useEffect do it after layout effects settle
-        setCurrentPage(total - 1);
-      } else if (currentPage > total - 1) {
-        setCurrentPage(total - 1);
-      }
-    },
-    [currentPage, onPageProgressChange, setCurrentPage],
-  );
-
-  const handleNext = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
-    } else {
-      nextSection();
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    } else {
-      navigatedBackRef.current = true;
-      prevSection();
-    }
-  };
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        handleNext();
-      } else if (e.key === "ArrowLeft") {
-        handlePrev();
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  });
+  const { handleNext, handlePrev, handleTotalPagesChange } =
+    useReaderNavigation({
+      currentSection,
+      currentPage,
+      totalPages,
+      setCurrentPage,
+      nextSection,
+      prevSection,
+      setTotalPages,
+      onPageProgressChange,
+    });
 
   if (currentSection < 0 || currentSection >= content.sections.length) {
     return (
@@ -207,49 +148,5 @@ export const Content: React.FC<ContentProps> = ({
         direction="next"
       />
     </Stack>
-  );
-};
-
-interface PaginationButtonProps {
-  onClick: () => void;
-  disabled: boolean;
-  direction: "prev" | "next";
-}
-
-const PaginationButton: React.FC<PaginationButtonProps> = ({
-  onClick,
-  disabled,
-  direction,
-}) => {
-  const { isMobile } = useMobile();
-
-  const Icon = direction === "prev" ? NavigateBeforeIcon : NavigateNextIcon;
-
-  return (
-    <IconButton
-      onClick={onClick}
-      disabled={disabled}
-      size="large"
-      disableRipple
-      sx={{
-        borderTopLeftRadius: direction === "prev" ? "50px" : "10px",
-        borderBottomLeftRadius: direction === "prev" ? "50px" : "10px",
-        borderTopRightRadius: direction === "prev" ? "10px" : "50px",
-        borderBottomRightRadius: direction === "prev" ? "10px" : "50px",
-        width: "150px",
-        height: "100%",
-        "&:hover": {
-          backgroundColor: "transparent",
-        },
-        ...(isMobile && {
-          position: "absolute",
-          left: direction === "prev" ? 5 : "auto",
-          right: direction === "next" ? 5 : "auto",
-          zIndex: 1,
-        }),
-      }}
-    >
-      {!isMobile && <Icon fontSize="large" />}
-    </IconButton>
   );
 };
