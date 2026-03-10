@@ -82,11 +82,13 @@ export const Content: React.FC<ContentProps> = ({
       position="relative"
       bgcolor={isMobile ? "background.paper" : "background.default"}
     >
-      <PaginationButton
-        onClick={handlePrev}
-        disabled={!canGoBack}
-        direction="prev"
-      />
+      {!isMobile && (
+        <PaginationButton
+          onClick={handlePrev}
+          disabled={!canGoBack}
+          direction="prev"
+        />
+      )}
       <Stack
         direction="column"
         alignItems="center"
@@ -149,11 +151,13 @@ export const Content: React.FC<ContentProps> = ({
           </Typography>
         </Stack>
       </Stack>
-      <PaginationButton
-        onClick={handleNext}
-        disabled={!canGoForward}
-        direction="next"
-      />
+      {!isMobile && (
+        <PaginationButton
+          onClick={handleNext}
+          disabled={!canGoForward}
+          direction="next"
+        />
+      )}
     </Stack>
   );
 };

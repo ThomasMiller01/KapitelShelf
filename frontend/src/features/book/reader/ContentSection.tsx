@@ -3,6 +3,7 @@ import React from "react";
 
 import { useMobile } from "../../../hooks/useMobile";
 import type { BookSection } from "../../../utils/bookReader/BookContent";
+import { PaginationButton } from "./PaginationButton";
 import { ShadowBookContent } from "./ShadowBookContent";
 import { useContainerPagination } from "./useContainerPagination";
 import { useSectionTransition } from "./useSectionTransition";
@@ -173,6 +174,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         maxWidth: "100%",
         maxHeight: "100%",
         height: "100%",
+        position: "relative",
         overflow: "hidden",
         background: theme.palette.background.paper,
         borderRadius: 1,
@@ -181,6 +183,20 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         touchAction: "pan-y",
       }}
     >
+      {isMobile && (
+        <>
+          <PaginationButton
+            onClick={onPrev}
+            disabled={!canGoBack}
+            direction="prev"
+          />
+          <PaginationButton
+            onClick={onNext}
+            disabled={!canGoForward}
+            direction="next"
+          />
+        </>
+      )}
       {isSectionTransitioning ? (
         <Box
           sx={{

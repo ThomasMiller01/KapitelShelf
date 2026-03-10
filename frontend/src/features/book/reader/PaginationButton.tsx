@@ -41,6 +41,7 @@ export const PaginationButton: React.FC<PaginationButtonProps> = ({
           left: direction === "prev" ? 5 : "auto",
           right: direction === "next" ? 5 : "auto",
           zIndex: 1,
+          touchAction: "pan-y",
         }),
       }}
     >
