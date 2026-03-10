@@ -2,7 +2,7 @@ import { useDrag } from "@use-gesture/react";
 import type { TransitionEvent } from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 
-const DISTANCE_THRESHOLD = 0.5; // More than 50% of container width
+const DISTANCE_THRESHOLD = 0.25; // More than 50% of container width
 
 export interface BoundarySwipeTransition {
   direction: "forward" | "backward";
