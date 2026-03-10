@@ -21,7 +21,7 @@ interface ContentSectionProps {
   canGoForward: boolean;
 }
 
-const PAGE_TRANSITION = "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+const PAGE_TRANSITION = "transform 0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
 
 export const ContentSection: React.FC<ContentSectionProps> = ({
   section,

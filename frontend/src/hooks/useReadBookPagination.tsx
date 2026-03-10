@@ -1,54 +1,77 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const DEFAULT_SECTION = 0;
 const DEFAULT_PAGE = 0;
 
+const readSectionParam = (params: URLSearchParams): number => {
+  const value = Number(params.get("section"));
+  return Number.isFinite(value) && value > 0 ? value : DEFAULT_SECTION;
+};
+
+const readPageParam = (params: URLSearchParams): number => {
+  const value = Number(params.get("page"));
+  return Number.isFinite(value) && value > 0 ? value : DEFAULT_PAGE;
+};
+
 export const useReadBookPagination = () => {
   const [params, setParams] = useSearchParams();
 
-  const section = useMemo<number>(() => {
-    const value = Number(params.get("section"));
-    return Number.isFinite(value) && value > 0 ? value : DEFAULT_SECTION;
+  const [section, setSectionState] = useState<number>(() =>
+    readSectionParam(params),
+  );
+  const [page, setPageState] = useState<number>(() => readPageParam(params));
+
+  const sectionRef = useRef(section);
+  const pageRef = useRef(page);
+
+  const commitPagination = useCallback(
+    (nextSection: number, nextPage: number) => {
+      sectionRef.current = nextSection;
+      pageRef.current = nextPage;
+      setSectionState(nextSection);
+      setPageState(nextPage);
+
+      setParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("section", String(nextSection));
+        next.set("page", String(nextPage));
+        return next;
+      }, { replace: true });
+    },
+    [setParams],
+  );
+
+  useEffect(() => {
+    const urlSection = readSectionParam(params);
+    const urlPage = readPageParam(params);
+
+    if (urlSection === sectionRef.current && urlPage === pageRef.current) {
+      return;
+    }
+
+    sectionRef.current = urlSection;
+    pageRef.current = urlPage;
+    setSectionState(urlSection);
+    setPageState(urlPage);
   }, [params]);
 
-  const page = useMemo<number>(() => {
-    const value = Number(params.get("page"));
-    return Number.isFinite(value) && value > 0 ? value : DEFAULT_PAGE;
-  }, [params]);
+  const nextSection = () => {
+    commitPagination(sectionRef.current + 1, DEFAULT_PAGE);
+  };
 
-  const nextSection = () =>
-    setParams((prev) => {
-      const next = new URLSearchParams(prev);
-      const currentSection = Number(next.get("section")) || DEFAULT_SECTION;
-      next.set("section", String(currentSection + 1));
-      next.set("page", "0");
-      return next;
-    });
+  const prevSection = () => {
+    // Don't reset page here, content navigatedBackRef will set it to last page.
+    commitPagination(sectionRef.current - 1, pageRef.current);
+  };
 
-  const prevSection = () =>
-    setParams((prev) => {
-      const next = new URLSearchParams(prev);
-      const currentSection = Number(next.get("section")) || DEFAULT_SECTION;
-      next.set("section", String(currentSection - 1));
-      // Don't reset page here, content navigatedBackRef will set it to last page
-      return next;
-    });
+  const setSection = (nextSection: number) => {
+    commitPagination(nextSection, DEFAULT_PAGE);
+  };
 
-  const setSection = (nextSection: number) =>
-    setParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set("section", String(nextSection));
-      next.set("page", "0");
-      return next;
-    });
-
-  const setPage = (nextPage: number) =>
-    setParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set("page", String(nextPage));
-      return next;
-    });
+  const setPage = (nextPage: number) => {
+    commitPagination(sectionRef.current, nextPage);
+  };
 
   return {
     section,
