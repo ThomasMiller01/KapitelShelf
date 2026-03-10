@@ -2,8 +2,7 @@ import { useDrag } from "@use-gesture/react";
 import type { TransitionEvent } from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 
-const DISTANCE_THRESHOLD = 0.25; // 25% of container width
-const VELOCITY_THRESHOLD = 0.5; // @use-gesture velocity units
+const DISTANCE_THRESHOLD = 0.4; // More than 50% of container width
 
 interface UseSwipeNavigationArgs {
   containerWidth: number;
@@ -35,6 +34,7 @@ export const useSwipeNavigation = ({
   const [dragOffset, setDragOffset] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isSnapping, setIsSnapping] = useState(false);
+  const dragOffsetRef = useRef(0);
 
   // Track pending commit to sync with async URL page update.
   const pendingCommitRef = useRef<{
@@ -66,6 +66,7 @@ export const useSwipeNavigation = ({
       effectivePage === pendingCommitRef.current.targetPage
     ) {
       pendingCommitRef.current = null;
+      dragOffsetRef.current = 0;
       setDragOffset(0);
     }
   }, [effectivePage]);
@@ -73,6 +74,7 @@ export const useSwipeNavigation = ({
   // Reset swipe state when a section transition starts.
   useLayoutEffect(() => {
     if (isSectionTransitioning) {
+      dragOffsetRef.current = 0;
       setDragOffset(0);
       setIsSwiping(false);
       setIsSnapping(false);
@@ -81,14 +83,24 @@ export const useSwipeNavigation = ({
   }, [isSectionTransitioning]);
 
   const bindSwipe = useDrag(
-    ({ movement: [mx], velocity: [vx], direction: [dx], active, last, cancel, first }) => {
+    ({
+      movement: [mx],
+      active,
+      last,
+      cancel,
+      first,
+    }) => {
       const width = containerWidthRef.current;
       if (width === 0) {
         return;
       }
 
       // Don't start new gestures during section transitions or pending commits.
-      if (first && (isSectionTransitioningRef.current || pendingCommitRef.current !== null)) {
+      if (
+        first &&
+        (isSectionTransitioningRef.current ||
+          pendingCommitRef.current !== null)
+      ) {
         cancel();
         return;
       }
@@ -104,6 +116,7 @@ export const useSwipeNavigation = ({
           clamped = 0;
         }
 
+        dragOffsetRef.current = clamped;
         setDragOffset(clamped);
         setIsSwiping(true);
         return;
@@ -112,30 +125,35 @@ export const useSwipeNavigation = ({
       if (last) {
         setIsSwiping(false);
 
-        const absMx = Math.abs(mx);
-        const isForward = dx < 0; // dragging left = forward
-        const isBackward = dx > 0; // dragging right = backward
+        const releasedOffset = mx === 0 ? dragOffsetRef.current : mx;
+        const absMx = Math.abs(releasedOffset);
+        const isForward = releasedOffset < 0; // dragging left = forward
+        const isBackward = releasedOffset > 0; // dragging right = backward
+        const passedThreshold = absMx > width * DISTANCE_THRESHOLD;
 
-        const passedThreshold =
-          absMx > width * DISTANCE_THRESHOLD || vx > VELOCITY_THRESHOLD;
-
-        const shouldCommitForward = passedThreshold && isForward && canGoForwardRef.current;
-        const shouldCommitBackward = passedThreshold && isBackward && canGoBackRef.current;
+        const shouldCommitForward =
+          passedThreshold && isForward && canGoForwardRef.current;
+        const shouldCommitBackward =
+          passedThreshold && isBackward && canGoBackRef.current;
 
         if (shouldCommitForward) {
           // Snap to next page position.
+          dragOffsetRef.current = -width;
           setDragOffset(-width);
           setIsSnapping(true);
         } else if (shouldCommitBackward) {
           // Snap to previous page position.
+          dragOffsetRef.current = width;
           setDragOffset(width);
           setIsSnapping(true);
         } else {
           // Snap back to current page.
-          if (mx === 0) {
+          if (releasedOffset === 0) {
             // No movement, no animation needed.
+            dragOffsetRef.current = 0;
             setDragOffset(0);
           } else {
+            dragOffsetRef.current = 0;
             setDragOffset(0);
             setIsSnapping(true);
           }
@@ -177,6 +195,7 @@ export const useSwipeNavigation = ({
       onPrevRef.current();
     } else {
       // Snap-back complete, just reset.
+      dragOffsetRef.current = 0;
       setDragOffset(0);
     }
   };
