@@ -57,21 +57,16 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   const effectivePage = forcedPage ?? currentPage;
   const animatePageFlip = !isSectionTransitioning && containerWidth > 0;
 
-  const {
-    dragOffset,
-    isSwiping,
-    isSnapping,
-    onTransitionEnd,
-    bindSwipe,
-  } = useSwipeNavigation({
-    containerWidth,
-    effectivePage,
-    canGoBack,
-    canGoForward,
-    isSectionTransitioning,
-    onNext,
-    onPrev,
-  });
+  const { dragOffset, isSwiping, isSnapping, onTransitionEnd, bindSwipe } =
+    useSwipeNavigation({
+      containerWidth,
+      effectivePage,
+      canGoBack,
+      canGoForward,
+      isSectionTransitioning,
+      onNext,
+      onPrev,
+    });
 
   // Determine CSS transition for the content transform.
   const getContentTransition = (animatePage?: boolean): string => {
@@ -95,16 +90,20 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
       applyDragOffset?: boolean;
     },
   ) => (
-    <Box sx={{ height: "100%", overflow: "hidden" }}>
+    <Box sx={{ height: "100%", overflow: "hidden", px: isMobile ? 1.5 : 0 }}>
       <Box
         ref={options?.attachContentRef ? contentRef : undefined}
-        onTransitionEnd={options?.attachContentRef ? onTransitionEnd : undefined}
+        onTransitionEnd={
+          options?.attachContentRef ? onTransitionEnd : undefined
+        }
         sx={{
           height: "100%",
           columns: "1",
           columnFill: "auto",
           columnGap: 0,
-          transform: `translateX(${-page * containerWidth + (options?.applyDragOffset ? dragOffset : 0)}px)`,
+          transform: `translateX(${
+            -page * containerWidth + (options?.applyDragOffset ? dragOffset : 0)
+          }px)`,
           transition: getContentTransition(options?.animatePage),
         }}
       >

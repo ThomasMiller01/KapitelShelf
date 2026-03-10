@@ -71,7 +71,7 @@ export const Content: React.FC<ContentProps> = ({
 
   return (
     <Stack
-      px={isMobile ? 1.5 : 4}
+      px={isMobile ? 0 : 4}
       pt={isMobile ? 2.5 : 4}
       pb={isMobile ? 1.5 : 4}
       height="100%"
@@ -102,7 +102,7 @@ export const Content: React.FC<ContentProps> = ({
           justifyContent="space-between"
           alignItems="center"
           width="100%"
-          px={isMobile ? 1 : 2.5}
+          px={isMobile ? 2.5 : 3.5}
         >
           <Typography
             variant="caption"
@@ -133,7 +133,7 @@ export const Content: React.FC<ContentProps> = ({
           spacing={2}
           justifyContent="space-between"
           width="100%"
-          px={isMobile ? 1 : 2}
+          px={isMobile ? 2.5 : 3.5}
         >
           <Typography
             variant="caption"
