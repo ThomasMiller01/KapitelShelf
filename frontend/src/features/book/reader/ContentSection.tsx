@@ -6,6 +6,7 @@ import type { BookSection } from "../../../utils/bookReader/BookContent";
 import { ShadowBookContent } from "./ShadowBookContent";
 import { useContainerPagination } from "./useContainerPagination";
 import { useSectionTransition } from "./useSectionTransition";
+import { useSwipeNavigation } from "./useSwipeNavigation";
 
 interface ContentSectionProps {
   section: BookSection;
@@ -13,6 +14,10 @@ interface ContentSectionProps {
   currentPage: number;
   fontScale: number;
   onTotalPagesChange: (total: number) => void;
+  onNext: () => void;
+  onPrev: () => void;
+  canGoBack: boolean;
+  canGoForward: boolean;
 }
 
 const PAGE_TRANSITION = "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
@@ -23,6 +28,10 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   currentPage,
   fontScale,
   onTotalPagesChange,
+  onNext,
+  onPrev,
+  canGoBack,
+  canGoForward,
 }) => {
   const theme = useTheme();
   const { isMobile } = useMobile();
@@ -47,24 +56,55 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   const effectivePage = forcedPage ?? currentPage;
   const animatePageFlip = !isSectionTransitioning && containerWidth > 0;
 
+  const {
+    dragOffset,
+    isSwiping,
+    isSnapping,
+    onTransitionEnd,
+    bindSwipe,
+  } = useSwipeNavigation({
+    containerWidth,
+    effectivePage,
+    canGoBack,
+    canGoForward,
+    isSectionTransitioning,
+    onNext,
+    onPrev,
+  });
+
+  // Determine CSS transition for the content transform.
+  const getContentTransition = (animatePage?: boolean): string => {
+    if (isSwiping) {
+      return "none";
+    }
+
+    if (isSnapping) {
+      return PAGE_TRANSITION;
+    }
+
+    return animatePage ? PAGE_TRANSITION : "none";
+  };
+
   const renderSectionContent = (
     targetSection: BookSection,
     page: number,
     options?: {
       attachContentRef?: boolean;
       animatePage?: boolean;
+      applyDragOffset?: boolean;
     },
   ) => (
     <Box sx={{ height: "100%", overflow: "hidden" }}>
       <Box
         ref={options?.attachContentRef ? contentRef : undefined}
+        onTransitionEnd={options?.attachContentRef ? onTransitionEnd : undefined}
         sx={{
           height: "100%",
           columns: "1",
           columnFill: "auto",
           columnGap: 0,
-          transform: `translateX(${-page * containerWidth}px)`,
-          transition: options?.animatePage ? PAGE_TRANSITION : "none",
+          transform: `translateX(${-page * containerWidth + (options?.applyDragOffset ? dragOffset : 0)}px)`,
+          transition: getContentTransition(options?.animatePage),
         }}
       >
         <Box
@@ -127,6 +167,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   return (
     <Box
       ref={containerRef}
+      {...bindSwipe()}
       sx={{
         aspectRatio: isMobile ? "none" : "2 / 3",
         maxWidth: "100%",
@@ -137,6 +178,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         borderRadius: 1,
         py: isMobile ? 1 : 2,
         mt: "5px !important",
+        touchAction: "pan-y",
       }}
     >
       {isSectionTransitioning ? (
@@ -161,6 +203,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         renderSectionContent(section, effectivePage, {
           attachContentRef: true,
           animatePage: animatePageFlip,
+          applyDragOffset: true,
         })
       )}
     </Box>

@@ -63,6 +63,12 @@ export const Content: React.FC<ContentProps> = ({
     );
   }
 
+  const canGoBack = !(currentPage === 0 && currentSection === 0);
+  const canGoForward = !(
+    currentPage === totalPages - 1 &&
+    currentSection === content.sections.length - 1
+  );
+
   return (
     <Stack
       px={isMobile ? 1.5 : 4}
@@ -78,7 +84,7 @@ export const Content: React.FC<ContentProps> = ({
     >
       <PaginationButton
         onClick={handlePrev}
-        disabled={currentPage === 0 && currentSection === 0}
+        disabled={!canGoBack}
         direction="prev"
       />
       <Stack
@@ -115,6 +121,10 @@ export const Content: React.FC<ContentProps> = ({
           currentPage={currentPage}
           fontScale={fontScale}
           onTotalPagesChange={handleTotalPagesChange}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
         />
         <Stack
           direction="row"
@@ -141,10 +151,7 @@ export const Content: React.FC<ContentProps> = ({
       </Stack>
       <PaginationButton
         onClick={handleNext}
-        disabled={
-          currentPage === totalPages - 1 &&
-          currentSection === content.sections.length - 1
-        }
+        disabled={!canGoForward}
         direction="next"
       />
     </Stack>
