@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { BookDTO, FileInfoDTO } from "../lib/api/KapitelShelf.Api";
 import { BookFileUrl, UrlToFile } from "../utils/FileUtils";
-import { BookContent } from "../utils/bookReader/BookContent";
-import { ParseEpub } from "../utils/bookReader/EpubReader";
+import { BookContent } from "../utils/reader/BookContentModels";
+import { ParseEpub } from "../utils/reader/EpubReader";
 
 interface useReadBookResult {
   content: BookContent | undefined;
@@ -60,18 +60,23 @@ const ParseBook = async (
     throw new Error("The file of this book could not be loaded.");
   }
 
-  if (fileInfo?.fileName?.endsWith(".epub")) {
+  // EPUB
+  if (
+    fileInfo?.mimeType === "application/epub+zip" ||
+    fileInfo?.fileName?.endsWith(".epub")
+  ) {
     return await ParseEpub(file, fileInfo);
   }
 
-  throw new Error(`Unsupported book MIME type: ${fileInfo?.mimeType}`);
+  // TXT
+  // TODO
 
-  //   switch (fileInfo?.mimeType) {
-  //     case "application/epub+zip":
-  //       return await ParseEpub(file, fileInfo);
+  // PDF
+  // TODO
 
-  //     default:
-  //       console.warn(`Unsupported book MIME type: ${fileInfo?.mimeType}`);
-  //       return;
-  //   }
+  throw new Error(
+    `Unsupported book MIME type and file ending: ${
+      fileInfo?.mimeType
+    }, .${fileInfo?.fileName?.split(".").pop()}`,
+  );
 };

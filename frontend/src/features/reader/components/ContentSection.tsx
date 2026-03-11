@@ -2,15 +2,15 @@ import { Box, useTheme } from "@mui/material";
 import React, { useRef } from "react";
 
 import { useMobile } from "../../../hooks/useMobile";
-import type { BookSection } from "../../../utils/bookReader/BookContent";
-import { PaginationButton } from "./PaginationButton";
-import { ShadowBookContent } from "./ShadowBookContent";
-import { useContainerPagination } from "../hooks/pagination/useContainerPagination";
+import type { BookSection } from "../../../utils/reader/BookContentModels";
 import { useSectionTransition } from "../hooks/navigation/useSectionTransition";
 import {
   useSwipeNavigation,
   type BoundarySwipeTransition,
 } from "../hooks/navigation/useSwipeNavigation";
+import { useContainerPagination } from "../hooks/pagination/useContainerPagination";
+import { PaginationButton } from "./PaginationButton";
+import { ShadowBookContent } from "./ShadowBookContent";
 
 interface ContentSectionProps {
   section: BookSection;

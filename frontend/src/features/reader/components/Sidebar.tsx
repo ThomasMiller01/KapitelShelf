@@ -3,7 +3,7 @@ import { ResponsiveDrawer } from "../../../components/base/ResponsiveDrawer";
 import {
   BookContent,
   BookTocItem,
-} from "../../../utils/bookReader/BookContent";
+} from "../../../utils/reader/BookContentModels";
 import TableOfContents from "./TableOfContents";
 
 interface SidebarProps {

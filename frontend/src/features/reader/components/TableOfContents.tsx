@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useState, type ReactElement } from "react";
 
-import type { BookTocItem } from "../../../utils/bookReader/BookContent";
+import type { BookTocItem } from "../../../utils/reader/BookContentModels";
 
 interface TableOfContentsProps {
   items: BookTocItem[];

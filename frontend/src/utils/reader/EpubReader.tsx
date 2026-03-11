@@ -1,7 +1,7 @@
 import { EPUB } from "foliate-js/epub.js";
 import JSZip from "jszip";
 import { FileInfoDTO } from "../../lib/api/KapitelShelf.Api";
-import { BookContent, BookSection, BookTocItem } from "./BookContent";
+import { BookContent, BookSection, BookTocItem } from "./BookContentModels";
 
 interface FoliateTocItem {
   label?: string;

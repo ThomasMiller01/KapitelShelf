@@ -3,14 +3,14 @@ import React, { useState } from "react";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
 import { BatteryStatus } from "../../../components/reader/BatteryStatus";
 import { useMobile } from "../../../hooks/useMobile";
-import type { BookContent } from "../../../utils/bookReader/BookContent";
-import { ContentSection } from "./ContentSection";
-import { PaginationButton } from "./PaginationButton";
-import { useReaderColorScheme } from "./ThemeProvider";
-import { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
+import type { BookContent } from "../../../utils/reader/BookContentModels";
 import { useReaderBattery } from "../hooks/device/useReaderBattery";
 import { useReaderClock } from "../hooks/device/useReaderClock";
 import { useReaderNavigation } from "../hooks/navigation/useReaderNavigation";
+import { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
+import { ContentSection } from "./ContentSection";
+import { PaginationButton } from "./PaginationButton";
+import { useReaderColorScheme } from "./ThemeProvider";
 
 interface ContentProps {
   content: BookContent;
