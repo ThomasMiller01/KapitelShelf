@@ -7,24 +7,27 @@ interface UseContainerPaginationArgs {
   fontScale: number;
   section: BookSection;
   onTotalPagesChange: (total: number) => void;
+  pageGap: number;
 }
 
 interface ContainerPaginationState {
   containerRef: React.RefObject<HTMLDivElement | null>;
   contentRef: React.RefObject<HTMLDivElement | null>;
-  containerWidth: number;
-  containerWidthRef: React.RefObject<number>;
+  pageWidth: number;
+  pageWidthRef: React.RefObject<number>;
+  pageStride: number;
 }
 
 export const useContainerPagination = ({
   fontScale,
   section,
   onTotalPagesChange,
+  pageGap,
 }: UseContainerPaginationArgs): ContainerPaginationState => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const containerWidthRef = useRef(0);
+  const [pageWidth, setPageWidth] = useState(0);
+  const pageWidthRef = useRef(0);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -35,11 +38,17 @@ export const useContainerPagination = ({
 
     const measure = () => {
       const { width } = content.getBoundingClientRect();
-      setContainerWidth(width);
-      containerWidthRef.current = width;
+      const stride = width + pageGap;
+      setPageWidth(width);
+      pageWidthRef.current = width;
       const pages =
-        width > 0 ? Math.ceil(content.scrollWidth / width - 0.01) : 1;
-      onTotalPagesChange(Math.max(1, pages));
+        width > 0 && stride > 0
+          ? Math.max(
+              1,
+              Math.ceil((content.scrollWidth + pageGap) / stride - 0.01),
+            )
+          : 1;
+      onTotalPagesChange(pages);
     };
 
     measure();
@@ -47,7 +56,13 @@ export const useContainerPagination = ({
     const observer = new ResizeObserver(measure);
     observer.observe(container);
     return () => observer.disconnect();
-  }, [fontScale, section, onTotalPagesChange]);
+  }, [fontScale, pageGap, section, onTotalPagesChange]);
 
-  return { containerRef, contentRef, containerWidth, containerWidthRef };
+  return {
+    containerRef,
+    contentRef,
+    pageWidth,
+    pageWidthRef,
+    pageStride: pageWidth > 0 ? pageWidth + pageGap : 0,
+  };
 };

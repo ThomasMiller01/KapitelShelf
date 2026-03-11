@@ -18,7 +18,8 @@ interface UseSectionTransitionArgs {
   section: BookSection;
   sectionIndex: number;
   currentPage: number;
-  containerWidthRef: React.RefObject<number>;
+  pageWidthRef: React.RefObject<number>;
+  pageStride: number;
   contentRef: React.RefObject<HTMLDivElement | null>;
   boundarySwipeTransitionRef: React.MutableRefObject<BoundarySwipeTransition | null>;
 }
@@ -35,7 +36,8 @@ export const useSectionTransition = ({
   section,
   sectionIndex,
   currentPage,
-  containerWidthRef,
+  pageWidthRef,
+  pageStride,
   contentRef,
   boundarySwipeTransitionRef,
 }: UseSectionTransitionArgs): SectionTransitionState => {
@@ -66,25 +68,27 @@ export const useSectionTransition = ({
     if (
       section === prevSectionRef.current ||
       sectionIndex === prevSectionIndexRef.current ||
-      containerWidthRef.current === 0
+      pageWidthRef.current === 0 ||
+      pageStride === 0
     ) {
       return;
     }
 
     const direction: TransitionDirection =
       sectionIndex > prevSectionIndexRef.current ? "forward" : "backward";
-    const width = containerWidthRef.current;
-    const targetTrackOffset = direction === "forward" ? -width : 0;
+    const width = pageWidthRef.current;
+    const pageGap = Math.max(0, pageStride - width);
+    const targetTrackOffset = direction === "forward" ? -pageStride : 0;
     const boundarySwipeTransition = boundarySwipeTransitionRef.current;
     const hasBoundarySwipeTransition =
       boundarySwipeTransition?.direction === direction;
     const initialTrackOffset = hasBoundarySwipeTransition
       ? direction === "forward"
         ? boundarySwipeTransition.releasedOffset
-        : boundarySwipeTransition.releasedOffset - width
+        : boundarySwipeTransition.releasedOffset - pageStride
       : direction === "forward"
         ? 0
-        : -width;
+        : -pageStride;
 
     boundarySwipeTransitionRef.current = null;
 
@@ -101,8 +105,11 @@ export const useSectionTransition = ({
     } else {
       const content = contentRef.current;
       const pages =
-        content && width > 0
-          ? Math.max(1, Math.ceil(content.scrollWidth / width - 0.01))
+        content && width > 0 && pageStride > 0
+          ? Math.max(
+              1,
+              Math.ceil((content.scrollWidth + pageGap) / pageStride - 0.01),
+            )
           : 1;
       forcedPageRef.current = pages - 1;
     }
@@ -125,7 +132,8 @@ export const useSectionTransition = ({
   }, [
     section,
     sectionIndex,
-    containerWidthRef,
+    pageWidthRef,
+    pageStride,
     contentRef,
     boundarySwipeTransitionRef,
   ]);

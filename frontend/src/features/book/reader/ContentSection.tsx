@@ -26,6 +26,7 @@ interface ContentSectionProps {
 }
 
 const PAGE_TRANSITION = "transform 0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+const MOBILE_PAGE_GAP = 15;
 
 export const ContentSection: React.FC<ContentSectionProps> = ({
   section,
@@ -45,8 +46,13 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     null,
   );
 
-  const { containerRef, contentRef, containerWidth, containerWidthRef } =
-    useContainerPagination({ fontScale, section, onTotalPagesChange });
+  const { containerRef, contentRef, pageWidth, pageWidthRef, pageStride } =
+    useContainerPagination({
+      fontScale,
+      section,
+      onTotalPagesChange,
+      pageGap: MOBILE_PAGE_GAP,
+    });
 
   const {
     outgoingSnapshot,
@@ -58,19 +64,21 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     section,
     sectionIndex,
     currentPage,
-    containerWidthRef,
+    pageWidthRef,
+    pageStride,
     contentRef,
     boundarySwipeTransitionRef,
   });
 
   const effectivePage = forcedPage ?? currentPage;
-  const animatePageFlip = !isSectionTransitioning && containerWidth > 0;
+  const animatePageFlip = !isSectionTransitioning && pageWidth > 0;
   const isAtSectionStart = currentPage === 0;
   const isAtSectionEnd = currentPage === totalPages - 1;
 
   const { dragOffset, isSwiping, isSnapping, onTransitionEnd, bindSwipe } =
     useSwipeNavigation({
-      containerWidth,
+      pageWidth,
+      pageStride,
       effectivePage,
       isAtSectionStart,
       isAtSectionEnd,
@@ -116,9 +124,9 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
           height: "100%",
           columns: "1",
           columnFill: "auto",
-          columnGap: 0,
+          columnGap: `${MOBILE_PAGE_GAP}px`,
           transform: `translateX(${
-            -page * containerWidth + (options?.applyDragOffset ? dragOffset : 0)
+            -page * pageStride + (options?.applyDragOffset ? dragOffset : 0)
           }px)`,
           transition: getContentTransition(options?.animatePage),
         }}
@@ -217,6 +225,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
           sx={{
             height: "100%",
             display: "flex",
+            gap: `${MOBILE_PAGE_GAP}px`,
             transform: `translateX(${trackOffset}px)`,
             transition: animateTrack ? PAGE_TRANSITION : "none",
           }}

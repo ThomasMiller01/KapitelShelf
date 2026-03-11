@@ -2,7 +2,7 @@ import { useDrag } from "@use-gesture/react";
 import type { TransitionEvent } from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 
-const DISTANCE_THRESHOLD = 0.5; // More than 25% of container width
+const DISTANCE_THRESHOLD = 0.5; // More than 50% of page width
 const VELOCITY_THRESHOLD = 0.5;
 const VELOCITY_MIN_DISTANCE_RATIO = 0.08;
 
@@ -12,7 +12,8 @@ export interface BoundarySwipeTransition {
 }
 
 interface UseSwipeNavigationArgs {
-  containerWidth: number;
+  pageWidth: number;
+  pageStride: number;
   effectivePage: number;
   isAtSectionStart: boolean;
   isAtSectionEnd: boolean;
@@ -33,7 +34,8 @@ interface SwipeNavigationState {
 }
 
 export const useSwipeNavigation = ({
-  containerWidth,
+  pageWidth,
+  pageStride,
   effectivePage,
   isAtSectionStart,
   isAtSectionEnd,
@@ -73,8 +75,10 @@ export const useSwipeNavigation = ({
   isAtSectionStartRef.current = isAtSectionStart;
   isAtSectionEndRef.current = isAtSectionEnd;
 
-  const containerWidthRef = useRef(containerWidth);
-  containerWidthRef.current = containerWidth;
+  const pageWidthRef = useRef(pageWidth);
+  const pageStrideRef = useRef(pageStride);
+  pageWidthRef.current = pageWidth;
+  pageStrideRef.current = pageStride;
 
   const isSectionTransitioningRef = useRef(isSectionTransitioning);
   isSectionTransitioningRef.current = isSectionTransitioning;
@@ -112,8 +116,9 @@ export const useSwipeNavigation = ({
       cancel,
       first,
     }) => {
-      const width = containerWidthRef.current;
-      if (width === 0) {
+      const width = pageWidthRef.current;
+      const stride = pageStrideRef.current;
+      if (width === 0 || stride === 0) {
         return;
       }
 
@@ -195,13 +200,13 @@ export const useSwipeNavigation = ({
           onPrevRef.current();
         } else if (shouldCommitForward) {
           // Snap to next page position.
-          dragOffsetRef.current = -width;
-          setDragOffset(-width);
+          dragOffsetRef.current = -stride;
+          setDragOffset(-stride);
           setIsSnapping(true);
         } else if (shouldCommitBackward) {
           // Snap to previous page position.
-          dragOffsetRef.current = width;
-          setDragOffset(width);
+          dragOffsetRef.current = stride;
+          setDragOffset(stride);
           setIsSnapping(true);
         } else {
           // Snap back to current page.
@@ -236,14 +241,14 @@ export const useSwipeNavigation = ({
 
     setIsSnapping(false);
 
-    if (dragOffsetRef.current === -containerWidth) {
+    if (dragOffsetRef.current === -pageStrideRef.current) {
       // Forward commit: keep offset until page updates.
       pendingCommitRef.current = {
         direction: "next",
         targetPage: effectivePage + 1,
       };
       onNextRef.current();
-    } else if (dragOffsetRef.current === containerWidth) {
+    } else if (dragOffsetRef.current === pageStrideRef.current) {
       // Backward commit: keep offset until page updates.
       pendingCommitRef.current = {
         direction: "prev",
