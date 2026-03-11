@@ -45,18 +45,18 @@ export const PaletteLight: PaletteOptions = {
 export const PaletteSepia: PaletteOptions = {
   mode: "light",
   primary: {
-    main: "#8F7046",
+    main: "#85643D",
   },
   secondary: {
-    main: "#B1926E",
+    main: "#A88760",
   },
   background: {
     default: "#E9D9BE",
-    paper: "#F6EBD8",
+    paper: "#F1E1C7",
   },
   text: {
-    primary: "#4A3622",
-    secondary: "#7A6450",
+    primary: "#261A10",
+    secondary: "#5F4A36",
   },
   error: {
     main: "#C44536",

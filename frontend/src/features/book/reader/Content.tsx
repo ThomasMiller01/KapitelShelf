@@ -106,7 +106,7 @@ export const Content: React.FC<ContentProps> = ({
         >
           <Typography
             variant="caption"
-            color="text.disabled"
+            color="text.secondary"
             sx={{ fontSize: `${0.75 * fontScale}rem` }}
           >
             {currentTime}
@@ -138,14 +138,14 @@ export const Content: React.FC<ContentProps> = ({
         >
           <Typography
             variant="caption"
-            color="text.disabled"
+            color="text.secondary"
             sx={{ fontSize: `${0.75 * fontScale}rem` }}
           >
             Page {absoluteCurrentPage} of {absoluteTotalPages}
           </Typography>
           <Typography
             variant="caption"
-            color="text.disabled"
+            color="text.secondary"
             sx={{ fontSize: `${0.75 * fontScale}rem` }}
           >
             {progressPercent}%

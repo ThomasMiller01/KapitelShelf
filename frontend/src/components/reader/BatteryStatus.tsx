@@ -68,14 +68,14 @@ export const BatteryStatus: React.FC<BatteryStatusProps> = ({
     <Stack direction="row" alignItems="center" spacing={0.4}>
       <Icon
         sx={{
-          color: "text.disabled",
+          color: "text.secondary",
           fontSize: `${1.3 * fontScale}rem`,
           transform: "rotate(90deg)",
         }}
       />
       <Typography
         variant="caption"
-        color="text.disabled"
+        color="text.secondary"
         sx={{ fontSize: `${0.75 * fontScale}rem` }}
       >
         {boundedPercent}%
