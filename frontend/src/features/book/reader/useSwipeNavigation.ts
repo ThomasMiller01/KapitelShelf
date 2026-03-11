@@ -2,7 +2,9 @@ import { useDrag } from "@use-gesture/react";
 import type { TransitionEvent } from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 
-const DISTANCE_THRESHOLD = 0.25; // More than 50% of container width
+const DISTANCE_THRESHOLD = 0.5; // More than 25% of container width
+const VELOCITY_THRESHOLD = 0.5;
+const VELOCITY_MIN_DISTANCE_RATIO = 0.08;
 
 export interface BoundarySwipeTransition {
   direction: "forward" | "backward";
@@ -103,6 +105,8 @@ export const useSwipeNavigation = ({
   const bindSwipe = useDrag(
     ({
       movement: [mx],
+      velocity: [velocityX],
+      direction: [directionX],
       active,
       last,
       cancel,
@@ -145,14 +149,25 @@ export const useSwipeNavigation = ({
 
         const releasedOffset = mx === 0 ? dragOffsetRef.current : mx;
         const absMx = Math.abs(releasedOffset);
-        const isForward = releasedOffset < 0; // dragging left = forward
-        const isBackward = releasedOffset > 0; // dragging right = backward
-        const passedThreshold = absMx > width * DISTANCE_THRESHOLD;
+        const passedDistanceThreshold = absMx > width * DISTANCE_THRESHOLD;
+        const passedVelocityThreshold =
+          absMx >= width * VELOCITY_MIN_DISTANCE_RATIO &&
+          Math.abs(velocityX) >= VELOCITY_THRESHOLD &&
+          directionX !== 0;
+
+        const releaseDirection =
+          passedDistanceThreshold
+            ? Math.sign(releasedOffset)
+            : passedVelocityThreshold
+              ? directionX
+              : 0;
+        const isForward = releaseDirection < 0; // dragging left = forward
+        const isBackward = releaseDirection > 0; // dragging right = backward
 
         const shouldCommitForward =
-          passedThreshold && isForward && canGoForwardRef.current;
+          isForward && canGoForwardRef.current;
         const shouldCommitBackward =
-          passedThreshold && isBackward && canGoBackRef.current;
+          isBackward && canGoBackRef.current;
         const boundaryReleasedOffset = Math.max(
           -width,
           Math.min(width, releasedOffset),
