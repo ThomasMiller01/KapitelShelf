@@ -54,26 +54,15 @@ export const Settings: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("appearance");
 
-  const toggleDrawer = (open: boolean) => {
-    setOpen(open);
-
-    if (open) {
-      setTab("appearance");
-    }
-  };
-
   return (
     <>
-      <IconButtonWithTooltip
-        tooltip="Settings"
-        onClick={() => toggleDrawer(true)}
-      >
+      <IconButtonWithTooltip tooltip="Settings" onClick={() => setOpen(true)}>
         <TuneIcon />
       </IconButtonWithTooltip>
       <SwipeableDrawer
         open={open}
-        onOpen={() => toggleDrawer(true)}
-        onClose={() => toggleDrawer(false)}
+        onOpen={() => setOpen(true)}
+        onClose={() => setOpen(false)}
         anchor="bottom"
         slotProps={{
           paper: {
