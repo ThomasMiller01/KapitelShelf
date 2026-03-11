@@ -3,6 +3,7 @@ import { BookDTO, FileInfoDTO } from "../lib/api/KapitelShelf.Api";
 import { BookFileUrl, UrlToFile } from "../utils/FileUtils";
 import { BookContent } from "../utils/reader/BookContentModels";
 import { ParseEpub } from "../utils/reader/EpubReader";
+import { ParseFb2 } from "../utils/reader/Fb2Reader";
 import { ParsePdf } from "../utils/reader/PdfReader";
 import { ParseTxt } from "../utils/reader/TxtReader";
 
@@ -78,6 +79,15 @@ const ParseBook = async (
     fileInfo?.fileName?.endsWith(".txt")
   ) {
     return await ParseTxt(file, fileInfo);
+  }
+
+  // FB2
+  if (
+    fileInfo?.mimeType === "application/x-fictionbook+xml" ||
+    fileInfo?.mimeType === "application/x-fb2" ||
+    fileInfo?.fileName?.endsWith(".fb2")
+  ) {
+    return await ParseFb2(file, fileInfo);
   }
 
   // PDF
