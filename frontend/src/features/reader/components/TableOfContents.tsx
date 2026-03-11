@@ -48,7 +48,7 @@ const TableOfContentsContent: React.FC<TableOfContentsContentProps> = ({
 }) => {
   if (items.length === 0) {
     return (
-      <Box sx={{ px: 2, py: 1.5 }}>
+      <Box sx={{ px: 1, py: 1.5 }}>
         <Typography variant="body2" color="text.secondary">
           No table of contents available.
         </Typography>

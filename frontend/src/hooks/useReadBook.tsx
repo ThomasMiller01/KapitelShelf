@@ -3,6 +3,7 @@ import { BookDTO, FileInfoDTO } from "../lib/api/KapitelShelf.Api";
 import { BookFileUrl, UrlToFile } from "../utils/FileUtils";
 import { BookContent } from "../utils/reader/BookContentModels";
 import { ParseEpub } from "../utils/reader/EpubReader";
+import { ParseTxt } from "../utils/reader/TxtReader";
 
 interface useReadBookResult {
   content: BookContent | undefined;
@@ -35,6 +36,8 @@ export const useReadBook = (book: BookDTO): useReadBookResult => {
       .catch((e) => setError(e.message))
       .finally(() => setIsLoading(false));
   }, [file, isLoading]);
+
+  console.log("Parsed book content:", parsed);
 
   return {
     content: parsed,
@@ -69,14 +72,19 @@ const ParseBook = async (
   }
 
   // TXT
-  // TODO
+  if (
+    fileInfo?.mimeType === "text/plain" ||
+    fileInfo?.fileName?.endsWith(".txt")
+  ) {
+    return await ParseTxt(file, fileInfo);
+  }
 
   // PDF
   // TODO
 
   throw new Error(
-    `Unsupported book MIME type and file ending: ${
+    `Unsupported book MIME type '${
       fileInfo?.mimeType
-    }, .${fileInfo?.fileName?.split(".").pop()}`,
+    }' and file ending: '.${fileInfo?.fileName?.split(".").pop()}'`,
   );
 };
