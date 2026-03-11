@@ -114,7 +114,13 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
       applyDragOffset?: boolean;
     },
   ) => (
-    <Box sx={{ height: "100%", overflow: "hidden", px: isMobile ? 1.5 : 0 }}>
+    <Box
+      sx={{
+        height: "100%",
+        overflow: "hidden",
+        px: isMobile ? 1.5 : 0,
+      }}
+    >
       <Box
         ref={options?.attachContentRef ? contentRef : undefined}
         onTransitionEnd={
@@ -197,6 +203,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         maxWidth: "100%",
         maxHeight: "100%",
         height: "100%",
+        width: "100%",
         position: "relative",
         overflow: "hidden",
         background: theme.palette.background.paper,
