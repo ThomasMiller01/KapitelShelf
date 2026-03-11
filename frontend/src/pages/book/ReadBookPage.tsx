@@ -3,8 +3,7 @@ import { useParams } from "react-router-dom";
 
 import LoadingCard from "../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import BookReader from "../../features/book/reader/BookReader";
-import { ReaderThemeProvider } from "../../features/book/reader/ThemeProvider";
+import BookReader, { ReaderThemeProvider } from "../../features/reader";
 import { useBookById } from "../../lib/requests/books/useBookById";
 
 const ReadBookPage = (): ReactElement => {

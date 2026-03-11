@@ -5,12 +5,12 @@ import { useMobile } from "../../../hooks/useMobile";
 import type { BookSection } from "../../../utils/bookReader/BookContent";
 import { PaginationButton } from "./PaginationButton";
 import { ShadowBookContent } from "./ShadowBookContent";
-import { useContainerPagination } from "./useContainerPagination";
-import { useSectionTransition } from "./useSectionTransition";
+import { useContainerPagination } from "../hooks/pagination/useContainerPagination";
+import { useSectionTransition } from "../hooks/navigation/useSectionTransition";
 import {
   useSwipeNavigation,
   type BoundarySwipeTransition,
-} from "./useSwipeNavigation";
+} from "../hooks/navigation/useSwipeNavigation";
 
 interface ContentSectionProps {
   section: BookSection;

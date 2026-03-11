@@ -7,10 +7,10 @@ import type { BookContent } from "../../../utils/bookReader/BookContent";
 import { ContentSection } from "./ContentSection";
 import { PaginationButton } from "./PaginationButton";
 import { useReaderColorScheme } from "./ThemeProvider";
-import { useBookPageProgress } from "./useBookPageProgress";
-import { useReaderBattery } from "./useReaderBattery";
-import { useReaderClock } from "./useReaderClock";
-import { useReaderNavigation } from "./useReaderNavigation";
+import { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
+import { useReaderBattery } from "../hooks/device/useReaderBattery";
+import { useReaderClock } from "../hooks/device/useReaderClock";
+import { useReaderNavigation } from "../hooks/navigation/useReaderNavigation";
 
 interface ContentProps {
   content: BookContent;

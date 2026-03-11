@@ -2,10 +2,10 @@ import TuneIcon from "@mui/icons-material/Tune";
 import { Box, styled, SwipeableDrawer, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 
-import { IconButtonWithTooltip } from "../../../components/base/IconButtonWithTooltip";
-import { IsMobileApp } from "../../../utils/MobileUtils";
-import { FontSizeSelector } from "./settings/FontSizeSelector";
-import { ThemeSelector } from "./settings/ThemeSelector";
+import { IconButtonWithTooltip } from "../../../../components/base/IconButtonWithTooltip";
+import { IsMobileApp } from "../../../../utils/MobileUtils";
+import { FontSizeSelector } from "./FontSizeSelector";
+import { ThemeSelector } from "./ThemeSelector";
 
 const Puller = styled("div")(({ theme }) => ({
   width: 30,

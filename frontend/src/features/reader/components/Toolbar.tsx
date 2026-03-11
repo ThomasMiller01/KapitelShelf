@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ResponsiveDrawerAppBar } from "../../../components/base/ResponsiveDrawer";
 import { useMobile } from "../../../hooks/useMobile";
 import type { BookContent } from "../../../utils/bookReader/BookContent";
-import { Settings } from "./Settings";
+import { Settings } from "./settings/Settings";
 
 interface ToolbarProps {
   content: BookContent;

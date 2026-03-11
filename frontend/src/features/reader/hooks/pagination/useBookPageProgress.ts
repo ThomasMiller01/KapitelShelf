@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { BookContent } from "../../../utils/bookReader/BookContent";
+import { BookContent } from "../../../../utils/bookReader/BookContent";
 
 interface BookPageProgress {
   absoluteCurrentPage: number;

@@ -104,7 +104,7 @@ export const ResponsiveDrawer = ({
             size="small"
             variant="text"
             startIcon={actionIcon}
-            sx={{ ml: 1 }}
+            sx={{ ml: 1, color: "text.secondary" }}
           >
             {actionText}
           </Button>
