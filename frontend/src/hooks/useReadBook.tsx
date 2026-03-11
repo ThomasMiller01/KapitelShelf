@@ -3,6 +3,7 @@ import { BookDTO, FileInfoDTO } from "../lib/api/KapitelShelf.Api";
 import { BookFileUrl, UrlToFile } from "../utils/FileUtils";
 import { BookContent } from "../utils/reader/BookContentModels";
 import { ParseEpub } from "../utils/reader/EpubReader";
+import { ParsePdf } from "../utils/reader/PdfReader";
 import { ParseTxt } from "../utils/reader/TxtReader";
 
 interface useReadBookResult {
@@ -80,7 +81,12 @@ const ParseBook = async (
   }
 
   // PDF
-  // TODO
+  if (
+    fileInfo?.mimeType === "application/pdf" ||
+    fileInfo?.fileName?.endsWith(".pdf")
+  ) {
+    return await ParsePdf(file, fileInfo);
+  }
 
   throw new Error(
     `Unsupported book MIME type '${

@@ -39,6 +39,7 @@
     "foliate-js": "github:johnfactotum/foliate-js",
     "jszip": "^3.10.1",
     "notistack": "^3.0.2",
+    "pdfjs-dist": "^5.5.207",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
