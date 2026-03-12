@@ -2,6 +2,7 @@ import { EPUB } from "foliate-js/epub.js";
 import JSZip from "jszip";
 import { FileInfoDTO } from "../../lib/api/KapitelShelf.Api";
 import { BookContent, BookSection, BookTocItem } from "./BookContentModels";
+import { MAX_SECTION_CHARS, SplitBookSections } from "./SectionSplit";
 
 interface FoliateTocItem {
   label?: string;
@@ -78,13 +79,15 @@ export const ParseEpub = async (
     return undefined;
   }
 
-  const sections = await mapSections(parsed.sections);
-  const sectionIndexMap = new Map<string, number>();
-  for (const section of sections) {
+  const rawSections = await mapSections(parsed.sections);
+  const tocSectionIndexMap = new Map<string, number>();
+  for (const section of rawSections) {
     if (section.href) {
-      sectionIndexMap.set(section.href.split("#")[0], section.index);
+      tocSectionIndexMap.set(section.href.split("#")[0], section.index);
     }
   }
+  const splitResult = SplitBookSections(rawSections, MAX_SECTION_CHARS);
+  const sections = splitResult.sections;
 
   const result: BookContent = {
     metadata: {
@@ -93,7 +96,11 @@ export const ParseEpub = async (
       description: parsed.metadata?.description,
     },
     navigation: {
-      tableOfContents: mapTocItems(parsed.toc, sectionIndexMap),
+      tableOfContents: mapTocItems(
+        parsed.toc,
+        tocSectionIndexMap,
+        splitResult.sourceToFirstSplitIndex,
+      ),
       pageCount: undefined,
     },
     sections,
@@ -105,12 +112,17 @@ export const ParseEpub = async (
 const mapTocItems = (
   toc: FoliateTocItem[] | undefined,
   sectionIndexMap: Map<string, number>,
+  sourceToFirstSplitIndex: Map<number, number>,
 ): BookTocItem[] => {
   return (toc ?? []).map((item: FoliateTocItem, index: number): BookTocItem => {
     const hrefWithoutHash = item.href?.split("#")[0];
-    const sectionIndex =
+    const sourceSectionIndex =
       hrefWithoutHash !== undefined
         ? sectionIndexMap.get(hrefWithoutHash)
+        : undefined;
+    const sectionIndex =
+      sourceSectionIndex !== undefined
+        ? sourceToFirstSplitIndex.get(sourceSectionIndex)
         : undefined;
 
     return {
@@ -118,7 +130,7 @@ const mapTocItems = (
       label: item.label ?? "Untitled",
       href: item.href,
       sectionIndex,
-      children: mapTocItems(item.subitems, sectionIndexMap),
+      children: mapTocItems(item.subitems, sectionIndexMap, sourceToFirstSplitIndex),
     };
   });
 };

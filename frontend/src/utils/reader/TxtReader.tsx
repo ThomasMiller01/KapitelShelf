@@ -1,9 +1,6 @@
 import { FileInfoDTO } from "../../lib/api/KapitelShelf.Api";
 import { BookContent, BookSection, BookTocItem } from "./BookContentModels";
-
-// Maximum characters per section. Sections exceeding this are sub-chunked
-// so no single section is unboundedly large for the paginated reader.
-const MAX_CHARS_PER_SECTION = 50_000;
+import { MAX_SECTION_CHARS, SplitBookSections } from "./SectionSplit";
 
 // ALL_CAPS short text (e.g. "THE BEGINNING", "PART ONE").
 const ALL_CAPS = /^[A-Z0-9\s.,\-:'"!?]+$/;
@@ -37,8 +34,13 @@ export const ParseTxt = async (
     fileInfo?.fileName?.replace(/\.[^.]+$/, "") ?? "Untitled";
 
   const sectionGroups = splitIntoSections(blocks);
-  const sections = buildSections(sectionGroups);
-  const toc = buildToc(sectionGroups);
+  const rawSections = buildSections(sectionGroups);
+  const splitResult = SplitBookSections(rawSections, MAX_SECTION_CHARS);
+  const sections = splitResult.sections;
+  const toc = remapTocToSplitSections(
+    buildToc(sectionGroups),
+    splitResult.sourceToFirstSplitIndex,
+  );
 
   const result: BookContent = {
     metadata: { title },
@@ -147,7 +149,7 @@ const extractBlockHeading = (
   };
 };
 
-// Splits a section group into chunks of at most MAX_CHARS_PER_SECTION.
+// Splits a section group into chunks of at most MAX_SECTION_CHARS.
 // Only the first chunk inherits the heading title, so the TOC entry
 // still points to the start of the chapter even when it is sub-split.
 const chunkGroup = (group: SectionGroup): SectionGroup[] => {
@@ -165,7 +167,7 @@ const chunkGroup = (group: SectionGroup): SectionGroup[] => {
   };
 
   for (const block of group.blocks) {
-    if (currentChars + block.length > MAX_CHARS_PER_SECTION && current.length > 0) {
+    if (currentChars + block.length > MAX_SECTION_CHARS && current.length > 0) {
       flush();
     }
     current.push(block);
@@ -251,3 +253,16 @@ const buildToc = (groups: SectionGroup[]): BookTocItem[] =>
         children: [],
       };
     });
+
+const remapTocToSplitSections = (
+  toc: BookTocItem[],
+  sourceToFirstSplitIndex: Map<number, number>,
+): BookTocItem[] =>
+  toc.map((item) => ({
+    ...item,
+    sectionIndex:
+      item.sectionIndex !== undefined
+        ? sourceToFirstSplitIndex.get(item.sectionIndex)
+        : undefined,
+    children: remapTocToSplitSections(item.children, sourceToFirstSplitIndex),
+  }));

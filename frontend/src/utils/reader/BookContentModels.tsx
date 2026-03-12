@@ -26,6 +26,7 @@ export interface BookTocItem {
 export interface BookSection {
   id: string;
   index: number;
+  sourceSectionIndex?: number;
   title?: string;
   href?: string;
   contentType: BookSectionContentType;

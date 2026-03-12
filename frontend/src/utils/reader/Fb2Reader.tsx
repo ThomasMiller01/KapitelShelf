@@ -2,6 +2,7 @@ import type { Fb2Book, Fb2Section, Fb2TocItem } from "foliate-js/fb2.js";
 import { makeFB2 } from "foliate-js/fb2.js";
 import type { FileInfoDTO } from "../../lib/api/KapitelShelf.Api";
 import type { BookContent, BookSection, BookTocItem } from "./BookContentModels";
+import { MAX_SECTION_CHARS, SplitBookSections } from "./SectionSplit";
 
 export const ParseFb2 = async (
   file: File | undefined,
@@ -17,7 +18,9 @@ export const ParseFb2 = async (
     return undefined;
   }
 
-  const sections = await mapSections(book.sections);
+  const rawSections = await mapSections(book.sections);
+  const splitResult = SplitBookSections(rawSections, MAX_SECTION_CHARS);
+  const sections = splitResult.sections;
 
   const result: BookContent = {
     metadata: {
@@ -25,7 +28,11 @@ export const ParseFb2 = async (
       description: book.metadata?.description ?? undefined,
     },
     navigation: {
-      tableOfContents: mapTocItems(book.toc, { value: 0 }),
+      tableOfContents: mapTocItems(
+        book.toc,
+        { value: 0 },
+        splitResult.sourceToFirstSplitIndex,
+      ),
       pageCount: undefined,
     },
     sections,
@@ -38,6 +45,7 @@ export const ParseFb2 = async (
 const mapTocItems = (
   toc: Fb2TocItem[] | undefined | null,
   counter: { value: number },
+  sourceToFirstSplitIndex: Map<number, number>,
 ): BookTocItem[] => {
   if (!toc) {
     return [];
@@ -47,14 +55,19 @@ const mapTocItems = (
     // Parse the part before "#" to get the section index.
     const parsed =
       item.href !== undefined ? parseInt(item.href.split("#")[0], 10) : undefined;
-    const sectionIndex = parsed !== undefined && !Number.isNaN(parsed) ? parsed : undefined;
+    const sourceSectionIndex =
+      parsed !== undefined && !Number.isNaN(parsed) ? parsed : undefined;
+    const sectionIndex =
+      sourceSectionIndex !== undefined
+        ? sourceToFirstSplitIndex.get(sourceSectionIndex)
+        : undefined;
 
     return {
       id: `toc-${counter.value++}`,
       label: item.label ?? "Untitled",
       href: item.href,
       sectionIndex,
-      children: mapTocItems(item.subitems, counter),
+      children: mapTocItems(item.subitems, counter, sourceToFirstSplitIndex),
     };
   });
 };

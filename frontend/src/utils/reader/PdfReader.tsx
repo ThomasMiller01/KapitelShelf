@@ -1,5 +1,6 @@
 import { FileInfoDTO } from "../../lib/api/KapitelShelf.Api";
 import { BookContent, BookSection, BookTocItem } from "./BookContentModels";
+import { MAX_SECTION_CHARS, SplitBookSections } from "./SectionSplit";
 
 interface PdfTextItem {
   str: string;
@@ -201,14 +202,20 @@ export const ParsePdf = async (
     });
 
     const remappedToc = remapTocIndices(toc, originalToFiltered);
+    const splitResult = SplitBookSections(filteredSections, MAX_SECTION_CHARS);
+    const splitSections = splitResult.sections;
+    const splitMappedToc = remapTocIndices(
+      remappedToc,
+      splitResult.sourceToFirstSplitIndex,
+    );
 
     return {
       metadata: { title },
       navigation: {
-        tableOfContents: remappedToc,
+        tableOfContents: splitMappedToc,
         pageCount: filteredSections.length,
       },
-      sections: filteredSections,
+      sections: splitSections,
     };
   } finally {
     await doc.destroy();
