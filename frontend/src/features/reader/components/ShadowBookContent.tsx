@@ -6,12 +6,14 @@ interface ShadowBookContentProps {
   html: string;
   theme: Theme;
   fontScale: number;
+  contentFontFamily: string;
 }
 
 export const ShadowBookContent: React.FC<ShadowBookContentProps> = ({
   html,
   theme,
   fontScale,
+  contentFontFamily,
 }) => {
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -22,17 +24,21 @@ export const ShadowBookContent: React.FC<ShadowBookContentProps> = ({
     }
 
     const shadowRoot = host.shadowRoot ?? host.attachShadow({ mode: "open" });
-    shadowRoot.innerHTML = `<style>${ContentStyles(theme, fontScale)}</style>${html}`;
-  }, [fontScale, html, theme]);
+    shadowRoot.innerHTML = `<style>${ContentStyles(theme, fontScale, contentFontFamily)}</style>${html}`;
+  }, [contentFontFamily, fontScale, html, theme]);
 
   return <Box ref={hostRef} sx={{ height: "100%" }} />;
 };
 
-const ContentStyles = (theme: Theme, fontScale: number): string => `
+const ContentStyles = (
+  theme: Theme,
+  fontScale: number,
+  contentFontFamily: string,
+): string => `
 :host {
   color: ${theme.palette.text.primary} !important;
   background: transparent;
-  font-family: ${theme.typography.fontFamily};
+  font-family: ${contentFontFamily};
   font-size: ${fontScale}rem;
   line-height: 1.7;
   word-break: break-word;
@@ -50,10 +56,38 @@ const ContentStyles = (theme: Theme, fontScale: number): string => `
   page-break-inside: auto !important;
 }
 
+:host p,
+:host h1,
+:host h2,
+:host h3,
+:host h4,
+:host h5,
+:host h6,
+:host ul,
+:host ol,
+:host li,
+:host blockquote,
+:host table,
+:host thead,
+:host tbody,
+:host tfoot,
+:host tr,
+:host td,
+:host th,
+:host dl,
+:host dt,
+:host dd,
+:host figcaption,
+:host a,
+:host em,
+:host strong,
+:host span {
+  color: ${theme.palette.text.primary} !important;
+  font-family: ${contentFontFamily} !important;
+}
+
 :host p {
   margin: 0 0 0.5em 0 !important;
-  color: ${theme.palette.text.primary} !important;
-  font-family: ${theme.typography.fontFamily} !important;
   text-align: justify;
   text-align-last: left;
 }

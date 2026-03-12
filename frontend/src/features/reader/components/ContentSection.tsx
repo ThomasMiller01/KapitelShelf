@@ -18,6 +18,7 @@ interface ContentSectionProps {
   currentPage: number;
   totalPages: number;
   fontScale: number;
+  contentFontFamily: string;
   onTotalPagesChange: (total: number) => void;
   onNext: () => void;
   onPrev: () => void;
@@ -34,6 +35,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   currentPage,
   totalPages,
   fontScale,
+  contentFontFamily,
   onTotalPagesChange,
   onNext,
   onPrev,
@@ -147,6 +149,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
             html={targetSection.content || ""}
             theme={theme}
             fontScale={fontScale}
+            contentFontFamily={contentFontFamily}
           />
         </Box>
       </Box>

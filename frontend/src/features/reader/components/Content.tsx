@@ -30,7 +30,7 @@ export const Content: React.FC<ContentProps> = ({
   prevSection,
 }) => {
   const { isMobile } = useMobile();
-  const { fontScale } = useReaderColorScheme();
+  const { fontScale, contentFontFamily } = useReaderColorScheme();
   const { batteryPercent, isCharging } = useReaderBattery();
   const currentTime = useReaderClock();
   const [totalPages, setTotalPages] = useState(1);
@@ -123,6 +123,7 @@ export const Content: React.FC<ContentProps> = ({
           currentPage={currentPage}
           totalPages={totalPages}
           fontScale={fontScale}
+          contentFontFamily={contentFontFamily}
           onTotalPagesChange={handleTotalPagesChange}
           onNext={handleNext}
           onPrev={handlePrev}

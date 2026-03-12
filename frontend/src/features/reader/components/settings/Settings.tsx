@@ -1,9 +1,10 @@
 import TuneIcon from "@mui/icons-material/Tune";
-import { Box, styled, SwipeableDrawer, Tab, Tabs } from "@mui/material";
+import { Box, Stack, styled, SwipeableDrawer, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 
 import { IconButtonWithTooltip } from "../../../../components/base/IconButtonWithTooltip";
 import { IsMobileApp } from "../../../../utils/MobileUtils";
+import { FontFamilySelector } from "./FontFamilySelector";
 import { FontSizeSelector } from "./FontSizeSelector";
 import { ThemeSelector } from "./ThemeSelector";
 
@@ -37,22 +38,20 @@ const SettingsTabPanel: React.FC<SettingsTabPanelProps> = ({
   value,
   index,
   children,
-}) => {
-  return (
-    <Box
-      role="tabpanel"
-      hidden={value !== index}
-      id={`settings-tabpanel-${index}`}
-      aria-labelledby={`settings-tab-${index}`}
-    >
-      {value === index && <Box sx={{ p: 1 }}>{children}</Box>}
-    </Box>
-  );
-};
+}) => (
+  <Box
+    role="tabpanel"
+    hidden={value !== index}
+    id={`settings-tabpanel-${index}`}
+    aria-labelledby={`settings-tab-${index}`}
+  >
+    {value === index && <Box sx={{ p: 1 }}>{children}</Box>}
+  </Box>
+);
 
 export const Settings: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState("appearance");
+  const [tab, setTab] = useState("font");
 
   return (
     <>
@@ -94,14 +93,17 @@ export const Settings: React.FC = () => {
               },
             }}
           >
-            <SettingsTab value="appearance" label="Appearance" />
             <SettingsTab value="font" label="Font" />
+            <SettingsTab value="appearance" label="Appearance" />
           </Tabs>
+          <SettingsTabPanel value={tab} index="font">
+            <Stack spacing={2}>
+              <FontFamilySelector />
+              <FontSizeSelector />
+            </Stack>
+          </SettingsTabPanel>
           <SettingsTabPanel value={tab} index="appearance">
             <ThemeSelector />
-          </SettingsTabPanel>
-          <SettingsTabPanel value={tab} index="font">
-            <FontSizeSelector />
           </SettingsTabPanel>
         </Box>
 

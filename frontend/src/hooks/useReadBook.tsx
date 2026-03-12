@@ -39,8 +39,6 @@ export const useReadBook = (book: BookDTO): useReadBookResult => {
       .finally(() => setIsLoading(false));
   }, [file, isLoading]);
 
-  console.log("Parsed book content:", parsed);
-
   return {
     content: parsed,
     isLoading,
