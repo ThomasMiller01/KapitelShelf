@@ -3,7 +3,10 @@ import { Box, Stack, styled, SwipeableDrawer, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 
 import { IconButtonWithTooltip } from "../../../../components/base/IconButtonWithTooltip";
-import { IsMobileApp } from "../../../../utils/MobileUtils";
+import {
+  IsMobileApp,
+  MOBILE_APP_BOTTOM_INSET,
+} from "../../../../utils/MobileUtils";
 import { FontFamilySelector } from "./FontFamilySelector";
 import { FontSizeSelector } from "./FontSizeSelector";
 import { ThemeSelector } from "./ThemeSelector";
@@ -109,7 +112,11 @@ export const Settings: React.FC = () => {
 
         {/* Bottom padding for mobile */}
         {IsMobileApp() && (
-          <Box height="10px" width="100%" bgcolor="background.paper" />
+          <Box
+            height={MOBILE_APP_BOTTOM_INSET}
+            width="100%"
+            bgcolor="background.paper"
+          />
         )}
       </SwipeableDrawer>
     </>

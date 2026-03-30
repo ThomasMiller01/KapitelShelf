@@ -15,7 +15,11 @@ import type { ReactElement, ReactNode } from "react";
 
 import { NavLink } from "react-router-dom";
 import { useMobile } from "../../hooks/useMobile";
-import { IsMobileApp } from "../../utils/MobileUtils";
+import {
+  IsMobileApp,
+  MOBILE_APP_BOTTOM_INSET,
+  MOBILE_APP_TOP_INSET,
+} from "../../utils/MobileUtils";
 import FancyText from "../FancyText";
 
 export const DRAWER_WIDTH = 280;
@@ -37,6 +41,7 @@ export interface ResponsiveDrawerProps {
   actionLink?: string;
   actionText?: string;
   actionIcon?: ReactNode;
+  disableMobileTopInset?: boolean;
 }
 
 export const ResponsiveDrawer = ({
@@ -48,6 +53,7 @@ export const ResponsiveDrawer = ({
   actionLink,
   actionText,
   actionIcon,
+  disableMobileTopInset = false,
 }: ResponsiveDrawerProps): ReactElement => {
   const { isMobile } = useMobile();
   return (
@@ -67,8 +73,9 @@ export const ResponsiveDrawer = ({
         "& .MuiDrawer-paper": {
           width: DRAWER_WIDTH,
           boxSizing: "border-box",
-          paddingTop: IsMobileApp() ? "30px" : 0,
-          paddingBottom: IsMobileApp() ? "10px" : 0,
+          paddingTop:
+            IsMobileApp() && !disableMobileTopInset ? MOBILE_APP_TOP_INSET : 0,
+          paddingBottom: IsMobileApp() ? MOBILE_APP_BOTTOM_INSET : 0,
         },
       }}
     >
@@ -126,12 +133,14 @@ interface TopAppBarProps {
   open: boolean;
   toggle: () => void;
   children: ReactNode;
+  disableMobileTopInset?: boolean;
 }
 
 export const ResponsiveDrawerAppBar = ({
   open,
   toggle,
   children,
+  disableMobileTopInset = false,
 }: TopAppBarProps): ReactElement => {
   const { isMobile } = useMobile();
 
@@ -143,7 +152,8 @@ export const ResponsiveDrawerAppBar = ({
         width: open && !isMobile ? `calc(100% - ${DRAWER_WIDTH}px)` : "100%",
         ml: open && !isMobile ? `${DRAWER_WIDTH}px` : 0,
         bgcolor: "background.paper",
-        paddingTop: IsMobileApp() ? "30px" : 0,
+        paddingTop:
+          IsMobileApp() && !disableMobileTopInset ? MOBILE_APP_TOP_INSET : 0,
         paddingRight: "0 !important",
         transition: (theme) =>
           theme.transitions.create(["margin", "width"], {

@@ -27,7 +27,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   }, []);
 
   return (
-    <ResponsiveDrawerAppBar open={sidebarOpen} toggle={openSidebar}>
+    <ResponsiveDrawerAppBar
+      open={sidebarOpen}
+      toggle={openSidebar}
+      disableMobileTopInset
+    >
       <Stack direction="row" alignItems="center" flex={1} minWidth={0}>
         <Stack
           direction={{ sm: "column", md: "row" }}

@@ -33,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       actionLink={`/library/books/${bookId}`}
       actionText="Back to Library"
       actionIcon={<ArrowBackIcon />}
+      disableMobileTopInset
     >
       <TableOfContents
         items={content?.navigation.tableOfContents ?? []}

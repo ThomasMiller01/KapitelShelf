@@ -69,10 +69,9 @@ const AppRoutes = (): ReactElement | null => {
                 element: <EditBookDetailPage />,
               },
               {
-                path: "library/books/:bookId/read",
-                element: <ReadBookPage />,
+                path: "library/books/create",
+                element: <CreateBookPage />,
               },
-              { path: "library/books/create", element: <CreateBookPage /> },
               { path: "library/books/import", element: <ImportBookPage /> },
               {
                 path: "library/books/import-from-asin",
@@ -121,7 +120,11 @@ const AppRoutes = (): ReactElement | null => {
           {
             path: "/read",
             element:
-              profile === null ? <SelectProfilePage /> : <MainLayout minimal />,
+              profile === null ? (
+                <SelectProfilePage />
+              ) : (
+                <MainLayout minimal disableMobileTopInset />
+              ),
             children: [
               {
                 path: ":bookId",
