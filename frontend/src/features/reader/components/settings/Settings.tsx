@@ -66,6 +66,7 @@ export const Settings: React.FC = () => {
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
         anchor="bottom"
+        sx={{ zIndex: 1300 }}
         slotProps={{
           paper: {
             sx: {
