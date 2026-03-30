@@ -24,7 +24,11 @@ export const ShadowBookContent: React.FC<ShadowBookContentProps> = ({
     }
 
     const shadowRoot = host.shadowRoot ?? host.attachShadow({ mode: "open" });
-    shadowRoot.innerHTML = `<style>${ContentStyles(theme, fontScale, contentFontFamily)}</style>${html}`;
+    shadowRoot.innerHTML = `<style>${ContentStyles(
+      theme,
+      fontScale,
+      contentFontFamily,
+    )}</style>${html}`;
   }, [contentFontFamily, fontScale, html, theme]);
 
   return <Box ref={hostRef} sx={{ height: "100%" }} />;
@@ -90,6 +94,7 @@ const ContentStyles = (
   margin: 0 0 0.5em 0 !important;
   text-align: justify;
   text-align-last: left;
+  line-height: 1.7;
 }
 
 :host a {
