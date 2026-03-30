@@ -9,6 +9,7 @@ import {
 } from "../../../../utils/MobileUtils";
 import { FontFamilySelector } from "./FontFamilySelector";
 import { FontSizeSelector } from "./FontSizeSelector";
+import { RotationToggleSetting } from "./RotationToggleSetting";
 import { ThemeSelector } from "./ThemeSelector";
 
 const Puller = styled("div")(({ theme }) => ({
@@ -107,7 +108,10 @@ export const Settings: React.FC = () => {
             </Stack>
           </SettingsTabPanel>
           <SettingsTabPanel value={tab} index="appearance">
-            <ThemeSelector />
+            <Stack spacing={2}>
+              <ThemeSelector />
+              <RotationToggleSetting />
+            </Stack>
           </SettingsTabPanel>
         </Box>
 

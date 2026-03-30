@@ -13,6 +13,7 @@ import { createReaderTheme, ReaderColorScheme } from "../../../styles/Theme";
 const COLOR_SCHEME_STORAGE_KEY = "kapitelshelf.reader.colorscheme";
 const FONT_SCALE_STORAGE_KEY = "kapitelshelf.reader.fontscale";
 const CONTENT_FONT_STORAGE_KEY = "kapitelshelf.reader.contentfont";
+const READER_ROTATION_STORAGE_KEY = "kapitelshelf.reader.rotation";
 export const READER_FONT_SCALE_OPTIONS = [
   0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
 ];
@@ -53,6 +54,8 @@ interface ReaderColorSchemeContextValue {
   contentFont: ReaderContentFont;
   contentFontFamily: string;
   setContentFont: (font: ReaderContentFont) => void;
+  readerRotationEnabled: boolean;
+  setReaderRotationEnabled: (enabled: boolean) => void;
 }
 
 const ReaderColorSchemeContext = createContext<ReaderColorSchemeContextValue>({
@@ -63,6 +66,8 @@ const ReaderColorSchemeContext = createContext<ReaderColorSchemeContextValue>({
   contentFont: DEFAULT_CONTENT_FONT,
   contentFontFamily: READER_CONTENT_FONT_FAMILIES[DEFAULT_CONTENT_FONT],
   setContentFont: () => undefined,
+  readerRotationEnabled: false,
+  setReaderRotationEnabled: () => undefined,
 });
 
 export const useReaderColorScheme = (): ReaderColorSchemeContextValue =>
@@ -99,6 +104,10 @@ export const ReaderThemeProvider = ({
     );
     return isValid ? (stored as ReaderContentFont) : DEFAULT_CONTENT_FONT;
   });
+  const [readerRotationEnabled, setReaderRotationEnabledState] =
+    useState<boolean>(
+      () => localStorage.getItem(READER_ROTATION_STORAGE_KEY) === "true",
+    );
 
   const setColorScheme = useCallback((scheme: ReaderColorScheme): void => {
     setColorSchemeState(scheme);
@@ -126,6 +135,11 @@ export const ReaderThemeProvider = ({
     localStorage.setItem(CONTENT_FONT_STORAGE_KEY, font);
   }, []);
 
+  const setReaderRotationEnabled = useCallback((enabled: boolean): void => {
+    setReaderRotationEnabledState(enabled);
+    localStorage.setItem(READER_ROTATION_STORAGE_KEY, String(enabled));
+  }, []);
+
   const contentFontFamily = READER_CONTENT_FONT_FAMILIES[contentFont];
 
   return (
@@ -138,6 +152,8 @@ export const ReaderThemeProvider = ({
         contentFont,
         contentFontFamily,
         setContentFont,
+        readerRotationEnabled,
+        setReaderRotationEnabled,
       }}
     >
       <ThemeProvider theme={themeForScheme[colorScheme]}>

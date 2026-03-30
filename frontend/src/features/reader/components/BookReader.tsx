@@ -14,6 +14,7 @@ import {
   IsMobileApp,
   MOBILE_APP_BOTTOM_INSET,
 } from "../../../utils/MobileUtils";
+import { useReaderOrientation } from "../hooks/device/useReaderOrientation";
 import { Content } from "./Content";
 import { Sidebar } from "./Sidebar";
 import { Toolbar } from "./Toolbar";
@@ -43,6 +44,7 @@ interface BookDetailsProps {
 const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const { isMobile } = useMobile();
   const { content, isLoading, error } = useReadBook(book);
+  useReaderOrientation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { section, page, nextSection, prevSection, setSection, setPage } =
     useReadBookPagination();
