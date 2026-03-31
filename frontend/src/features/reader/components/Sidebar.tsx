@@ -9,6 +9,7 @@ import TableOfContents from "./TableOfContents";
 interface SidebarProps {
   bookId: string | undefined;
   content: BookContent;
+  isCompactLayout: boolean;
   sidebarOpen: boolean;
   closeSidebar: () => void;
   onTocItemSelect?: (item: BookTocItem) => void;
@@ -17,6 +18,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   bookId,
   content,
+  isCompactLayout,
   sidebarOpen,
   closeSidebar,
   onTocItemSelect: onTocItemSelectBase,
@@ -34,6 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       actionText="Back to Library"
       actionIcon={<ArrowBackIcon />}
       disableMobileTopInset
+      mobileOverride={isCompactLayout}
     >
       <TableOfContents
         items={content?.navigation.tableOfContents ?? []}

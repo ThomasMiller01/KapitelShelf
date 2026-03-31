@@ -1,7 +1,6 @@
 import { Box, useTheme } from "@mui/material";
 import React, { useRef } from "react";
 
-import { useMobile } from "../../../hooks/useMobile";
 import type { BookSection } from "../../../utils/reader/BookContentModels";
 import { useSectionTransition } from "../hooks/navigation/useSectionTransition";
 import {
@@ -15,6 +14,7 @@ import { ShadowBookContent } from "./ShadowBookContent";
 interface ContentSectionProps {
   section: BookSection;
   sectionIndex: number;
+  isCompactLayout: boolean;
   currentPage: number;
   totalPages: number;
   fontScale: number;
@@ -32,6 +32,7 @@ const MOBILE_PAGE_GAP = 15;
 export const ContentSection: React.FC<ContentSectionProps> = ({
   section,
   sectionIndex,
+  isCompactLayout,
   currentPage,
   totalPages,
   fontScale,
@@ -43,7 +44,6 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
   canGoForward,
 }) => {
   const theme = useTheme();
-  const { isMobile } = useMobile();
   const boundarySwipeTransitionRef = useRef<BoundarySwipeTransition | null>(
     null,
   );
@@ -120,7 +120,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
       sx={{
         height: "100%",
         overflow: "hidden",
-        px: isMobile ? 1.5 : 0,
+        px: isCompactLayout ? 1.5 : 0,
       }}
     >
       <Box
@@ -141,7 +141,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
       >
         <Box
           sx={{
-            px: isMobile ? 1.5 : 3,
+            px: isCompactLayout ? 1.5 : 3,
             height: "100%",
           }}
         >
@@ -202,7 +202,7 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
       ref={containerRef}
       {...bindSwipe()}
       sx={{
-        aspectRatio: isMobile ? "none" : "2 / 3",
+        aspectRatio: isCompactLayout ? "none" : "2 / 3",
         maxWidth: "100%",
         maxHeight: "100%",
         height: "100%",
@@ -211,22 +211,24 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
         overflow: "hidden",
         background: theme.palette.background.paper,
         borderRadius: 1,
-        py: isMobile ? 1 : 2,
+        py: isCompactLayout ? 1 : 2,
         mt: "5px !important",
         touchAction: "pan-y",
       }}
     >
-      {isMobile && (
+      {isCompactLayout && (
         <>
           <PaginationButton
             onClick={onPrev}
             disabled={!canGoBack}
             direction="prev"
+            isCompactLayout={isCompactLayout}
           />
           <PaginationButton
             onClick={onNext}
             disabled={!canGoForward}
             direction="next"
+            isCompactLayout={isCompactLayout}
           />
         </>
       )}

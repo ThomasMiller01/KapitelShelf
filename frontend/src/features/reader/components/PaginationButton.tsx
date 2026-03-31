@@ -3,21 +3,19 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { IconButton } from "@mui/material";
 import React from "react";
 
-import { useMobile } from "../../../hooks/useMobile";
-
 interface PaginationButtonProps {
   onClick: () => void;
   disabled: boolean;
   direction: "prev" | "next";
+  isCompactLayout: boolean;
 }
 
 export const PaginationButton: React.FC<PaginationButtonProps> = ({
   onClick,
   disabled,
   direction,
+  isCompactLayout,
 }) => {
-  const { isMobile } = useMobile();
-
   const Icon = direction === "prev" ? NavigateBeforeIcon : NavigateNextIcon;
 
   return (
@@ -36,7 +34,7 @@ export const PaginationButton: React.FC<PaginationButtonProps> = ({
         "&:hover": {
           backgroundColor: "transparent",
         },
-        ...(isMobile && {
+        ...(isCompactLayout && {
           position: "absolute",
           left: direction === "prev" ? 5 : "auto",
           right: direction === "next" ? 5 : "auto",
@@ -45,7 +43,7 @@ export const PaginationButton: React.FC<PaginationButtonProps> = ({
         }),
       }}
     >
-      {!isMobile && <Icon fontSize="large" />}
+      {!isCompactLayout && <Icon fontSize="large" />}
     </IconButton>
   );
 };

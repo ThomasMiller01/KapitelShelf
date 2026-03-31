@@ -2,22 +2,22 @@ import { Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 import { ResponsiveDrawerAppBar } from "../../../components/base/ResponsiveDrawer";
-import { useMobile } from "../../../hooks/useMobile";
 import type { BookContent } from "../../../utils/reader/BookContentModels";
 import { Settings } from "./settings/Settings";
 
 interface ToolbarProps {
   content: BookContent;
+  isCompactLayout: boolean;
   sidebarOpen: boolean;
   openSidebar: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   content,
+  isCompactLayout,
   sidebarOpen,
   openSidebar,
 }) => {
-  const { isMobile } = useMobile();
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -31,17 +31,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       open={sidebarOpen}
       toggle={openSidebar}
       disableMobileTopInset
+      mobileOverride={isCompactLayout}
     >
       <Stack direction="row" alignItems="center" flex={1} minWidth={0}>
         <Stack
-          direction={{ sm: "column", md: "row" }}
+          direction={isCompactLayout ? "row" : { sm: "column", md: "row" }}
           spacing={1}
-          alignItems={{ sm: "stretch", md: "baseline" }}
+          alignItems={
+            isCompactLayout ? "center" : { sm: "stretch", md: "baseline" }
+          }
           flex={1}
           minWidth={0}
           overflow="hidden"
           sx={{
-            opacity: isMobile && !visible ? 0 : 1,
+            opacity: isCompactLayout && !visible ? 0 : 1,
             transition: "opacity 0.5s ease",
           }}
         >
@@ -49,7 +52,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             variant="h6"
             noWrap
             component="div"
-            pr={isMobile ? 0 : 1}
+            pr={isCompactLayout ? 0 : 1}
             minWidth={0}
             color="textPrimary"
             textAlign="left"

@@ -2,7 +2,6 @@ import { Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
 import { BatteryStatus } from "../../../components/reader/BatteryStatus";
-import { useMobile } from "../../../hooks/useMobile";
 import type { BookContent } from "../../../utils/reader/BookContentModels";
 import { useReaderBattery } from "../hooks/device/useReaderBattery";
 import { useReaderClock } from "../hooks/device/useReaderClock";
@@ -14,6 +13,7 @@ import { useReaderColorScheme } from "./ThemeProvider";
 
 interface ContentProps {
   content: BookContent;
+  isCompactLayout: boolean;
   currentSection: number;
   currentPage: number;
   setCurrentPage: (page: number) => void;
@@ -23,13 +23,13 @@ interface ContentProps {
 
 export const Content: React.FC<ContentProps> = ({
   content,
+  isCompactLayout,
   currentSection,
   currentPage,
   setCurrentPage,
   nextSection,
   prevSection,
 }) => {
-  const { isMobile } = useMobile();
   const { fontScale, contentFontFamily } = useReaderColorScheme();
   const { batteryPercent, isCharging } = useReaderBattery();
   const currentTime = useReaderClock();
@@ -71,29 +71,30 @@ export const Content: React.FC<ContentProps> = ({
 
   return (
     <Stack
-      px={isMobile ? 0 : 4}
-      pt={isMobile ? 2.5 : 4}
-      pb={isMobile ? 1.5 : 4}
+      px={isCompactLayout ? 0 : 4}
+      pt={isCompactLayout ? 2.5 : 4}
+      pb={isCompactLayout ? 1.5 : 4}
       height="100%"
       maxWidth="100%"
       justifyContent="center"
       alignItems="center"
       direction="row"
       position="relative"
-      bgcolor={isMobile ? "background.paper" : "background.default"}
+      bgcolor={isCompactLayout ? "background.paper" : "background.default"}
     >
-      {!isMobile && (
+      {!isCompactLayout && (
         <PaginationButton
           onClick={handlePrev}
           disabled={!canGoBack}
           direction="prev"
+          isCompactLayout={isCompactLayout}
         />
       )}
       <Stack
         direction="column"
         alignItems="center"
         height="100%"
-        width={{ xs: "100%", sm: "auto" }}
+        width={isCompactLayout ? "100%" : "auto"}
         justifyContent="center"
         spacing={1}
       >
@@ -102,7 +103,7 @@ export const Content: React.FC<ContentProps> = ({
           justifyContent="space-between"
           alignItems="center"
           width="100%"
-          px={isMobile ? 2.5 : 3.5}
+          px={isCompactLayout ? 2.5 : 3.5}
         >
           <Typography
             variant="caption"
@@ -120,6 +121,7 @@ export const Content: React.FC<ContentProps> = ({
         <ContentSection
           section={content.sections[currentSection]}
           sectionIndex={currentSection}
+          isCompactLayout={isCompactLayout}
           currentPage={currentPage}
           totalPages={totalPages}
           fontScale={fontScale}
@@ -135,7 +137,7 @@ export const Content: React.FC<ContentProps> = ({
           spacing={2}
           justifyContent="space-between"
           width="100%"
-          px={isMobile ? 2.5 : 3.5}
+          px={isCompactLayout ? 2.5 : 3.5}
         >
           <Typography
             variant="caption"
@@ -153,11 +155,12 @@ export const Content: React.FC<ContentProps> = ({
           </Typography>
         </Stack>
       </Stack>
-      {!isMobile && (
+      {!isCompactLayout && (
         <PaginationButton
           onClick={handleNext}
           disabled={!canGoForward}
           direction="next"
+          isCompactLayout={isCompactLayout}
         />
       )}
     </Stack>

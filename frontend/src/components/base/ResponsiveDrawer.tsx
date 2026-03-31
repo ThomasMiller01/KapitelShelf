@@ -42,6 +42,7 @@ export interface ResponsiveDrawerProps {
   actionText?: string;
   actionIcon?: ReactNode;
   disableMobileTopInset?: boolean;
+  mobileOverride?: boolean;
 }
 
 export const ResponsiveDrawer = ({
@@ -54,8 +55,10 @@ export const ResponsiveDrawer = ({
   actionText,
   actionIcon,
   disableMobileTopInset = false,
+  mobileOverride,
 }: ResponsiveDrawerProps): ReactElement => {
-  const { isMobile } = useMobile();
+  const { isMobile: detectedIsMobile } = useMobile();
+  const isMobile = mobileOverride ?? detectedIsMobile;
   return (
     <Drawer
       variant={isMobile ? "temporary" : "persistent"}
@@ -134,6 +137,7 @@ interface TopAppBarProps {
   toggle: () => void;
   children: ReactNode;
   disableMobileTopInset?: boolean;
+  mobileOverride?: boolean;
 }
 
 export const ResponsiveDrawerAppBar = ({
@@ -141,8 +145,10 @@ export const ResponsiveDrawerAppBar = ({
   toggle,
   children,
   disableMobileTopInset = false,
+  mobileOverride,
 }: TopAppBarProps): ReactElement => {
-  const { isMobile } = useMobile();
+  const { isMobile: detectedIsMobile } = useMobile();
+  const isMobile = mobileOverride ?? detectedIsMobile;
 
   return (
     <AppBar

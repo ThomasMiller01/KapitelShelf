@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import LoadingCard from "../../../components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
 import { DRAWER_WIDTH } from "../../../components/base/ResponsiveDrawer";
-import { useMobile } from "../../../hooks/useMobile";
 import { useReadBook } from "../../../hooks/useReadBook";
 import { useReadBookPagination } from "../../../hooks/useReadBookPagination";
 import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
@@ -15,34 +14,37 @@ import {
   MOBILE_APP_BOTTOM_INSET,
 } from "../../../utils/MobileUtils";
 import { useReaderOrientation } from "../hooks/device/useReaderOrientation";
+import { useReaderCompactLayout } from "../hooks/layout/useReaderCompactLayout";
 import { Content } from "./Content";
 import { Sidebar } from "./Sidebar";
 import { Toolbar } from "./Toolbar";
 
 const ContentWrapper = styled("div", {
-  shouldForwardProp: (prop) => prop !== "open" && prop !== "isMobile",
-})<{ open: boolean; isMobile: boolean }>(({ theme, open, isMobile }) => ({
-  flexGrow: 1,
-  minWidth: 0,
-  width: "100%",
-  height: `calc(100vh - ${isMobile ? theme.spacing(7) : theme.spacing(8)} - ${
-    IsMobileApp() ? MOBILE_APP_BOTTOM_INSET : "0px"
-  })`,
-  transition: theme.transitions.create("margin", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+  shouldForwardProp: (prop) => prop !== "open" && prop !== "isCompactLayout",
+})<{ open: boolean; isCompactLayout: boolean }>(
+  ({ theme, open, isCompactLayout }) => ({
+    flexGrow: 1,
+    minWidth: 0,
+    width: "100%",
+    height: `calc(100vh - ${
+      isCompactLayout ? theme.spacing(7) : theme.spacing(8)
+    } - ${IsMobileApp() ? MOBILE_APP_BOTTOM_INSET : "0px"})`,
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: isCompactLayout ? 0 : `-${DRAWER_WIDTH}px`,
+    ...(open && !isCompactLayout && { marginLeft: 0 }),
+    marginTop: isCompactLayout ? theme.spacing(7) : theme.spacing(8),
   }),
-  marginLeft: isMobile ? 0 : `-${DRAWER_WIDTH}px`,
-  ...(open && !isMobile && { marginLeft: 0 }),
-  marginTop: isMobile ? theme.spacing(7) : theme.spacing(8),
-}));
+);
 
 interface BookDetailsProps {
   book: BookDTO;
 }
 
 const BookReader = ({ book }: BookDetailsProps): ReactElement => {
-  const { isMobile } = useMobile();
+  const { isCompactLayout } = useReaderCompactLayout();
   const { content, isLoading, error } = useReadBook(book);
   useReaderOrientation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -83,19 +85,22 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
     <>
       <Toolbar
         content={content}
+        isCompactLayout={isCompactLayout}
         sidebarOpen={sidebarOpen}
         openSidebar={() => setSidebarOpen(true)}
       />
       <Sidebar
         bookId={book.id}
         content={content}
+        isCompactLayout={isCompactLayout}
         sidebarOpen={sidebarOpen}
         closeSidebar={() => setSidebarOpen(false)}
         onTocItemSelect={(item) => setSection(item.sectionIndex ?? 0)}
       />
-      <ContentWrapper open={sidebarOpen} isMobile={isMobile}>
+      <ContentWrapper open={sidebarOpen} isCompactLayout={isCompactLayout}>
         <Content
           content={content}
+          isCompactLayout={isCompactLayout}
           currentSection={section}
           currentPage={page}
           setCurrentPage={setPage}
