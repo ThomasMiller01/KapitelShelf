@@ -28,6 +28,8 @@ KapitelShelf supports manual entry, file imports, metadata enrichment and remova
 
    ![Successful Import](../.attachments/references/book-management/import/successful_import.png)
 
+> If an imported book includes a local file, the book detail page can show **Read**. For supported in-app formats, reader settings, and reading limitations, see [Book Reader](./book-reader.md).
+
 ## Bulk Import from CSV
 
 KapitelShelf can ingest a full library from a CSV file, creating a book for each row.

@@ -13,6 +13,7 @@ It supports both digital books (EPUB, PDF, etc.) and physical collections, with 
 ## Features
 
 - Manage physical and digital books with file support
+- Built-in reader for supported local files with navigation, page colors, font controls and mobile reading support
 - Browse and search books, series, author and tags
 - Shelves and filtering (tags, categories, series, location) _(planned)_
 - Import and sync books from cloud storages (OneDrive)

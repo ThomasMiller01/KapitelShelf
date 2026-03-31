@@ -14,6 +14,7 @@ Use this hub as the in-depth companion to the [Quickstart Guide](./quickstart.md
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | [User Profiles](./references/user-profiles.md)           | Create, switch and configure user accounts while understanding how settings sync per profile. |
 | [Library and Search](./references/library-and-search.md) | Browse your catalogue by series and locate items instantly with full-text search.             |
+| [Book Reader](./references/book-reader.md)               | Open supported local books, navigate chapters and pages and customize the reading view.       |
 | [Watchlist](./references/watchlist.md)                   | Track upcoming releases for monitored series and manage watchlist entries.                    |
 |                                                          |                                                                                               |
 | [Book Management](./references/book-management.md)       | Add books manually, import files or CSV batches, enrich metadata and remove entries safely.   |
