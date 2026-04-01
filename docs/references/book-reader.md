@@ -29,7 +29,7 @@ What happens with other book locations:
 
 If a local file is better handled by another app, **Download** remains available from the same book detail page.
 
-TODO: IMAGE - Book detail page with the `Read` button highlighted next to `Download` for a local book.
+![Book Detail Page Read Button](../.attachments/references/book-reader/BookDetailPage_ReadButton.png)
 
 ## Move Through the Book
 
@@ -59,13 +59,13 @@ Open the sidebar from the reader toolbar to move to another chapter or section q
 
 If a book does not contain a usable table of contents, the sidebar shows `No table of contents available.` instead.
 
-TODO: IMAGE - Reader table of contents sidebar with nested chapter entries expanded.
+![Table of Contents](../.attachments/references/book-reader/Sidebar_TableOfContents.png)
 
 ## Change Font and Appearance
 
 Open the settings button in the reader toolbar to customize the reading view. The settings drawer has a **Font** tab and an **Appearance** tab.
 
-TODO: IMAGE - Reader settings drawer open with the Font and Appearance tabs visible.
+![Reader Settings](../.attachments/references/book-reader/Reader_Settings.png)
 
 ### Font settings
 

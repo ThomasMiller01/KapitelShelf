@@ -61,7 +61,7 @@ If a book detail page shows **Read**, you can launch the built-in reader from th
 
 For supported formats, navigation, personalization options and reader limitations, see [Book Reader](./references/book-reader.md).
 
-TODO: IMAGE - Book detail page with the `Read` button highlighted for a local book.
+![Book Detail Page Read Button](./.attachments/references/book-reader/BookDetailPage_ReadButton.png)
 
 ## 6. Start with AI
 
