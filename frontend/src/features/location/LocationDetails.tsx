@@ -3,7 +3,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import { Button, Link, Stack } from "@mui/material";
 import { type ReactElement } from "react";
 
-import { useNotImplemented } from "../../hooks/useNotImplemented";
+import { NavLink } from "react-router-dom";
 import type {
   LocationDTO,
   LocationTypeDTO,
@@ -39,7 +39,6 @@ const LocationDetails = ({
   bookId,
   location,
 }: LocationDetailsProps): ReactElement => {
-  const trigger = useNotImplemented();
   if (RealWorldTypes.includes(location.type ?? -1)) {
     return (
       <Stack direction="row" justifyContent="center" mt="15px">
@@ -68,9 +67,10 @@ const LocationDetails = ({
     return (
       <Stack direction="row" justifyContent="center" spacing={2} mt="15px">
         <Button
+          component={NavLink}
+          to={`/read/${bookId}`}
           variant="outlined"
           startIcon={<AutoStoriesIcon />}
-          onClick={() => trigger(107)}
           disabled={fileUrl === undefined}
         >
           Read

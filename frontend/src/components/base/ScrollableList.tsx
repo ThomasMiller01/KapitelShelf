@@ -17,6 +17,8 @@ type ScrollableListProps = {
   children: React.ReactNode;
   itemWidth?: number; // px
   itemGap?: number; // px
+  showNavigation?: boolean;
+  verticalPadding?: number; // px
 };
 
 export const ScrollableList: React.FC<ScrollableListProps> = ({
@@ -24,6 +26,8 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
   children,
   itemWidth = 120,
   itemGap = 24,
+  showNavigation = true,
+  verticalPadding = 18,
 }) => {
   const { isMobile } = useMobile();
 
@@ -36,6 +40,7 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
         flexDirection: "column",
         flex: 1,
         minWidth: 0,
+        mt: "0 !important",
       }}
     >
       {title && (
@@ -82,11 +87,11 @@ export const ScrollableList: React.FC<ScrollableListProps> = ({
         <Swiper
           modules={[FreeMode, Navigation]}
           freeMode={{ enabled: true, momentumRatio: 0.8, minimumVelocity: 0.1 }}
-          navigation={!isMobile}
+          navigation={showNavigation && !isMobile}
           spaceBetween={itemGap}
           slidesPerView="auto"
           autoHeight
-          style={{ padding: "18px 0" }}
+          style={{ padding: `${verticalPadding}px 0` }}
         >
           {items.map((child, _) => (
             <SwiperSlide>

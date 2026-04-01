@@ -3,6 +3,8 @@ import type { ReactElement } from "react";
 
 interface RequestErrorCardProps {
   itemName: string;
+  actionText?: string;
+  subtitle?: string;
   onRetry?: () => void;
   small?: boolean;
   secondAction?: (() => void) | null;
@@ -12,6 +14,8 @@ interface RequestErrorCardProps {
 
 export const RequestErrorCard = ({
   itemName,
+  actionText = "load",
+  subtitle = "Please check your internet connection or try again later.",
   onRetry,
   small = false,
   secondAction = null,
@@ -29,10 +33,10 @@ export const RequestErrorCard = ({
     }}
   >
     <Typography variant="h5" color="error" gutterBottom>
-      Failed to load {itemName}.
+      Failed to {actionText} {itemName}.
     </Typography>
     <Typography variant="body1" color="text.secondary" mb={small ? 2 : 3}>
-      Please check your internet connection or try again later.
+      {subtitle}
     </Typography>
     <Stack direction="row" spacing={2}>
       {onRetry && (

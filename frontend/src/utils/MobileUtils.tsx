@@ -1,6 +1,8 @@
 import { Capacitor } from "@capacitor/core";
 
 const API_BASE_KEY = "kapitelshelf.mobile.api-base-url";
+export const MOBILE_APP_TOP_INSET = "30px";
+export const MOBILE_APP_BOTTOM_INSET = "10px";
 
 export const IsMobileApp = (): boolean => Capacitor.getPlatform() !== "web";
 

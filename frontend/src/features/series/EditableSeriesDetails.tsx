@@ -64,8 +64,6 @@ const EditableSeriesDetails = ({
       return;
     }
 
-    console.log(data);
-
     const series: SeriesDTO = {
       name: data.name,
       rating: data.rating ? data.rating * 2 : null,

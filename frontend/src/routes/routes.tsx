@@ -11,6 +11,7 @@ import CreateBookPage from "../pages/book/CreateBookPage";
 import EditBookDetailPage from "../pages/book/EditBookDetailPage";
 import ImportBookFromASINPage from "../pages/book/ImportBookFromASINPage";
 import ImportBookPage from "../pages/book/ImportBookPage";
+import ReadBookPage from "../pages/book/ReadBookPage";
 import { ConfigureMobileBackendUrlPage } from "../pages/ConfigureMoibleBackendUrlPage";
 import HomePage from "../pages/HomePage";
 import LibraryPage from "../pages/LibraryPage";
@@ -67,7 +68,10 @@ const AppRoutes = (): ReactElement | null => {
                 path: "library/books/:bookId/edit",
                 element: <EditBookDetailPage />,
               },
-              { path: "library/books/create", element: <CreateBookPage /> },
+              {
+                path: "library/books/create",
+                element: <CreateBookPage />,
+              },
               { path: "library/books/import", element: <ImportBookPage /> },
               {
                 path: "library/books/import-from-asin",
@@ -110,6 +114,21 @@ const AppRoutes = (): ReactElement | null => {
                     ],
                   },
                 ],
+              },
+            ],
+          },
+          {
+            path: "/read",
+            element:
+              profile === null ? (
+                <SelectProfilePage />
+              ) : (
+                <MainLayout minimal disableMobileTopInset />
+              ),
+            children: [
+              {
+                path: ":bookId",
+                element: <ReadBookPage />,
               },
             ],
           },

@@ -52,9 +52,18 @@ Browse the collection you have built and dive into each series.
 
 > ℹ️ Series act as containers for books. To focus on a single series, open it from the list and explore the options described in [Library and Search](./references.md#library-and-search).
 
--
+## 5. Open a Book in the Built-In Reader
 
-## 5. Start with AI
+If a book detail page shows **Read**, you can launch the built-in reader from there.
+
+1. Open the book detail page.
+2. Click **Read** to launch the built-in reader.
+
+For supported formats, navigation, personalization options and reader limitations, see [Book Reader](./references/book-reader.md).
+
+![Book Detail Page Read Button](./.attachments/references/book-reader/BookDetailPage_ReadButton.png)
+
+## 6. Start with AI
 
 If you want to use KapitelShelf's AI features _(search, metadata generation)_, see the full guide: [AI Quickstart in KapitelShelf](./ai.md).
 

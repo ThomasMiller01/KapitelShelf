@@ -9,7 +9,7 @@ import {
   LinkColumn,
   ManageItemsTable,
 } from "../../components/ManageItemsTable";
-import { useItemsTableParams } from "../../hooks/url/useItemsTableParams";
+import { useItemsTableParams } from "../../hooks/useItemsTableParams";
 import { SeriesDTO } from "../../lib/api/KapitelShelf.Api";
 import { useDeleteSeriesBulk } from "../../lib/requests/series/useDeleteSeriesBulk";
 import { useMergeSeriesBulk } from "../../lib/requests/series/useMergeSeriesBulk";
