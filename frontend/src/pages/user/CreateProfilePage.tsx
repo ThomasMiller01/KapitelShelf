@@ -2,10 +2,9 @@ import { Box, Container, Divider, Typography } from "@mui/material";
 import { type ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import EditableProfileDetails from "../../features/user/EditableProfileDetails";
-import { useUserProfile } from "../../hooks/useUserProfile";
+import { EditableProfileDetails, useCreateUser } from "../../features/user";
+import { useUserProfile } from "../../shared/hooks/useUserProfile";
 import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { useCreateUser } from "../../lib/requests/users/useCreateUser";
 
 export const CreateProfilePage = (): ReactElement => {
   const navigate = useNavigate();

@@ -3,16 +3,16 @@ import { useState, type ReactElement } from "react";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
-import LoadingCard from "../../../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
-import { DRAWER_WIDTH } from "../../../components/base/ResponsiveDrawer";
-import { useReadBook } from "../../../hooks/useReadBook";
-import { useReadBookPagination } from "../../../hooks/useReadBookPagination";
+import LoadingCard from "../../../shared/components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
+import { DRAWER_WIDTH } from "../../../shared/components/base/ResponsiveDrawer";
+import { useReadBook } from "../hooks/useReadBook";
+import { useReadBookPagination } from "../hooks/useReadBookPagination";
 import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import {
   IsMobileApp,
   MOBILE_APP_BOTTOM_INSET,
-} from "../../../utils/MobileUtils";
+} from "../../../shared/utils/MobileUtils";
 import { useReaderOrientation } from "../hooks/device/useReaderOrientation";
 import { useReaderCompactLayout } from "../hooks/layout/useReaderCompactLayout";
 import { Content } from "./Content";

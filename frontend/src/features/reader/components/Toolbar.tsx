@@ -1,8 +1,8 @@
 import { Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
-import { ResponsiveDrawerAppBar } from "../../../components/base/ResponsiveDrawer";
-import type { BookContent } from "../../../utils/reader/BookContentModels";
+import { ResponsiveDrawerAppBar } from "../../../shared/components/base/ResponsiveDrawer";
+import type { BookContent } from "../utils/BookContentModels";
 import { Settings } from "./settings/Settings";
 
 interface ToolbarProps {

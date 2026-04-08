@@ -5,12 +5,11 @@ import { Box, Divider } from "@mui/material";
 import { type ReactElement, useState } from "react";
 import { Link } from "react-router-dom";
 
-import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
-import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
-import ItemAppBar from "../../components/base/ItemAppBar";
-import { ProfileDetails } from "../../features/user/ProfileDetails";
-import { useUserProfile } from "../../hooks/useUserProfile";
-import { useDeleteUser } from "../../lib/requests/users/useDeleteUser";
+import { ProfileDetails, useDeleteUser } from "../../features/user";
+import ConfirmDialog from "../../shared/components/base/feedback/ConfirmDialog";
+import { IconButtonWithTooltip } from "../../shared/components/base/IconButtonWithTooltip";
+import ItemAppBar from "../../shared/components/base/ItemAppBar";
+import { useUserProfile } from "../../shared/hooks/useUserProfile";
 
 export const ViewProfilePage = (): ReactElement => {
   const { clearProfile } = useUserProfile();

@@ -3,12 +3,14 @@ import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import FancyText from "../../components/FancyText";
-import EditableBookDetails from "../../features/book/EditableBookDetails";
+import {
+  EditableBookDetails,
+  useCreateBook,
+  useUploadCover,
+  useUploadFile,
+} from "../../features/book";
+import FancyText from "../../shared/components/FancyText";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { useCreateBook } from "../../lib/requests/books/useCreateBook";
-import { useUploadCover } from "../../lib/requests/books/useUploadCover";
-import { useUploadFile } from "../../lib/requests/books/useUploadFile";
 
 const CreateBookPage = (): ReactElement => {
   const navigate = useNavigate();

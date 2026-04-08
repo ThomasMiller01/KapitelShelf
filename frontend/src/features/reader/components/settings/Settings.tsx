@@ -2,11 +2,11 @@ import TuneIcon from "@mui/icons-material/Tune";
 import { Box, Stack, styled, SwipeableDrawer, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 
-import { IconButtonWithTooltip } from "../../../../components/base/IconButtonWithTooltip";
+import { IconButtonWithTooltip } from "../../../../shared/components/base/IconButtonWithTooltip";
 import {
   IsMobileApp,
   MOBILE_APP_BOTTOM_INSET,
-} from "../../../../utils/MobileUtils";
+} from "../../../../shared/utils/MobileUtils";
 import { FontFamilySelector } from "./FontFamilySelector";
 import { FontSizeSelector } from "./FontSizeSelector";
 import { RotationToggleSetting } from "./RotationToggleSetting";

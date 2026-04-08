@@ -4,14 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useCallback } from "react";
 import { NavLink } from "react-router-dom";
 
-import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
-import FileUploadDropzone from "../../components/base/FileUploadDropzone";
-import FancyText from "../../components/FancyText";
-import { useMobile } from "../../hooks/useMobile";
-import { useNotification } from "../../hooks/useNotification";
+import { useImportBook } from "../../features/book";
+import { ButtonWithTooltip } from "../../shared/components/base/ButtonWithTooltip";
+import FileUploadDropzone from "../../shared/components/base/FileUploadDropzone";
+import FancyText from "../../shared/components/FancyText";
+import { useMobile } from "../../shared/hooks/useMobile";
+import { useNotification } from "../../shared/hooks/useNotification";
 import type { ImportResultDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { useImportBook } from "../../lib/requests/books/useImportBook";
-import { BookFileTypes } from "../../utils/FileTypesUtils";
+import { BookFileTypes } from "../../shared/utils/FileTypesUtils";
 
 const ImportBookPage = (): ReactElement => {
   const { isMobile } = useMobile();

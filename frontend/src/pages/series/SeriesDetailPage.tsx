@@ -15,23 +15,27 @@ import {
 import React, { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
-import LoadingCard from "../../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import { IconButtonWithTooltip } from "../../components/base/IconButtonWithTooltip";
-import ItemAppBar from "../../components/base/ItemAppBar";
-import MergeSeriesDialog from "../../features/series/MergeSeriesDialog";
-import SeriesBooksList from "../../features/series/SeriesBooksList";
-import { useMobile } from "../../hooks/useMobile";
-import { useNotification } from "../../hooks/useNotification";
+import {
+  MergeSeriesDialog,
+  SeriesBooksList,
+  useDeleteSeries,
+  useMergeSeries,
+  useSeriesById,
+} from "../../features/series";
+import {
+  SeriesSupportsWatchlist,
+  useAddSeriesToWatchlist,
+  useRemoveSeriesFromWatchlist,
+  useSeriesOnWatchlist,
+} from "../../features/watchlist";
+import ConfirmDialog from "../../shared/components/base/feedback/ConfirmDialog";
+import LoadingCard from "../../shared/components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../shared/components/base/feedback/RequestErrorCard";
+import { IconButtonWithTooltip } from "../../shared/components/base/IconButtonWithTooltip";
+import ItemAppBar from "../../shared/components/base/ItemAppBar";
+import { useMobile } from "../../shared/hooks/useMobile";
+import { useNotification } from "../../shared/hooks/useNotification";
 import type { SeriesDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { useDeleteSeries } from "../../lib/requests/series/useDeleteSeries";
-import { useMergeSeries } from "../../lib/requests/series/useMergeSeries";
-import { useSeriesById } from "../../lib/requests/series/useSeriesById";
-import { useAddSeriesToWatchlist } from "../../lib/requests/watchlist/useAddSeriesToWatchlist";
-import { useRemoveSeriesFromWatchlist } from "../../lib/requests/watchlist/useRemoveSeriesFromWatchlist";
-import { useSeriesOnWatchlist } from "../../lib/requests/watchlist/useSeriesOnWatchlist";
-import { SeriesSupportsWatchlist } from "../../utils/WatchlistUtils";
 
 const SeriesDetailPage = (): ReactElement => {
   const { seriesId } = useParams<{ seriesId: string }>();

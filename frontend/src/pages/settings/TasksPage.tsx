@@ -1,14 +1,12 @@
 import { Box, Stack, Typography } from "@mui/material";
 import { type ReactElement, useState } from "react";
 
-import LoadingCard from "../../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import { HiddenFilter } from "../../components/base/HiddenFilter";
-import { TaskStateIcon } from "../../components/tasks/TaskStateIcon";
-import TasksList from "../../features/tasks/TaskList";
+import { TaskList, TaskStateIcon, useTasksList } from "../../features/tasks";
+import LoadingCard from "../../shared/components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../shared/components/base/feedback/RequestErrorCard";
+import { HiddenFilter } from "../../shared/components/base/HiddenFilter";
 import type { TaskDTO } from "../../lib/api/KapitelShelf.Api/api";
 import { TaskState } from "../../lib/api/KapitelShelf.Api/api";
-import { useTasksList } from "../../lib/requests/tasks/useTasksList";
 
 export const TasksPage = (): ReactElement => {
   const { data: tasks, isLoading, isError, refetch } = useTasksList();
@@ -38,7 +36,7 @@ export const TasksPage = (): ReactElement => {
           onFilteredChange={(next) => setFilteredTasks(next)}
         />
       </Stack>
-      <TasksList
+      <TaskList
         name="Active Tasks"
         icon={
           <TaskStateIcon
@@ -55,14 +53,14 @@ export const TasksPage = (): ReactElement => {
           filteredTasks?.filter((x) => x.state === TaskState.NUMBER_1) ?? []
         }
       />
-      <TasksList
+      <TaskList
         name="Scheduled Tasks"
         icon={<TaskStateIcon state={TaskState.NUMBER_0} />}
         tasks={
           filteredTasks?.filter((x) => x.state === TaskState.NUMBER_0) ?? []
         }
       />
-      <TasksList
+      <TaskList
         name="Finished Tasks"
         icon={<TaskStateIcon state={TaskState.NUMBER_2} />}
         tasks={

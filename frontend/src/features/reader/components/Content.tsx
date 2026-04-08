@@ -1,8 +1,8 @@
 import { Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { RequestErrorCard } from "../../../components/base/feedback/RequestErrorCard";
-import { BatteryStatus } from "../../../components/reader/BatteryStatus";
-import type { BookContent } from "../../../utils/reader/BookContentModels";
+import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
+import { BatteryStatus } from "./BatteryStatus";
+import type { BookContent } from "../utils/BookContentModels";
 import { useReaderBattery } from "../hooks/device/useReaderBattery";
 import { useReaderClock } from "../hooks/device/useReaderClock";
 import { useReaderNavigation } from "../hooks/navigation/useReaderNavigation";

@@ -1,11 +1,13 @@
 import { type ReactElement } from "react";
 import { useParams } from "react-router-dom";
 
-import LoadingCard from "../../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import BookReader, { ReaderThemeProvider } from "../../features/reader";
-import { useReaderStatusBar } from "../../features/reader/hooks/device/useReaderStatusBar";
-import { useBookById } from "../../lib/requests/books/useBookById";
+import { useBookById } from "../../features/book";
+import BookReader, {
+  ReaderThemeProvider,
+  useReaderStatusBar,
+} from "../../features/reader";
+import LoadingCard from "../../shared/components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../shared/components/base/feedback/RequestErrorCard";
 
 const ReadBookPage = (): ReactElement => {
   const { bookId } = useParams<{

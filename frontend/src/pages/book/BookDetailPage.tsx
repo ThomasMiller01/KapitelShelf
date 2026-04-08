@@ -4,13 +4,11 @@ import { Box, IconButton } from "@mui/material";
 import { type ReactElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
-import LoadingCard from "../../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import ItemAppBar from "../../components/base/ItemAppBar";
-import BookDetails from "../../features/book/BookDetails";
-import { useBookById } from "../../lib/requests/books/useBookById";
-import { useDeleteBook } from "../../lib/requests/books/useDeleteBook";
+import { BookDetails, useBookById, useDeleteBook } from "../../features/book";
+import ConfirmDialog from "../../shared/components/base/feedback/ConfirmDialog";
+import LoadingCard from "../../shared/components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../shared/components/base/feedback/RequestErrorCard";
+import ItemAppBar from "../../shared/components/base/ItemAppBar";
 
 const BookDetailPage = (): ReactElement => {
   const { bookId } = useParams<{
