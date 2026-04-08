@@ -4,11 +4,13 @@ import { Box, Button, Link, Stack, TextField } from "@mui/material";
 import type { ReactElement } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-import FancyText from "../../components/FancyText";
-import { useNotification } from "../../hooks/useNotification";
-import { useImportBookFromAsin } from "../../lib/requests/books/useImportBookFromAsin";
-import type { ASINFormValues } from "../../lib/schemas/ASINSchema";
-import { ASINSchema } from "../../lib/schemas/ASINSchema";
+import {
+  ASINSchema,
+  type ASINFormValues,
+  useImportBookFromAsin,
+} from "../../features/book";
+import FancyText from "../../shared/components/FancyText";
+import { useNotification } from "../../shared/hooks/useNotification";
 
 const ImportBookFromASINPage = (): ReactElement => {
   const { triggerNavigate, triggerError } = useNotification();

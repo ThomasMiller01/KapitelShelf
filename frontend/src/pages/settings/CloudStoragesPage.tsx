@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { type ReactElement } from "react";
 
-import { OneDriveSettings } from "../../features/cloudstorage/OneDriveSettings";
+import { OneDriveSettings } from "../../features/cloudstorage";
 
 export const CloudStoragesPage = (): ReactElement => (
   <Box padding="20px">

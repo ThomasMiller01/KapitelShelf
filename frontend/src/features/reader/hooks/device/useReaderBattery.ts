@@ -1,7 +1,7 @@
 import { Device } from "@capacitor/device";
 import { useEffect, useState } from "react";
 
-import { IsMobileApp } from "../../../../utils/MobileUtils";
+import { IsMobileApp } from "../../../../shared/utils/MobileUtils";
 
 interface NavigatorWithBattery extends Navigator {
   getBattery?: () => Promise<{

@@ -1,6 +1,6 @@
 import { useMediaQuery } from "@mui/material";
 
-import { useMobile } from "../../../../hooks/useMobile";
+import { useMobile } from "../../../../shared/hooks/useMobile";
 
 interface ReaderCompactLayoutResult {
   isCompactLayout: boolean;

@@ -1,12 +1,12 @@
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 import { useMemo, type ReactElement } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { TabPanel } from "../../components/base/TabPanel";
-import { ManageAuthorsList } from "../../features/authors/ManageAuthorsList";
-import { ManageBooksList } from "../../features/book/ManageBooksList";
-import { ManageCategoriesList } from "../../features/categories/ManageCategoriesList";
-import { ManageSeriesList } from "../../features/series/ManageSeriesList";
-import { ManageTagsList } from "../../features/tags/ManageTagsList";
+import { ManageAuthorsList } from "../../features/authors";
+import { ManageBooksList } from "../../features/book";
+import { ManageCategoriesList } from "../../features/categories";
+import { ManageSeriesList } from "../../features/series";
+import { ManageTagsList } from "../../features/tags";
+import { TabPanel } from "../../shared/components/base/TabPanel";
 
 const TABS = [
   { label: "Series", value: "series" },

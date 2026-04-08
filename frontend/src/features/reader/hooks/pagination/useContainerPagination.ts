@@ -1,7 +1,7 @@
 import type React from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 
-import type { BookSection } from "../../../../utils/reader/BookContentModels";
+import type { BookSection } from "../../utils/BookContentModels";
 
 interface UseContainerPaginationArgs {
   fontScale: number;

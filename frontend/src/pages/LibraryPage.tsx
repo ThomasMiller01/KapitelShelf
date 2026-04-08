@@ -3,10 +3,10 @@ import type { ReactElement } from "react";
 
 import { Box } from "@mui/material";
 import { NavLink } from "react-router-dom";
-import { FloatingButtonWithTooltip } from "../components/base/FloatingButtonWithTooltip";
-import SeriesList from "../features/series/SeriesList";
-import { useMobile } from "../hooks/useMobile";
-import { IsMobileApp } from "../utils/MobileUtils";
+import { SeriesList } from "../features/series";
+import { FloatingButtonWithTooltip } from "../shared/components/base/FloatingButtonWithTooltip";
+import { useMobile } from "../shared/hooks/useMobile";
+import { IsMobileApp } from "../shared/utils/MobileUtils";
 
 const LibraryPage = (): ReactElement => {
   const { isMobile } = useMobile();

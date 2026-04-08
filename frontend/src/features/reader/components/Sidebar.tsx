@@ -1,9 +1,9 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { ResponsiveDrawer } from "../../../components/base/ResponsiveDrawer";
+import { ResponsiveDrawer } from "../../../shared/components/base/ResponsiveDrawer";
 import {
   BookContent,
   BookTocItem,
-} from "../../../utils/reader/BookContentModels";
+} from "../utils/BookContentModels";
 import TableOfContents from "./TableOfContents";
 
 interface SidebarProps {

@@ -2,12 +2,14 @@ import { Box } from "@mui/material";
 import { type ReactElement, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 
-import LoadingCard from "../../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import ItemAppBar from "../../components/base/ItemAppBar";
-import NotificationDetails from "../../features/notifications/NotificationDetails";
-import { useMarkNotificationAsRead } from "../../lib/requests/notifications/useMarkNotificationAsRead";
-import { useNotificationById } from "../../lib/requests/notifications/useNotificationById";
+import {
+  NotificationDetails,
+  useMarkNotificationAsRead,
+  useNotificationById,
+} from "../../features/notifications";
+import LoadingCard from "../../shared/components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../shared/components/base/feedback/RequestErrorCard";
+import ItemAppBar from "../../shared/components/base/ItemAppBar";
 
 const NotificationDetailPage = (): ReactElement => {
   const { notificationId } = useParams<{

@@ -1,7 +1,7 @@
 import { Avatar, IconButton, Stack, Typography } from "@mui/material";
 import React from "react";
 
-import { ScrollableList } from "../../../../components/base/ScrollableList";
+import { ScrollableList } from "../../../../shared/components/base/ScrollableList";
 import {
   READER_CONTENT_FONT_OPTIONS,
   useReaderColorScheme,

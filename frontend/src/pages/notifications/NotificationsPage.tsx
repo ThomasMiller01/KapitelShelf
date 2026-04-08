@@ -4,24 +4,26 @@ import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import { Box, Stack, Typography } from "@mui/material";
 import { useMemo, useState, type ReactElement } from "react";
 
-import { ButtonWithTooltip } from "../../components/base/ButtonWithTooltip";
-import LoadingCard from "../../components/base/feedback/LoadingCard";
-import { NoItemsFoundCard } from "../../components/base/feedback/NoItemsFoundCard";
-import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import { HiddenFilter } from "../../components/base/HiddenFilter";
-import { NotificationsBadge } from "../../components/notifications/NotificationsBadge";
-import { NotificationsList } from "../../features/notifications/NotificationsList";
-import { useMobile } from "../../hooks/useMobile";
-import { NotificationDto } from "../../lib/api/KapitelShelf.Api";
-import { useMarkAllNotifictaionsAsRead } from "../../lib/requests/notifications/useMarkAllNotificationsAsRead";
-import { useNotificationList } from "../../lib/requests/notifications/useNotificationList";
-import { useNotificationStats } from "../../lib/requests/notifications/useNotificationStats";
+import {
+  NotificationsBadge,
+  NotificationsList,
+  useMarkAllNotifictaionsAsRead,
+  useNotificationList,
+  useNotificationStats,
+} from "../../features/notifications";
+import { ButtonWithTooltip } from "../../shared/components/base/ButtonWithTooltip";
+import LoadingCard from "../../shared/components/base/feedback/LoadingCard";
+import { NoItemsFoundCard } from "../../shared/components/base/feedback/NoItemsFoundCard";
+import { RequestErrorCard } from "../../shared/components/base/feedback/RequestErrorCard";
+import { HiddenFilter } from "../../shared/components/base/HiddenFilter";
+import { useMobile } from "../../shared/hooks/useMobile";
+import { NotificationDto } from "../../lib/api/KapitelShelf.Api/index.ts";
 import {
   NotificationSeverityStringToDto,
   NotificationSeverityToColor,
   NotificationSeverityToString,
   NotificationTypeToString,
-} from "../../utils/NotificationUtils";
+} from "../../features/notifications/utils/NotificationUtils";
 
 export const NotificationsPage = (): ReactElement => {
   const { isMobile } = useMobile();

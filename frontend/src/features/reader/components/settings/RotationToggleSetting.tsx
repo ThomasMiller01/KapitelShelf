@@ -1,7 +1,7 @@
 import { FormControlLabel, Stack, Switch, Typography } from "@mui/material";
 import React from "react";
 
-import { IsMobileApp } from "../../../../utils/MobileUtils";
+import { IsMobileApp } from "../../../../shared/utils/MobileUtils";
 import { useReaderColorScheme } from "../ThemeProvider";
 
 export const RotationToggleSetting: React.FC = (): React.ReactElement | null => {

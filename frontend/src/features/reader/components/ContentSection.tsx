@@ -1,7 +1,7 @@
 import { Box, useTheme } from "@mui/material";
 import React, { useRef } from "react";
 
-import type { BookSection } from "../../../utils/reader/BookContentModels";
+import type { BookSection } from "../utils/BookContentModels";
 import { useSectionTransition } from "../hooks/navigation/useSectionTransition";
 import {
   useSwipeNavigation,

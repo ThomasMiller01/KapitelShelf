@@ -2,8 +2,8 @@ import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import ItemAppBar from "../components/base/ItemAppBar";
-import SearchResults from "../features/SearchResults";
+import { SearchResults } from "../features/search";
+import ItemAppBar from "../shared/components/base/ItemAppBar";
 
 const SearchResultsPage = (): ReactElement => {
   const [searchParams] = useSearchParams();

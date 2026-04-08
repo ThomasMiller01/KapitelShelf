@@ -3,14 +3,16 @@ import { Box, Button, Chip, Container, styled } from "@mui/material";
 import { type ReactElement, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import ConfirmDialog from "../../components/base/feedback/ConfirmDialog";
-import ItemAppBar from "../../components/base/ItemAppBar";
-import EditableProfileDetails from "../../features/user/EditableProfileDetails";
-import { useMobile } from "../../hooks/useMobile";
-import { useUserProfile } from "../../hooks/useUserProfile";
+import {
+  EditableProfileDetails,
+  useDeleteUser,
+  useEditUser,
+} from "../../features/user";
+import ConfirmDialog from "../../shared/components/base/feedback/ConfirmDialog";
+import ItemAppBar from "../../shared/components/base/ItemAppBar";
+import { useMobile } from "../../shared/hooks/useMobile";
+import { useUserProfile } from "../../shared/hooks/useUserProfile";
 import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { useDeleteUser } from "../../lib/requests/users/useDeleteUser";
-import { useEditUser } from "../../lib/requests/users/useEditUser";
 
 const EditingBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",

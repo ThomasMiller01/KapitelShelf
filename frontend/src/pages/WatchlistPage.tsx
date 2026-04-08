@@ -1,8 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import { type ReactElement } from "react";
 
-import Watchlist from "../features/watchlist/Watchlist";
-import { useMobile } from "../hooks/useMobile";
+import { Watchlist } from "../features/watchlist";
+import { useMobile } from "../shared/hooks/useMobile";
 
 export const WatchlistPage = (): ReactElement => {
   const { isMobile } = useMobile();

@@ -4,16 +4,18 @@ import { Box, Button, Chip, styled } from "@mui/material";
 import { type ReactElement } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import LoadingCard from "../../components/base/feedback/LoadingCard";
-import { RequestErrorCard } from "../../components/base/feedback/RequestErrorCard";
-import ItemAppBar from "../../components/base/ItemAppBar";
-import EditableBookDetails from "../../features/book/EditableBookDetails";
-import { useMobile } from "../../hooks/useMobile";
+import {
+  EditableBookDetails,
+  useBookById,
+  useUpdateBook,
+  useUploadCover,
+  useUploadFile,
+} from "../../features/book";
+import LoadingCard from "../../shared/components/base/feedback/LoadingCard";
+import { RequestErrorCard } from "../../shared/components/base/feedback/RequestErrorCard";
+import ItemAppBar from "../../shared/components/base/ItemAppBar";
+import { useMobile } from "../../shared/hooks/useMobile";
 import type { BookDTO } from "../../lib/api/KapitelShelf.Api/api";
-import { useBookById } from "../../lib/requests/books/useBookById";
-import { useUpdateBook } from "../../lib/requests/books/useUpdateBook";
-import { useUploadCover } from "../../lib/requests/books/useUploadCover";
-import { useUploadFile } from "../../lib/requests/books/useUploadFile";
 
 const EditingBadge = styled(Chip, {
   shouldForwardProp: (prop) => prop !== "isMobile",

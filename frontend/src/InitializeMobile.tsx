@@ -2,7 +2,7 @@ import { App } from "@capacitor/app";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
 import { restoreAppOrientation } from "./features/reader/hooks/device/readerOrientation";
-import { IsMobileApp } from "./utils/MobileUtils";
+import { IsMobileApp } from "./shared/utils/MobileUtils";
 
 export type MobileColorMode = "light" | "dark";
 

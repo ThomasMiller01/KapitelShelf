@@ -1,0 +1,79 @@
+import type { ReactElement, ReactNode } from "react";
+import { createContext, useEffect, useState } from "react";
+
+import type { UserDTO } from "../../lib/api/KapitelShelf.Api/api";
+import { useLoadUser } from "../../features/user/hooks/api/useLoadUser";
+
+export interface UserProfileContextProps {
+  profile: UserDTO | null;
+  setProfile: (profile: UserDTO) => void;
+  clearProfile: () => void;
+  syncProfile: () => void;
+}
+
+const PROFILE_KEY = "current.user.profile";
+
+export const UserProfileContext = createContext<
+  UserProfileContextProps | undefined
+>(undefined);
+
+export const UserProfileProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => {
+  const [profile, setProfileState] = useState<UserDTO | null>(null);
+
+  const { mutateAsync: mutateLoadProfile } = useLoadUser();
+
+  // load profile on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(`kapitelshelf.${PROFILE_KEY}`);
+    if (stored) {
+      const storedProfile = JSON.parse(stored);
+      setProfileState(storedProfile);
+
+      // update user profile from api
+      mutateLoadProfile(storedProfile.id).then((fetchedProfile) => {
+        setProfileState(fetchedProfile);
+      });
+    }
+  }, [mutateLoadProfile]);
+
+  // save when profile changes
+  useEffect(() => {
+    if (profile) {
+      localStorage.setItem(
+        `kapitelshelf.${PROFILE_KEY}`,
+        JSON.stringify(profile)
+      );
+    }
+  }, [profile]);
+
+  const setProfile = (newProfile: UserDTO): void => {
+    setProfileState(newProfile);
+  };
+
+  const clearProfile = (): void => {
+    setProfileState(null);
+    localStorage.removeItem(`kapitelshelf.${PROFILE_KEY}`);
+  };
+
+  const syncProfile = (): void => {
+    if (!profile || !profile.id) {
+      return;
+    }
+
+    mutateLoadProfile(profile.id).then((fetchedProfile) => {
+      setProfileState(fetchedProfile);
+    });
+  };
+
+  return (
+    <UserProfileContext.Provider
+      value={{ profile, setProfile, clearProfile, syncProfile }}
+    >
+      {children}
+    </UserProfileContext.Provider>
+  );
+};

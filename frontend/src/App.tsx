@@ -6,13 +6,13 @@ import { type ReactElement, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { ApiProvider } from "./contexts/ApiProvider";
-import { ApiNotificationListener } from "./contexts/notification/ApiNotificationListener";
-import { NotificationProvider } from "./contexts/notification/NotificationProvider";
-import { UserProfileProvider } from "./contexts/UserProfileContext";
-import { UserSettingsProvider } from "./contexts/UserSettingsContext";
 import { InitializeMobile } from "./InitializeMobile";
-import AppRoutes from "./routes/routes";
+import AppRoutes from "./routes";
+import { ApiProvider } from "./shared/contexts/ApiProvider";
+import { ApiNotificationListener } from "./shared/contexts/notification/ApiNotificationListener";
+import { NotificationProvider } from "./shared/contexts/notification/NotificationProvider";
+import { UserProfileProvider } from "./shared/contexts/UserProfileContext";
+import { UserSettingsProvider } from "./shared/contexts/UserSettingsContext";
 import { KapitelShelfGlobalStyles } from "./styles/GlobalStyles";
 import { theme } from "./styles/Theme";
 

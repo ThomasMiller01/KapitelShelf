@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 
-import FancyText from "../../components/FancyText";
-import { ProfileList } from "../../features/user/ProfileList";
+import { ProfileList } from "../../features/user";
+import FancyText from "../../shared/components/FancyText";
 
 export const SelectProfilePage = (): ReactElement => (
   <Box
