@@ -52,7 +52,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const { section, page, nextSection, prevSection, setSection, setPage } =
     useReadBookPagination();
   const navigate = useNavigate();
-  useMarkReadingBook(book.id);
+  const { data } = useMarkReadingBook(book.id);
 
   if (isLoading) {
     return (

@@ -11,6 +11,7 @@ using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Notifications;
+using KapitelShelf.Api.DTOs.Reader;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
@@ -733,11 +734,11 @@ public class BooksLogic(
     }
 
     /// <inheritdoc/>
-    public async Task MarkBookAsReading(Guid bookId, Guid? userId)
+    public async Task<ReadingBookDTO?> MarkBookAsReading(Guid bookId, Guid? userId, ReadingLocationDTO? readingLocation)
     {
         if (bookId == Guid.Empty || userId is null || userId == Guid.Empty)
         {
-            return;
+            return null;
         }
 
         using var context = await this.dbContextFactory.CreateDbContextAsync();
@@ -748,19 +749,28 @@ public class BooksLogic(
 
         if (readingBook == null)
         {
-            context.ReadingBooks.Add(new ReadingBooksModel
+            readingBook = new ReadingBooksModel
             {
                 BookId = bookId,
                 UserId = (Guid)userId,
                 LastReadAt = DateTime.UtcNow,
-            });
+            };
+            context.ReadingBooks.Add(readingBook);
         }
         else
         {
             readingBook.LastReadAt = DateTime.UtcNow;
         }
 
+        if (readingLocation is not null)
+        {
+            readingBook.CurrentSection = readingLocation.CurrentSection;
+            readingBook.CurrentPage = readingLocation.CurrentPage;
+        }
+
         await context.SaveChangesAsync();
+
+        return this.mapper.ReadingBookModelToReadingBookDto(readingBook);
     }
 
     private async Task<IList<BookModel>> GetDuplicatesAsync(BookDTO book)

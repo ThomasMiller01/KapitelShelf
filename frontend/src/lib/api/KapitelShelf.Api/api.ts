@@ -1025,6 +1025,56 @@ export type ProfileImageTypeDTO = typeof ProfileImageTypeDTO[keyof typeof Profil
 
 
 /**
+ * The book reading dto.
+ * @export
+ * @interface ReadingBookDTO
+ */
+export interface ReadingBookDTO {
+    /**
+     * Gets or sets the book id.
+     * @type {string}
+     * @memberof ReadingBookDTO
+     */
+    'bookId'?: string;
+    /**
+     * Gets or sets the user id.
+     * @type {string}
+     * @memberof ReadingBookDTO
+     */
+    'userId'?: string;
+    /**
+     * Gets or sets the current section number.
+     * @type {number}
+     * @memberof ReadingBookDTO
+     */
+    'currentSection'?: number;
+    /**
+     * Gets or sets the current page number.
+     * @type {number}
+     * @memberof ReadingBookDTO
+     */
+    'currentPage'?: number;
+}
+/**
+ * The reading location dto.
+ * @export
+ * @interface ReadingLocationDTO
+ */
+export interface ReadingLocationDTO {
+    /**
+     * Gets or sets the current section.
+     * @type {number}
+     * @memberof ReadingLocationDTO
+     */
+    'currentSection'?: number;
+    /**
+     * Gets or sets the current page.
+     * @type {number}
+     * @memberof ReadingLocationDTO
+     */
+    'currentPage'?: number;
+}
+/**
  * The series dto.
  * @export
  * @interface SeriesDTO
@@ -2409,10 +2459,11 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
          * @summary Mark a book as reading.
          * @param {string} bookId The id of the book to mark as reading.
          * @param {string} [userId] The id of the user.
+         * @param {ReadingLocationDTO} [readingLocationDTO] The current reading location, where the user stopped reading.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdReadingPut: async (bookId: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        booksBookIdReadingPut: async (bookId: string, userId?: string, readingLocationDTO?: ReadingLocationDTO, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'bookId' is not null or undefined
             assertParamExists('booksBookIdReadingPut', 'bookId', bookId)
             const localVarPath = `/books/{bookId}/reading`
@@ -2434,9 +2485,12 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(readingLocationDTO, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2964,11 +3018,12 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * @summary Mark a book as reading.
          * @param {string} bookId The id of the book to mark as reading.
          * @param {string} [userId] The id of the user.
+         * @param {ReadingLocationDTO} [readingLocationDTO] The current reading location, where the user stopped reading.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksBookIdReadingPut(bookId: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdReadingPut(bookId, userId, options);
+        async booksBookIdReadingPut(bookId: string, userId?: string, readingLocationDTO?: ReadingLocationDTO, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReadingBookDTO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdReadingPut(bookId, userId, readingLocationDTO, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdReadingPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3250,11 +3305,12 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * @summary Mark a book as reading.
          * @param {string} bookId The id of the book to mark as reading.
          * @param {string} [userId] The id of the user.
+         * @param {ReadingLocationDTO} [readingLocationDTO] The current reading location, where the user stopped reading.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdReadingPut(bookId: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.booksBookIdReadingPut(bookId, userId, options).then((request) => request(axios, basePath));
+        booksBookIdReadingPut(bookId: string, userId?: string, readingLocationDTO?: ReadingLocationDTO, options?: RawAxiosRequestConfig): AxiosPromise<ReadingBookDTO> {
+            return localVarFp.booksBookIdReadingPut(bookId, userId, readingLocationDTO, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3537,12 +3593,13 @@ export class BooksApi extends BaseAPI {
      * @summary Mark a book as reading.
      * @param {string} bookId The id of the book to mark as reading.
      * @param {string} [userId] The id of the user.
+     * @param {ReadingLocationDTO} [readingLocationDTO] The current reading location, where the user stopped reading.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
      */
-    public booksBookIdReadingPut(bookId: string, userId?: string, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksBookIdReadingPut(bookId, userId, options).then((request) => request(this.axios, this.basePath));
+    public booksBookIdReadingPut(bookId: string, userId?: string, readingLocationDTO?: ReadingLocationDTO, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksBookIdReadingPut(bookId, userId, readingLocationDTO, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

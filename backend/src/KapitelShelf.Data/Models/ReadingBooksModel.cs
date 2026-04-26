@@ -40,4 +40,14 @@ public class ReadingBooksModel
     /// Gets or sets the last reading date.
     /// </summary>
     public DateTime? LastReadAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current reading section.
+    /// </summary>
+    public int CurrentSection { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the current reading page.
+    /// </summary>
+    public int CurrentPage { get; set; } = 0;
 }

@@ -1175,9 +1175,46 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "The current reading location, where the user stopped reading.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingLocationDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingLocationDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingLocationDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingBookDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingBookDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingBookDTO"
+                }
+              }
+            }
           }
         }
       }
@@ -4904,6 +4941,50 @@
         "type": "integer",
         "description": "The profile image enum.",
         "format": "int32"
+      },
+      "ReadingBookDTO": {
+        "type": "object",
+        "properties": {
+          "bookId": {
+            "type": "string",
+            "description": "Gets or sets the book id.",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Gets or sets the user id.",
+            "format": "uuid"
+          },
+          "currentSection": {
+            "type": "integer",
+            "description": "Gets or sets the current section number.",
+            "format": "int32"
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "Gets or sets the current page number.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The book reading dto."
+      },
+      "ReadingLocationDTO": {
+        "type": "object",
+        "properties": {
+          "currentSection": {
+            "type": "integer",
+            "description": "Gets or sets the current section.",
+            "format": "int32"
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "Gets or sets the current page.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The reading location dto."
       },
       "SeriesDTO": {
         "type": "object",
