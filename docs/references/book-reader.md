@@ -47,7 +47,13 @@ On desktop browsers, you can:
 - use `ArrowLeft` and `ArrowRight`
 - open the table of contents and jump to another part of the book
 
-> ℹ️ KapitelShelf keeps the current section and page stored, so refreshing the page returns you to the same place in the book.
+KapitelShelf remembers your current section and page for the active user profile.
+
+- Refreshing the page keeps you at the same place in the book.
+- Leaving the reader and opening the same book again resumes from your saved position.
+- Closing and reopening the browser or app also returns you to your saved position when the book is opened again.
+
+If you open the reader with an explicit `section` or `page` in the URL, that location is used for that session instead of the saved position.
 
 ## Table of Contents
 
