@@ -5,6 +5,7 @@
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Location;
+using KapitelShelf.Api.DTOs.Reader;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
@@ -490,6 +491,33 @@ public class BooksController(
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error adding book file");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
+    /// Mark a book as reading.
+    /// </summary>
+    /// <param name="bookId">The id of the book to mark as reading.</param>
+    /// <param name="userId">The id of the user.</param>
+    /// <param name="readingLocation">The current reading location, where the user stopped reading.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{bookId}/reading")]
+    public async Task<ActionResult<ReadingBookDTO>> MarkBookAsReading(Guid bookId, Guid? userId, ReadingLocationDTO? readingLocation)
+    {
+        try
+        {
+            var readingBook = await this.logic.MarkBookAsReading(bookId, userId, readingLocation);
+            if (readingBook is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(readingBook);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error marking book as reading");
             return StatusCode(500, new { error = "An unexpected error occurred." });
         }
     }

@@ -58,6 +58,15 @@ public interface IUsersLogic
     Task<PagedResult<BookDTO>> GetLastVisitedBooksAsync(Guid userId, int page, int pageSize);
 
     /// <summary>
+    /// Get the last read books of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <param name="page">The page to get.</param>
+    /// <param name="pageSize">The size of the pages.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task<PagedResult<BookDTO>> GetLastReadBooksAsync(Guid userId, int page, int pageSize);
+
+    /// <summary>
     /// Get the settings of a user.
     /// </summary>
     /// <param name="userId">The id of the user.</param>

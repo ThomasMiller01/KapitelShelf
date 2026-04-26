@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import type { ReactElement } from "react";
 
-import { LastVisitedBooksList } from "../features/book";
+import { LastReadBooksList, LastVisitedBooksList } from "../features/book";
 import { WelcomeScreen, useWelcomeScreen } from "../features/home";
 import { NextWatchlistReleases } from "../features/watchlist";
 
@@ -23,6 +23,7 @@ const HomePage = (): ReactElement => {
 
   return (
     <Box sx={{ margin: "10px" }}>
+      <LastReadBooksList />
       <NextWatchlistReleases />
       <LastVisitedBooksList />
     </Box>

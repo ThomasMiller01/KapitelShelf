@@ -4,6 +4,7 @@
 
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.Reader;
 
 namespace KapitelShelf.Api.Logic.Interfaces;
 
@@ -116,4 +117,13 @@ public interface IBooksLogic
     /// <param name="bookId">The book id.</param>
     /// <returns>The generated categories and tags result.</returns>
     Task<AiGenerateCategoriesTagsResultDTO?> AiGenerateCategoriesTags(Guid bookId);
+
+    /// <summary>
+    /// Mark a book as reading.
+    /// </summary>
+    /// <param name="bookId">The book id.</param>
+    /// <param name="userId">The user id.</param>
+    /// <param name="readingLocation">The reading location.</param>
+    /// <returns>A task.</returns>
+    Task<ReadingBookDTO?> MarkBookAsReading(Guid bookId, Guid? userId, ReadingLocationDTO? readingLocation);
 }

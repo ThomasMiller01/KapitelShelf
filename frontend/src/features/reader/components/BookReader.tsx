@@ -1,20 +1,22 @@
-import { Box, styled } from "@mui/material";
-import { useState, type ReactElement } from "react";
-
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Box, styled } from "@mui/material";
+import { type ReactElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import LoadingCard from "../../../shared/components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
 import { DRAWER_WIDTH } from "../../../shared/components/base/ResponsiveDrawer";
-import { useReadBook } from "../hooks/useReadBook";
-import { useReadBookPagination } from "../hooks/useReadBookPagination";
-import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import {
   IsMobileApp,
   MOBILE_APP_BOTTOM_INSET,
 } from "../../../shared/utils/MobileUtils";
+import { useMarkReadingBook } from "../hooks/api/useMarkReadingBook";
 import { useReaderOrientation } from "../hooks/device/useReaderOrientation";
 import { useReaderCompactLayout } from "../hooks/layout/useReaderCompactLayout";
+import { usePersistReadingPosition } from "../hooks/usePersistReadingPosition";
+import { useReadBook } from "../hooks/useReadBook";
+import { useReadBookPagination } from "../hooks/useReadBookPagination";
 import { Content } from "./Content";
 import { Sidebar } from "./Sidebar";
 import { Toolbar } from "./Toolbar";
@@ -44,13 +46,39 @@ interface BookDetailsProps {
 }
 
 const BookReader = ({ book }: BookDetailsProps): ReactElement => {
+  const bookId = book.id!;
   const { isCompactLayout } = useReaderCompactLayout();
   const { content, isLoading, error } = useReadBook(book);
   useReaderOrientation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { section, page, nextSection, prevSection, setSection, setPage } =
-    useReadBookPagination();
+  const {
+    applyInitialPosition,
+    hasExplicitLocation,
+    section,
+    page,
+    nextSection,
+    prevSection,
+    setSection,
+    setPage,
+  } = useReadBookPagination();
   const navigate = useNavigate();
+  const { data } = useMarkReadingBook(bookId);
+  usePersistReadingPosition(bookId, section, page);
+
+  useEffect(() => {
+    if (!content || !data || hasExplicitLocation) {
+      return;
+    }
+
+    const maxSectionIndex = Math.max(content.sections.length - 1, 0);
+    const restoredSection = Math.min(
+      Math.max(data.currentSection ?? 0, 0),
+      maxSectionIndex,
+    );
+    const restoredPage = Math.max(data.currentPage ?? 0, 0);
+
+    applyInitialPosition(restoredSection, restoredPage);
+  }, [applyInitialPosition, content, data, hasExplicitLocation]);
 
   if (isLoading) {
     return (
@@ -73,7 +101,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
           itemName="book"
           actionText="parse"
           subtitle={error}
-          secondAction={() => navigate(`/library/books/${book.id}`)}
+          secondAction={() => navigate(`/library/books/${bookId}`)}
           secondActionText="Back to Library"
           secondActionIcon={<ArrowBackIcon />}
         />
@@ -90,7 +118,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
         openSidebar={() => setSidebarOpen(true)}
       />
       <Sidebar
-        bookId={book.id}
+        bookId={bookId}
         content={content}
         isCompactLayout={isCompactLayout}
         sidebarOpen={sidebarOpen}
