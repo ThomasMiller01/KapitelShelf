@@ -1,9 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
-import type { ReadingLocationDTO } from "../../../../lib/api/KapitelShelf.Api";
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+
+import type {
+  ReadingBookDTO,
+  ReadingLocationDTO,
+} from "../../../../lib/api/KapitelShelf.Api";
 import { useApi } from "../../../../shared/contexts/ApiProvider";
 import { useUserProfile } from "../../../../shared/hooks/useUserProfile";
 
-export const useMarkReadingBook = (bookId: string | undefined) => {
+const NO_READING_LOCATION = null as unknown as ReadingLocationDTO | undefined;
+
+export const useMarkReadingBook = (
+  bookId: string | undefined,
+): UseQueryResult<ReadingBookDTO | undefined> => {
   const { clients } = useApi();
   const { profile } = useUserProfile();
 
@@ -14,16 +22,15 @@ export const useMarkReadingBook = (bookId: string | undefined) => {
         return;
       }
 
-      const noReadingLocation =
-        null as unknown as ReadingLocationDTO | undefined;
-
-      await clients.books.booksBookIdReadingPut(
+      const { data } = await clients.books.booksBookIdReadingPut(
         bookId,
-        profile?.id,
-        noReadingLocation,
+        profile.id,
+        NO_READING_LOCATION,
       );
+
+      return data;
     },
-    enabled: !!profile?.id,
+    enabled: Boolean(bookId) && Boolean(profile?.id),
     refetchInterval: false,
   });
 };
