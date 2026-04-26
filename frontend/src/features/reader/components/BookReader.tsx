@@ -3,18 +3,19 @@ import { useState, type ReactElement } from "react";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import LoadingCard from "../../../shared/components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
 import { DRAWER_WIDTH } from "../../../shared/components/base/ResponsiveDrawer";
-import { useReadBook } from "../hooks/useReadBook";
-import { useReadBookPagination } from "../hooks/useReadBookPagination";
-import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import {
   IsMobileApp,
   MOBILE_APP_BOTTOM_INSET,
 } from "../../../shared/utils/MobileUtils";
+import { useMarkReadingBook } from "../hooks/api/useMarkReadingBook";
 import { useReaderOrientation } from "../hooks/device/useReaderOrientation";
 import { useReaderCompactLayout } from "../hooks/layout/useReaderCompactLayout";
+import { useReadBook } from "../hooks/useReadBook";
+import { useReadBookPagination } from "../hooks/useReadBookPagination";
 import { Content } from "./Content";
 import { Sidebar } from "./Sidebar";
 import { Toolbar } from "./Toolbar";
@@ -51,6 +52,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const { section, page, nextSection, prevSection, setSection, setPage } =
     useReadBookPagination();
   const navigate = useNavigate();
+  useMarkReadingBook(book.id);
 
   if (isLoading) {
     return (

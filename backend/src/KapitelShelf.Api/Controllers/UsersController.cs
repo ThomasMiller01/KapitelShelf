@@ -170,6 +170,36 @@ public class UsersController(ILogger<BooksController> logger, IUsersLogic logic)
     }
 
     /// <summary>
+    /// Get the last read books of a user.
+    /// </summary>
+    /// <param name="userId">The id of the user.</param>
+    /// <param name="page">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpGet("{userId}/lastreadbooks")]
+    public async Task<ActionResult<PagedResult<BookDTO>>> GetLastReadBooksByUserId(
+        Guid userId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 12)
+    {
+        try
+        {
+            var books = await this.logic.GetLastReadBooksAsync(userId, page, pageSize);
+            if (books is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error fetching last read books");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Get the user settings of a user.
     /// </summary>
     /// <param name="userId">The id of the user.</param>

@@ -116,4 +116,12 @@ public interface IBooksLogic
     /// <param name="bookId">The book id.</param>
     /// <returns>The generated categories and tags result.</returns>
     Task<AiGenerateCategoriesTagsResultDTO?> AiGenerateCategoriesTags(Guid bookId);
+
+    /// <summary>
+    /// Mark a book as reading.
+    /// </summary>
+    /// <param name="bookId">The book id.</param>
+    /// <param name="userId">The user id.</param>
+    /// <returns>A task.</returns>
+    Task MarkBookAsReading(Guid bookId, Guid? userId);
 }

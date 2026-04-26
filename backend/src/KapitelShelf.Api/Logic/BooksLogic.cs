@@ -732,6 +732,37 @@ public class BooksLogic(
         return await this.aiManager.GetStructuredResponse<AiGenerateCategoriesTagsResultDTO>(userPrompt, AiPrompts.GenerateCategoriesAndTagsFromBook_System);
     }
 
+    /// <inheritdoc/>
+    public async Task MarkBookAsReading(Guid bookId, Guid? userId)
+    {
+        if (bookId == Guid.Empty || userId is null || userId == Guid.Empty)
+        {
+            return;
+        }
+
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+
+        var readingBook = await context.ReadingBooks
+            .Where(x => x.BookId == bookId && x.UserId == userId)
+            .FirstOrDefaultAsync();
+
+        if (readingBook == null)
+        {
+            context.ReadingBooks.Add(new ReadingBooksModel
+            {
+                BookId = bookId,
+                UserId = (Guid)userId,
+                LastReadAt = DateTime.UtcNow,
+            });
+        }
+        else
+        {
+            readingBook.LastReadAt = DateTime.UtcNow;
+        }
+
+        await context.SaveChangesAsync();
+    }
+
     private async Task<IList<BookModel>> GetDuplicatesAsync(BookDTO book)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();

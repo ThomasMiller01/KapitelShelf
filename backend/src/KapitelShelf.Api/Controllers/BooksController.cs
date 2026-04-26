@@ -495,6 +495,27 @@ public class BooksController(
     }
 
     /// <summary>
+    /// Mark a book as reading.
+    /// </summary>
+    /// <param name="bookId">The id of the book to mark as reading.</param>
+    /// <param name="userId">The id of the user.</param>
+    /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPut("{bookId}/reading")]
+    public async Task<IActionResult> MarkBookAsReading(Guid bookId, Guid? userId)
+    {
+        try
+        {
+            await this.logic.MarkBookAsReading(bookId, userId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error marking book as reading");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    /// <summary>
     /// Delete a book.
     /// </summary>
     /// <param name="bookId">The id of the book to delete.</param>
