@@ -1,12 +1,11 @@
 import type { ReactElement } from "react";
 
 import LoadingCard from "../../../shared/components/base/feedback/LoadingCard";
-import { NoItemsFoundCard } from "../../../shared/components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
 import { ScrollableList } from "../../../shared/components/base/ScrollableList";
-import { ResultCard } from "./ResultCard";
 import { useWatchlist } from "../hooks/api/useWatchlist";
 import { SplitByReleaseWindow } from "../utils/WatchlistUtils";
+import { ResultCard } from "./ResultCard";
 
 const NextWatchlistReleasesList = (): ReactElement => {
   const { data, isLoading, isError, refetch } = useWatchlist();
@@ -19,8 +18,8 @@ const NextWatchlistReleasesList = (): ReactElement => {
     return <RequestErrorCard itemName="Next Releases" onRetry={refetch} />;
   }
 
-  if (data === undefined || data === null) {
-    return <NoItemsFoundCard itemName="Next Releases" small />;
+  if (data === undefined || data === null || data.length === 0) {
+    return <></>;
   }
 
   const { arrivingSoon } = SplitByReleaseWindow(data);
@@ -35,9 +34,6 @@ const NextWatchlistReleasesList = (): ReactElement => {
       {flattened?.map((x) => (
         <ResultCard key={x.id} book={x} />
       ))}
-      {flattened.length == 0 && (
-        <NoItemsFoundCard itemName="Next Releases" extraSmall />
-      )}
     </ScrollableList>
   );
 };
