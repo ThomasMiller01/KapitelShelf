@@ -7,6 +7,7 @@ Welcome to KapitelShelf!
 1. [Installation Guide](./installation.md)
 2. [Quickstart Guide](./quickstart.md)
 3. [FAQ](./faq.md)
+4. [Upgrade and Migration Guide](./migrations.md)
 
 ## Learn the Essentials
 

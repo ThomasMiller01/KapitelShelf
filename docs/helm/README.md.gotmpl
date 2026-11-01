@@ -24,11 +24,7 @@ This chart supports **three database configurations**, depending on your environ
 The chart includes a **lightweight bundled PostgreSQL deployment** based on the official PostgreSQL Docker image.  
 This option provides a simple, self-contained setup without requiring any external database infrastructure.
 
-To enable the bundled database:
-
-- Set `global.deployDatabase=true`
-
-The API will automatically connect to this bundled database.
+The bundled database is enabled by default.
 
 #### 2. Bitnami PostgreSQL (Deprecated)
 
@@ -47,12 +43,10 @@ If you already have a PostgreSQL instance available, KapitelShelf can connect to
 
 To use an external database:
 
-<!-- - Set `global.deployDatabase=false` -->
-
-- Set `global.deployPostgresql=false`
+- Set `global.deployDatabase=false`
 - Configure the connection settings under:
 
-<!-- ```yaml
+```yaml
 database:
   auth:
     username: <YOUR_POSTGRESQL-USERNAME>
@@ -61,22 +55,13 @@ database:
   service:
     host: <YOUR-POSTGRESQL-HOST>
     port: <YOUR-POSTGRESQL-PORT>
-``` -->
-
-```yaml
-postgresql:
-  auth:
-    username: "<POSTGRES_USERNAME>"
-    password: "<POSTGRES_PASSWORD>"
-
-  primary:
-    service:
-      # Set the host and port to the external PostgreSQL instance
-      host: "<POSTGRES_HOST>"
-      port: 5432
 ```
 
 You can find an example in [examples/external-database.values.yaml](../../examples/helm/external-database.values.yaml).
+
+### Upgrading an existing installation
+
+The bundled database is the default for new installations. Existing Helm installations using Bitnami PostgreSQL need a manual migration before switching; the old volume cannot be attached directly to PostgreSQL 18. See the [KapitelShelf upgrade and migration guide](../../docs/migrations.md).
 
 ### Configure AI
 

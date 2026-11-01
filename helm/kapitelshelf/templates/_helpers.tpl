@@ -30,44 +30,41 @@ http://localhost:{{ .Values.api.service.port }}
 
 {{/* --- Database Helpers --- */}}
 {{- define "kapitelshelf.database.host" -}}
+{{- if and .Values.global.deployDatabase .Values.global.deployPostgresql -}} {{/* [DEPRECATED, remove check when removing postgres chart] */}}
+{{- fail "global.deployDatabase and global.deployPostgresql cannot both be true" -}}
+{{- end -}}
 {{- if .Values.global.deployDatabase -}}
 {{ include "kapitelshelf.name" . }}-database
 {{- else if .Values.global.deployPostgresql -}} {{/* [DEPRECATED] */}}
 {{ .Release.Name }}-postgresql.{{ .Values.global.namespace }}.svc.cluster.local
 {{- else -}}
-{{ .Values.postgresql.primary.service.host }}{{/* In a future release, fallback to {{ .Values.database.service.host }} */}}
+{{ .Values.database.service.host }}
 {{- end -}}
 {{- end -}}
 
 {{/* [DEPRECATED] because of deployPostgresql, when removed just use `.Values.database.service.port` */}}
 {{- define "kapitelshelf.database.port" -}}
-{{- if .Values.global.deployDatabase -}}
-{{ .Values.database.service.port }}
-{{- else if .Values.global.deployPostgresql -}}
+{{- if .Values.global.deployPostgresql -}}
 {{ .Values.postgresql.primary.service.port }}
 {{- else -}}
-{{ .Values.postgresql.primary.service.port }}
+{{ .Values.database.service.port }}
 {{- end -}}
 {{- end -}}
 
 {{/* [DEPRECATED] because of deployPostgresql, when removed just use `.Values.database.auth.username` */}}
 {{- define "kapitelshelf.database.username" -}}
-{{- if .Values.global.deployDatabase -}}
-{{ .Values.database.auth.username }}
-{{- else if .Values.global.deployPostgresql -}}
+{{- if .Values.global.deployPostgresql -}}
 {{ .Values.postgresql.auth.username }}
 {{- else -}}
-{{ .Values.postgresql.auth.username }}
+{{ .Values.database.auth.username }}
 {{- end -}}
 {{- end -}}
 
 {{/* [DEPRECATED] because of deployPostgresql, when removed just use `.Values.database.auth.password` */}}
 {{- define "kapitelshelf.database.password" -}}
-{{- if .Values.global.deployDatabase -}}
-{{ .Values.database.auth.password }}
-{{- else if .Values.global.deployPostgresql -}}
+{{- if .Values.global.deployPostgresql -}}
 {{ .Values.postgresql.auth.password }}
 {{- else -}}
-{{ .Values.postgresql.auth.password }}
+{{ .Values.database.auth.password }}
 {{- end -}}
 {{- end -}}

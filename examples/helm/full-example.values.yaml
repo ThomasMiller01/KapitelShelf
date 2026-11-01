@@ -1,6 +1,4 @@
 global:  
-  deployPostgresql: true
-
   namespace: my-namespace
 
   storage:
@@ -68,18 +66,17 @@ api:
       cpu: 250m
       memory: 512Mi
 
-postgresql:
+database:
   auth:
     username: "<POSTGRES_USERNAME>"
     password: "<POSTGRES_PASSWORD>"
 
-  primary:
-    service:
-      port: 5432
+  service:
+    port: 5432
 
-    persistence:
-      size: 20Gi
+  persistence:
+    size: 20Gi
 
-    resources:
-      limits:
-        memory: 2Gi
+  resources:
+    limits:
+      memory: 2Gi

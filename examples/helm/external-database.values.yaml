@@ -1,5 +1,5 @@
 global:  
-  deployPostgresql: false # Disable the PostgreSQL subchart
+  deployDatabase: false # Disable the bundled PostgreSQL database
 
 frontend:
   ingress:
@@ -13,14 +13,13 @@ api:
     host: "kapitelshelf.example.com"
     path: /api
 
-postgresql:    
+database:
   auth:
     username: "<POSTGRES_USERNAME>"
     password: "<POSTGRES_PASSWORD>"
 
-  primary:
-    service:
-      # Set the host and port to the external PostgreSQL instance
-      host: "<POSTGRES_HOST>" 
-      port: 5432
+  service:
+    # Set the host and port to the external PostgreSQL instance
+    host: "<POSTGRES_HOST>"
+    port: 5432
 
