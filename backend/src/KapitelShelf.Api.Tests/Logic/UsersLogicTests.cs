@@ -420,6 +420,177 @@ public class UsersLogicTests
     }
 
     /// <summary>
+    /// Tests GetLastReadBooksAsync filters by user and returns paginated books ordered by last read time.
+    /// </summary>
+    /// <param name="page">The requested page.</param>
+    /// <param name="pageSize">The requested page size.</param>
+    /// <param name="expectedTitles">The expected titles in order, separated by commas.</param>
+    /// <returns>A task.</returns>
+    [TestCase(1, 10, "Book 3,Book 2,Book 1")]
+    [TestCase(1, 2, "Book 3,Book 2")]
+    [TestCase(2, 2, "Book 1")]
+    [TestCase(3, 2, "")]
+    public async Task GetLastReadBooksAsync_ReturnsPaginatedOrderedBooksForUser(int page, int pageSize, string expectedTitles)
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "LastReadUser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var otherUser = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "OtherLastReadUser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var series = new SeriesModel { Id = Guid.NewGuid(), Name = "LastReadSeries".Unique() };
+        var book1 = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book 1",
+            Description = "Description",
+            Series = series,
+        };
+        var book2 = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book 2",
+            Description = "Description",
+            Series = series,
+        };
+        var book3 = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Book 3",
+            Description = "Description",
+            Series = series,
+        };
+        var otherBook = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "Other Book",
+            Description = "Description",
+            Series = series,
+        };
+        var now = DateTime.UtcNow;
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.AddRange(user, otherUser);
+            context.Books.AddRange(book1, book2, book3, otherBook);
+            context.ReadingBooks.AddRange(
+                new ReadingBooksModel { BookId = book1.Id, UserId = user.Id, LastReadAt = now.AddMinutes(-15) },
+                new ReadingBooksModel { BookId = book3.Id, UserId = user.Id, LastReadAt = now.AddMinutes(-5) },
+                new ReadingBooksModel { BookId = book2.Id, UserId = user.Id, LastReadAt = now.AddMinutes(-10) },
+                new ReadingBooksModel { BookId = otherBook.Id, UserId = otherUser.Id, LastReadAt = now });
+            context.VisitedBooks.Add(new VisitedBooksModel { BookId = otherBook.Id, UserId = user.Id, VisitedAt = now });
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetLastReadBooksAsync(user.Id, page, pageSize);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.TotalCount, Is.EqualTo(3));
+            Assert.That(result.Items.Select(x => x.Title), Is.EqualTo(expectedTitles.Split(',', StringSplitOptions.RemoveEmptyEntries)));
+        });
+    }
+
+    /// <summary>
+    /// Tests GetLastReadBooksAsync returns an empty result when the user has no reading history.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetLastReadBooksAsync_ReturnsEmpty_WhenNoReadingBooksExist()
+    {
+        // Execute
+        var result = await this.testee.GetLastReadBooksAsync(Guid.NewGuid(), page: 1, pageSize: 10);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Items, Is.Empty);
+            Assert.That(result.TotalCount, Is.Zero);
+        });
+    }
+
+    /// <summary>
+    /// Tests GetLastReadBooksAsync includes user metadata with ratings and notes.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task GetLastReadBooksAsync_IncludesUserMetadataWithRating()
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "LastReadMetadataUser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "LastReadMetadataBook".Unique(),
+            Description = "Description",
+            Series = new SeriesModel { Id = Guid.NewGuid(), Name = "LastReadMetadataSeries".Unique() },
+        };
+        var readingBook = new ReadingBooksModel
+        {
+            BookId = book.Id,
+            UserId = user.Id,
+            LastReadAt = DateTime.UtcNow,
+        };
+        var userMetadata = new UserBookMetadataModel
+        {
+            BookId = book.Id,
+            UserId = user.Id,
+            Rating = 5,
+            Notes = "Excellent book!",
+            CreatedOn = DateTime.UtcNow,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Books.Add(book);
+            context.ReadingBooks.Add(readingBook);
+            context.UserBookMetadata.Add(userMetadata);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.GetLastReadBooksAsync(user.Id, page: 1, pageSize: 10);
+
+        // Assert
+        Assert.That(result.Items, Has.Count.EqualTo(1));
+        var returnedBook = result.Items.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(returnedBook.Id, Is.EqualTo(book.Id));
+            Assert.That(returnedBook.UserMetadata, Has.Count.EqualTo(1));
+        });
+        var metadata = returnedBook.UserMetadata.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(metadata.UserId, Is.EqualTo(user.Id));
+            Assert.That(metadata.Rating, Is.EqualTo(5));
+            Assert.That(metadata.Notes, Is.EqualTo("Excellent book!"));
+            Assert.That(metadata.User, Is.Not.Null);
+            Assert.That(metadata.User!.Username, Is.EqualTo(user.Username));
+        });
+    }
+
+    /// <summary>
     /// Tests GetSettingsByUserIdAsync returns user settings.
     /// </summary>
     /// <returns>A task.</returns>

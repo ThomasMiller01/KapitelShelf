@@ -827,6 +827,37 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("KapitelShelf.Data.Models.ReadingBooksModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CurrentPage")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CurrentSection")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("LastReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("BookId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("ReadingBooks");
+                });
+
             modelBuilder.Entity("KapitelShelf.Data.Models.SeriesModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1005,9 +1036,10 @@ namespace KapitelShelf.Data.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("BookId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("VisitedBooks");
                 });
@@ -1260,6 +1292,25 @@ namespace KapitelShelf.Data.Migrations.Migrations
                         .IsRequired();
 
                     b.Navigation("Parent");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KapitelShelf.Data.Models.ReadingBooksModel", b =>
+                {
+                    b.HasOne("KapitelShelf.Data.Models.BookModel", "Book")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KapitelShelf.Data.Models.User.UserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
 
                     b.Navigation("User");
                 });

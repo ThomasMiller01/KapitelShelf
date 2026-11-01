@@ -14,8 +14,23 @@ const readPageParam = (params: URLSearchParams): number => {
   return Number.isFinite(value) && value > 0 ? value : DEFAULT_PAGE;
 };
 
-export const useReadBookPagination = () => {
+interface ReadBookPaginationState {
+  applyInitialPosition: (nextSection: number, nextPage: number) => void;
+  hasExplicitLocation: boolean;
+  nextSection: () => void;
+  page: number;
+  prevSection: () => void;
+  section: number;
+  setPage: (nextPage: number) => void;
+  setSection: (nextSection: number) => void;
+}
+
+export const useReadBookPagination = (): ReadBookPaginationState => {
   const [params, setParams] = useSearchParams();
+  const [hasExplicitLocation] = useState(
+    () => params.has("section") || params.has("page"),
+  );
+  const initialPositionAppliedRef = useRef(false);
 
   const [section, setSectionState] = useState<number>(() =>
     readSectionParam(params),
@@ -56,24 +71,38 @@ export const useReadBookPagination = () => {
     setPageState(urlPage);
   }, [params]);
 
-  const nextSection = () => {
+  const nextSection = (): void => {
     commitPagination(sectionRef.current + 1, DEFAULT_PAGE);
   };
 
-  const prevSection = () => {
+  const prevSection = (): void => {
     // Don't reset page here, content navigatedBackRef will set it to last page.
     commitPagination(sectionRef.current - 1, pageRef.current);
   };
 
-  const setSection = (nextSection: number) => {
+  const setSection = (nextSection: number): void => {
     commitPagination(nextSection, DEFAULT_PAGE);
   };
 
-  const setPage = (nextPage: number) => {
+  const setPage = (nextPage: number): void => {
     commitPagination(sectionRef.current, nextPage);
   };
 
+  const applyInitialPosition = (
+    nextSection: number,
+    nextPage: number,
+  ): void => {
+    if (hasExplicitLocation || initialPositionAppliedRef.current) {
+      return;
+    }
+
+    initialPositionAppliedRef.current = true;
+    commitPagination(nextSection, nextPage);
+  };
+
   return {
+    applyInitialPosition,
+    hasExplicitLocation,
     section,
     page,
     nextSection,

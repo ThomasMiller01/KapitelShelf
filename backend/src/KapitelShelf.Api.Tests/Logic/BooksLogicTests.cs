@@ -12,6 +12,7 @@ using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.MetadataScraper;
 using KapitelShelf.Api.DTOs.Notifications;
+using KapitelShelf.Api.DTOs.Reader;
 using KapitelShelf.Api.DTOs.Series;
 using KapitelShelf.Api.DTOs.Tag;
 using KapitelShelf.Api.Extensions;
@@ -491,6 +492,255 @@ public class BooksLogicTests
             Assert.That(visited, Is.Not.Null);
             Assert.That(visited.VisitedAt, Is.GreaterThan(oldTime));
         }
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsReading creates a reading entry and returns its location.
+    /// </summary>
+    /// <param name="currentSection">The optional section to save.</param>
+    /// <param name="currentPage">The optional page to save.</param>
+    /// <returns>A task.</returns>
+    [TestCase(null, null)]
+    [TestCase(2, 7)]
+    public async Task MarkBookAsReading_AddsReadingBook_WhenNoneExists(int? currentSection, int? currentPage)
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "ReadingUser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "ReadingBook".Unique(),
+            Description = "Description",
+            Series = new SeriesModel { Id = Guid.NewGuid(), Name = "ReadingSeries".Unique() },
+        };
+        var readingLocation = currentSection.HasValue
+            ? new ReadingLocationDTO { CurrentSection = currentSection.Value, CurrentPage = currentPage!.Value }
+            : null;
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+        }
+
+        var beforeReading = DateTime.UtcNow.AddSeconds(-1);
+
+        // Execute
+        var result = await this.testee.MarkBookAsReading(book.Id, user.Id, readingLocation);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var saved = await context2.ReadingBooks.SingleAsync(x => x.BookId == book.Id && x.UserId == user.Id);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.BookId, Is.EqualTo(book.Id));
+            Assert.That(result.UserId, Is.EqualTo(user.Id));
+            Assert.That(result.CurrentSection, Is.EqualTo(currentSection ?? 0));
+            Assert.That(result.CurrentPage, Is.EqualTo(currentPage ?? 0));
+            Assert.That(saved.CurrentSection, Is.EqualTo(currentSection ?? 0));
+            Assert.That(saved.CurrentPage, Is.EqualTo(currentPage ?? 0));
+            Assert.That(saved.LastReadAt, Is.GreaterThanOrEqualTo(beforeReading));
+            Assert.That(saved.LastReadAt, Is.LessThanOrEqualTo(DateTime.UtcNow));
+        });
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsReading refreshes an existing entry and only replaces its location when supplied.
+    /// </summary>
+    /// <param name="currentSection">The optional section to save.</param>
+    /// <param name="currentPage">The optional page to save.</param>
+    /// <returns>A task.</returns>
+    [TestCase(null, null)]
+    [TestCase(4, 12)]
+    [TestCase(0, 0)]
+    public async Task MarkBookAsReading_UpdatesExistingReadingBook(int? currentSection, int? currentPage)
+    {
+        // Setup
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "ReadingUpdateUser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var book = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "ReadingUpdateBook".Unique(),
+            Description = "Description",
+            Series = new SeriesModel { Id = Guid.NewGuid(), Name = "ReadingUpdateSeries".Unique() },
+        };
+        var oldTime = DateTime.UtcNow.AddDays(-1);
+        var readingBook = new ReadingBooksModel
+        {
+            Id = Guid.NewGuid(),
+            BookId = book.Id,
+            UserId = user.Id,
+            LastReadAt = oldTime,
+            CurrentSection = 2,
+            CurrentPage = 7,
+        };
+        var readingLocation = currentSection.HasValue
+            ? new ReadingLocationDTO { CurrentSection = currentSection.Value, CurrentPage = currentPage!.Value }
+            : null;
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.Add(user);
+            context.Books.Add(book);
+            context.ReadingBooks.Add(readingBook);
+            await context.SaveChangesAsync();
+        }
+
+        // Execute
+        var result = await this.testee.MarkBookAsReading(book.Id, user.Id, readingLocation);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var saved = await context2.ReadingBooks.SingleAsync(x => x.BookId == book.Id && x.UserId == user.Id);
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved.Id, Is.EqualTo(readingBook.Id));
+            Assert.That(saved.LastReadAt, Is.GreaterThan(oldTime));
+            Assert.That(saved.CurrentSection, Is.EqualTo(currentSection ?? 2));
+            Assert.That(saved.CurrentPage, Is.EqualTo(currentPage ?? 7));
+            Assert.That(result!.BookId, Is.EqualTo(book.Id));
+            Assert.That(result.UserId, Is.EqualTo(user.Id));
+            Assert.That(result.CurrentSection, Is.EqualTo(currentSection ?? 2));
+            Assert.That(result.CurrentPage, Is.EqualTo(currentPage ?? 7));
+        });
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsReading keeps reading positions separate for each book and user.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task MarkBookAsReading_DoesNotChangeOtherBooksOrUsers()
+    {
+        // Setup
+        var user1 = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "ReadingUser1".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var user2 = new UserModel
+        {
+            Id = Guid.NewGuid(),
+            Username = "ReadingUser2".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var series = new SeriesModel { Id = Guid.NewGuid(), Name = "SeparateReadingSeries".Unique() };
+        var book1 = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "ReadingBook1".Unique(),
+            Description = "Description",
+            Series = series,
+        };
+        var book2 = new BookModel
+        {
+            Id = Guid.NewGuid(),
+            Title = "ReadingBook2".Unique(),
+            Description = "Description",
+            Series = series,
+        };
+
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.Users.AddRange(user1, user2);
+            context.Books.AddRange(book1, book2);
+            context.ReadingBooks.AddRange(
+                new ReadingBooksModel { BookId = book1.Id, UserId = user1.Id, CurrentSection = 1, CurrentPage = 5 },
+                new ReadingBooksModel { BookId = book2.Id, UserId = user2.Id, CurrentSection = 3, CurrentPage = 9 });
+            await context.SaveChangesAsync();
+        }
+
+        var readingLocation = new ReadingLocationDTO { CurrentSection = 4, CurrentPage = 12 };
+
+        // Execute
+        var result = await this.testee.MarkBookAsReading(book1.Id, user2.Id, readingLocation);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        using var context2 = new KapitelShelfDBContext(this.dbOptions);
+        var saved = await context2.ReadingBooks
+            .Where(x => x.BookId == book1.Id || x.BookId == book2.Id)
+            .ToListAsync();
+        Assert.That(saved, Has.Count.EqualTo(3));
+        var otherUser = saved.Single(x => x.BookId == book1.Id && x.UserId == user1.Id);
+        var otherBook = saved.Single(x => x.BookId == book2.Id && x.UserId == user2.Id);
+        var newReadingBook = saved.Single(x => x.BookId == book1.Id && x.UserId == user2.Id);
+        Assert.Multiple(() =>
+        {
+            Assert.That(otherUser.CurrentSection, Is.EqualTo(1));
+            Assert.That(otherUser.CurrentPage, Is.EqualTo(5));
+            Assert.That(otherUser.LastReadAt, Is.Null);
+            Assert.That(otherBook.CurrentSection, Is.EqualTo(3));
+            Assert.That(otherBook.CurrentPage, Is.EqualTo(9));
+            Assert.That(otherBook.LastReadAt, Is.Null);
+            Assert.That(newReadingBook.CurrentSection, Is.EqualTo(4));
+            Assert.That(newReadingBook.CurrentPage, Is.EqualTo(12));
+            Assert.That(result!.BookId, Is.EqualTo(book1.Id));
+            Assert.That(result.UserId, Is.EqualTo(user2.Id));
+        });
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsReading returns null for an empty book id without accessing the database.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task MarkBookAsReading_ReturnsNull_WhenBookIdEmpty()
+    {
+        // Execute
+        var result = await this.testee.MarkBookAsReading(Guid.Empty, Guid.NewGuid(), null);
+
+        // Assert
+        Assert.That(result, Is.Null);
+        await this.dbContextFactory.DidNotReceive().CreateDbContextAsync(Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsReading returns null for a missing user id without accessing the database.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task MarkBookAsReading_ReturnsNull_WhenUserIdNull()
+    {
+        // Execute
+        var result = await this.testee.MarkBookAsReading(Guid.NewGuid(), null, null);
+
+        // Assert
+        Assert.That(result, Is.Null);
+        await this.dbContextFactory.DidNotReceive().CreateDbContextAsync(Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>
+    /// Tests MarkBookAsReading returns null for an empty user id without accessing the database.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task MarkBookAsReading_ReturnsNull_WhenUserIdEmpty()
+    {
+        // Execute
+        var result = await this.testee.MarkBookAsReading(Guid.NewGuid(), Guid.Empty, null);
+
+        // Assert
+        Assert.That(result, Is.Null);
+        await this.dbContextFactory.DidNotReceive().CreateDbContextAsync(Arg.Any<CancellationToken>());
     }
 
     /// <summary>

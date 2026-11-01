@@ -59,6 +59,8 @@ If a book detail page shows **Read**, you can launch the built-in reader from th
 1. Open the book detail page.
 2. Click **Read** to launch the built-in reader.
 
+KapitelShelf remembers your reading position for the active user profile and resumes from that saved spot the next time you open the same book.
+
 For supported formats, navigation, personalization options and reader limitations, see [Book Reader](./references/book-reader.md).
 
 ![Book Detail Page Read Button](./.attachments/references/book-reader/BookDetailPage_ReadButton.png)

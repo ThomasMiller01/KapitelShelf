@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 
 import LoadingCard from "../../../shared/components/base/feedback/LoadingCard";
-import { NoItemsFoundCard } from "../../../shared/components/base/feedback/NoItemsFoundCard";
 import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
 import { ScrollableList } from "../../../shared/components/base/ScrollableList";
 import BookCard from "../../../shared/components/BookCard";
@@ -18,6 +17,10 @@ const LastVisitedBooksList = (): ReactElement => {
     return <RequestErrorCard itemName="Last Visited Books" onRetry={refetch} />;
   }
 
+  if (data === undefined || data === null || data.totalCount === 0) {
+    return <></>;
+  }
+
   return (
     <ScrollableList
       title="Last Visited Books"
@@ -27,9 +30,6 @@ const LastVisitedBooksList = (): ReactElement => {
       {data?.items?.map((x) => (
         <BookCard key={x.id} book={x} small showRating={false} />
       ))}
-      {data?.totalCount === 0 && (
-        <NoItemsFoundCard itemName="Last Visited Books" extraSmall />
-      )}
     </ScrollableList>
   );
 };

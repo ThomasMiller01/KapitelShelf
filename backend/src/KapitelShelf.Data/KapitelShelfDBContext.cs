@@ -86,6 +86,11 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
     public DbSet<VisitedBooksModel> VisitedBooks => Set<VisitedBooksModel>();
 
     /// <summary>
+    /// Gets the reading books table.
+    /// </summary>
+    public DbSet<ReadingBooksModel> ReadingBooks => Set<ReadingBooksModel>();
+
+    /// <summary>
     /// Gets the visited books table.
     /// </summary>
     public DbSet<CloudConfigurationModel> CloudConfiguration => Set<CloudConfigurationModel>();
@@ -233,6 +238,21 @@ public class KapitelShelfDBContext(DbContextOptions<KapitelShelfDBContext> optio
 
         // Visited Books
         modelBuilder.Entity<VisitedBooksModel>()
+            .HasIndex(x => new { x.BookId, x.UserId })
+            .IsUnique();
+
+        modelBuilder.Entity<VisitedBooksModel>()
+            .HasOne(x => x.Book)
+            .WithMany()
+            .HasForeignKey(x => x.BookId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Reading Books
+        modelBuilder.Entity<ReadingBooksModel>()
+            .HasIndex(x => new { x.BookId, x.UserId })
+            .IsUnique();
+
+        modelBuilder.Entity<ReadingBooksModel>()
             .HasOne(x => x.Book)
             .WithMany()
             .HasForeignKey(x => x.BookId)

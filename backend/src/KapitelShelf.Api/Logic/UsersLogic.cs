@@ -159,6 +159,51 @@ public class UsersLogic(IDbContextFactory<KapitelShelfDBContext> dbContextFactor
     }
 
     /// <inheritdoc/>
+    public async Task<PagedResult<BookDTO>> GetLastReadBooksAsync(Guid userId, int page, int pageSize)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var query = context.ReadingBooks
+            .AsNoTracking()
+
+            .Include(x => x.Book)
+                .ThenInclude(x => x.Author)
+            .Include(x => x.Book)
+                .ThenInclude(x => x.Cover)
+            .Include(x => x.Book)
+                .ThenInclude(x => x.Location)
+            .Include(x => x.Book)
+                .ThenInclude(x => x.Categories)
+                    .ThenInclude(x => x.Category)
+            .Include(x => x.Book)
+                .ThenInclude(x => x.Tags)
+                    .ThenInclude(x => x.Tag)
+            .Include(x => x.Book)
+                .ThenInclude(x => x.UserMetadata)
+                    .ThenInclude(x => x.User)
+            .AsSingleQuery()
+
+            .Where(x => x.UserId == userId);
+
+        var items = await query
+            .OrderByDescending(x => x.LastReadAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+
+            .Select(x => this.mapper.BookModelToBookDto(x.Book))
+            .ToListAsync();
+
+        var totalCount = await query.CountAsync();
+
+        return new PagedResult<BookDTO>
+        {
+            Items = items,
+            TotalCount = totalCount,
+        };
+    }
+
+    /// <inheritdoc/>
     public async Task<List<UserSettingDTO>> GetSettingsByUserIdAsync(Guid userId)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
