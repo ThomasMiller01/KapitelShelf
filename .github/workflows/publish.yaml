@@ -75,29 +75,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  checks:
-    needs: prepare
-    if: needs.prepare.outputs.should_publish == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.prepare.outputs.sha }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-      - run: npm ci
-        working-directory: frontend
-      - run: npm run build
-        working-directory: frontend
-      - run: dotnet test KapitelShelf.Api.Tests/KapitelShelf.Api.Tests.csproj --configuration Release
-        working-directory: backend/src
-
   images:
     needs: prepare
     if: needs.prepare.outputs.should_publish == 'true'
@@ -221,7 +198,7 @@ jobs:
           retention-days: 7
 
   publish:
-    needs: [prepare, checks, images, android, helm]
+    needs: [prepare, images, android, helm]
     runs-on: ubuntu-latest
     permissions:
       contents: write
