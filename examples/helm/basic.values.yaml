@@ -10,11 +10,10 @@ api:
     host: "kapitelshelf.example.com"
     path: /api
 
-postgresql:
+database:
   auth:
     username: "<POSTGRES_USERNAME>"
     password: "<POSTGRES_PASSWORD>"
 
-  primary:
-    persistence:
-      size: 20Gi
+  persistence:
+    size: 20Gi

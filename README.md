@@ -37,6 +37,7 @@ See the [Quickstart Guide](docs/quickstart.md) for an introduction to using Kapi
 - [Installation Guide](docs/installation.md)
 - [Quickstart Guide](docs/quickstart.md)
 - [Development Guide](docs/development.md)
+- [Upgrade and Migration Guide](docs/migrations.md)
 - [Helm Chart](helm/kapitelshelf/README.md)
 - [Examples](examples/README.md)
 - [References](docs/references.md)

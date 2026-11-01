@@ -2,7 +2,7 @@ global:
   # -- Whether to deploy a bundled PostgreSQL database.<br />
   # Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database
   # @section -- Global Values
-  deployDatabase: false
+  deployDatabase: true
 
   # -- Whether to deploy a bundled Ollama instance using the Otwld Ollama subchart.<br />
   # Set to `true` if you want to use AI features with selfhosted Ollama.<br />
@@ -13,7 +13,7 @@ global:
   # -- [DEPRECATED] Whether to deploy a bundled PostgreSQL instance using the Bitnami PostgreSQL subchart.<br />
   # Set to `false` if you want KapitelShelf to connect to your own external PostgreSQL database
   # @section -- Global Values
-  deployPostgresql: true
+  deployPostgresql: false
 
   # -- The helm chart will be deployed into this namespace
   # @section -- Global Values

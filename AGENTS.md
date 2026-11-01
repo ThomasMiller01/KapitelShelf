@@ -29,6 +29,8 @@ Instructions for AI coding agents (Codex and similar) working in this repository
 - Keep diffs small and avoid unrelated cleanup.
 - Do not rename/move files unless required by the task.
 - Do not manually edit generated API client files in `frontend/src/lib/api/KapitelShelf.Api` unless the task explicitly asks for it.
+- Do not modify `CHANGELOG.md`; release scripts generate it.
+- Do not modify `helm/kapitelshelf/README.md`; update `docs/helm/README.md.gotmpl` instead.
 - If backend API contracts change, regenerate swagger + client using the command below.
 
 ## Build, Test, and Validation
