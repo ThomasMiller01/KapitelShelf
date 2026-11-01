@@ -253,15 +253,6 @@ jobs:
             found { print }
             END { if (!found) exit 1 }
           ' CHANGELOG.md > artifacts/release-body.md
-          cat >> artifacts/release-body.md <<EOF
-
-          ### Container images
-
-          - [Docker Hub: kapitelshelf-frontend:$VERSION](https://hub.docker.com/r/thomasmiller01/kapitelshelf-frontend/tags?name=$VERSION) · [GHCR: kapitelshelf-frontend](https://github.com/ThomasMiller01/KapitelShelf/pkgs/container/kapitelshelf-frontend)
-          - [Docker Hub: kapitelshelf-api:$VERSION](https://hub.docker.com/r/thomasmiller01/kapitelshelf-api/tags?name=$VERSION) · [GHCR: kapitelshelf-api](https://github.com/ThomasMiller01/KapitelShelf/pkgs/container/kapitelshelf-api)
-
-          Helm repository: https://thomasmiller01.github.io/KapitelShelf/helm
-          EOF
           if gh release view "v$VERSION" >/dev/null 2>&1; then
             gh release edit "v$VERSION" --title "KapitelShelf v$VERSION" --notes-file artifacts/release-body.md
           else
