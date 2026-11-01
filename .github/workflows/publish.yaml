@@ -3,7 +3,7 @@ name: Publish KapitelShelf
 on:
   push:
     branches: [main]
-    paths: ['CHANGELOG.md', 'package.json']
+    paths: ['CHANGELOG.md']
   workflow_dispatch:
     inputs:
       ref:
