@@ -1,4 +1,7 @@
 {
+  "name": "KapitelShelf",
+  "version": "0.3.5",
+  "private": true,
   "scripts": {
     "build:dev": "npm i && npm run build:dev:frontend && npm run build:dev:backend && npm run gen:swagger",
     "build:dev:frontend": "cd ./frontend/src && npm i",
@@ -6,7 +9,8 @@
     "build:helm": "npm run build:helm:addrepos && npm run build:helm:dependencies && npm run build:helm:chart",
     "build:helm:addrepos": "helm repo add otwld https://helm.otwld.com/ && helm repo add bitnami https://charts.bitnami.com/bitnami",
     "build:helm:dependencies": "cd ./helm/kapitelshelf && helm dependency build",
-    "build:helm:chart": "cd ./helm && rimraf ./build && mkdir build && helm package ./kapitelshelf --destination ./build && helm repo index ./build --url https://thomasmiller01.github.io/KapitelShelf/helm",
+    "build:helm:chart": "cd ./helm && rimraf ./build && mkdir build && helm package ./kapitelshelf --destination ./build && cd .. && npm run build:helm:index -- ./helm/build",
+    "build:helm:index": "helm repo index --url https://thomasmiller01.github.io/KapitelShelf/helm",
     "dev:run:docker-compose": "cd ./development && docker-compose up",
     "dev:run:frontend": "cd ./frontend && npm run dev",
     "dev:run:backend:api": "cd ./backend/src && dotnet watch run --project KapitelShelf.Api",
@@ -15,13 +19,13 @@
     "gen:swaggerjson": "cd ./backend/src/KapitelShelf.Api && dotnet build && swagger tofile --output ./swagger.json ./bin/Debug/net9.0/KapitelShelf.Api.dll v1",
     "gen:swaggerclient": "npx @openapitools/openapi-generator-cli generate -i ./backend/src/KapitelShelf.Api/swagger.json -g typescript-axios -o ./frontend/src/lib/api/KapitelShelf.Api --additional-properties=supportsES6=true,typescriptThreePlus=true",
     "gen:helm:docs": "docker run --rm -v %cd%/helm:/helm-docs -v %cd%/docs/helm:/templates jnorwood/helm-docs:v1.14.2 --template-files=/templates/README.md.gotmpl",
-    "release:helm": "cd ./helm/kapitelshelf && npx commit-and-tag-version -a && git push origin --tags",
-    "release:frontend": "cd ./frontend && npx commit-and-tag-version && git push origin --tags",
-    "release:backend:api": "cd ./backend/src/KapitelShelf.Api && npx commit-and-tag-version && git push origin --tags"
+    "release": "commit-and-tag-version"
   },
   "devDependencies": {
     "commit-and-tag-version": "^12.5.1",
     "conventional-changelog-cli": "^4.1.0",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "conventional-changelog-conventionalcommits": "6.1.0",
+    "yaml": "^2.6.0"
   }
 }

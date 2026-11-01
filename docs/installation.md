@@ -34,6 +34,8 @@ The docker images are published on:
 | Frontend | `thomasmiller01/kapitelshelf-frontend` | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-frontend) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-frontend) |
 | API      | `thomasmiller01/kapitelshelf-api`      | [DockerHub](https://hub.docker.com/r/thomasmiller01/kapitelshelf-api) • [ghcr.io](https://github.com/thomasmiller01/KapitelShelf/pkgs/container/kapitelshelf-api)           |
 
+Starting with KapitelShelf **0.4.0**, the frontend, API, Android app, and Helm chart share one release version. Use the same exact version tag for both images when pinning a deployment. Every release includes all components, even when only one changed. Release notes and downloads are available in [KapitelShelf Releases](https://github.com/ThomasMiller01/KapitelShelf/releases/latest).
+
 ### Frontend
 
 ```bash
@@ -90,10 +92,12 @@ The easiest way to do this is by using either:
 
 Once your backend is running:
 
-1. Visit the [KapitelShelf Releases](https://github.com/ThomasMiller01/KapitelShelf/releases?q=frontend&expanded=true).
-2. Locate the **latest** `frontend@x.y.z` release.
+1. Visit the [KapitelShelf Releases](https://github.com/ThomasMiller01/KapitelShelf/releases/latest).
+2. Locate the latest **KapitelShelf vx.y.z** release. Older releases use component-specific names such as `frontend@x.y.z`.
 3. Under **Assets**, download the APK file named `KapitelShelf-x.y.z.apk` _(with `x.y.z` being the version of the release)_.
 4. Install this APK on your Android device. You may need to enable "Install unknown apps" in your Android settings.
+
+Unified releases also provide `SHA256SUMS`, which contains the SHA-256 checksums for the APK and Helm chart archive.
 
 Once installed, open the app. You'll be prompted to configure the URL of your KapitelShelf backend:
 

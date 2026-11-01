@@ -1,0 +1,336 @@
+name: Publish KapitelShelf
+
+on:
+  push:
+    branches: [main]
+    paths: ['CHANGELOG.md', 'package.json']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Release commit SHA (use the original run SHA when retrying)'
+        required: true
+        default: main
+
+concurrency:
+  group: kapitelshelf-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      should_publish: ${{ steps.release.outputs.should_publish }}
+      version: ${{ steps.release.outputs.version }}
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Validate release request
+        id: release
+        shell: bash
+        run: |
+          VERSION=$(jq -r .version package.json)
+          SHA=$(git rev-parse HEAD)
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "A stable X.Y.Z version is required: $VERSION" >&2
+            exit 1
+          fi
+          if ! grep -Eq "^## (\\[$VERSION\\]|$VERSION( \\(|$))" CHANGELOG.md; then
+            if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+              echo "CHANGELOG.md has no release entry for $VERSION" >&2
+              exit 1
+            fi
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if RELEASE=$(gh release view "v$VERSION" --json isDraft,targetCommitish 2>/dev/null); then
+            if [[ $(jq -r .isDraft <<< "$RELEASE") == "false" ]]; then
+              echo "should_publish=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            TARGET=$(jq -r .targetCommitish <<< "$RELEASE")
+            if [[ $(git rev-parse "$TARGET^{commit}") != "$SHA" ]]; then
+              echo "Existing draft targets a different commit" >&2
+              exit 1
+            fi
+          fi
+          git merge-base --is-ancestor "$SHA" origin/main
+          if TAG=$(git rev-parse --verify "refs/tags/v$VERSION^{commit}" 2>/dev/null) && [[ "$TAG" != "$SHA" ]]; then
+            echo "v$VERSION points to a different commit" >&2
+            exit 1
+          fi
+          NEWEST=$(gh release list --exclude-drafts --limit 100 --json tagName --jq '.[].tagName' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -V | tail -1 || true)
+          if [[ -n "$NEWEST" && $(printf '%s\n%s\n' "$VERSION" "$NEWEST" | sort -V | tail -1) != "$VERSION" ]]; then
+            echo "A newer unified release (v$NEWEST) is already published" >&2
+            exit 1
+          fi
+          echo "should_publish=true" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  checks:
+    needs: prepare
+    if: needs.prepare.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - run: dotnet test KapitelShelf.Api.Tests/KapitelShelf.Api.Tests.csproj --configuration Release
+        working-directory: backend/src
+
+  images:
+    needs: prepare
+    if: needs.prepare.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: kapitelshelf-frontend
+            context: frontend
+            dockerfile: frontend/Dockerfile
+          - image: kapitelshelf-api
+            context: backend/src
+            dockerfile: backend/src/KapitelShelf.Api/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: docker/setup-buildx-action@v3
+      - name: Build versioned image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64
+          tags: ${{ matrix.image }}:${{ needs.prepare.outputs.version }}
+          labels: |
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+            org.opencontainers.image.revision=${{ needs.prepare.outputs.sha }}
+            org.opencontainers.image.source=https://github.com/ThomasMiller01/KapitelShelf
+          outputs: type=docker,dest=${{ runner.temp }}/${{ matrix.image }}.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.image }}
+          path: ${{ runner.temp }}/${{ matrix.image }}.tar
+          if-no-files-found: error
+          retention-days: 7
+
+  android:
+    needs: prepare
+    if: needs.prepare.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Decode signing keystore
+        run: |
+          mkdir -p android/app/keystore
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/keystore/release-key.jks
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      - run: npm run mobile:sync
+      - name: Build signed APK
+        working-directory: frontend/android
+        run: |
+          chmod +x gradlew
+          ./gradlew clean assembleRelease
+        env:
+          ORG_GRADLE_PROJECT_KS_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_KS_ALIAS_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      - name: Verify APK signature and version
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
+          APKANALYZER=$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/apkanalyzer' | sort -V | tail -1)
+          "$APKSIGNER" verify "$APK"
+          test "$("$APKANALYZER" manifest version-name "$APK")" = "$VERSION"
+          EXPECTED_CODE=$(node -p 'require("./package.json").version.split(".").reduce((sum, n, i) => sum + Number(n) * 100 ** (2 - i), 0)')
+          test "$("$APKANALYZER" manifest version-code "$APK")" = "$EXPECTED_CODE"
+          mkdir -p "$RUNNER_TEMP/apk"
+          cp "$APK" "$RUNNER_TEMP/apk/KapitelShelf-$VERSION.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-android
+          path: ${{ runner.temp }}/apk/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  helm:
+    needs: prepare
+    if: needs.prepare.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.13.0
+      - name: Validate and package chart
+        run: |
+          npm run build:helm
+          helm lint helm/kapitelshelf
+          helm template kapitelshelf helm/kapitelshelf > "$RUNNER_TEMP/chart.yaml"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-helm
+          path: helm/build/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [prepare, checks, images, android, helm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_SHA: ${{ needs.prepare.outputs.sha }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: artifacts
+          merge-multiple: true
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Create unified release tag
+        run: |
+          if ! git show-ref --verify --quiet "refs/tags/v$VERSION"; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            npm run release -- --skip.bump --skip.changelog --skip.commit --no-skip.tag
+            git push origin "refs/tags/v$VERSION"
+          fi
+      - name: Stage GitHub release and checksummed downloads
+        run: |
+          test -s "artifacts/KapitelShelf-$VERSION.apk"
+          test -s "artifacts/KapitelShelf-$VERSION.tgz"
+          sha256sum "artifacts/KapitelShelf-$VERSION.apk" "artifacts/KapitelShelf-$VERSION.tgz" > artifacts/SHA256SUMS
+          awk -v version="$VERSION" '
+            /^## / {
+              if (found) exit
+              if ($0 ~ "^## \\[" version "\\]" || $0 ~ "^## " version "( \\(|$)") found = 1
+            }
+            found { print }
+            END { if (!found) exit 1 }
+          ' CHANGELOG.md > artifacts/release-body.md
+          cat >> artifacts/release-body.md <<EOF
+
+          ### Container images
+
+          - [Docker Hub: kapitelshelf-frontend:$VERSION](https://hub.docker.com/r/thomasmiller01/kapitelshelf-frontend/tags?name=$VERSION) · [GHCR: kapitelshelf-frontend](https://github.com/ThomasMiller01/KapitelShelf/pkgs/container/kapitelshelf-frontend)
+          - [Docker Hub: kapitelshelf-api:$VERSION](https://hub.docker.com/r/thomasmiller01/kapitelshelf-api/tags?name=$VERSION) · [GHCR: kapitelshelf-api](https://github.com/ThomasMiller01/KapitelShelf/pkgs/container/kapitelshelf-api)
+
+          Helm repository: https://thomasmiller01.github.io/KapitelShelf/helm
+          EOF
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release edit "v$VERSION" --title "KapitelShelf v$VERSION" --notes-file artifacts/release-body.md
+          else
+            gh release create "v$VERSION" --target "$RELEASE_SHA" --verify-tag --draft --title "KapitelShelf v$VERSION" --notes-file artifacts/release-body.md
+          fi
+          gh release upload "v$VERSION" "artifacts/KapitelShelf-$VERSION.apk" "artifacts/KapitelShelf-$VERSION.tgz" artifacts/SHA256SUMS --clobber
+      - name: Publish exact image versions to both registries
+        run: |
+          for COMPONENT in frontend api; do
+            IMAGE="kapitelshelf-$COMPONENT"
+            docker load --input "artifacts/$IMAGE.tar"
+            for REGISTRY in docker.io ghcr.io; do
+              docker tag "$IMAGE:$VERSION" "$REGISTRY/thomasmiller01/$IMAGE:$VERSION"
+              docker push "$REGISTRY/thomasmiller01/$IMAGE:$VERSION"
+            done
+          done
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.13.0
+      - name: Merge Helm repository index
+        run: |
+          mkdir -p helm/deploy/helm
+          cp "artifacts/KapitelShelf-$VERSION.tgz" helm/deploy/helm/
+          git fetch origin gh-pages
+          git show FETCH_HEAD:helm/index.yaml > "$RUNNER_TEMP/previous-index.yaml"
+          npm run build:helm:index -- helm/deploy/helm --merge "$RUNNER_TEMP/previous-index.yaml"
+      - name: Publish chart repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: helm/deploy
+          keep_files: true
+      - name: Advance container aliases
+        run: |
+          MAJOR=${VERSION%%.*}
+          MAJOR_MINOR=${VERSION%.*}
+          ALIASES="latest $MAJOR_MINOR"
+          if [[ "$MAJOR" != "0" ]]; then ALIASES="$ALIASES $MAJOR"; fi
+          for COMPONENT in frontend api; do
+            IMAGE="kapitelshelf-$COMPONENT"
+            for REGISTRY in docker.io ghcr.io; do
+              for TAG in $ALIASES; do
+                docker tag "$IMAGE:$VERSION" "$REGISTRY/thomasmiller01/$IMAGE:$TAG"
+                docker push "$REGISTRY/thomasmiller01/$IMAGE:$TAG"
+              done
+            done
+          done
+      - name: Publish completed GitHub release
+        run: gh release edit "v$VERSION" --draft=false --latest
