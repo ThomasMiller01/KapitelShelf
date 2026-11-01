@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.0 (2026-11-01)
+
+
+### Features
+
+* [Frontend, Backend, Helm] new release workflow ([#401](https://github.com/ThomasMiller01/KapitelShelf/issues/401)) ([9bb6058](https://github.com/ThomasMiller01/KapitelShelf/commit/9bb60585a25f15ab73e2788ea8714f508383cd35))
+* [Frontend, Backend] store the reading position in the book reader ([#399](https://github.com/ThomasMiller01/KapitelShelf/issues/399)) ([d6c4f57](https://github.com/ThomasMiller01/KapitelShelf/commit/d6c4f57c24f16beacba52e570b02eb6d4554e3a3))
+
+
+### Bug Fixes
+
+* [Frontend] build android ([#381](https://github.com/ThomasMiller01/KapitelShelf/issues/381)) ([b8ce11d](https://github.com/ThomasMiller01/KapitelShelf/commit/b8ce11dbaba7ae07829f2fd88c3a4b27da3cae43))
+
 ## 0.3.5 and earlier - Historical component releases
 
 Before unified releases, Frontend, Backend, and Helm were versioned independently. Their original release notes, dates, and links are preserved below.
