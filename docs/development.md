@@ -22,30 +22,45 @@ A well-structured PR description should explain **what** changed, **why** it was
 
 ## Release Management
 
-When publishing a new version of any component (e.g. Helm chart, API client or frontend package), use the dedicated release workflow outlined below.
+KapitelShelf has one version for the frontend, API, Android app, and Helm chart. Every release rebuilds all artifacts, including components without source changes. Release notes live in the root [CHANGELOG.md](../CHANGELOG.md).
 
 ### 1. Create a Release Branch
 
 ```bash
 git checkout main
 git pull
+git fetch origin --tags
 git checkout -b release/vX.Y.Z
 ```
 
-### 2. Run the "Release: Bump X" Task in VS Code
+### 2. Prepare the Release
 
-From the Command Palette select **Tasks: Run Task** and choose the appropriate bump task (e.g. `Release: Bump Helm`). This script will:
+With a clean working tree and full Git history, run:
 
-- Update the version in the relevant manifest (`Chart.yaml`, `package.json`, or `KapitelShelf.X.csproj`).
-- Commit the change as `chore(release): X.Y.Z`.
-- Create the matching tag (e.g. `helm@X.Y.Z`).
+```bash
+npm ci
+npm run release -- --dry-run
+npm run release
+```
+
+The equivalent VS Code task is **Release: Bump KapitelShelf**. `commit-and-tag-version` chooses the next version using the existing Conventional Commit rules. No version is forced by the release configuration. To deliberately override its recommendation, use the tool's `--release-as` option, for example `npm run release -- --release-as minor`.
+
+`npm run release` invokes `commit-and-tag-version` directly. Its root configuration synchronizes the frontend, API, and chart versions, updates the chart's `frontend.image.tag` and `api.image.tag` defaults and documentation, generates `CHANGELOG.md`, and creates one `chore(release): vX.Y.Z` commit. Local tagging is disabled so publishing can tag the reviewed commit after merging.
+
+The postchangelog hook runs `npm run gen:helm:docs` and includes the generated Helm README in the release commit. This requires a running Docker engine. Edit [the Helm README template](./helm/README.md.gotmpl) for prose changes; do not edit the generated README directly.
+
+Review the generated changelog before opening the PR. The tool warns about unclassified commit messages; add any missing notable changes manually and commit the reviewed notes.
 
 ### 3. Open a Pull Request
 
-Submit the branch `release/vX.Y.Z` against `main`. **Do not squash-merge** this PR: the release commit and tag must remain intact on `main`.
+Push the release branch and open a PR against `main`. Keep one release PR in flight at a time. If application changes merge while it is under review, update the release branch and reviewed changelog to include them before merging.
 
-### 4. Complete the Merge with a Merge Commit
+### 4. Merge and Publish
 
-Use the regular merge-commit strategy. This keeps the original tag pointed at the published commit so `commit-and-tag-version` can compute the next changelog correctly.
+Merge the PR using the repository's normal merge strategy. **Publish KapitelShelf** checks out the merged commit, validates the release, and builds everything.
 
-After merging, CI picks up the new tag and publishes the release artefacts automatically.
+### Failed Releases
+
+Publishing to GitHub, both registries, and Pages is not atomic. A failure can leave a draft GitHub release or some versioned artifacts published. The completed GitHub release is withheld until all required publishing steps succeed.
+
+Retry **Publish KapitelShelf** with its manual `ref` input set to the **original release commit SHA shown in the failed run**, or rerun the failed workflow. The retry reuses the draft and version; it may rebuild artifacts but does not create another release. A tag or draft targeting a different commit is rejected. A completed release is skipped, and older releases cannot advance container aliases past a newer published release.

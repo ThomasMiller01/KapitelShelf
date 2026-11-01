@@ -10,6 +10,12 @@ const versionCode = versionName
   .split(".")
   .reduce((acc, num, i) => acc + Number(num) * Math.pow(100, 2 - i), 0);
 
+if (!/^\d+\.\d+\.\d+$/.test(versionName) ||
+    versionName.split(".").slice(1).some((part) => Number(part) >= 100) ||
+    !Number.isSafeInteger(versionCode) || versionCode <= 0 || versionCode > 2100000000) {
+  throw new Error(`Version ${versionName} cannot use the existing Android versionCode scheme`);
+}
+
 console.log(
   `⏳ Syncing versionName "${versionName}" and versionCode "${versionCode}"`
 );
