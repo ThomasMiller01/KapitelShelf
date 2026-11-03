@@ -30,16 +30,13 @@ const ContentWrapper = styled("div", {
     flexGrow: 1,
     minWidth: 0,
     width: "100%",
-    height: `calc(100vh - ${
-      isCompactLayout ? theme.spacing(7) : theme.spacing(8)
-    } - ${IsMobileApp() ? MOBILE_APP_BOTTOM_INSET : "0px"})`,
+    height: `calc(100vh - ${IsMobileApp() ? MOBILE_APP_BOTTOM_INSET : "0px"})`,
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: isCompactLayout ? 0 : `-${DRAWER_WIDTH}px`,
     ...(open && !isCompactLayout && { marginLeft: 0 }),
-    marginTop: isCompactLayout ? theme.spacing(7) : theme.spacing(8),
   }),
 );
 
@@ -53,6 +50,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const { content, isLoading, error } = useReadBook(book);
   useReaderOrientation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const {
     applyInitialPosition,
@@ -115,12 +113,12 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
 
   return (
     <>
-      <Toolbar
+      {controlsVisible && <Toolbar
         content={content}
         isCompactLayout={isCompactLayout}
         sidebarOpen={sidebarOpen}
         openSidebar={() => setSidebarOpen(true)}
-      />
+      />}
       <Sidebar
         bookId={bookId}
         content={content}
@@ -133,6 +131,8 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
         <Content
           content={content}
           isCompactLayout={isCompactLayout}
+          controlsVisible={controlsVisible}
+          onToggleControls={() => setControlsVisible((visible) => !visible)}
           currentSection={section}
           currentPage={page}
           savedPage={data?.currentPage}

@@ -1,39 +1,26 @@
 import { Slider, Stack } from "@mui/material";
-import { useEffect } from "react";
 
-import { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
-import type { BookContent } from "../utils/BookContentModels";
+import type { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
 
 interface TimelineProps {
-  content: BookContent;
-  currentPage: number;
-  currentSection: number;
+  pageProgress: ReturnType<typeof useBookPageProgress>;
   onNavigate: (section: number, page: number) => void;
   savedPage?: number;
   savedSection?: number;
-  totalPages: number;
 }
 
 export const Timeline: React.FC<TimelineProps> = ({
-  content,
-  currentPage,
-  currentSection,
+  pageProgress,
   onNavigate,
   savedPage,
   savedSection,
-  totalPages,
 }) => {
   const {
     absoluteCurrentPage,
     absoluteTotalPages,
     getAbsolutePage,
     getLocation,
-    onTotalPagesChange,
-  } = useBookPageProgress(content, currentSection, currentPage, totalPages);
-
-  useEffect(() => {
-    onTotalPagesChange(totalPages);
-  }, [onTotalPagesChange, totalPages]);
+  } = pageProgress;
 
   const absoluteSavedPage =
     savedSection === undefined || savedPage === undefined
@@ -41,13 +28,9 @@ export const Timeline: React.FC<TimelineProps> = ({
       : getAbsolutePage(savedSection, savedPage);
 
   return (
-    <Stack
-      px={2.5}
-      py={{ xs: 0, md: 1 }}
-      bgcolor="background.paper"
-      borderRadius={1}
-    >
+    <Stack px={2.5} pt={{ xs: 0, md: 1 }} pb={1} borderRadius={1}>
       <Slider
+        aria-label="Reading position"
         marks={
           absoluteSavedPage === undefined
             ? undefined

@@ -35,6 +35,8 @@ export const PaginationButton: React.FC<PaginationButtonProps> = ({
           backgroundColor: "transparent",
         },
         ...(isCompactLayout && {
+          width: "25%",
+          maxWidth: "150px",
           position: "absolute",
           left: direction === "prev" ? 5 : "auto",
           right: direction === "next" ? 5 : "auto",

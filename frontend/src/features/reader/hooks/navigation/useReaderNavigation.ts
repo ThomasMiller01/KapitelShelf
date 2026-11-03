@@ -8,13 +8,13 @@ interface UseReaderNavigationArgs {
   nextSection: () => void;
   prevSection: () => void;
   setTotalPages: (total: number) => void;
-  onPageProgressChange: (total: number) => void;
+  onPageProgressChange: (total: number, resized: boolean) => void;
 }
 
 interface ReaderNavigationState {
   handleNext: () => void;
   handlePrev: () => void;
-  handleTotalPagesChange: (total: number) => void;
+  handleTotalPagesChange: (total: number, resized: boolean) => void;
 }
 
 export const useReaderNavigation = ({
@@ -43,18 +43,21 @@ export const useReaderNavigation = ({
   }, [currentSection]);
 
   const handleTotalPagesChange = useCallback(
-    (total: number) => {
+    (total: number, resized: boolean) => {
       setTotalPages(total);
-      onPageProgressChange(total);
+      onPageProgressChange(total, resized);
 
       if (navigatedBackRef.current) {
         // Don't clear the flag here, let useEffect do it after layout effects settle
         setCurrentPage(total - 1);
+      } else if (resized && totalPages > 0 && total !== totalPages) {
+        // shortcut: estimates position by section progress, use text anchors for exact restoration.
+        setCurrentPage(Math.min(total - 1, Math.floor(currentPage * total / totalPages)));
       } else if (currentPage > total - 1) {
         setCurrentPage(total - 1);
       }
     },
-    [currentPage, onPageProgressChange, setCurrentPage, setTotalPages],
+    [currentPage, onPageProgressChange, setCurrentPage, setTotalPages, totalPages],
   );
 
   const handleNext = (): void => {
