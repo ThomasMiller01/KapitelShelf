@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react";
 
 import type { BookContent } from "../../utils/BookContentModels";
+import { mapPage } from "../../utils/pageProgress";
 
 interface BookPageProgress {
   absoluteCurrentPage: number;
@@ -25,9 +26,8 @@ interface BookPageProgress {
  *        round(sectionChars / charsPerPage)
  *      using only the character length of the section's HTML content as a proxy
  *      for its length — no DOM rendering needed for unvisited sections.
- *   3. absoluteCurrentPage = sum of estimated pages before the current section
- *        + actual page within the current section.
- *   4. Use the measured page count for the current section and estimates for others.
+ *   3. Map measured section pages into their estimated ranges, keeping the total
+ *      stable when navigating between sections.
  *
  * Trade-offs:
  *   - The total is an estimate, not a hard truth (pages depend on font size, viewport).
@@ -44,12 +44,19 @@ export function useBookPageProgress(
   currentSectionRef.current = currentSection;
 
   const charsPerPageRef = useRef<number | null>(null);
+  const measuredPagesRef = useRef<Record<number, number>>({});
 
   const sectionChars = content.sections.map((s) => (s.content ?? "").length);
 
   const onTotalPagesChange = useCallback(
     (total: number, resized: boolean) => {
       const section = currentSectionRef.current;
+      if (resized) {
+        measuredPagesRef.current = {};
+      }
+      if (total > 0) {
+        measuredPagesRef.current[section] = total;
+      }
       if ((charsPerPageRef.current === null || resized) && total > 0 && sectionChars[section] > 0) {
         charsPerPageRef.current = sectionChars[section] / total;
       }
@@ -60,14 +67,9 @@ export function useBookPageProgress(
   const charsPerPage =
     charsPerPageRef.current ?? sectionChars[currentSection] / totalPages;
 
-  const estimatedSectionPages = sectionChars.map((chars, index) =>
-    index === currentSection ? Math.max(1, totalPages) : Math.max(1, Math.round(chars / charsPerPage) || 1)
+  const estimatedSectionPages = sectionChars.map((chars) =>
+    Math.max(1, Math.round(chars / charsPerPage) || 1)
   );
-
-  const absoluteCurrentPage =
-    estimatedSectionPages.slice(0, currentSection).reduce((sum, p) => sum + p, 0) +
-    currentPage +
-    1;
 
   const absoluteTotalPages = estimatedSectionPages.reduce((sum, p) => sum + p, 0);
 
@@ -80,8 +82,14 @@ export function useBookPageProgress(
       .slice(0, safeSection)
       .reduce((sum, pages) => sum + pages, 0);
 
-    return pagesBefore + Math.min(Math.max(page, 0), estimatedSectionPages[safeSection] - 1) + 1;
+    const estimatedPages = estimatedSectionPages[safeSection];
+    const actualPages = safeSection === currentSection
+      ? Math.max(1, totalPages)
+      : measuredPagesRef.current[safeSection] ?? estimatedPages;
+    return pagesBefore + mapPage(page, actualPages, estimatedPages) + 1;
   };
+
+  const absoluteCurrentPage = getAbsolutePage(currentSection, currentPage);
 
   const getLocation = (
     absolutePage: number,
@@ -93,7 +101,11 @@ export function useBookPageProgress(
 
     for (let section = 0; section < estimatedSectionPages.length; section += 1) {
       if (remainingPages <= estimatedSectionPages[section]) {
-        return { page: remainingPages - 1, section };
+        const estimatedPages = estimatedSectionPages[section];
+        const actualPages = section === currentSection
+          ? Math.max(1, totalPages)
+          : measuredPagesRef.current[section] ?? estimatedPages;
+        return { page: mapPage(remainingPages - 1, estimatedPages, actualPages), section };
       }
 
       remainingPages -= estimatedSectionPages[section];
