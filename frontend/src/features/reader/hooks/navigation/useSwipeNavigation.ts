@@ -225,7 +225,6 @@ export const useSwipeNavigation = ({
     {
       axis: "x",
       filterTaps: true,
-      pointer: { touch: true },
     },
   );
 
