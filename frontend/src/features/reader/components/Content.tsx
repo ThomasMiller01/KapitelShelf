@@ -49,7 +49,12 @@ export const Content: React.FC<ContentProps> = ({
   const { fontScale, contentFontFamily } = useReaderColorScheme();
   const { batteryPercent, isCharging } = useReaderBattery();
   const currentTime = useReaderClock();
-  const pageProgress = useBookPageProgress(content, currentSection, currentPage, totalPages);
+  const pageProgress = useBookPageProgress(
+    content,
+    currentSection,
+    currentPage,
+    totalPages,
+  );
   const {
     absoluteCurrentPage,
     absoluteTotalPages,
@@ -95,7 +100,11 @@ export const Content: React.FC<ContentProps> = ({
       alignItems="center"
       direction="row"
       position="relative"
-      bgcolor={isCompactLayout && !controlsVisible ? "background.paper" : "background.default"}
+      bgcolor={
+        isCompactLayout && !controlsVisible
+          ? "background.paper"
+          : "background.default"
+      }
     >
       {!isCompactLayout && (
         <PaginationButton
@@ -112,7 +121,10 @@ export const Content: React.FC<ContentProps> = ({
         width={isCompactLayout ? "100%" : "auto"}
         justifyContent="center"
         spacing={1}
-        sx={{ transform: controlsVisible ? "scale(0.8)" : "none", transition: "transform 0.2s ease" }}
+        sx={{
+          transform: controlsVisible ? "scale(0.78)" : "none",
+          transition: "transform 0.2s ease",
+        }}
       >
         <Stack
           direction="row"
