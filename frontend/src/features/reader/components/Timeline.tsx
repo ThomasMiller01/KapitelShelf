@@ -41,7 +41,12 @@ export const Timeline: React.FC<TimelineProps> = ({
       : getAbsolutePage(savedSection, savedPage);
 
   return (
-    <Stack px={2.5} py={1} bgcolor="background.paper" borderRadius={1}>
+    <Stack
+      px={2.5}
+      py={{ xs: 0, md: 1 }}
+      bgcolor="background.paper"
+      borderRadius={1}
+    >
       <Slider
         marks={
           absoluteSavedPage === undefined
