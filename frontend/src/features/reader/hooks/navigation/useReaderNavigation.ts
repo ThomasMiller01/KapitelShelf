@@ -57,7 +57,7 @@ export const useReaderNavigation = ({
     [currentPage, onPageProgressChange, setCurrentPage, setTotalPages],
   );
 
-  const handleNext = () => {
+  const handleNext = (): void => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(currentPage + 1);
     } else {
@@ -65,7 +65,7 @@ export const useReaderNavigation = ({
     }
   };
 
-  const handlePrev = () => {
+  const handlePrev = (): void => {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
     } else {
@@ -81,7 +81,7 @@ export const useReaderNavigation = ({
   useLayoutEffect(() => { handlePrevRef.current = handlePrev; });
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent): void => {
       if (e.key === "ArrowRight") {
         handleNextRef.current();
       } else if (e.key === "ArrowLeft") {
@@ -89,7 +89,7 @@ export const useReaderNavigation = ({
       }
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return (): void => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   return { handleNext, handlePrev, handleTotalPagesChange };

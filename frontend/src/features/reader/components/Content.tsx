@@ -1,22 +1,29 @@
-import { Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Container, Stack, Typography } from "@mui/material";
+import React from "react";
+
 import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
-import { BatteryStatus } from "./BatteryStatus";
-import type { BookContent } from "../utils/BookContentModels";
 import { useReaderBattery } from "../hooks/device/useReaderBattery";
 import { useReaderClock } from "../hooks/device/useReaderClock";
 import { useReaderNavigation } from "../hooks/navigation/useReaderNavigation";
 import { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
+import type { BookContent } from "../utils/BookContentModels";
+import { BatteryStatus } from "./BatteryStatus";
 import { ContentSection } from "./ContentSection";
 import { PaginationButton } from "./PaginationButton";
 import { useReaderColorScheme } from "./ThemeProvider";
+import { Timeline } from "./Timeline";
 
 interface ContentProps {
   content: BookContent;
   isCompactLayout: boolean;
   currentSection: number;
   currentPage: number;
+  savedPage?: number;
+  savedSection?: number;
+  setLocation: (section: number, page: number) => void;
   setCurrentPage: (page: number) => void;
+  setTotalPages: (total: number) => void;
+  totalPages: number;
   nextSection: () => void;
   prevSection: () => void;
 }
@@ -26,15 +33,18 @@ export const Content: React.FC<ContentProps> = ({
   isCompactLayout,
   currentSection,
   currentPage,
+  savedPage,
+  savedSection,
+  setLocation,
   setCurrentPage,
+  setTotalPages,
+  totalPages,
   nextSection,
   prevSection,
 }) => {
   const { fontScale, contentFontFamily } = useReaderColorScheme();
   const { batteryPercent, isCharging } = useReaderBattery();
   const currentTime = useReaderClock();
-  const [totalPages, setTotalPages] = useState(1);
-
   const {
     absoluteCurrentPage,
     absoluteTotalPages,
@@ -154,6 +164,17 @@ export const Content: React.FC<ContentProps> = ({
             {progressPercent}%
           </Typography>
         </Stack>
+        <Container sx={{ padding: "0 !important" }}>
+          <Timeline
+            content={content}
+            currentPage={currentPage}
+            currentSection={currentSection}
+            savedPage={savedPage}
+            savedSection={savedSection}
+            totalPages={totalPages}
+            onNavigate={setLocation}
+          />
+        </Container>
       </Stack>
       {!isCompactLayout && (
         <PaginationButton

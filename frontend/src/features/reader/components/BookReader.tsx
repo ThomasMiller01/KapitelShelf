@@ -25,6 +25,8 @@ const ContentWrapper = styled("div", {
   shouldForwardProp: (prop) => prop !== "open" && prop !== "isCompactLayout",
 })<{ open: boolean; isCompactLayout: boolean }>(
   ({ theme, open, isCompactLayout }) => ({
+    display: "flex",
+    flexDirection: "column",
     flexGrow: 1,
     minWidth: 0,
     width: "100%",
@@ -51,6 +53,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const { content, isLoading, error } = useReadBook(book);
   useReaderOrientation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
   const {
     applyInitialPosition,
     hasExplicitLocation,
@@ -58,6 +61,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
     page,
     nextSection,
     prevSection,
+    setLocation,
     setSection,
     setPage,
   } = useReadBookPagination();
@@ -131,7 +135,12 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
           isCompactLayout={isCompactLayout}
           currentSection={section}
           currentPage={page}
+          savedPage={data?.currentPage}
+          savedSection={data?.currentSection}
+          setLocation={setLocation}
           setCurrentPage={setPage}
+          setTotalPages={setTotalPages}
+          totalPages={totalPages}
           nextSection={nextSection}
           prevSection={prevSection}
         />

@@ -1,9 +1,12 @@
 import { useCallback, useRef } from "react";
-import { BookContent } from "../../utils/BookContentModels";
+
+import type { BookContent } from "../../utils/BookContentModels";
 
 interface BookPageProgress {
   absoluteCurrentPage: number;
   absoluteTotalPages: number;
+  getAbsolutePage: (section: number, page: number) => number;
+  getLocation: (absolutePage: number) => { page: number; section: number };
   progressPercent: number;
   onTotalPagesChange: (total: number) => void;
 }
@@ -70,10 +73,48 @@ export function useBookPageProgress(
 
   const absoluteTotalPages = estimatedSectionPages.reduce((sum, p) => sum + p, 0);
 
+  const getAbsolutePage = (section: number, page: number): number => {
+    const safeSection = Math.min(
+      Math.max(section, 0),
+      estimatedSectionPages.length - 1,
+    );
+    const pagesBefore = estimatedSectionPages
+      .slice(0, safeSection)
+      .reduce((sum, pages) => sum + pages, 0);
+
+    return pagesBefore + Math.min(Math.max(page, 0), estimatedSectionPages[safeSection] - 1) + 1;
+  };
+
+  const getLocation = (
+    absolutePage: number,
+  ): { page: number; section: number } => {
+    let remainingPages = Math.min(
+      Math.max(Math.round(absolutePage), 1),
+      absoluteTotalPages,
+    );
+
+    for (let section = 0; section < estimatedSectionPages.length; section += 1) {
+      if (remainingPages <= estimatedSectionPages[section]) {
+        return { page: remainingPages - 1, section };
+      }
+
+      remainingPages -= estimatedSectionPages[section];
+    }
+
+    return { page: 0, section: 0 };
+  };
+
   const progressPercent =
     absoluteTotalPages > 0
       ? Math.round((absoluteCurrentPage / absoluteTotalPages) * 100)
       : 0;
 
-  return { absoluteCurrentPage, absoluteTotalPages, progressPercent, onTotalPagesChange };
+  return {
+    absoluteCurrentPage,
+    absoluteTotalPages,
+    getAbsolutePage,
+    getLocation,
+    progressPercent,
+    onTotalPagesChange,
+  };
 }
