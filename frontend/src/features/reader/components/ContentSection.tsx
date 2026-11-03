@@ -1,25 +1,26 @@
 import { Box, useTheme } from "@mui/material";
 import React, { useRef } from "react";
 
-import type { BookSection } from "../utils/BookContentModels";
 import { useSectionTransition } from "../hooks/navigation/useSectionTransition";
 import {
-  useSwipeNavigation,
   type BoundarySwipeTransition,
+  useSwipeNavigation,
 } from "../hooks/navigation/useSwipeNavigation";
 import { useContainerPagination } from "../hooks/pagination/useContainerPagination";
+import type { BookSection } from "../utils/BookContentModels";
 import { PaginationButton } from "./PaginationButton";
 import { ShadowBookContent } from "./ShadowBookContent";
 
 interface ContentSectionProps {
   section: BookSection;
+  onToggleControls: () => void;
   sectionIndex: number;
   isCompactLayout: boolean;
   currentPage: number;
   totalPages: number;
   fontScale: number;
   contentFontFamily: string;
-  onTotalPagesChange: (total: number) => void;
+  onTotalPagesChange: (total: number, resized: boolean) => void;
   onNext: () => void;
   onPrev: () => void;
   canGoBack: boolean;
@@ -31,6 +32,7 @@ const MOBILE_PAGE_GAP = 15;
 
 export const ContentSection: React.FC<ContentSectionProps> = ({
   section,
+  onToggleControls,
   sectionIndex,
   isCompactLayout,
   currentPage,
@@ -201,6 +203,21 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     <Box
       ref={containerRef}
       {...bindSwipe()}
+      onClick={(event) => {
+        if (event.nativeEvent.composedPath().some((element) => element instanceof HTMLElement && element.matches("button, a, input, select, textarea"))) {
+          return;
+        }
+        onToggleControls();
+      }}
+      tabIndex={0}
+      role="region"
+      aria-label="Reading page; press Enter or Space to toggle reader controls"
+      onKeyDown={(event) => {
+        if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          onToggleControls();
+        }
+      }}
       sx={{
         aspectRatio: isCompactLayout ? "none" : "2 / 3",
         maxWidth: "100%",

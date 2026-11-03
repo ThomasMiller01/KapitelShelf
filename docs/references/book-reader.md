@@ -35,6 +35,8 @@ If a local file is better handled by another app, **Download** remains available
 
 Once the book is open, you can move through it in the way that fits your device.
 
+The toolbar and timeline are hidden when the reader opens. Click or tap the reading page to show them, and click or tap it again to hide them. On a keyboard, focus the reading page and press Enter or Space. Drag the timeline to move through the book.
+
 On phones and tablets, you can:
 
 - swipe left or right

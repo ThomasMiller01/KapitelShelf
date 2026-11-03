@@ -1,5 +1,5 @@
 import { Stack, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { ResponsiveDrawerAppBar } from "../../../shared/components/base/ResponsiveDrawer";
 import type { BookContent } from "../utils/BookContentModels";
@@ -17,16 +17,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   isCompactLayout,
   sidebarOpen,
   openSidebar,
-}) => {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    setVisible(true);
-    const timer = setTimeout(() => setVisible(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
+}) => (
     <ResponsiveDrawerAppBar
       open={sidebarOpen}
       toggle={openSidebar}
@@ -43,10 +34,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           flex={1}
           minWidth={0}
           overflow="hidden"
-          sx={{
-            opacity: isCompactLayout && !visible ? 0 : 1,
-            transition: "opacity 0.5s ease",
-          }}
         >
           <Typography
             variant="h6"
@@ -72,4 +59,3 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       </Stack>
     </ResponsiveDrawerAppBar>
   );
-};

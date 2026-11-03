@@ -6,7 +6,7 @@ import type { BookSection } from "../../utils/BookContentModels";
 interface UseContainerPaginationArgs {
   fontScale: number;
   section: BookSection;
-  onTotalPagesChange: (total: number) => void;
+  onTotalPagesChange: (total: number, resized: boolean) => void;
   pageGap: number;
 }
 
@@ -28,6 +28,7 @@ export const useContainerPagination = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const [pageWidth, setPageWidth] = useState(0);
   const pageWidthRef = useRef(0);
+  const previousMeasurementRef = useRef<{ section: BookSection; width: number; height: number } | null>(null);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -37,7 +38,12 @@ export const useContainerPagination = ({
     }
 
     const measure = () => {
-      const { width } = content.getBoundingClientRect();
+      const { offsetWidth: containerWidth, offsetHeight: containerHeight } = container;
+      const previous = previousMeasurementRef.current;
+      const resized = previous !== null && previous.section === section &&
+        (previous.width !== containerWidth || previous.height !== containerHeight);
+      previousMeasurementRef.current = { section, width: containerWidth, height: containerHeight };
+      const width = content.offsetWidth;
       const stride = width + pageGap;
       setPageWidth(width);
       pageWidthRef.current = width;
@@ -48,7 +54,7 @@ export const useContainerPagination = ({
               Math.ceil((content.scrollWidth + pageGap) / stride - 0.01),
             )
           : 1;
-      onTotalPagesChange(pages);
+      onTotalPagesChange(pages, resized);
     };
 
     measure();

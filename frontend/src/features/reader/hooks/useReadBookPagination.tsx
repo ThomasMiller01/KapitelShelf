@@ -21,6 +21,7 @@ interface ReadBookPaginationState {
   page: number;
   prevSection: () => void;
   section: number;
+  setLocation: (nextSection: number, nextPage: number) => void;
   setPage: (nextPage: number) => void;
   setSection: (nextSection: number) => void;
 }
@@ -84,6 +85,10 @@ export const useReadBookPagination = (): ReadBookPaginationState => {
     commitPagination(nextSection, DEFAULT_PAGE);
   };
 
+  const setLocation = (nextSection: number, nextPage: number): void => {
+    commitPagination(nextSection, nextPage);
+  };
+
   const setPage = (nextPage: number): void => {
     commitPagination(sectionRef.current, nextPage);
   };
@@ -107,6 +112,7 @@ export const useReadBookPagination = (): ReadBookPaginationState => {
     page,
     nextSection,
     prevSection,
+    setLocation,
     setSection,
     setPage,
   };

@@ -1,12 +1,14 @@
-import { Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Stack, Typography } from "@mui/material";
+import React from "react";
+
 import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
-import { BatteryStatus } from "./BatteryStatus";
-import type { BookContent } from "../utils/BookContentModels";
 import { useReaderBattery } from "../hooks/device/useReaderBattery";
 import { useReaderClock } from "../hooks/device/useReaderClock";
 import { useReaderNavigation } from "../hooks/navigation/useReaderNavigation";
 import { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
+import type { BookContent } from "../utils/BookContentModels";
+import { BatteryStatus } from "./BatteryStatus";
+import { BottomControls } from "./BottomControls";
 import { ContentSection } from "./ContentSection";
 import { PaginationButton } from "./PaginationButton";
 import { useReaderColorScheme } from "./ThemeProvider";
@@ -14,9 +16,16 @@ import { useReaderColorScheme } from "./ThemeProvider";
 interface ContentProps {
   content: BookContent;
   isCompactLayout: boolean;
+  controlsVisible: boolean;
+  onToggleControls: () => void;
   currentSection: number;
   currentPage: number;
+  savedPage?: number;
+  savedSection?: number;
+  setLocation: (section: number, page: number) => void;
   setCurrentPage: (page: number) => void;
+  setTotalPages: (total: number) => void;
+  totalPages: number;
   nextSection: () => void;
   prevSection: () => void;
 }
@@ -24,23 +33,34 @@ interface ContentProps {
 export const Content: React.FC<ContentProps> = ({
   content,
   isCompactLayout,
+  controlsVisible,
+  onToggleControls,
   currentSection,
   currentPage,
+  savedPage,
+  savedSection,
+  setLocation,
   setCurrentPage,
+  setTotalPages,
+  totalPages,
   nextSection,
   prevSection,
 }) => {
   const { fontScale, contentFontFamily } = useReaderColorScheme();
   const { batteryPercent, isCharging } = useReaderBattery();
   const currentTime = useReaderClock();
-  const [totalPages, setTotalPages] = useState(1);
-
+  const pageProgress = useBookPageProgress(
+    content,
+    currentSection,
+    currentPage,
+    totalPages,
+  );
   const {
     absoluteCurrentPage,
     absoluteTotalPages,
     progressPercent,
     onTotalPagesChange: onPageProgressChange,
-  } = useBookPageProgress(content, currentSection, currentPage, totalPages);
+  } = pageProgress;
 
   const { handleNext, handlePrev, handleTotalPagesChange } =
     useReaderNavigation({
@@ -80,7 +100,11 @@ export const Content: React.FC<ContentProps> = ({
       alignItems="center"
       direction="row"
       position="relative"
-      bgcolor={isCompactLayout ? "background.paper" : "background.default"}
+      bgcolor={
+        isCompactLayout && !controlsVisible
+          ? "background.paper"
+          : "background.default"
+      }
     >
       {!isCompactLayout && (
         <PaginationButton
@@ -97,6 +121,10 @@ export const Content: React.FC<ContentProps> = ({
         width={isCompactLayout ? "100%" : "auto"}
         justifyContent="center"
         spacing={1}
+        sx={{
+          transform: controlsVisible ? "scale(0.78)" : "none",
+          transition: "transform 0.2s ease",
+        }}
       >
         <Stack
           direction="row"
@@ -120,6 +148,7 @@ export const Content: React.FC<ContentProps> = ({
         </Stack>
         <ContentSection
           section={content.sections[currentSection]}
+          onToggleControls={onToggleControls}
           sectionIndex={currentSection}
           isCompactLayout={isCompactLayout}
           currentPage={currentPage}
@@ -155,6 +184,16 @@ export const Content: React.FC<ContentProps> = ({
           </Typography>
         </Stack>
       </Stack>
+      {controlsVisible && (
+        <Box position="absolute" bottom={0} left={0} width="100%">
+          <BottomControls
+            pageProgress={pageProgress}
+            savedPage={savedPage}
+            savedSection={savedSection}
+            setLocation={setLocation}
+          />
+        </Box>
+      )}
       {!isCompactLayout && (
         <PaginationButton
           onClick={handleNext}
