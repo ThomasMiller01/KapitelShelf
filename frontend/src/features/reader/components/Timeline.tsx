@@ -41,19 +41,20 @@ export const Timeline: React.FC<TimelineProps> = ({
       : getAbsolutePage(savedSection, savedPage);
 
   return (
-    <Stack px={2.5} py={2} bgcolor="background.paper">
+    <Stack px={2.5} py={1} bgcolor="background.paper" borderRadius={1}>
       <Slider
-        aria-label="Reading position"
         marks={
           absoluteSavedPage === undefined
             ? undefined
-            : [{ label: "Last saved", value: absoluteSavedPage }]
+            : [{ label: absoluteSavedPage, value: absoluteSavedPage }]
         }
+        size="small"
         max={absoluteTotalPages}
         min={1}
         value={absoluteCurrentPage}
         valueLabelDisplay="auto"
-        onChangeCommitted={(_, page) => {
+        onKeyDown={(event) => event.stopPropagation()}
+        onChange={(_, page) => {
           const location = getLocation(page as number);
           onNavigate(location.section, location.page);
         }}
