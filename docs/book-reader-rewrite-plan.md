@@ -1,6 +1,6 @@
 # Book Reader Rewrite Plan
 
-**Status** · Stage 1 parser baselines and stage 2 attachment identity are in place. Guarded bookmark storage is next.
+**Status** · Stage 1 parser baselines and stage 2 backend contracts are in place. The new loader and parser adapters are next.
 
 **Baseline** · `c6ec92f` on `411-pbi-rewrite-bookreader`. The current user experience is described in the [Book Reader guide](references/book-reader.md).
 
@@ -33,7 +33,7 @@ Replace the reader frontend, reading-position persistence, and Android reader li
 
 ### Location and pagination contracts
 
-- Use a versioned locator containing the existing file SHA-256, a zero-based source unit, and a text offset or packaged-image index. Source units are the EPUB spine entry, FB2 source section, original PDF page, or whole TXT file. Assign positions on the normalized source before splitting so chunk sizes and viewport measurements cannot redefine them. Save the first visible content position and locate the column containing it after measuring. Remeasure on size, font, and image layout changes. Keep browser measurements and animation outside the navigation reducer.
+- Encode a v1 locator as `1.<sha256>.<sourceUnit>.<kind>.<offset>`. Use the existing lowercase file SHA-256, a zero-based source unit, and kind `t` for a text offset or `i` for a packaged-image index. Source units are the EPUB spine entry, FB2 source section, original PDF page, or whole TXT file. Assign positions on the normalized source before splitting so chunk sizes and viewport measurements cannot redefine them. Save the first visible content position and locate the column containing it after measuring. Remeasure on size, font, and image layout changes. Keep browser measurements and animation outside the navigation reducer.
 - Keep `section` and `page` zero-based on the existing route. Add a versioned `location` query value with the anchor in new URLs and include legacy numeric coordinates. Use an explicit recognized anchor first, then explicit numeric coordinates, then the eligible saved position, then book start. Validate and clamp numeric coordinates after the destination has been measured. Replacing reader URL state must preserve unrelated query parameters and avoid a history entry per page turn.
 - Reuse `BookDTO.location.fileInfo.sha256`. Store new book uploads under a unique revision directory inside the book directory, preserving the original filename. Commit the new attachment metadata after the file is written and use existing orphan-file cleanup for superseded attachments. This prevents same-name uploads from replacing bytes behind an existing file record.
 - Return the SHA-256 with the reader's file response and expose the header through the existing CORS policy. For legacy storage paths, verify the checksum against the opened stream and repair a stale checksum only if that attachment is still current. On a metadata or checksum mismatch, refetch the attachment and download once. Use numeric coordinates if the hash cannot be verified. Key parsed content by attachment fingerprint.
@@ -80,8 +80,15 @@ The legacy splitter packs rendered markup within a 50,000-character budget. It d
 
 - New uploads use revision-specific paths and retain their original download names. The same-name replacement test reproduced the old overwrite and now verifies that each revision's checksum matches its bytes.
 - The rewritten reader can request `GET /books/{bookId}/file?includeChecksum=true` and read `X-Book-File-Sha256`. The endpoint verifies legacy streams and conditionally repairs their metadata. The existing reader will start using the checksum when the new loader is connected.
-- The backend build, 19 storage and controller tests, Swagger and client generation, frontend build, and Node reader tests passed. The three integration cases for conditional database repair compiled, but Docker was unavailable, so their PostgreSQL fixture could not start.
+- The backend build, storage and controller tests, Swagger and client generation, frontend build, and Node reader tests passed. The three PostgreSQL checksum repair cases passed during the bookmark storage verification.
+
+### Stage 2 bookmark storage
+
+- The additive EF migration assigns a nonempty revision to existing reading rows while preserving their section and page. A new open-only row starts with a null revision.
+- EF Core LINQ queries and serializable transactions enforce the expected revision, attachment checksum, and last write ID. The server retries transaction conflicts against a fresh snapshot and returns HTTP `409` with the confirmed bookmark when a save is stale. Older readers keep their numeric fallback and can save until the first guarded write for that book and profile.
+- Swagger and the TypeScript client now expose the bookmark revision, `expectedRevision`, `writeId`, and the conflict response. The current frontend still uses the legacy save format.
+- All 687 backend tests passed with PostgreSQL, including the migration round trip, first and existing bookmark concurrency, and stale-file rejection. EF reported no pending model changes. The frontend build and reader tests passed after client generation.
 
 ### Next work
 
-Finish stage 2 with the additive bookmark migration, current-revision checks, and legacy-client compatibility. Rerun the PostgreSQL checksum repair tests when Docker is available. Carry forward the fixture expectations for parser changes and wire the checksum download into the new reader loader. The full browser and Android matrix remains a cutover check. Update this section with completed stages, verification results, and the next unfinished stage as implementation proceeds.
+Start stage 3 with the typed file loader and parser adapters. Wire the loader to the opt-in checksum response and carry forward the fixture expectations when adapting the parsers. The full browser and Android matrix remains a cutover check. Update this section with completed stages, verification results, and the next unfinished stage as implementation proceeds.

@@ -1054,6 +1054,18 @@ export interface ReadingBookDTO {
      * @memberof ReadingBookDTO
      */
     'currentPage'?: number;
+    /**
+     * Gets or sets the versioned content anchor.
+     * @type {string}
+     * @memberof ReadingBookDTO
+     */
+    'contentAnchor'?: string | null;
+    /**
+     * Gets or sets the current bookmark revision, or null when no bookmark was saved.
+     * @type {string}
+     * @memberof ReadingBookDTO
+     */
+    'progressRevision'?: string | null;
 }
 /**
  * The reading location dto.
@@ -1073,6 +1085,24 @@ export interface ReadingLocationDTO {
      * @memberof ReadingLocationDTO
      */
     'currentPage'?: number;
+    /**
+     * Gets or sets the versioned content anchor in the form 1.sha256.source.t-or-i.offset.
+     * @type {string}
+     * @memberof ReadingLocationDTO
+     */
+    'contentAnchor'?: string | null;
+    /**
+     * Gets or sets the revision this save was based on, or null for the first bookmark.
+     * @type {string}
+     * @memberof ReadingLocationDTO
+     */
+    'expectedRevision'?: string | null;
+    /**
+     * Gets or sets the unique identifier for a guarded save, reused on retries.
+     * @type {string}
+     * @memberof ReadingLocationDTO
+     */
+    'writeId'?: string | null;
 }
 /**
  * The series dto.

@@ -8,6 +8,7 @@ using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Location;
 using KapitelShelf.Api.DTOs.Reader;
 using KapitelShelf.Api.DTOs.User;
+using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
 using KapitelShelf.Api.Logic.Storage;
@@ -533,6 +534,8 @@ public class BooksController(
     /// <param name="readingLocation">The current reading location, where the user stopped reading.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPut("{bookId}/reading")]
+    [ProducesResponseType<ReadingBookDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ReadingBookDTO>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ReadingBookDTO>> MarkBookAsReading(Guid bookId, Guid? userId, ReadingLocationDTO? readingLocation)
     {
         try
@@ -544,6 +547,10 @@ public class BooksController(
             }
 
             return Ok(readingBook);
+        }
+        catch (ReadingProgressConflictException ex)
+        {
+            return Conflict(ex.Bookmark);
         }
         catch (Exception ex)
         {

@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Data;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Ai;
 using KapitelShelf.Api.DTOs.Book;
@@ -23,6 +24,7 @@ using KapitelShelf.Api.Resources;
 using KapitelShelf.Data;
 using KapitelShelf.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace KapitelShelf.Api.Logic;
 
@@ -741,36 +743,19 @@ public class BooksLogic(
             return null;
         }
 
-        using var context = await this.dbContextFactory.CreateDbContextAsync();
-
-        var readingBook = await context.ReadingBooks
-            .Where(x => x.BookId == bookId && x.UserId == userId)
-            .FirstOrDefaultAsync();
-
-        if (readingBook == null)
+        for (var attempt = 0; ; attempt++)
         {
-            readingBook = new ReadingBooksModel
+            try
             {
-                BookId = bookId,
-                UserId = (Guid)userId,
-                LastReadAt = DateTime.UtcNow,
-            };
-            context.ReadingBooks.Add(readingBook);
+                return await this.SaveReadingBookmark(bookId, userId.Value, readingLocation);
+            }
+            catch (Exception ex) when (attempt < 4 && ex.GetBaseException() is PostgresException postgres
+                && (postgres.SqlState == PostgresErrorCodes.SerializationFailure
+                    || (postgres.SqlState == PostgresErrorCodes.UniqueViolation && postgres.ConstraintName == "IX_ReadingBooks_BookId_UserId")))
+            {
+                // Recheck the winner's revision, including when two requests both saw no row.
+            }
         }
-        else
-        {
-            readingBook.LastReadAt = DateTime.UtcNow;
-        }
-
-        if (readingLocation is not null)
-        {
-            readingBook.CurrentSection = readingLocation.CurrentSection;
-            readingBook.CurrentPage = readingLocation.CurrentPage;
-        }
-
-        await context.SaveChangesAsync();
-
-        return this.mapper.ReadingBookModelToReadingBookDto(readingBook);
     }
 
     /// <inheritdoc/>
@@ -781,6 +766,60 @@ public class BooksLogic(
             .Where(info => info.Id == file.Id && info.Sha256 == file.Sha256
                 && context.Books.Any(book => book.Id == bookId && book.Location!.FileInfo!.Id == info.Id))
             .ExecuteUpdateAsync(setters => setters.SetProperty(info => info.Sha256, checksum));
+    }
+
+    private async Task<ReadingBookDTO?> SaveReadingBookmark(Guid bookId, Guid userId, ReadingLocationDTO? location)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        var existing = await context.ReadingBooks.SingleOrDefaultAsync(row => row.BookId == bookId && row.UserId == userId);
+        if (existing is null && (!await context.Books.AnyAsync(book => book.Id == bookId)
+            || !await context.Users.AnyAsync(profile => profile.Id == userId)))
+        {
+            return null;
+        }
+
+        var bookmark = existing ?? new ReadingBooksModel { BookId = bookId, UserId = userId };
+        if (location is not null)
+        {
+            if (location.WriteId is not null && location.WriteId == bookmark.LastWriteId)
+            {
+                var confirmed = this.mapper.ReadingBookModelToReadingBookDto(bookmark);
+                if (location.CurrentSection == bookmark.CurrentSection && location.CurrentPage == bookmark.CurrentPage
+                    && location.ContentAnchor == bookmark.ContentAnchor)
+                {
+                    return confirmed;
+                }
+
+                throw new ReadingProgressConflictException(confirmed);
+            }
+
+            var revisionMismatch = location.WriteId is null
+                ? bookmark.LastWriteId is not null
+                : bookmark.ProgressRevision != location.ExpectedRevision;
+            var checksum = location.ContentAnchor?.Split('.')[1];
+            if (revisionMismatch || (checksum is not null && !await context.Books.AnyAsync(book =>
+                book.Id == bookId && book.Location!.FileInfo!.Sha256 == checksum)))
+            {
+                throw new ReadingProgressConflictException(this.mapper.ReadingBookModelToReadingBookDto(bookmark));
+            }
+
+            bookmark.CurrentSection = location.CurrentSection;
+            bookmark.CurrentPage = location.CurrentPage;
+            bookmark.ContentAnchor = location.ContentAnchor;
+            bookmark.ProgressRevision = Guid.NewGuid();
+            bookmark.LastWriteId = location.WriteId;
+        }
+
+        bookmark.LastReadAt = DateTime.UtcNow;
+        if (existing is null)
+        {
+            context.ReadingBooks.Add(bookmark);
+        }
+
+        await context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return this.mapper.ReadingBookModelToReadingBookDto(bookmark);
     }
 
     private async Task<IList<BookModel>> GetDuplicatesAsync(BookDTO book)

@@ -27,6 +27,8 @@ using KapitelShelf.Data.Models;
 using KapitelShelf.Data.Models.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NSubstitute;
 using Testcontainers.PostgreSql;
 
@@ -587,6 +589,7 @@ public class BooksLogicTests
             Assert.That(result.UserId, Is.EqualTo(user.Id));
             Assert.That(result.CurrentSection, Is.EqualTo(currentSection ?? 0));
             Assert.That(result.CurrentPage, Is.EqualTo(currentPage ?? 0));
+            Assert.That(result.ProgressRevision.HasValue, Is.EqualTo(currentPage.HasValue));
             Assert.That(saved.CurrentSection, Is.EqualTo(currentSection ?? 0));
             Assert.That(saved.CurrentPage, Is.EqualTo(currentPage ?? 0));
             Assert.That(saved.LastReadAt, Is.GreaterThanOrEqualTo(beforeReading));
@@ -659,6 +662,124 @@ public class BooksLogicTests
             Assert.That(result.UserId, Is.EqualTo(user.Id));
             Assert.That(result.CurrentSection, Is.EqualTo(currentSection ?? 2));
             Assert.That(result.CurrentPage, Is.EqualTo(currentPage ?? 7));
+        });
+    }
+
+    /// <summary>
+    /// Tests that a guarded bookmark preserves compatibility, deduplicates retries, and rejects stale writes.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task MarkBookAsReading_GuardedSavesProtectTheConfirmedBookmark()
+    {
+        var checksum = new string('a', 64);
+        var (bookId, userId) = await this.CreateBookmarkTarget(checksum);
+        var legacy = await this.testee.MarkBookAsReading(bookId, userId, new ReadingLocationDTO { CurrentSection = 3, CurrentPage = 7 });
+        var request = new ReadingLocationDTO { CurrentSection = 2, CurrentPage = 4, ContentAnchor = $"1.{checksum}.2.t.42", WriteId = Guid.NewGuid() };
+        Assert.ThrowsAsync<ReadingProgressConflictException>(() => this.testee.MarkBookAsReading(bookId, userId, request));
+
+        request.ExpectedRevision = legacy!.ProgressRevision;
+        var saved = (await this.testee.MarkBookAsReading(bookId, userId, request))!;
+        var retried = (await this.testee.MarkBookAsReading(bookId, userId, request))!;
+        var opened = (await this.testee.MarkBookAsReading(bookId, userId, null))!;
+        var rejectedLegacy = Assert.ThrowsAsync<ReadingProgressConflictException>(() =>
+            this.testee.MarkBookAsReading(bookId, userId, new ReadingLocationDTO { CurrentPage = 50 }))!;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved.ContentAnchor, Is.EqualTo(request.ContentAnchor));
+            Assert.That(saved.CurrentSection, Is.EqualTo(2));
+            Assert.That(saved.CurrentPage, Is.EqualTo(4));
+            Assert.That(saved.ProgressRevision, Is.Not.Null.And.Not.EqualTo(legacy.ProgressRevision));
+            Assert.That(retried.ProgressRevision, Is.EqualTo(saved.ProgressRevision));
+            Assert.That(opened.ProgressRevision, Is.EqualTo(saved.ProgressRevision));
+            Assert.That(opened.ContentAnchor, Is.EqualTo(saved.ContentAnchor));
+            Assert.That(rejectedLegacy.Bookmark.ProgressRevision, Is.EqualTo(saved.ProgressRevision));
+        });
+
+        var backward = (await this.testee.MarkBookAsReading(bookId, userId, new ReadingLocationDTO
+        {
+            ExpectedRevision = saved.ProgressRevision,
+            WriteId = Guid.NewGuid(),
+            CurrentPage = 1,
+        }))!;
+        var stale = Assert.ThrowsAsync<ReadingProgressConflictException>(() => this.testee.MarkBookAsReading(bookId, userId, request))!;
+        Assert.Multiple(() =>
+        {
+            Assert.That(backward.CurrentPage, Is.EqualTo(1));
+            Assert.That(backward.ContentAnchor, Is.Null);
+            Assert.That(stale.Bookmark.ProgressRevision, Is.EqualTo(backward.ProgressRevision));
+        });
+    }
+
+    /// <summary>
+    /// Tests that a stale file rejects a first save and concurrent saves cannot both claim the same revision.
+    /// </summary>
+    /// <param name="hasBookmark">Whether there is already a saved bookmark before the concurrent requests.</param>
+    /// <returns>A task.</returns>
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task MarkBookAsReading_ConcurrentWritesHaveOneWinner(bool hasBookmark)
+    {
+        var (bookId, userId) = await this.CreateBookmarkTarget(new string('a', 64));
+        var stale = Assert.ThrowsAsync<ReadingProgressConflictException>(() => this.testee.MarkBookAsReading(bookId, userId, new ReadingLocationDTO
+        {
+            ContentAnchor = $"1.{new string('b', 64)}.2.i.4",
+            WriteId = Guid.NewGuid(),
+        }))!;
+        Assert.That(stale.Bookmark.ProgressRevision, Is.Null);
+
+        var previous = hasBookmark
+            ? await this.testee.MarkBookAsReading(bookId, userId, new ReadingLocationDTO { CurrentPage = 3 })
+            : null;
+
+        async Task<ReadingBookDTO?> Save(int page)
+        {
+            try
+            {
+                return await this.testee.MarkBookAsReading(bookId, userId, new ReadingLocationDTO
+                {
+                    CurrentPage = page,
+                    ExpectedRevision = previous?.ProgressRevision,
+                    WriteId = Guid.NewGuid(),
+                });
+            }
+            catch (ReadingProgressConflictException)
+            {
+                return null;
+            }
+        }
+
+        var results = await Task.WhenAll(Save(1), Save(2));
+        var accepted = results.OfType<ReadingBookDTO>().Single();
+        var opened = (await this.testee.MarkBookAsReading(bookId, userId, null))!;
+        Assert.That(opened.ProgressRevision, Is.EqualTo(accepted.ProgressRevision));
+    }
+
+    /// <summary>
+    /// Tests that upgrading a legacy database preserves its numeric bookmarks and marks them as saved.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task ReadingBookmarkMigration_BackfillsExistingNumericPositions()
+    {
+        var (bookId, userId) = await this.CreateBookmarkTarget(new string('a', 64));
+        using var context = new KapitelShelfDBContext(this.dbOptions);
+        context.ReadingBooks.Add(new ReadingBooksModel { BookId = bookId, UserId = userId, CurrentSection = 2, CurrentPage = 9 });
+        await context.SaveChangesAsync();
+
+        var beforeBookmarks = "20260426135105_AddCurrentSectionPageToReadingBooks";
+        var migrator = context.GetService<IMigrator>();
+        await migrator.MigrateAsync(beforeBookmarks);
+        await migrator.MigrateAsync();
+
+        var migrated = (await this.testee.MarkBookAsReading(bookId, userId, null))!;
+        Assert.Multiple(() =>
+        {
+            Assert.That(migrated.CurrentSection, Is.EqualTo(2));
+            Assert.That(migrated.CurrentPage, Is.EqualTo(9));
+            Assert.That(migrated.ProgressRevision, Is.Not.Null.And.Not.EqualTo(Guid.Empty));
+            Assert.That(migrated.ContentAnchor, Is.Null);
         });
     }
 
@@ -3072,5 +3193,31 @@ public class BooksLogicTests
                 ],
             },
         };
+    }
+
+    private async Task<(Guid BookId, Guid UserId)> CreateBookmarkTarget(string checksum)
+    {
+        var profile = new UserModel
+        {
+            Username = "ReadingUser".Unique(),
+            Image = ProfileImageType.MonsieurRead,
+            Color = "#33ffff",
+        };
+        var book = new BookModel
+        {
+            Title = "ReadingBook".Unique(),
+            Description = "Description",
+            Series = new SeriesModel { Name = "ReadingSeries".Unique() },
+            Location = new LocationModel
+            {
+                Type = LocationType.KapitelShelf,
+                FileInfo = new FileInfoModel { FilePath = "book.txt".Unique(), MimeType = "text/plain", Sha256 = checksum },
+            },
+        };
+        using var context = new KapitelShelfDBContext(this.dbOptions);
+        context.Users.Add(profile);
+        context.Books.Add(book);
+        await context.SaveChangesAsync();
+        return (book.Id, profile.Id);
     }
 }

@@ -45,6 +45,8 @@ public class MapperReaderTests
             CurrentSection = currentSection,
             CurrentPage = currentPage,
             LastReadAt = DateTime.UtcNow,
+            ContentAnchor = currentSection == 0 ? null : $"1.{new string('a', 64)}.2.t.30",
+            ProgressRevision = currentSection == 0 ? null : Guid.NewGuid(),
         };
 
         // execute
@@ -58,6 +60,8 @@ public class MapperReaderTests
             Assert.That(dto.UserId, Is.EqualTo(model.UserId));
             Assert.That(dto.CurrentSection, Is.EqualTo(model.CurrentSection));
             Assert.That(dto.CurrentPage, Is.EqualTo(model.CurrentPage));
+            Assert.That(dto.ContentAnchor, Is.EqualTo(model.ContentAnchor));
+            Assert.That(dto.ProgressRevision, Is.EqualTo(model.ProgressRevision));
         });
     }
 }

@@ -28,4 +28,14 @@ public class ReadingBookDTO
     /// Gets or sets the current page number.
     /// </summary>
     public int CurrentPage { get; set; }
+
+    /// <summary>
+    /// Gets or sets the versioned content anchor.
+    /// </summary>
+    public string? ContentAnchor { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current bookmark revision, or null when no bookmark was saved.
+    /// </summary>
+    public Guid? ProgressRevision { get; set; }
 }

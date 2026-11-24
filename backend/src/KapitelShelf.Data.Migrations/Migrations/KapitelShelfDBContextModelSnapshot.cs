@@ -836,6 +836,10 @@ namespace KapitelShelf.Data.Migrations.Migrations
                     b.Property<Guid>("BookId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ContentAnchor")
+                        .HasMaxLength(96)
+                        .HasColumnType("character varying(96)");
+
                     b.Property<int>("CurrentPage")
                         .HasColumnType("integer");
 
@@ -844,6 +848,12 @@ namespace KapitelShelf.Data.Migrations.Migrations
 
                     b.Property<DateTime?>("LastReadAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastWriteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProgressRevision")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
