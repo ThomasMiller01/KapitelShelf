@@ -1,45 +1,32 @@
 import type { Fb2Book, Fb2Section, Fb2TocItem } from "foliate-js/fb2.js";
 import { makeFB2 } from "foliate-js/fb2.js";
-import type { FileInfoDTO } from "../../../lib/api/KapitelShelf.Api/index.ts";
+
 import type { BookContent, BookSection, BookTocItem } from "./BookContentModels";
 import { MAX_SECTION_CHARS, SplitBookSections } from "./SectionSplit";
 
 export const ParseFb2 = async (
-  file: File | undefined,
-  _fileInfo: FileInfoDTO | undefined,
-): Promise<BookContent | undefined> => {
-  if (file === undefined) {
-    return undefined;
-  }
-
+  file: File,
+  signal: AbortSignal,
+): Promise<BookContent> => {
   const book: Fb2Book = await makeFB2(file);
 
-  if (!Array.isArray(book.sections)) {
-    return undefined;
+  try {
+    signal.throwIfAborted();
+    const rawSections = await mapSections(book.sections, signal);
+    const { sections, sourceToFirstSplitIndex } = SplitBookSections(rawSections, MAX_SECTION_CHARS);
+    return {
+      metadata: {
+        title: book.metadata?.title ?? undefined,
+        description: book.metadata?.description ?? undefined,
+      },
+      navigation: {
+        tableOfContents: mapTocItems(book.toc, { value: 0 }, sourceToFirstSplitIndex),
+      },
+      sections,
+    };
+  } finally {
+    book.destroy();
   }
-
-  const rawSections = await mapSections(book.sections);
-  const splitResult = SplitBookSections(rawSections, MAX_SECTION_CHARS);
-  const sections = splitResult.sections;
-
-  const result: BookContent = {
-    metadata: {
-      title: book.metadata?.title ?? undefined,
-      description: book.metadata?.description ?? undefined,
-    },
-    navigation: {
-      tableOfContents: mapTocItems(
-        book.toc,
-        { value: 0 },
-        splitResult.sourceToFirstSplitIndex,
-      ),
-      pageCount: undefined,
-    },
-    sections,
-  };
-
-  book.destroy();
-  return result;
 };
 
 const mapTocItems = (
@@ -72,14 +59,15 @@ const mapTocItems = (
   });
 };
 
-const mapSections = async (sections: Fb2Section[]): Promise<BookSection[]> => {
+const mapSections = async (sections: Fb2Section[], signal: AbortSignal): Promise<BookSection[]> => {
   const result: BookSection[] = [];
 
   for (let index = 0; index < sections.length; index++) {
+    signal.throwIfAborted();
     const section = sections[index];
     // load() is synchronous for FB2 — returns a blob URL directly.
     const blobUrl = section.load();
-    const response = await fetch(blobUrl);
+    const response = await fetch(blobUrl, { signal });
     const content = await response.text();
     result.push({
       id: String(section.id),

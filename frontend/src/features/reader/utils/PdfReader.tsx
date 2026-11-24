@@ -1,5 +1,4 @@
-import { FileInfoDTO } from "../../../lib/api/KapitelShelf.Api/index.ts";
-import { BookContent, BookSection, BookTocItem } from "./BookContentModels";
+import type { BookContent, BookSection, BookTocItem } from "./BookContentModels";
 import { MAX_SECTION_CHARS, SplitBookSections } from "./SectionSplit";
 
 interface PdfTextItem {
@@ -32,7 +31,6 @@ interface PdfDocumentProxy {
   getOutline: () => Promise<PdfOutlineItem[] | null>;
   getDestination: (destination: string) => Promise<unknown[] | null>;
   getPageIndex: (reference: unknown) => Promise<number>;
-  destroy: () => Promise<void>;
 }
 
 interface PdfJsLib {
@@ -41,6 +39,7 @@ interface PdfJsLib {
   };
   getDocument: (source: { data: ArrayBuffer }) => {
     promise: Promise<PdfDocumentProxy>;
+    destroy: () => Promise<void>;
   };
 }
 
@@ -56,10 +55,10 @@ const loadPdfJsLib = async (): Promise<PdfJsLib> => {
     return pdfJsLibPromise;
   }
 
-  pdfJsLibPromise = (async () => {
+  pdfJsLibPromise = (async (): Promise<PdfJsLib> => {
     // @ts-expect-error foliate-js does not ship declarations for vendored PDF.js.
     await import("../../../../node_modules/foliate-js/vendor/pdfjs/pdf.mjs");
-    const pdfjsLib = (globalThis as GlobalWithPdfJsLib).pdfjsLib;
+    const { pdfjsLib } = globalThis as GlobalWithPdfJsLib;
 
     if (
       !pdfjsLib ||
@@ -91,23 +90,25 @@ const NO_TEXT_PDF_HTML =
   '<p style="color:#888;text-align:center;padding:2em 0;">No extractable text found in this PDF.</p>';
 
 export const ParsePdf = async (
-  file: File | undefined,
-  fileInfo: FileInfoDTO | undefined,
-): Promise<BookContent | undefined> => {
-  if (file === undefined) {
-    return undefined;
-  }
-
+  file: File,
+  signal: AbortSignal,
+): Promise<BookContent> => {
   const pdfjsLib = await loadPdfJsLib();
   const arrayBuffer = await file.arrayBuffer();
-  const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  signal.throwIfAborted();
+  const task = pdfjsLib.getDocument({ data: arrayBuffer });
+  let destruction: Promise<void> | undefined;
+  const destroy = (): Promise<void> => destruction ??= task.destroy();
+  const abort = (): void => { void destroy().catch(() => undefined); };
+  signal.addEventListener("abort", abort, { once: true });
 
   try {
+    const doc = await task.promise;
+    signal.throwIfAborted();
     // --- Metadata ---
     let title: string | undefined;
     try {
-      const meta = await doc.getMetadata();
-      const info = meta.info;
+      const { info } = await doc.getMetadata();
       if (typeof info?.Title === "string" && info.Title.trim().length > 0) {
         title = info.Title.trim();
       }
@@ -115,7 +116,7 @@ export const ParsePdf = async (
       // metadata unavailable - fall back to filename
     }
     if (!title) {
-      title = fileInfo?.fileName?.replace(/\.[^.]+$/, "") ?? "Untitled";
+      title = file.name.replace(/\.[^.]+$/, "") || "Untitled";
     }
 
     // --- Sections (one per page) ---
@@ -123,6 +124,7 @@ export const ParsePdf = async (
     const sections: BookSection[] = [];
 
     for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+      signal.throwIfAborted();
       const page = await doc.getPage(pageNum);
       const textContent = await page.getTextContent();
 
@@ -218,7 +220,8 @@ export const ParsePdf = async (
       sections: splitSections,
     };
   } finally {
-    await doc.destroy();
+    signal.removeEventListener("abort", abort);
+    await destroy();
   }
 };
 
@@ -272,7 +275,7 @@ const mapOutlineItems = async (
     let sectionIndex: number | undefined;
 
     try {
-      let dest = item.dest;
+      let { dest } = item;
       if (typeof dest === "string") {
         dest = await doc.getDestination(dest);
       }

@@ -1,5 +1,4 @@
-import { FileInfoDTO } from "../../../lib/api/KapitelShelf.Api/index.ts";
-import { BookContent, BookSection, BookTocItem } from "./BookContentModels";
+import type { BookContent, BookSection, BookTocItem } from "./BookContentModels";
 import { MAX_SECTION_CHARS, SplitBookSections } from "./SectionSplit";
 
 // ALL_CAPS short text (e.g. "THE BEGINNING", "PART ONE").
@@ -15,14 +14,11 @@ const NUMBERED_HEADING = /^(\d+|[IVXLCDMivxlcdm]+)[.):\s]/;
 const BARE_NUMBER = /^(\d+|[IVXLCDMivxlcdm]+)\.?\s*$/i;
 
 export const ParseTxt = async (
-  file: File | undefined,
-  fileInfo: FileInfoDTO | undefined,
-): Promise<BookContent | undefined> => {
-  if (file === undefined) {
-    return undefined;
-  }
-
+  file: File,
+  signal: AbortSignal,
+): Promise<BookContent> => {
   const raw = await file.text();
+  signal.throwIfAborted();
   const text = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
   const blocks = text
@@ -30,13 +26,12 @@ export const ParseTxt = async (
     .map((b) => b.trim())
     .filter((b) => b.length > 0);
 
-  const title =
-    fileInfo?.fileName?.replace(/\.[^.]+$/, "") ?? "Untitled";
+  const title = file.name.replace(/\.[^.]+$/, "") || "Untitled";
 
   const sectionGroups = splitIntoSections(blocks);
   const rawSections = buildSections(sectionGroups);
   const splitResult = SplitBookSections(rawSections, MAX_SECTION_CHARS);
-  const sections = splitResult.sections;
+  const { sections } = splitResult;
   const toc = remapTocToSplitSections(
     buildToc(sectionGroups),
     splitResult.sourceToFirstSplitIndex,
@@ -62,27 +57,37 @@ interface SectionGroup {
 // Called for standalone heading blocks and for individual lines within
 // a multi-line block via extractBlockHeading.
 const isHeadingLine = (line: string): boolean => {
-  if (line.length > 80) return false;
+  if (line.length > 80) {
+    return false;
+  }
 
   const wordCount = line.split(/\s+/).length;
 
   // ALL_CAPS short text: a universal typographic convention for titles
   // (e.g. "THE BEGINNING", "PART ONE"). Word count guard avoids matching
   // all-caps sentences or acronym-heavy paragraphs.
-  if (ALL_CAPS.test(line) && wordCount <= 8) return true;
+  if (ALL_CAPS.test(line) && wordCount <= 8) {
+    return true;
+  }
 
   // Explicit numbering prefix: "1.", "XIV.", "3)", "II:"
-  if (NUMBERED_HEADING.test(line)) return true;
+  if (NUMBERED_HEADING.test(line)) {
+    return true;
+  }
 
   // Very few words with no terminal punctuation: isolated 1–4 word blocks
   // are almost always titles ("Winter", "The Storm", "Part Two").
   // Prose sentences this short without a period are extremely rare.
-  if (wordCount <= 4 && !/[.!?…]$/.test(line)) return true;
+  if (wordCount <= 4 && !/[.!?…]$/.test(line)) {
+    return true;
+  }
 
   // Short text with no terminal punctuation: catches longer-but-still-short
   // headings (e.g. "The Long Road to the Sea", 5–8 words).
   // Prose sentences almost always end with . ! ? or …; titles don't.
-  if (line.length <= 60 && !/[.!?…]$/.test(line)) return true;
+  if (line.length <= 60 && !/[.!?…]$/.test(line)) {
+    return true;
+  }
 
   return false;
 };
@@ -95,7 +100,9 @@ const isHeadingLine = (line: string): boolean => {
 // so we are only ever inspecting text that stands alone on its own.
 const isHeading = (block: string): boolean => {
   // Headings are always a single line; multi-line blocks are body text.
-  if (block.includes("\n")) return false;
+  if (block.includes("\n")) {
+    return false;
+  }
   return isHeadingLine(block);
 };
 
@@ -122,14 +129,18 @@ const extractTitle = (headingLines: string[]): string => {
 const extractBlockHeading = (
   block: string,
 ): { title: string; bodyBlock: string } | null => {
-  if (!block.includes("\n")) return null;
+  if (!block.includes("\n")) {
+    return null;
+  }
 
   const lines = block
     .split("\n")
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
 
-  if (lines.length < 2) return null;
+  if (lines.length < 2) {
+    return null;
+  }
 
   let headingCount = 0;
   for (const line of lines) {
@@ -141,7 +152,9 @@ const extractBlockHeading = (
   }
 
   // Need at least 1 heading line and at least 1 body line remaining.
-  if (headingCount === 0 || headingCount === lines.length) return null;
+  if (headingCount === 0 || headingCount === lines.length) {
+    return null;
+  }
 
   return {
     title: extractTitle(lines.slice(0, headingCount)),
@@ -158,8 +171,10 @@ const chunkGroup = (group: SectionGroup): SectionGroup[] => {
   let currentChars = 0;
   let isFirst = true;
 
-  const flush = () => {
-    if (current.length === 0) return;
+  const flush = (): void => {
+    if (current.length === 0) {
+      return;
+    }
     result.push({ title: isFirst ? group.title : undefined, blocks: current });
     current = [];
     currentChars = 0;
@@ -189,7 +204,7 @@ const splitIntoSections = (blocks: string[]): SectionGroup[] => {
   const groups: SectionGroup[] = [];
   let current: SectionGroup | null = null;
 
-  const ensureGroup = () => {
+  const ensureGroup = (): void => {
     if (current === null) {
       current = { blocks: [] };
       groups.push(current);

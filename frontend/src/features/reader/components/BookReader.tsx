@@ -47,7 +47,7 @@ interface BookDetailsProps {
 const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const bookId = book.id!;
   const { isCompactLayout } = useReaderCompactLayout();
-  const { content, isLoading, error } = useReadBook(book);
+  const { content, isLoading, error, retry } = useReadBook(book);
   useReaderOrientation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
@@ -103,6 +103,7 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
           itemName="book"
           actionText="parse"
           subtitle={error}
+          onRetry={retry}
           secondAction={() => navigate(`/library/books/${bookId}`)}
           secondActionText="Back to Library"
           secondActionIcon={<ArrowBackIcon />}

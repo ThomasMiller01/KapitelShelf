@@ -2,6 +2,7 @@ export interface BookContent {
   metadata: BookContentMetadata;
   navigation: BookContentNavigation;
   sections: BookSection[];
+  release?: () => void;
 }
 
 export interface BookContentMetadata {

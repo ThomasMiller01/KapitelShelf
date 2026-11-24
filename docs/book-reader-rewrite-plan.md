@@ -1,6 +1,6 @@
 # Book Reader Rewrite Plan
 
-**Status** · Stage 1 parser baselines and stage 2 backend contracts are in place. The new loader and parser adapters are next.
+**Status** · Stage 2 backend contracts and the first part of stage 3 are in place. The reader uses the new file loader and typed parser adapters.
 
 **Baseline** · `c6ec92f` on `411-pbi-rewrite-bookreader`. The current user experience is described in the [Book Reader guide](references/book-reader.md).
 
@@ -71,7 +71,7 @@ The legacy splitter packs rendered markup within a 50,000-character budget. It d
 
 ### Reader regression reproductions
 
-- **Duplicate parsing.** Open a valid fixture with a breakpoint at `ParseBook` in `useReadBook.tsx`. After its first invocation, `isLoading` changes to `false` and the parsing effect runs again with the same file.
+- **Duplicate parsing.** Before the stage 3 loader, setting `isLoading` to `false` ran the old parsing effect again. The browser fixture now checks that switching books aborts the old load and parses the visible book once.
 - **Out-of-bounds navigation.** On the last page of the final section, press `ArrowRight`. The keyboard listener bypasses the disabled page button and advances the section past the end. Also try `?section=1.5`, which passes the numeric query parser without identifying a section.
 - **Boundary transitions.** In a narrow viewport, swipe backward from the first page of a section into a multi-page predecessor. Repeat during a resize or while alternating between next and previous. The acceptance result is the predecessor's last real page with working controls after the transition. This interaction still needs a device run.
 - **Stale progress.** Use two tabs with the same profile and book. Open the first tab at an earlier page, advance and leave the second tab, then leave the first tab without deliberately navigating. The old reader sends that tab's position during cleanup and the server accepts it. Check the requests and reopen the book. This scenario still needs a run against a live API.
@@ -89,6 +89,12 @@ The legacy splitter packs rendered markup within a 50,000-character budget. It d
 - Swagger and the TypeScript client now expose the bookmark revision, `expectedRevision`, `writeId`, and the conflict response. The current frontend still uses the legacy save format.
 - All 687 backend tests passed with PostgreSQL, including the migration round trip, first and existing bookmark concurrency, and stale-file rejection. EF reported no pending model changes. The frontend build and reader tests passed after client generation.
 
+### Stage 3 file loader and parser adapters
+
+- The reader requests the attachment checksum through the generated API client. A mismatch refreshes metadata and downloads once more. With an absent or still mismatched checksum, the loader provides the file without an anchor identity. The reader can retry a failed load from the error card.
+- A single cancellable operation downloads and parses each attachment. Book or attachment changes cancel prior work and discard stale results. EPUB resources release when the reader leaves the book. FB2 releases temporary section URLs and PDF releases its loading task and worker on completion or cancellation.
+- All five legacy fixtures passed in Chromium through the typed dispatcher. Browser checks also passed for checksum retry and fallback, EPUB image lifetime, and switching books during a pending load. Targeted lint, the production frontend build, and Node reader tests passed.
+
 ### Next work
 
-Start stage 3 with the typed file loader and parser adapters. Wire the loader to the opt-in checksum response and carry forward the fixture expectations when adapting the parsers. The full browser and Android matrix remains a cutover check. Update this section with completed stages, verification results, and the next unfinished stage as implementation proceeds.
+Continue stage 3 with the safe markup boundary and source ranges. Preserve packaged images, resolve internal links, and retain the fixture mappings for legacy numeric positions before changing the splitter. The full browser and Android matrix remains a cutover check. Update this section with completed stages, verification results, and the next unfinished stage as implementation proceeds.
