@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Text;
+using KapitelShelf.Api.Extensions;
 using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Settings;
 using Microsoft.AspNetCore.Http;
@@ -77,9 +78,37 @@ public class BookStorageTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.FilePath, Is.EqualTo(Path.Combine(bookId.ToString(), fileName)));
+            Assert.That(Path.GetDirectoryName(Path.GetDirectoryName(result.FilePath)), Is.EqualTo(bookId.ToString()));
+            Assert.That(result.FileName, Is.EqualTo(fileName));
             Assert.That(result.FileSizeBytes, Is.EqualTo(fileBytes.Length));
             Assert.That(File.Exists(Path.Combine(tempDataDir, result.FilePath)), Is.True);
+        });
+    }
+
+    /// <summary>
+    /// Saving a replacement with the same filename keeps both stored checksums tied to their bytes.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Test]
+    public async Task Save_WithSameFileName_KeepsEachRevisionAndChecksum()
+    {
+        var bookId = Guid.NewGuid();
+        const string fileName = "book.txt";
+        using var originalSource = new MemoryStream(Encoding.UTF8.GetBytes("Original chapter"));
+        using var replacementSource = new MemoryStream(Encoding.UTF8.GetBytes("A different chapter"));
+        var original = await testee.Save(bookId, new FormFile(originalSource, 0, originalSource.Length, "file", fileName));
+        var replacement = await testee.Save(bookId, new FormFile(replacementSource, 0, replacementSource.Length, "file", fileName));
+        using var originalFile = testee.Stream(original)!;
+        using var replacementFile = testee.Stream(replacement)!;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(original.FilePath, Is.Not.EqualTo(replacement.FilePath));
+            Assert.That(original.FileName, Is.EqualTo(fileName));
+            Assert.That(replacement.FileName, Is.EqualTo(fileName));
+            Assert.That(original.Sha256, Is.EqualTo(originalFile.Checksum()));
+            Assert.That(replacement.Sha256, Is.EqualTo(replacementFile.Checksum()));
+            Assert.That(replacement.Sha256, Is.Not.EqualTo(original.Sha256));
         });
     }
 

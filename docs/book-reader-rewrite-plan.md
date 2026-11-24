@@ -1,6 +1,6 @@
 # Book Reader Rewrite Plan
 
-**Status** · Design decisions confirmed in four review rounds. Implementation has not started.
+**Status** · Stage 1 parser baselines and stage 2 attachment identity are in place. Guarded bookmark storage is next.
 
 **Baseline** · `c6ec92f` on `411-pbi-rewrite-bookreader`. The current user experience is described in the [Book Reader guide](references/book-reader.md).
 
@@ -56,6 +56,32 @@ Replace the reader frontend, reading-position persistence, and Android reader li
 
 ## Resume here
 
-The design review is complete. When implementation is requested, start with stage 1 on the reader rewrite branch. Refresh the baseline if the branch has changed. Capture legacy section mappings and baseline fixtures before changing parser output.
+### Stage 1 baseline
 
-Record completed stages, verification results, any approved design changes, and the next unfinished stage here as work proceeds. Keep the plan on the same branch as the implementation so a later session can resume from this file.
+Start the frontend dev server and open `/tests/reader/legacy.html` to check and download the five synthetic [fixture files](../frontend/tests/reader/fixtures.ts). The fixture page records the legacy section numbers and table-of-contents destinations. Chromium passed all five parser checks. The Node reader tests, targeted lint, and frontend production build also passed. The frontend quality gate now runs `npm run test:reader` for pure reader tests.
+
+| Format | Legacy section numbering to preserve |
+| --- | --- |
+| EPUB | Follow spine order. Split large source entries into consecutive chunks. A TOC target uses the first chunk of its source entry, even when a fragment is present. The fixture has two chunks for the first entry and a packaged illustration at legacy section 2. |
+| FB2 | Use Foliate's converted body order. Top-level sections in the first body precede additional bodies such as notes. Nested TOC entries point into their containing source section. |
+| TXT | Normalize newlines, group paragraphs using the legacy heading rules, then chunk long groups before the shared markup split. The fixture numbers its untitled preface, first chapter, continuation, and final chapter as 0 through 3. |
+| PDF | Discard textless pages before assigning legacy indexes. Preserve original page identity separately for stable anchors. In the fixture, legacy section 1 corresponds to original page 3. An entirely textless document produces a single notice section. |
+
+The legacy splitter packs rendered markup within a 50,000-character budget. It drops empty chunks and numbers the remainder in order. A displayed page index is layout-dependent and carries no stable source offset.
+
+### Reader regression reproductions
+
+- **Duplicate parsing.** Open a valid fixture with a breakpoint at `ParseBook` in `useReadBook.tsx`. After its first invocation, `isLoading` changes to `false` and the parsing effect runs again with the same file.
+- **Out-of-bounds navigation.** On the last page of the final section, press `ArrowRight`. The keyboard listener bypasses the disabled page button and advances the section past the end. Also try `?section=1.5`, which passes the numeric query parser without identifying a section.
+- **Boundary transitions.** In a narrow viewport, swipe backward from the first page of a section into a multi-page predecessor. Repeat during a resize or while alternating between next and previous. The acceptance result is the predecessor's last real page with working controls after the transition. This interaction still needs a device run.
+- **Stale progress.** Use two tabs with the same profile and book. Open the first tab at an earlier page, advance and leave the second tab, then leave the first tab without deliberately navigating. The old reader sends that tab's position during cleanup and the server accepts it. Check the requests and reopen the book. This scenario still needs a run against a live API.
+
+### Stage 2 attachment identity
+
+- New uploads use revision-specific paths and retain their original download names. The same-name replacement test reproduced the old overwrite and now verifies that each revision's checksum matches its bytes.
+- The rewritten reader can request `GET /books/{bookId}/file?includeChecksum=true` and read `X-Book-File-Sha256`. The endpoint verifies legacy streams and conditionally repairs their metadata. The existing reader will start using the checksum when the new loader is connected.
+- The backend build, 19 storage and controller tests, Swagger and client generation, frontend build, and Node reader tests passed. The three integration cases for conditional database repair compiled, but Docker was unavailable, so their PostgreSQL fixture could not start.
+
+### Next work
+
+Finish stage 2 with the additive bookmark migration, current-revision checks, and legacy-client compatibility. Rerun the PostgreSQL checksum repair tests when Docker is available. Carry forward the fixture expectations for parser changes and wire the checksum download into the new reader loader. The full browser and Android matrix remains a cutover check. Update this section with completed stages, verification results, and the next unfinished stage as implementation proceeds.

@@ -2,6 +2,7 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
+using System.Security.Cryptography;
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
 using KapitelShelf.Api.DTOs.Location;
@@ -9,6 +10,7 @@ using KapitelShelf.Api.DTOs.Reader;
 using KapitelShelf.Api.DTOs.User;
 using KapitelShelf.Api.Logic.Interfaces;
 using KapitelShelf.Api.Logic.Interfaces.Storage;
+using KapitelShelf.Api.Logic.Storage;
 using KapitelShelf.Api.Resources;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +40,8 @@ public class BooksController(
     ITagsLogic tagsLogic,
     IUsersLogic usersLogic) : ControllerBase
 {
+    internal const string BookFileChecksumHeader = "X-Book-File-Sha256";
+
     private readonly ILogger<BooksController> logger = logger;
 
     private readonly IBooksLogic logic = logic;
@@ -419,10 +423,11 @@ public class BooksController(
     /// Get the file for a book.
     /// </summary>
     /// <param name="bookId">The id of the book to get the file for.</param>
+    /// <param name="includeChecksum">Whether to return the file checksum in the X-Book-File-Sha256 response header.</param>
     /// <returns>A <see cref="Task{ActionResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpGet("{bookId}/file")]
     [EnableCors("CorsPolicy")]
-    public async Task<IActionResult> GetBookFile(Guid bookId)
+    public async Task<IActionResult> GetBookFile(Guid bookId, bool includeChecksum = false)
     {
         try
         {
@@ -437,18 +442,43 @@ public class BooksController(
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = $"Location {book.Location.Type} does not store files in KapitelShelf." });
             }
 
-            if (book.Location.FileInfo is null)
+            var file = book.Location.FileInfo;
+            if (file is null)
             {
                 return NotFound();
             }
 
-            var stream = this.bookStorage.Stream(book.Location.FileInfo);
+            var stream = this.bookStorage.Stream(file);
             if (stream is null)
             {
                 return NotFound();
             }
 
-            return File(stream, book.Location.FileInfo.MimeType, book.Location.FileInfo.FileName, enableRangeProcessing: true);
+            try
+            {
+                if (includeChecksum)
+                {
+                    var checksum = file.Sha256;
+                    if (!BookStorage.IsRevisionPath(file.FilePath))
+                    {
+                        checksum = Convert.ToHexStringLower(await SHA256.HashDataAsync(stream, this.HttpContext.RequestAborted));
+                        stream.Position = 0;
+                        if (!string.Equals(checksum, file.Sha256, StringComparison.Ordinal))
+                        {
+                            await this.logic.RepairBookFileChecksumAsync(bookId, file, checksum);
+                        }
+                    }
+
+                    this.Response.Headers[BookFileChecksumHeader] = checksum;
+                }
+
+                return File(stream, file.MimeType, file.FileName, enableRangeProcessing: true);
+            }
+            catch
+            {
+                await stream.DisposeAsync();
+                throw;
+            }
         }
         catch (Exception ex)
         {

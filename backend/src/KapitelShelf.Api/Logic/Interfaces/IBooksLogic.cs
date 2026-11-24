@@ -4,6 +4,7 @@
 
 using KapitelShelf.Api.DTOs;
 using KapitelShelf.Api.DTOs.Book;
+using KapitelShelf.Api.DTOs.FileInfo;
 using KapitelShelf.Api.DTOs.Reader;
 
 namespace KapitelShelf.Api.Logic.Interfaces;
@@ -38,6 +39,15 @@ public interface IBooksLogic
     /// <param name="userId">The id of the user that is accessing this book.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="BookDTO"/> if found; otherwise, <c>null</c>.</returns>
     Task<BookDTO?> GetBookByIdAsync(Guid bookId, Guid? userId = null);
+
+    /// <summary>
+    /// Repairs the checksum only if the checked file is still the book's current attachment.
+    /// </summary>
+    /// <param name="bookId">The book id.</param>
+    /// <param name="file">The attachment metadata before verification.</param>
+    /// <param name="checksum">The checksum of the stored bytes.</param>
+    /// <returns>A task.</returns>
+    Task RepairBookFileChecksumAsync(Guid bookId, FileInfoDTO file, string checksum);
 
     /// <summary>
     /// Search all books by search term.

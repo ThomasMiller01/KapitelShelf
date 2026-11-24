@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using KapitelShelf.Api;
+using KapitelShelf.Api.Controllers;
 using KapitelShelf.Api.Localization;
 using KapitelShelf.Api.Logic;
 using KapitelShelf.Api.Logic.CloudStorages;
@@ -66,7 +67,8 @@ builder.Services.AddCors(options =>
             policy
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .WithExposedHeaders(BooksController.BookFileChecksumHeader);
         });
 });
 

@@ -56,6 +56,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test reader logic
+        run: npm run test:reader
+
       - name: Sync mobile content
         run: npm run mobile:sync
 

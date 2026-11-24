@@ -24,7 +24,14 @@ public class BookStorage(KapitelShelfSettings settings) : StorageBase(settings),
     {
         ArgumentNullException.ThrowIfNull(file);
 
-        var filePath = Path.Combine(bookId.ToString(), file.FileName);
+        var fileName = Path.GetFileName(file.FileName.Replace('\\', '/'));
+        if (string.IsNullOrWhiteSpace(fileName) || fileName is "." or ".." || fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new ArgumentException("A valid filename is required.", nameof(file));
+        }
+
+        // The current file record must continue to identify its bytes until the new record is committed.
+        var filePath = Path.Combine(bookId.ToString(), Guid.NewGuid().ToString("N"), fileName);
         return await Save(filePath, file);
     }
 
@@ -33,4 +40,7 @@ public class BookStorage(KapitelShelfSettings settings) : StorageBase(settings),
     /// </summary>
     /// <param name="bookId">The id of the book directory.</param>
     public void DeleteDirectory(Guid bookId) => DeleteDirectory(bookId.ToString());
+
+    internal static bool IsRevisionPath(string filePath) =>
+        Guid.TryParseExact(Path.GetFileName(Path.GetDirectoryName(filePath)), "N", out _);
 }

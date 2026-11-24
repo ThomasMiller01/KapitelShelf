@@ -119,6 +119,48 @@ public class BooksLogicTests
     }
 
     /// <summary>
+    /// Checks that a legacy checksum repair only updates the attachment snapshot it verified.
+    /// </summary>
+    /// <param name="isCurrent">Whether that file is still attached.</param>
+    /// <param name="checksumChanged">Whether another request already changed its checksum.</param>
+    /// <returns>A task.</returns>
+    [TestCase(true, false)]
+    [TestCase(false, false)]
+    [TestCase(true, true)]
+    public async Task RepairBookFileChecksumAsync_UpdatesOnlyCurrentUnchangedAttachment(bool isCurrent, bool checksumChanged)
+    {
+        var bookId = Guid.NewGuid();
+        var file = new FileInfoModel
+        {
+            Id = Guid.NewGuid(),
+            FilePath = Path.Combine(bookId.ToString(), "legacy.txt"),
+            FileSizeBytes = 15,
+            MimeType = "text/plain",
+            Sha256 = new string(checksumChanged ? '1' : '0', 64),
+        };
+        using (var context = new KapitelShelfDBContext(this.dbOptions))
+        {
+            context.FileInfos.Add(file);
+            context.Books.Add(new BookModel
+            {
+                Id = bookId,
+                Title = "BookFileChecksum".Unique(),
+                Description = "Description",
+                Series = new SeriesModel { Name = "BookFileChecksum".Unique() },
+                Location = isCurrent ? new LocationModel { Type = LocationType.KapitelShelf, FileInfo = file } : null,
+            });
+            await context.SaveChangesAsync();
+        }
+
+        var verified = new string('2', 64);
+        await this.testee.RepairBookFileChecksumAsync(bookId, new FileInfoDTO { Id = file.Id, Sha256 = new string('0', 64) }, verified);
+
+        using var checkContext = new KapitelShelfDBContext(this.dbOptions);
+        var stored = await checkContext.FileInfos.SingleAsync(info => info.Id == file.Id);
+        Assert.That(stored.Sha256, Is.EqualTo(isCurrent && !checksumChanged ? verified : file.Sha256));
+    }
+
+    /// <summary>
     /// Tests GetBooksAsync returns paged results and correct total count.
     /// </summary>
     /// <returns>A task.</returns>

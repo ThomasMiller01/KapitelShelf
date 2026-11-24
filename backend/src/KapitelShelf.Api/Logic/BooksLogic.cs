@@ -773,6 +773,16 @@ public class BooksLogic(
         return this.mapper.ReadingBookModelToReadingBookDto(readingBook);
     }
 
+    /// <inheritdoc/>
+    public async Task RepairBookFileChecksumAsync(Guid bookId, FileInfoDTO file, string checksum)
+    {
+        using var context = await this.dbContextFactory.CreateDbContextAsync();
+        await context.FileInfos
+            .Where(info => info.Id == file.Id && info.Sha256 == file.Sha256
+                && context.Books.Any(book => book.Id == bookId && book.Location!.FileInfo!.Id == info.Id))
+            .ExecuteUpdateAsync(setters => setters.SetProperty(info => info.Sha256, checksum));
+    }
+
     private async Task<IList<BookModel>> GetDuplicatesAsync(BookDTO book)
     {
         using var context = await this.dbContextFactory.CreateDbContextAsync();
