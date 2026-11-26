@@ -79,8 +79,39 @@ export const checkReading = async (): Promise<void> => {
       throw new Error("Opening a link or turning past the last page changed the bookmark");
     }
 
-    arrow("ArrowLeft");
-    await until(() => params().get("section") === "0" && Number(params().get("page")) > 0, "Backward turn did not reach the preceding chapter's last page");
+    const readingPage = host.querySelector<HTMLElement>('[role="region"]')!;
+    const columns = host.querySelector<HTMLElement>("[data-reader-content]")!.parentElement!.parentElement!;
+    // Synthetic pointers cannot acquire browser pointer capture.
+    readingPage.setPointerCapture = noop;
+    const pointer = (type: string, x: number): void => flushSync(() => {
+      readingPage.dispatchEvent(new PointerEvent(type, {
+        bubbles: true, pointerId: 1, pointerType: "touch", clientX: x,
+        buttons: type === "pointerdown" || type === "pointermove" ? 1 : 0,
+      }));
+    });
+    const { left } = columns.getBoundingClientRect();
+    pointer("pointerdown", 100);
+    pointer("pointermove", 130);
+    await until(() => columns.getBoundingClientRect().left > left + 20, "The page did not follow the finger before release");
+    if (columns.getBoundingClientRect().left > left + 30 || params().get("section") !== "1") {
+      throw new Error("The page moved too far during a short drag");
+    }
+    pointer("pointerup", 130);
+    await until(() => columns.getBoundingClientRect().left === left, "A short drag did not return to the current page");
+
+    pointer("pointerdown", 100);
+    pointer("pointermove", 190);
+    await until(() => columns.getBoundingClientRect().left > left + 60, "The page did not follow a long drag");
+    pointer("pointercancel", 190);
+    await until(() => columns.getBoundingClientRect().left === left, "Canceling did not return to the current page");
+    if (params().get("section") !== "1") {
+      throw new Error("Canceling the gesture turned the page");
+    }
+
+    pointer("pointerdown", 100);
+    pointer("pointermove", 190);
+    pointer("pointerup", 190);
+    await until(() => params().get("section") === "0" && Number(params().get("page")) > 0, "Backward swipe did not reach the preceding chapter's last page");
     await until(() => saved === 1, "Deliberate navigation did not save once");
     const savedPage = stored.currentPage;
     host.style.width = "390px";

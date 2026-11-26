@@ -1,6 +1,6 @@
 import { Box, useTheme } from "@mui/material";
 import { useDrag } from "@use-gesture/react";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 
 import { useContainerPagination } from "../hooks/pagination/useContainerPagination";
 import type { useReaderPosition } from "../hooks/useReaderPosition";
@@ -26,11 +26,22 @@ export const ContentSection = ({
 }: ContentSectionProps): ReactElement => {
   const theme = useTheme();
   const { containerRef, contentRef, pageStride } = useContainerPagination(section, fontScale, contentFontFamily, onMeasure, PAGE_GAP);
-  const swipe = useDrag(({ last, canceled, movement: [distance], swipe: [direction] }) => {
-    if (last && !canceled && (direction !== 0 || Math.abs(distance) >= 60)) {
-      ((direction || distance) < 0 ? position.next : position.previous)();
+  const [dragOffset, setDragOffset] = useState(0);
+  const swipe = useDrag(({ active, last, canceled, event, movement: [distance], swipe: [direction] }) => {
+    if (active) {
+      const min = position.canGoForward ? -pageStride : 0;
+      const max = position.canGoBack ? pageStride : 0;
+      setDragOffset(Math.min(max, Math.max(min, distance)));
+    } else if (last) {
+      setDragOffset(0);
+      if (canceled || event.type.endsWith("cancel") || event.type === "lostpointercapture") {
+        return;
+      }
+      if (direction !== 0 || Math.abs(distance) >= 60) {
+        ((direction || distance) < 0 ? position.next : position.previous)();
+      }
     }
-  }, { axis: "x", filterTaps: true });
+  }, { axis: "x", filterTaps: true, pointer: { keys: false } });
 
   return (
     <Box
@@ -88,12 +99,11 @@ export const ContentSection = ({
         </>
       )}
       <Box sx={{ height: "100%", overflow: "hidden", px: isCompactLayout ? 1.5 : 0 }}>
-        <Box ref={contentRef} sx={{
+        <Box ref={contentRef} style={{ transform: `translateX(${-position.page * pageStride + dragOffset}px)` }} sx={{
           height: "100%",
           columns: "1",
           columnFill: "auto",
           columnGap: `${PAGE_GAP}px`,
-          transform: `translateX(${-position.page * pageStride}px)`,
           visibility: position.pageCount === null ? "hidden" : "visible",
         }}>
           <Box sx={{ px: isCompactLayout ? 1.5 : 3, height: "100%" }}>
