@@ -1,213 +1,61 @@
 import { Box, useTheme } from "@mui/material";
-import React, { useRef } from "react";
+import { useDrag } from "@use-gesture/react";
+import type { ReactElement } from "react";
 
-import { useSectionTransition } from "../hooks/navigation/useSectionTransition";
-import {
-  type BoundarySwipeTransition,
-  useSwipeNavigation,
-} from "../hooks/navigation/useSwipeNavigation";
 import { useContainerPagination } from "../hooks/pagination/useContainerPagination";
+import type { useReaderPosition } from "../hooks/useReaderPosition";
 import type { BookSection } from "../utils/BookContentModels";
 import { PaginationButton } from "./PaginationButton";
 import { ShadowBookContent } from "./ShadowBookContent";
 
 interface ContentSectionProps {
   section: BookSection;
+  position: ReturnType<typeof useReaderPosition>;
   onToggleControls: () => void;
-  sectionIndex: number;
   isCompactLayout: boolean;
-  currentPage: number;
-  totalPages: number;
   fontScale: number;
   contentFontFamily: string;
-  onTotalPagesChange: (total: number, resized: boolean) => void;
-  onNext: () => void;
-  onPrev: () => void;
-  canGoBack: boolean;
-  canGoForward: boolean;
+  onMeasure: (total: number, resized: boolean) => void;
+  onBookLink: (href: string) => void;
 }
 
-const PAGE_TRANSITION = "transform 0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
-const MOBILE_PAGE_GAP = 15;
+const PAGE_GAP = 15;
 
-export const ContentSection: React.FC<ContentSectionProps> = ({
-  section,
-  onToggleControls,
-  sectionIndex,
-  isCompactLayout,
-  currentPage,
-  totalPages,
-  fontScale,
-  contentFontFamily,
-  onTotalPagesChange,
-  onNext,
-  onPrev,
-  canGoBack,
-  canGoForward,
-}) => {
+export const ContentSection = ({
+  section, position, onToggleControls, isCompactLayout, fontScale, contentFontFamily, onMeasure, onBookLink,
+}: ContentSectionProps): ReactElement => {
   const theme = useTheme();
-  const boundarySwipeTransitionRef = useRef<BoundarySwipeTransition | null>(
-    null,
-  );
-
-  const { containerRef, contentRef, pageWidth, pageWidthRef, pageStride } =
-    useContainerPagination({
-      fontScale,
-      section,
-      onTotalPagesChange,
-      pageGap: MOBILE_PAGE_GAP,
-    });
-
-  const {
-    outgoingSnapshot,
-    trackOffset,
-    animateTrack,
-    isSectionTransitioning,
-    forcedPage,
-  } = useSectionTransition({
-    section,
-    sectionIndex,
-    currentPage,
-    pageWidthRef,
-    pageStride,
-    contentRef,
-    boundarySwipeTransitionRef,
-  });
-
-  const effectivePage = forcedPage ?? currentPage;
-  const animatePageFlip = !isSectionTransitioning && pageWidth > 0;
-  const isAtSectionStart = currentPage === 0;
-  const isAtSectionEnd = currentPage === totalPages - 1;
-
-  const { dragOffset, isSwiping, isSnapping, onTransitionEnd, bindSwipe } =
-    useSwipeNavigation({
-      pageWidth,
-      pageStride,
-      effectivePage,
-      isAtSectionStart,
-      isAtSectionEnd,
-      canGoBack,
-      canGoForward,
-      isSectionTransitioning,
-      onNext,
-      onPrev,
-      onBoundarySwipeCommit: (transition) => {
-        boundarySwipeTransitionRef.current = transition;
-      },
-    });
-
-  // Determine CSS transition for the content transform.
-  const getContentTransition = (animatePage?: boolean): string => {
-    if (isSwiping) {
-      return "none";
+  const { containerRef, contentRef, pageStride } = useContainerPagination(section, fontScale, contentFontFamily, onMeasure, PAGE_GAP);
+  const swipe = useDrag(({ last, canceled, movement: [distance], swipe: [direction] }) => {
+    if (last && !canceled && (direction !== 0 || Math.abs(distance) >= 60)) {
+      ((direction || distance) < 0 ? position.next : position.previous)();
     }
-
-    if (isSnapping) {
-      return PAGE_TRANSITION;
-    }
-
-    return animatePage ? PAGE_TRANSITION : "none";
-  };
-
-  const renderSectionContent = (
-    targetSection: BookSection,
-    page: number,
-    options?: {
-      attachContentRef?: boolean;
-      animatePage?: boolean;
-      applyDragOffset?: boolean;
-    },
-  ) => (
-    <Box
-      sx={{
-        height: "100%",
-        overflow: "hidden",
-        px: isCompactLayout ? 1.5 : 0,
-      }}
-    >
-      <Box
-        ref={options?.attachContentRef ? contentRef : undefined}
-        onTransitionEnd={
-          options?.attachContentRef ? onTransitionEnd : undefined
-        }
-        sx={{
-          height: "100%",
-          columns: "1",
-          columnFill: "auto",
-          columnGap: `${MOBILE_PAGE_GAP}px`,
-          transform: `translateX(${
-            -page * pageStride + (options?.applyDragOffset ? dragOffset : 0)
-          }px)`,
-          transition: getContentTransition(options?.animatePage),
-        }}
-      >
-        <Box
-          sx={{
-            px: isCompactLayout ? 1.5 : 3,
-            height: "100%",
-          }}
-        >
-          <ShadowBookContent
-            html={targetSection.content || ""}
-            theme={theme}
-            fontScale={fontScale}
-            contentFontFamily={contentFontFamily}
-          />
-        </Box>
-      </Box>
-    </Box>
-  );
-
-  let transitionPanels: Array<{
-    key: "incoming" | "outgoing";
-    section: BookSection;
-    page: number;
-    attachContentRef: boolean;
-  }> = [];
-
-  if (outgoingSnapshot) {
-    if (outgoingSnapshot.direction === "forward") {
-      transitionPanels = [
-        {
-          key: "outgoing",
-          section: outgoingSnapshot.section,
-          page: outgoingSnapshot.page,
-          attachContentRef: false,
-        },
-        {
-          key: "incoming",
-          section,
-          page: effectivePage,
-          attachContentRef: true,
-        },
-      ];
-    } else {
-      transitionPanels = [
-        {
-          key: "incoming",
-          section,
-          page: effectivePage,
-          attachContentRef: true,
-        },
-        {
-          key: "outgoing",
-          section: outgoingSnapshot.section,
-          page: outgoingSnapshot.page,
-          attachContentRef: false,
-        },
-      ];
-    }
-  }
+  }, { axis: "x", filterTaps: true });
 
   return (
     <Box
       ref={containerRef}
-      {...bindSwipe()}
+      {...swipe()}
       onClick={(event) => {
-        if (event.nativeEvent.composedPath().some((element) => element instanceof HTMLElement && element.matches("button, a, input, select, textarea"))) {
-          return;
+        const path = event.nativeEvent.composedPath();
+        const link = path.find((node): node is HTMLAnchorElement => node instanceof HTMLAnchorElement);
+        const href = link?.getAttribute("href");
+        if (link?.dataset.bookLink) {
+          event.preventDefault();
+          onBookLink(link.dataset.bookLink);
+        } else if (link && href?.startsWith("#")) {
+          event.preventDefault();
+          const id = href.slice(1);
+          const root = link.getRootNode();
+          const columns = contentRef.current;
+          const target = root instanceof ShadowRoot ? root.getElementById(id) : null;
+          if (target && columns && pageStride > 0) {
+            const offset = target.getBoundingClientRect().left - columns.getBoundingClientRect().left;
+            position.jump(section.index, Math.floor(offset / pageStride));
+          }
+        } else if (!path.some((node) => node instanceof Element && node.matches("button, a, input, select, textarea"))) {
+          onToggleControls();
         }
-        onToggleControls();
       }}
       tabIndex={0}
       role="region"
@@ -235,46 +83,24 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
     >
       {isCompactLayout && (
         <>
-          <PaginationButton
-            onClick={onPrev}
-            disabled={!canGoBack}
-            direction="prev"
-            isCompactLayout={isCompactLayout}
-          />
-          <PaginationButton
-            onClick={onNext}
-            disabled={!canGoForward}
-            direction="next"
-            isCompactLayout={isCompactLayout}
-          />
+          <PaginationButton onClick={position.previous} disabled={!position.canGoBack} direction="prev" isCompactLayout />
+          <PaginationButton onClick={position.next} disabled={!position.canGoForward} direction="next" isCompactLayout />
         </>
       )}
-      {isSectionTransitioning ? (
-        <Box
-          sx={{
-            height: "100%",
-            display: "flex",
-            gap: `${MOBILE_PAGE_GAP}px`,
-            transform: `translateX(${trackOffset}px)`,
-            transition: animateTrack ? PAGE_TRANSITION : "none",
-          }}
-        >
-          {transitionPanels.map((panel) => (
-            <Box key={panel.key} sx={{ height: "100%", flex: "0 0 100%" }}>
-              {renderSectionContent(panel.section, panel.page, {
-                attachContentRef: panel.attachContentRef,
-                animatePage: false,
-              })}
-            </Box>
-          ))}
+      <Box sx={{ height: "100%", overflow: "hidden", px: isCompactLayout ? 1.5 : 0 }}>
+        <Box ref={contentRef} sx={{
+          height: "100%",
+          columns: "1",
+          columnFill: "auto",
+          columnGap: `${PAGE_GAP}px`,
+          transform: `translateX(${-position.page * pageStride}px)`,
+          visibility: position.pageCount === null ? "hidden" : "visible",
+        }}>
+          <Box sx={{ px: isCompactLayout ? 1.5 : 3, height: "100%" }}>
+            <ShadowBookContent html={section.content} theme={theme} fontScale={fontScale} contentFontFamily={contentFontFamily} />
+          </Box>
         </Box>
-      ) : (
-        renderSectionContent(section, effectivePage, {
-          attachContentRef: true,
-          animatePage: animatePageFlip,
-          applyDragOffset: true,
-        })
-      )}
+      </Box>
     </Box>
   );
 };

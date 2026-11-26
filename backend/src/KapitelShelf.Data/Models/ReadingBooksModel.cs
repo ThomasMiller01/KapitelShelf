@@ -2,7 +2,6 @@
 // Copyright (c) KapitelShelf. All rights reserved.
 // </copyright>
 
-using System.ComponentModel.DataAnnotations;
 using KapitelShelf.Data.Models.User;
 
 namespace KapitelShelf.Data.Models;
@@ -51,20 +50,4 @@ public class ReadingBooksModel
     /// Gets or sets the current reading page.
     /// </summary>
     public int CurrentPage { get; set; } = 0;
-
-    /// <summary>
-    /// Gets or sets the layout-independent content anchor.
-    /// </summary>
-    [MaxLength(96)]
-    public string? ContentAnchor { get; set; }
-
-    /// <summary>
-    /// Gets or sets the current progress revision, or null if no bookmark was saved.
-    /// </summary>
-    public Guid? ProgressRevision { get; set; }
-
-    /// <summary>
-    /// Gets or sets the last accepted guarded write id.
-    /// </summary>
-    public Guid? LastWriteId { get; set; }
 }

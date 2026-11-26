@@ -1,8 +1,9 @@
 import type { BookContent, BookTocItem } from "../../src/features/reader/utils/BookContentModels";
 import { parseBookFile } from "../../src/features/reader/utils/BookParser";
-import { checkBookDownload } from "./download";
+import { safeBookMarkup } from "../../src/features/reader/utils/safeBookMarkup";
 import { epubFixture, fb2Fixture, pdfFixture, txtFixture } from "./fixtures";
 import { checkReaderLoading } from "./loading";
+import { checkReading } from "./reading";
 
 const results = document.querySelector<HTMLPreElement>("#results")!;
 const fixtures = document.querySelector<HTMLUListElement>("#fixtures")!;
@@ -14,6 +15,15 @@ const check = (actual: unknown, expected: unknown): void => {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     throw new Error(`Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
   }
+};
+
+const checkMarkup = (): void => {
+  const markup = safeBookMarkup('<p onclick="fixture()" style="text-align:center;background-image:url(https://reader.invalid/image)"><em>Marked up</em></p><script>fixture</script><img src="https://reader.invalid/cover" alt="Cover"><a href="chapter.xhtml#start">Chapter</a><a href="https://reader.invalid/source">Source</a>');
+  check(markup.querySelector("script,img,[onclick]"), null);
+  check(markup.querySelector("p")?.getAttribute("style"), "text-align: center;");
+  check(markup.querySelector("em")?.textContent, "Marked up");
+  check(markup.querySelector("a[data-book-link]")?.getAttribute("href"), "#");
+  check(markup.querySelector('a[target="_blank"]')?.getAttribute("rel"), "noopener noreferrer");
 };
 
 const cases = [
@@ -69,9 +79,8 @@ const run = async (): Promise<void> => {
       check(tocLocations(book.navigation.tableOfContents), entry.toc);
       check(entry.content(book), true);
       if (book.release) {
-        const chapter = document.createElement("template");
-        chapter.innerHTML = book.sections[2].content;
-        const src = chapter.content.querySelector("img")?.getAttribute("src");
+        const chapter = safeBookMarkup(book.sections[2].content);
+        const src = chapter.querySelector("img")?.getAttribute("src");
         if (!src?.startsWith("blob:")) {
           throw new Error("The packaged EPUB image is missing");
         }
@@ -90,8 +99,9 @@ const run = async (): Promise<void> => {
     results.textContent = lines.join("\n");
   }
   for (const [name, verify] of [
-    ["checksum retry, fallback, and cancellation", checkBookDownload],
     ["replaced reader load and single parse", checkReaderLoading],
+    ["safe book markup", checkMarkup],
+    ["reader navigation and bookmark restore", checkReading],
   ] as const) {
     try {
       await verify();

@@ -1095,15 +1095,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "includeChecksum",
-            "in": "query",
-            "description": "Whether to return the file checksum in the X-Book-File-Sha256 response header.",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
           }
         ],
         "responses": {
@@ -1207,26 +1198,6 @@
         "responses": {
           "200": {
             "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReadingBookDTO"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReadingBookDTO"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReadingBookDTO"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
             "content": {
               "text/plain": {
                 "schema": {
@@ -4993,17 +4964,6 @@
             "type": "integer",
             "description": "Gets or sets the current page number.",
             "format": "int32"
-          },
-          "contentAnchor": {
-            "type": "string",
-            "description": "Gets or sets the versioned content anchor.",
-            "nullable": true
-          },
-          "progressRevision": {
-            "type": "string",
-            "description": "Gets or sets the current bookmark revision, or null when no bookmark was saved.",
-            "format": "uuid",
-            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -5013,37 +4973,14 @@
         "type": "object",
         "properties": {
           "currentSection": {
-            "maximum": 2147483647,
-            "minimum": 0,
             "type": "integer",
             "description": "Gets or sets the current section.",
             "format": "int32"
           },
           "currentPage": {
-            "maximum": 2147483647,
-            "minimum": 0,
             "type": "integer",
             "description": "Gets or sets the current page.",
             "format": "int32"
-          },
-          "contentAnchor": {
-            "maxLength": 96,
-            "minLength": 0,
-            "type": "string",
-            "description": "Gets or sets the versioned content anchor in the form 1.sha256.source.t-or-i.offset.",
-            "nullable": true
-          },
-          "expectedRevision": {
-            "type": "string",
-            "description": "Gets or sets the revision this save was based on, or null for the first bookmark.",
-            "format": "uuid",
-            "nullable": true
-          },
-          "writeId": {
-            "type": "string",
-            "description": "Gets or sets the unique identifier for a guarded save, reused on retries.",
-            "format": "uuid",
-            "nullable": true
           }
         },
         "additionalProperties": false,

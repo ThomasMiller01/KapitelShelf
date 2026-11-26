@@ -32,6 +32,5 @@ public sealed partial class Mapper
     [MapperIgnoreSource(nameof(ReadingBooksModel.Book))]
     [MapperIgnoreSource(nameof(ReadingBooksModel.User))]
     [MapperIgnoreSource(nameof(ReadingBooksModel.LastReadAt))]
-    [MapperIgnoreSource(nameof(ReadingBooksModel.LastWriteId))]
     public partial ReadingBookDTO ReadingBookModelToReadingBookDto(ReadingBooksModel model);
 }

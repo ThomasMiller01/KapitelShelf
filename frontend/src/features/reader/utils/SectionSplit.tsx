@@ -137,7 +137,7 @@ const packUnits = (
   const chunks: string[] = [];
   let currentChunk = "";
 
-  const flush = () => {
+  const flush = (): void => {
     if (currentChunk.length > 0) {
       chunks.push(currentChunk);
       currentChunk = "";
@@ -191,9 +191,9 @@ const splitParagraphUnitHard = (unit: string, maxChars: number): string[] => {
 };
 
 const getMarkupUnits = (innerMarkup: string): string[] => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(`<body>${innerMarkup}</body>`, "text/html");
-  const units = Array.from(doc.body.childNodes)
+  const template = document.createElement("template");
+  template.innerHTML = innerMarkup;
+  const units = Array.from(template.content.childNodes)
     .map(serializeNode)
     .map((chunk) => chunk.trim())
     .filter((chunk) => chunk.length > 0);
@@ -248,9 +248,9 @@ const splitStringByMax = (value: string, maxChars: number): string[] => {
 };
 
 const stripHtml = (value: string): string => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(value, "text/html");
-  return doc.body.textContent ?? "";
+  const template = document.createElement("template");
+  template.innerHTML = value;
+  return template.content.textContent ?? "";
 };
 
 const escapeHtml = (text: string): string =>

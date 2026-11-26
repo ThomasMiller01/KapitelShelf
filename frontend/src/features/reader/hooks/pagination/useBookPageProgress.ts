@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import type { BookContent } from "../../utils/BookContentModels";
 import { mapPage } from "../../utils/pageProgress";
@@ -46,7 +46,7 @@ export function useBookPageProgress(
   const charsPerPageRef = useRef<number | null>(null);
   const measuredPagesRef = useRef<Record<number, number>>({});
 
-  const sectionChars = content.sections.map((s) => (s.content ?? "").length);
+  const sectionChars = useMemo(() => content.sections.map((section) => section.content.length), [content]);
 
   const onTotalPagesChange = useCallback(
     (total: number, resized: boolean) => {
@@ -65,7 +65,7 @@ export function useBookPageProgress(
   );
 
   const charsPerPage =
-    charsPerPageRef.current ?? sectionChars[currentSection] / totalPages;
+    charsPerPageRef.current ?? Math.max(1, sectionChars[currentSection]) / totalPages;
 
   const estimatedSectionPages = sectionChars.map((chars) =>
     Math.max(1, Math.round(chars / charsPerPage) || 1)

@@ -55,7 +55,7 @@ KapitelShelf remembers your current section and page for the active user profile
 - Leaving the reader and opening the same book again resumes from your saved position.
 - Closing and reopening the browser or app also returns you to your saved position when the book is opened again.
 
-If you open the reader with an explicit `section` or `page` in the URL, that location is used for that session instead of the saved position.
+If you open the reader with a valid `section` or `page` in the URL, the reader starts there and keeps your saved position until you navigate. A saved section stays the same across devices, while the page within it can show different text if the screen size or font changes.
 
 ## Table of Contents
 

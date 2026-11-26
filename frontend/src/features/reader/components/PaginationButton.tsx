@@ -20,6 +20,7 @@ export const PaginationButton: React.FC<PaginationButtonProps> = ({
 
   return (
     <IconButton
+      aria-label={direction === "prev" ? "Previous page" : "Next page"}
       onClick={onClick}
       disabled={disabled}
       size="large"

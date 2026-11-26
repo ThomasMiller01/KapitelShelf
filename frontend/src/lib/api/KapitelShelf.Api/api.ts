@@ -1054,18 +1054,6 @@ export interface ReadingBookDTO {
      * @memberof ReadingBookDTO
      */
     'currentPage'?: number;
-    /**
-     * Gets or sets the versioned content anchor.
-     * @type {string}
-     * @memberof ReadingBookDTO
-     */
-    'contentAnchor'?: string | null;
-    /**
-     * Gets or sets the current bookmark revision, or null when no bookmark was saved.
-     * @type {string}
-     * @memberof ReadingBookDTO
-     */
-    'progressRevision'?: string | null;
 }
 /**
  * The reading location dto.
@@ -1085,24 +1073,6 @@ export interface ReadingLocationDTO {
      * @memberof ReadingLocationDTO
      */
     'currentPage'?: number;
-    /**
-     * Gets or sets the versioned content anchor in the form 1.sha256.source.t-or-i.offset.
-     * @type {string}
-     * @memberof ReadingLocationDTO
-     */
-    'contentAnchor'?: string | null;
-    /**
-     * Gets or sets the revision this save was based on, or null for the first bookmark.
-     * @type {string}
-     * @memberof ReadingLocationDTO
-     */
-    'expectedRevision'?: string | null;
-    /**
-     * Gets or sets the unique identifier for a guarded save, reused on retries.
-     * @type {string}
-     * @memberof ReadingLocationDTO
-     */
-    'writeId'?: string | null;
 }
 /**
  * The series dto.
@@ -2254,11 +2224,10 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
          * 
          * @summary Get the file for a book.
          * @param {string} bookId The id of the book to get the file for.
-         * @param {boolean} [includeChecksum] Whether to return the file checksum in the X-Book-File-Sha256 response header.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdFileGet: async (bookId: string, includeChecksum?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        booksBookIdFileGet: async (bookId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'bookId' is not null or undefined
             assertParamExists('booksBookIdFileGet', 'bookId', bookId)
             const localVarPath = `/books/{bookId}/file`
@@ -2273,10 +2242,6 @@ export const BooksApiAxiosParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (includeChecksum !== undefined) {
-                localVarQueryParameter['includeChecksum'] = includeChecksum;
-            }
 
 
     
@@ -2968,12 +2933,11 @@ export const BooksApiFp = function(configuration?: Configuration) {
          * 
          * @summary Get the file for a book.
          * @param {string} bookId The id of the book to get the file for.
-         * @param {boolean} [includeChecksum] Whether to return the file checksum in the X-Book-File-Sha256 response header.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async booksBookIdFileGet(bookId: string, includeChecksum?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdFileGet(bookId, includeChecksum, options);
+        async booksBookIdFileGet(bookId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.booksBookIdFileGet(bookId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BooksApi.booksBookIdFileGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3274,12 +3238,11 @@ export const BooksApiFactory = function (configuration?: Configuration, basePath
          * 
          * @summary Get the file for a book.
          * @param {string} bookId The id of the book to get the file for.
-         * @param {boolean} [includeChecksum] Whether to return the file checksum in the X-Book-File-Sha256 response header.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        booksBookIdFileGet(bookId: string, includeChecksum?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.booksBookIdFileGet(bookId, includeChecksum, options).then((request) => request(axios, basePath));
+        booksBookIdFileGet(bookId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.booksBookIdFileGet(bookId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3551,13 +3514,12 @@ export class BooksApi extends BaseAPI {
      * 
      * @summary Get the file for a book.
      * @param {string} bookId The id of the book to get the file for.
-     * @param {boolean} [includeChecksum] Whether to return the file checksum in the X-Book-File-Sha256 response header.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BooksApi
      */
-    public booksBookIdFileGet(bookId: string, includeChecksum?: boolean, options?: RawAxiosRequestConfig) {
-        return BooksApiFp(this.configuration).booksBookIdFileGet(bookId, includeChecksum, options).then((request) => request(this.axios, this.basePath));
+    public booksBookIdFileGet(bookId: string, options?: RawAxiosRequestConfig) {
+        return BooksApiFp(this.configuration).booksBookIdFileGet(bookId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

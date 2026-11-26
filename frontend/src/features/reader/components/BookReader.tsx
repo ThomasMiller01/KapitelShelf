@@ -1,12 +1,13 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Box, styled } from "@mui/material";
-import { type ReactElement, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { type ReactElement, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-import type { BookDTO } from "../../../lib/api/KapitelShelf.Api/api";
+import type { BookDTO, ReadingBookDTO } from "../../../lib/api/KapitelShelf.Api/api";
 import LoadingCard from "../../../shared/components/base/feedback/LoadingCard";
 import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
 import { DRAWER_WIDTH } from "../../../shared/components/base/ResponsiveDrawer";
+import { useUserProfile } from "../../../shared/hooks/useUserProfile";
 import {
   IsMobileApp,
   MOBILE_APP_BOTTOM_INSET,
@@ -16,7 +17,9 @@ import { useReaderOrientation } from "../hooks/device/useReaderOrientation";
 import { useReaderCompactLayout } from "../hooks/layout/useReaderCompactLayout";
 import { usePersistReadingPosition } from "../hooks/usePersistReadingPosition";
 import { useReadBook } from "../hooks/useReadBook";
-import { useReadBookPagination } from "../hooks/useReadBookPagination";
+import { useReaderPosition } from "../hooks/useReaderPosition";
+import type { BookContent } from "../utils/BookContentModels";
+import { readLocation } from "../utils/readerPosition";
 import { Content } from "./Content";
 import { Sidebar } from "./Sidebar";
 import { Toolbar } from "./Toolbar";
@@ -46,43 +49,14 @@ interface BookDetailsProps {
 
 const BookReader = ({ book }: BookDetailsProps): ReactElement => {
   const bookId = book.id!;
-  const { isCompactLayout } = useReaderCompactLayout();
   const { content, isLoading, error, retry } = useReadBook(book);
-  useReaderOrientation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [controlsVisible, setControlsVisible] = useState(false);
-  const [totalPages, setTotalPages] = useState(1);
-  const {
-    applyInitialPosition,
-    hasExplicitLocation,
-    section,
-    page,
-    nextSection,
-    prevSection,
-    setLocation,
-    setSection,
-    setPage,
-  } = useReadBookPagination();
+  const [params] = useSearchParams();
+  const bookmark = useMarkReadingBook(bookId);
+  const { profile } = useUserProfile();
   const navigate = useNavigate();
-  const { data } = useMarkReadingBook(bookId);
-  usePersistReadingPosition(bookId, section, page);
+  useReaderOrientation();
 
-  useEffect(() => {
-    if (!content || !data || hasExplicitLocation) {
-      return;
-    }
-
-    const maxSectionIndex = Math.max(content.sections.length - 1, 0);
-    const restoredSection = Math.min(
-      Math.max(data.currentSection ?? 0, 0),
-      maxSectionIndex,
-    );
-    const restoredPage = Math.max(data.currentPage ?? 0, 0);
-
-    applyInitialPosition(restoredSection, restoredPage);
-  }, [applyInitialPosition, content, data, hasExplicitLocation]);
-
-  if (isLoading) {
+  if (isLoading || (content && bookmark.isFetching && !readLocation(params))) {
     return (
       <Box width="100%" justifyContent="center">
         <LoadingCard
@@ -112,6 +86,22 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
     );
   }
 
+  return <ReadingView key={`${bookId}:${profile?.id ?? ""}`} bookId={bookId} content={content} saved={bookmark.data} />;
+};
+
+interface ReadingViewProps {
+  bookId: string;
+  content: BookContent;
+  saved?: ReadingBookDTO;
+}
+
+const ReadingView = ({ bookId, content, saved }: ReadingViewProps): ReactElement => {
+  const { isCompactLayout } = useReaderCompactLayout();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
+  const position = useReaderPosition(content.sections.length, saved);
+  usePersistReadingPosition(bookId, position.lastMove);
+
   return (
     <>
       {controlsVisible && <Toolbar
@@ -126,7 +116,11 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
         isCompactLayout={isCompactLayout}
         sidebarOpen={sidebarOpen}
         closeSidebar={() => setSidebarOpen(false)}
-        onTocItemSelect={(item) => setSection(item.sectionIndex ?? 0)}
+        onTocItemSelect={(item) => {
+          if (item.sectionIndex !== undefined) {
+            position.jump(item.sectionIndex, 0);
+          }
+        }}
       />
       <ContentWrapper open={sidebarOpen} isCompactLayout={isCompactLayout}>
         <Content
@@ -134,16 +128,9 @@ const BookReader = ({ book }: BookDetailsProps): ReactElement => {
           isCompactLayout={isCompactLayout}
           controlsVisible={controlsVisible}
           onToggleControls={() => setControlsVisible((visible) => !visible)}
-          currentSection={section}
-          currentPage={page}
-          savedPage={data?.currentPage}
-          savedSection={data?.currentSection}
-          setLocation={setLocation}
-          setCurrentPage={setPage}
-          setTotalPages={setTotalPages}
-          totalPages={totalPages}
-          nextSection={nextSection}
-          prevSection={prevSection}
+          position={position}
+          savedPage={saved?.currentPage}
+          savedSection={saved?.currentSection}
         />
       </ContentWrapper>
 

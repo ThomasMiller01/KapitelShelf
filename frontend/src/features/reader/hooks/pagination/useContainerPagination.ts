@@ -1,34 +1,24 @@
-import type React from "react";
-import { useLayoutEffect, useRef, useState } from "react";
+import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 
 import type { BookSection } from "../../utils/BookContentModels";
 
-interface UseContainerPaginationArgs {
-  fontScale: number;
-  section: BookSection;
-  onTotalPagesChange: (total: number, resized: boolean) => void;
-  pageGap: number;
-}
-
-interface ContainerPaginationState {
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  contentRef: React.RefObject<HTMLDivElement | null>;
-  pageWidth: number;
-  pageWidthRef: React.RefObject<number>;
+interface Measurement {
+  containerRef: RefObject<HTMLDivElement | null>;
+  contentRef: RefObject<HTMLDivElement | null>;
   pageStride: number;
 }
 
-export const useContainerPagination = ({
-  fontScale,
-  section,
-  onTotalPagesChange,
-  pageGap,
-}: UseContainerPaginationArgs): ContainerPaginationState => {
+export const useContainerPagination = (
+  section: BookSection,
+  fontScale: number,
+  fontFamily: string,
+  onMeasure: (pages: number, resized: boolean) => void,
+  gap: number,
+): Measurement => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [pageWidth, setPageWidth] = useState(0);
-  const pageWidthRef = useRef(0);
-  const previousMeasurementRef = useRef<{ section: BookSection; width: number; height: number } | null>(null);
+  const [pageStride, setPageStride] = useState(0);
+  const previous = useRef<{ section: BookSection; width: number; height: number; fontScale: number; fontFamily: string }>(undefined);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -37,38 +27,34 @@ export const useContainerPagination = ({
       return;
     }
 
-    const measure = () => {
-      const { offsetWidth: containerWidth, offsetHeight: containerHeight } = container;
-      const previous = previousMeasurementRef.current;
-      const resized = previous !== null && previous.section === section &&
-        (previous.width !== containerWidth || previous.height !== containerHeight);
-      previousMeasurementRef.current = { section, width: containerWidth, height: containerHeight };
+    let active = true;
+    const measure = (): void => {
       const width = content.offsetWidth;
-      const stride = width + pageGap;
-      setPageWidth(width);
-      pageWidthRef.current = width;
-      const pages =
-        width > 0 && stride > 0
-          ? Math.max(
-              1,
-              Math.ceil((content.scrollWidth + pageGap) / stride - 0.01),
-            )
-          : 1;
-      onTotalPagesChange(pages, resized);
+      const height = content.offsetHeight;
+      if (!active || width === 0 || height === 0) {
+        return;
+      }
+      const prior = previous.current;
+      const resized = prior?.section === section && (prior.width !== width || prior.height !== height
+        || prior.fontScale !== fontScale || prior.fontFamily !== fontFamily);
+      previous.current = { section, width, height, fontScale, fontFamily };
+      const stride = width + gap;
+      setPageStride(stride);
+      onMeasure(Math.max(1, Math.ceil((content.scrollWidth + gap) / stride - 0.01)), resized);
     };
 
+    const shadow = content.querySelector("[data-reader-content]")?.shadowRoot;
+    shadow?.addEventListener("load", measure, true);
+    void document.fonts.ready.then(measure);
     measure();
-
     const observer = new ResizeObserver(measure);
     observer.observe(container);
-    return () => observer.disconnect();
-  }, [fontScale, pageGap, section, onTotalPagesChange]);
+    return (): void => {
+      active = false;
+      observer.disconnect();
+      shadow?.removeEventListener("load", measure, true);
+    };
+  }, [fontFamily, fontScale, gap, onMeasure, section]);
 
-  return {
-    containerRef,
-    contentRef,
-    pageWidth,
-    pageWidthRef,
-    pageStride: pageWidth > 0 ? pageWidth + pageGap : 0,
-  };
+  return { containerRef, contentRef, pageStride };
 };

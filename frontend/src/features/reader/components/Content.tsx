@@ -1,11 +1,10 @@
 import { Box, Stack, Typography } from "@mui/material";
-import React from "react";
+import { type ReactElement, useCallback } from "react";
 
-import { RequestErrorCard } from "../../../shared/components/base/feedback/RequestErrorCard";
 import { useReaderBattery } from "../hooks/device/useReaderBattery";
 import { useReaderClock } from "../hooks/device/useReaderClock";
-import { useReaderNavigation } from "../hooks/navigation/useReaderNavigation";
 import { useBookPageProgress } from "../hooks/pagination/useBookPageProgress";
+import type { useReaderPosition } from "../hooks/useReaderPosition";
 import type { BookContent } from "../utils/BookContentModels";
 import { BatteryStatus } from "./BatteryStatus";
 import { BottomControls } from "./BottomControls";
@@ -18,42 +17,30 @@ interface ContentProps {
   isCompactLayout: boolean;
   controlsVisible: boolean;
   onToggleControls: () => void;
-  currentSection: number;
-  currentPage: number;
+  position: ReturnType<typeof useReaderPosition>;
   savedPage?: number;
   savedSection?: number;
-  setLocation: (section: number, page: number) => void;
-  setCurrentPage: (page: number) => void;
-  setTotalPages: (total: number) => void;
-  totalPages: number;
-  nextSection: () => void;
-  prevSection: () => void;
 }
 
-export const Content: React.FC<ContentProps> = ({
+export const Content = ({
   content,
   isCompactLayout,
   controlsVisible,
   onToggleControls,
-  currentSection,
-  currentPage,
+  position,
   savedPage,
   savedSection,
-  setLocation,
-  setCurrentPage,
-  setTotalPages,
-  totalPages,
-  nextSection,
-  prevSection,
-}) => {
+}: ContentProps): ReactElement => {
+  const { section, page, pageCount } = position;
+  const { measure } = position;
   const { fontScale, contentFontFamily } = useReaderColorScheme();
   const { batteryPercent, isCharging } = useReaderBattery();
   const currentTime = useReaderClock();
   const pageProgress = useBookPageProgress(
     content,
-    currentSection,
-    currentPage,
-    totalPages,
+    section,
+    page,
+    pageCount ?? 1,
   );
   const {
     absoluteCurrentPage,
@@ -62,32 +49,21 @@ export const Content: React.FC<ContentProps> = ({
     onTotalPagesChange: onPageProgressChange,
   } = pageProgress;
 
-  const { handleNext, handlePrev, handleTotalPagesChange } =
-    useReaderNavigation({
-      currentSection,
-      currentPage,
-      totalPages,
-      setCurrentPage,
-      nextSection,
-      prevSection,
-      setTotalPages,
-      onPageProgressChange,
-    });
+  const onMeasure = useCallback((pages: number, resized: boolean): void => {
+    onPageProgressChange(pages, resized);
+    measure(section, pages);
+  }, [measure, onPageProgressChange, section]);
 
-  if (currentSection < 0 || currentSection >= content.sections.length) {
-    return (
-      <RequestErrorCard
-        itemName="Section"
-        subtitle="Invalid section, not found."
-      />
-    );
-  }
-
-  const canGoBack = !(currentPage === 0 && currentSection === 0);
-  const canGoForward = !(
-    currentPage === totalPages - 1 &&
-    currentSection === content.sections.length - 1
-  );
+  const openBookLink = (href: string): void => {
+    const current = content.sections[section];
+    const source = current.href ?? content.sections.find((item) => item.sourceSectionIndex === current.sourceSectionIndex)?.href;
+    const root = "https://book.invalid/";
+    const destination = new URL(`./${href}`, new URL(`./${source ?? ""}`, root)).pathname;
+    const target = content.sections.find((item) => item.href && new URL(`./${item.href}`, root).pathname === destination);
+    if (target) {
+      position.jump(target.index, 0);
+    }
+  };
 
   return (
     <Stack
@@ -108,8 +84,8 @@ export const Content: React.FC<ContentProps> = ({
     >
       {!isCompactLayout && (
         <PaginationButton
-          onClick={handlePrev}
-          disabled={!canGoBack}
+          onClick={position.previous}
+          disabled={!position.canGoBack}
           direction="prev"
           isCompactLayout={isCompactLayout}
         />
@@ -118,6 +94,7 @@ export const Content: React.FC<ContentProps> = ({
         direction="column"
         alignItems="center"
         height="100%"
+        minWidth={0}
         width={isCompactLayout ? "100%" : "auto"}
         justifyContent="center"
         spacing={1}
@@ -147,19 +124,14 @@ export const Content: React.FC<ContentProps> = ({
           />
         </Stack>
         <ContentSection
-          section={content.sections[currentSection]}
+          section={content.sections[section]}
+          position={position}
           onToggleControls={onToggleControls}
-          sectionIndex={currentSection}
           isCompactLayout={isCompactLayout}
-          currentPage={currentPage}
-          totalPages={totalPages}
           fontScale={fontScale}
           contentFontFamily={contentFontFamily}
-          onTotalPagesChange={handleTotalPagesChange}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          canGoBack={canGoBack}
-          canGoForward={canGoForward}
+          onMeasure={onMeasure}
+          onBookLink={openBookLink}
         />
         <Stack
           direction="row"
@@ -190,14 +162,14 @@ export const Content: React.FC<ContentProps> = ({
             pageProgress={pageProgress}
             savedPage={savedPage}
             savedSection={savedSection}
-            setLocation={setLocation}
+            setLocation={position.jump}
           />
         </Box>
       )}
       {!isCompactLayout && (
         <PaginationButton
-          onClick={handleNext}
-          disabled={!canGoForward}
+          onClick={position.next}
+          disabled={!position.canGoForward}
           direction="next"
           isCompactLayout={isCompactLayout}
         />

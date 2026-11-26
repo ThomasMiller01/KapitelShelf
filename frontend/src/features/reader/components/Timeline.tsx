@@ -42,8 +42,9 @@ export const Timeline: React.FC<TimelineProps> = ({
               ]
         }
         size="small"
-        max={absoluteTotalPages}
+        max={Math.max(2, absoluteTotalPages)}
         min={1}
+        disabled={absoluteTotalPages === 1}
         value={absoluteCurrentPage}
         valueLabelDisplay="auto"
         sx={{

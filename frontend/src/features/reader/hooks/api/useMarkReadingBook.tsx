@@ -12,11 +12,11 @@ const NO_READING_LOCATION = null as unknown as ReadingLocationDTO | undefined;
 export const useMarkReadingBook = (
   bookId: string | undefined,
 ): UseQueryResult<ReadingBookDTO | undefined> => {
-  const { clients } = useApi();
+  const { clients, basePath } = useApi();
   const { profile } = useUserProfile();
 
   return useQuery({
-    queryKey: ["mark-reading-book", bookId, profile?.id],
+    queryKey: ["mark-reading-book", basePath, bookId, profile?.id],
     queryFn: async () => {
       if (bookId === undefined || profile?.id === undefined) {
         return;
@@ -31,6 +31,9 @@ export const useMarkReadingBook = (
       return data;
     },
     enabled: Boolean(bookId) && Boolean(profile?.id),
-    refetchInterval: false,
+    gcTime: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 };

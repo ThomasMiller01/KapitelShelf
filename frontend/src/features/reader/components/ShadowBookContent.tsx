@@ -2,6 +2,8 @@ import type { Theme } from "@mui/material";
 import { Box } from "@mui/material";
 import React, { useLayoutEffect, useRef } from "react";
 
+import { safeBookMarkup } from "../utils/safeBookMarkup";
+
 interface ShadowBookContentProps {
   html: string;
   theme: Theme;
@@ -24,14 +26,12 @@ export const ShadowBookContent: React.FC<ShadowBookContentProps> = ({
     }
 
     const shadowRoot = host.shadowRoot ?? host.attachShadow({ mode: "open" });
-    shadowRoot.innerHTML = `<style>${ContentStyles(
-      theme,
-      fontScale,
-      contentFontFamily,
-    )}</style>${html}`;
+    const style = document.createElement("style");
+    style.textContent = ContentStyles(theme, fontScale, contentFontFamily);
+    shadowRoot.replaceChildren(style, safeBookMarkup(html));
   }, [contentFontFamily, fontScale, html, theme]);
 
-  return <Box ref={hostRef} sx={{ height: "100%" }} />;
+  return <Box ref={hostRef} data-reader-content sx={{ height: "100%" }} />;
 };
 
 const ContentStyles = (

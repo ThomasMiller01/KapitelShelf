@@ -9,7 +9,7 @@ import {
   ListItemButton,
   Typography,
 } from "@mui/material";
-import { useState, type ReactElement } from "react";
+import { type ReactElement,useState } from "react";
 
 import type { BookTocItem } from "../utils/BookContentModels";
 
@@ -22,13 +22,12 @@ interface TableOfContentsProps {
 const TableOfContents: React.FC<TableOfContentsProps> = ({
   maxHeight,
   ...props
-}) => {
-  return (
+}) => (
     <Box
       bgcolor="background.paper"
       px={2}
       py={1}
-      sx={{ maxHeight: maxHeight, overflow: "auto" }}
+      sx={{ maxHeight, overflow: "auto" }}
     >
       <Typography variant="h6" sx={{ px: 1, pt: 1, pb: 0.5 }}>
         Table of Contents
@@ -37,10 +36,8 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
       <TableOfContentsContent {...props} />
     </Box>
   );
-};
 
-interface TableOfContentsContentProps
-  extends Omit<TableOfContentsProps, "maxHeight"> {}
+type TableOfContentsContentProps = Omit<TableOfContentsProps, "maxHeight">;
 
 const TableOfContentsContent: React.FC<TableOfContentsContentProps> = ({
   items,
@@ -58,16 +55,14 @@ const TableOfContentsContent: React.FC<TableOfContentsContentProps> = ({
 
   return (
     <List>
-      {items.map((item: BookTocItem): ReactElement => {
-        return (
+      {items.map((item: BookTocItem): ReactElement => (
           <TableOfContentsItem
             key={item.id}
             item={item}
             level={0}
             onSelectItem={onSelectItem}
           />
-        );
-      })}
+        ))}
     </List>
   );
 };
@@ -87,19 +82,22 @@ const TableOfContentsItem: React.FC<TableOfContentsItemProps> = ({
   const [isExpanded, setIsExpanded] = useState<boolean>(level < 1);
 
   const handleToggle = (): void => {
-    setIsExpanded((previous: boolean): boolean => {
-      return !previous;
-    });
+    setIsExpanded((previous: boolean): boolean => !previous);
   };
 
   const handleClick = (): void => {
-    onSelectItem?.(item);
+    if (item.sectionIndex !== undefined) {
+      onSelectItem?.(item);
+    } else if (hasChildren) {
+      handleToggle();
+    }
   };
 
   return (
     <>
       <ListItemButton
         onClick={handleClick}
+        disabled={item.sectionIndex === undefined && !hasChildren}
         sx={{
           borderRadius: 1,
           gap: 0.5,
@@ -164,16 +162,14 @@ const TableOfContentsItem: React.FC<TableOfContentsItemProps> = ({
       {hasChildren && (
         <Collapse in={isExpanded} timeout="auto" unmountOnExit>
           <List disablePadding>
-            {item.children.map((child: BookTocItem): ReactElement => {
-              return (
+            {item.children.map((child: BookTocItem): ReactElement => (
                 <TableOfContentsItem
                   key={child.id}
                   item={child}
                   level={level + 1}
                   onSelectItem={onSelectItem}
                 />
-              );
-            })}
+              ))}
           </List>
         </Collapse>
       )}

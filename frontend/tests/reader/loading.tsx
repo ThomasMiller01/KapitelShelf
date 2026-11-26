@@ -33,7 +33,7 @@ export const checkReaderLoading = async (): Promise<void> => {
   };
   axios.defaults.adapter = async (config): Promise<AxiosResponse> => {
     requestCount += 1;
-    if (config.url?.includes("/first/file?")) {
+    if (config.url?.endsWith("/first/file")) {
       await firstDownload;
       firstAborted = config.signal?.aborted === true;
     }
